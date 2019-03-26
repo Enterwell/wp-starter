@@ -1,5 +1,7 @@
 <?php
 
+namespace Ew;
+
 /**
  * The core plugin class.
  *

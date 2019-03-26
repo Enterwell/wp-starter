@@ -1,5 +1,7 @@
 <?php
 
+namespace Ew;
+
 /**
  * The public-facing functionality of the plugin.
  *

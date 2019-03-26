@@ -1,5 +1,7 @@
 <?php
 
+namespace Ew;
+
 /**
  * Fired during plugin activation.
  *

@@ -1,5 +1,9 @@
 <?php
 
+use Ew\TestPluginActivator;
+use Ew\TestPluginDeactivator;
+use Ew\TestPlugin;
+
 /**
  * The plugin bootstrap file
  *

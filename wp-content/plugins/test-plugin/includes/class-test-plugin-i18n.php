@@ -1,5 +1,7 @@
 <?php
 
+namespace Ew;
+
 /**
  * Define the internationalization functionality.
  *

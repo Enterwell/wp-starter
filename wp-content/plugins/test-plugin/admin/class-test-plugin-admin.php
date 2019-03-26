@@ -1,5 +1,7 @@
 <?php
 
+namespace Ew;
+
 /**
  * The admin-specific functionality of the plugin.
  *
