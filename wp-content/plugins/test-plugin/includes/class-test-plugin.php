@@ -65,6 +65,7 @@ class TestPlugin {
 		$this->define_admin_hooks();
 		$this->define_public_hooks();
 		$this->initialize_admin_pages();
+		$this->init_controllers();
 	}
 
 	/**
@@ -121,12 +122,19 @@ class TestPlugin {
 
 		// Load classes
 		require_once PLUGIN_DIR . 'classes/class-event.php';
+		require_once PLUGIN_DIR . 'classes/class-location.php';
+
+		// Load controllers
+		require_once PLUGIN_DIR . 'controllers/class-aew-controller.php';
+		require_once PLUGIN_DIR . 'controllers/class-locations-controller.php';
 
 		// Load repositories
 		require_once PLUGIN_DIR . 'repositories/class-events-repository.php';
+		require_once PLUGIN_DIR . 'repositories/class-locations-repository.php';
 
 		// Load services
 		require_once PLUGIN_DIR . 'services/class-events-service.php';
+		require_once PLUGIN_DIR . 'services/class-locations-service.php';
 
 		$this->loader = new TestPluginLoader();
 
@@ -184,6 +192,16 @@ class TestPlugin {
 
 	private function initialize_admin_pages() {
 		Event::load_class( $this->loader );
+	}
+
+	private function init_controllers() {
+		$controllers = [
+			new Locations_Controller()
+		];
+
+		foreach ($controllers as $controller) {
+			$this->loader->add_action('rest_api_init', $controller, 'register_routes');
+		}
 	}
 
 	/**
