@@ -17,7 +17,7 @@ class TestPluginActivator {
 	 * Database version
 	 * Should be updated every time we modify the database
 	 */
-	const DB_VERSION = '0.0.3.';
+	const DB_VERSION = '0.0.4.';
 
 	/**
 	 * Database version option name

@@ -24,7 +24,7 @@ class TestPlugin {
 	 *
 	 * @since    1.0.0
 	 * @access   protected
-	 * @var      TestPluginLoader    $loader    Maintains and registers all hooks for the plugin.
+	 * @var      TestPluginLoader $loader Maintains and registers all hooks for the plugin.
 	 */
 	protected $loader;
 
@@ -33,7 +33,7 @@ class TestPlugin {
 	 *
 	 * @since    1.0.0
 	 * @access   protected
-	 * @var      string    $plugin_name    The string used to uniquely identify this plugin.
+	 * @var      string $plugin_name The string used to uniquely identify this plugin.
 	 */
 	protected $plugin_name;
 
@@ -42,7 +42,7 @@ class TestPlugin {
 	 *
 	 * @since    1.0.0
 	 * @access   protected
-	 * @var      string    $version    The current version of the plugin.
+	 * @var      string $version The current version of the plugin.
 	 */
 	protected $version;
 
@@ -58,13 +58,13 @@ class TestPlugin {
 	public function __construct() {
 
 		$this->plugin_name = 'test-plugin';
-		$this->version = '1.0.0';
+		$this->version     = '1.0.0';
 
 		$this->load_dependencies();
 		$this->set_locale();
 		$this->define_admin_hooks();
 		$this->define_public_hooks();
-
+		$this->initialize_admin_pages();
 	}
 
 	/**
@@ -119,6 +119,15 @@ class TestPlugin {
 		 */
 		require_once PLUGIN_DIR . '/vendor/autoload.php';
 
+		// Load classes
+		require_once PLUGIN_DIR . 'classes/class-event.php';
+
+		// Load repositories
+		require_once PLUGIN_DIR . 'repositories/class-events-repository.php';
+
+		// Load services
+		require_once PLUGIN_DIR . 'services/class-events-service.php';
+
 		$this->loader = new TestPluginLoader();
 
 	}
@@ -171,6 +180,10 @@ class TestPlugin {
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
 
+	}
+
+	private function initialize_admin_pages() {
+		Event::load_class( $this->loader );
 	}
 
 	/**
