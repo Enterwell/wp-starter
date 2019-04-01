@@ -2,6 +2,9 @@
 
 namespace Ew;
 
+/**
+ * Class Event
+ */
 class Event {
 	/**
 	 * Event post type
