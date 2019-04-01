@@ -1,0 +1,22 @@
+{
+  "name": "startertheme",
+  "description": "README",
+  "main": "index.js",
+  "authors": [
+    "vblazenka <vedran.blazenka@enterwell.net>"
+  ],
+  "license": "ISC",
+  "moduleType": [],
+  "homepage": "",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "assets/vendors",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "~2.1.4"
+  }
+}

@@ -1,0 +1,89 @@
+@function parseInt($n) { /* 2 */
+  @return $n / ($n * 0 + 1);
+}
+
+// Rem output with px fallback
+@mixin rem($property, $values) {
+  $px: (); /* 3 */
+  $rem: (); /* 3 */
+
+  @each $value in $values { /* 4 */
+
+    @if $value == 0 or $value == auto { /* 5 */
+      $px: append($px, $value);
+      $rem: append($rem, $value);
+    } @else {
+      $unit: unit($value); /* 6 */
+      $val: parseInt($value); /* 6 */
+
+      @if $unit == "px" { /* 7 */
+        $px: append($px, $value);
+        $rem: append($rem, ($val / 10 + rem));
+      }
+
+      @if $unit == "rem" { /* 7 */
+        $px: append($px, ($val * 10 + px));
+        $rem: append($rem, $value);
+      }
+    }
+  }
+
+  @if $px == $rem { /* 8 */
+    #{$property}: $px; /* 9 */
+  } @else {
+    #{$property}: $px; /* 9 */
+    #{$property}: $rem; /* 9 */
+  }
+}
+
+// Mixin for responsive content, defines min
+// and max width of the screen on which @content styles
+// are applied
+//
+@mixin respondBetween($min: 0, $max: 0) {
+
+  // have both
+  @if $min > 0 and $max > 0 {
+    @media only screen and (min-width: $min) and (max-width: $max) {
+      @content;
+    }
+  }
+    // have min
+  @else if $min > 0 and $max <= 0 {
+    @media only screen and (min-width: $min) {
+      @content;
+    }
+  }
+    // have max
+  @else if $min <= 0 and $max > 0 {
+    @media only screen and (max-width: $max) {
+      @content;
+    }
+  }
+}
+
+// Mixin for removing default browser link styles (and hover, focus and visited states)
+// It replaces all current built-in styles with simple
+//
+@mixin simpleLinkStyles($color, $hoverColor: null, $textDecoration: none, $hoverTextDecoration: none) {
+
+  color: $color;
+  transition: all $transformation-duration-simple $transformation-easing-simple;
+  text-decoration: $textDecoration;
+
+  &:visited {
+    color: $color;
+  }
+
+  &:hover, &:focus {
+    text-decoration: $hoverTextDecoration;
+    cursor: pointer;
+
+    @if ($hoverColor != null) {
+      color: $hoverColor;
+    } @else {
+      color: $color;
+    }
+
+  }
+}

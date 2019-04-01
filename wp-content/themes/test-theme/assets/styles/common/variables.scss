@@ -1,0 +1,34 @@
+/**
+
+This file contains all common variables used in whole project.
+
+*/
+
+// 1rem = 10px
+$font-size-base: 62.5%;
+
+$transformation-duration-simple: 150ms;
+$transformation-easing-simple: ease-in;
+
+// region Navbar
+
+  // Define navbar height
+  $height-navbar: 60px;
+
+  // Define navbar z-index
+  $z-index-navbar: 20;
+
+// endregion
+
+// region Page container
+  // Page container width
+  $max-width-page-container: 1440px;
+
+  // Page container padding
+  $padding-page-container: 20px;
+// endregion
+
+// Region breakpoints
+  $breakpoint-tablet: 768px;
+  $breakpoint-mobile: 500px;
+// endregion

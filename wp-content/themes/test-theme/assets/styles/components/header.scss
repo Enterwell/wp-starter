@@ -1,0 +1,48 @@
+//
+// This file defines styles for header - navigation component and all other
+// components that go in header.php WordPress file
+//
+
+//noinspection SassScssResolvedByNameOnly
+.c-navbar{
+
+  position: fixed;
+  top: 0;
+  width: 100%;
+  height: $height-navbar;
+  z-index: $z-index-navbar;
+  background-color: $color-black;
+  color: $color-white;
+
+  // Navbar content container
+  .c-container{
+    height: 100%;
+    @extend %clearfix;
+
+    // Navbar logo container
+    .navbar-logo-container{
+      @extend %center-vertically;
+      float: left;
+    }
+
+    // Navbar menu items container
+    .navbar-items-container{
+      height: 100%;
+      float: right;
+
+      // Navbar menu item
+      .navbar-item{
+        @extend %center-vertically;
+        @include simpleLinkStyles($color-white, $color-white);
+        padding: 15px;
+      }
+    }
+  }
+}
+
+// Admin bar
+.admin-bar{
+  .c-navbar {
+    margin-top: 32px;
+  }
+}

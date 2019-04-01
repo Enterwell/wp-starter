@@ -1,0 +1,40 @@
+//
+// File for definition of all core common contents such as
+// default project font (for html element), some body styles
+// etc.
+//
+@import "variables";
+
+html {
+  font-size: 10px;
+  font-family: 'Raleway', sans-serif;
+  font-weight: normal;
+}
+
+body{
+  // Define content container class
+  // This class defines main container for page content.
+  .c-container{
+    max-width: $max-width-page-container;
+    width: 100%;
+    margin: auto;
+    padding: 0 $padding-page-container;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+}
+
+// No scroll
+.no-scroll {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+
+  .pgdpr-cookies {
+    display: none;
+  }
+}
