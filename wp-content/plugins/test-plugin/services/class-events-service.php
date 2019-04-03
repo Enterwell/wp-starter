@@ -21,6 +21,8 @@ class Events_Service {
 
 	/**
 	 * Function that is called on event save
+	 * IMPORTANT: NEVER call wp_update_post in function that is called on the save_post hook:
+	 * since wp_update_post includes save_post hook it creates an infinite loop
 	 *
 	 * @param $wp_post
 	 * @param $r
@@ -31,7 +33,7 @@ class Events_Service {
 
 		// If there is no event in db, create new
 		if ( empty( $event ) ) {
-			$event = new Event( $wp_post );
+			$event = new Ew_Event( $wp_post );
 		}
 
 		// Fill the event variables with the values from the request

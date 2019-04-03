@@ -31,12 +31,12 @@ class Locations_Repository extends ARepository {
 		if ( $this->location_row_exists( $location->id ) ) {
 			$result = $this->db->update( $this->table_name, $data['values'], [ 'id' => $location->id ] );
 			if ( $result === false ) {
-				throw new \Exception( 'Event update failed' );
+				throw new \Exception( 'Ew_Event update failed' );
 			}
 		} else {
 			$result = $this->db->insert( $this->table_name, $data['values'] );
 			if ( $result === false ) {
-				throw new \Exception( 'Event insert failed' );
+				throw new \Exception( 'Ew_Event insert failed' );
 			}
 		}
 

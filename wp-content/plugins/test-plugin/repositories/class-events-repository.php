@@ -31,6 +31,9 @@ class Events_Repository extends ARepository {
 
 	/**
 	 * Save event to db
+	 * IMPORTANT: NEVER call wp_update_post in function that is called on the save_post hook:
+	 * since wp_update_post includes save_post hook it creates an infinite loop
+	 *
 	 * @param $event
 	 *
 	 * @throws \Exception
@@ -43,12 +46,12 @@ class Events_Repository extends ARepository {
 		if ( $this->event_row_exists( $event->id ) ) {
 			$result = $this->db->update( $this->table_name, $data['values'], [ 'id' => $event->id ] );
 			if ( $result === false ) {
-				throw new \Exception( 'Event update failed' );
+				throw new \Exception( 'Ew_Event update failed' );
 			}
 		} else {
 			$result = $this->db->insert( $this->table_name, $data['values'] );
 			if ( $result === false ) {
-				throw new \Exception( 'Event insert failed' );
+				throw new \Exception( 'Ew_Event insert failed' );
 			}
 		}
 	}
@@ -73,7 +76,7 @@ class Events_Repository extends ARepository {
 	}
 
 	/**
-	 * Get db data from Event object
+	 * Get db data from Ew_Event object
 	 *
 	 * @param $event
 	 *
@@ -110,10 +113,10 @@ class Events_Repository extends ARepository {
 	 * @param array $table_row
 	 * @param null $object_data
 	 *
-	 * @return Event
+	 * @return Ew_Event
 	 * @throws \Exception
 	 */
 	protected function _construct_object( $table_row, $object_data = null ) {
-		return new Event( $object_data, $table_row );
+		return new Ew_Event( $object_data, $table_row );
 	}
 }

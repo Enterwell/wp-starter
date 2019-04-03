@@ -3,11 +3,11 @@
 namespace Ew;
 
 /**
- * Class Event
+ * Class Ew_Event
  */
-class Event {
+class Ew_Event {
 	/**
-	 * Event post type
+	 * Ew_Event post type
 	 *
 	 * @var string
 	 */
@@ -41,7 +41,7 @@ class Event {
 	public $end_date;
 
 	/**
-	 * Event constructor.
+	 * Ew_Event constructor.
 	 *
 	 * @param $wp_post
 	 * @param array $row (from wp_ew_events table in database)
@@ -70,7 +70,7 @@ class Event {
 	}
 
 	/**
-	 * Load Event class
+	 * Load Ew_Event class
 	 *
 	 * @param $loader
 	 */
@@ -87,7 +87,7 @@ class Event {
 	 * Register event custom post type
 	 */
 	public static function init_post_type() {
-		$labels = array(
+		$labels = [
 			'name'               => _x( 'Events', 'post type general name', PLUGIN_TEXTDOMAIN ),
 			'singular_name'      => _x( 'Event', 'post type singular name', PLUGIN_TEXTDOMAIN ),
 			'menu_name'          => _x( 'Events', 'admin menu', PLUGIN_TEXTDOMAIN ),
@@ -102,10 +102,10 @@ class Event {
 			'parent_item_colon'  => __( 'Parent event:', PLUGIN_TEXTDOMAIN ),
 			'not_found'          => __( 'No event found', PLUGIN_TEXTDOMAIN ),
 			'not_found_in_trash' => __( 'No event found in trash', PLUGIN_TEXTDOMAIN )
-		);
+		];
 
 		// Args
-		$args = array(
+		$args = [
 			'labels'             => $labels,
 			'public'             => true,
 			'publicly_queryable' => true,
@@ -122,7 +122,7 @@ class Event {
 				'title',
 				'editor'
 			)
-		);
+		];
 
 		// Register post type
 		register_post_type( static::$POST_TYPE, $args );
@@ -145,7 +145,9 @@ class Event {
 	}
 
 	/**
-	 * On event save
+	 * On event save function
+	 * IMPORTANT: NEVER call wp_update_post in function that is called on the save_post hook:
+	 * since wp_update_post includes save_post hook it creates an infinite loop
 	 *
 	 * @param $post_id
 	 * @param $post

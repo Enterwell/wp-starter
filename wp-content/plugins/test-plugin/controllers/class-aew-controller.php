@@ -45,13 +45,4 @@ abstract class AEw_Controller extends AController {
 	public function get_version() {
 		return $this->version;
 	}
-
-	/**
-	 * Test if user is logged in
-	 *
-	 * @return bool
-	 */
-	public function test_check() {
-		return $this->is_user_logged_in();
-	}
 }

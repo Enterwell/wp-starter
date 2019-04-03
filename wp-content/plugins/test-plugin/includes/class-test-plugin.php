@@ -64,7 +64,7 @@ class TestPlugin {
 		$this->set_locale();
 		$this->define_admin_hooks();
 		$this->define_public_hooks();
-		$this->initialize_admin_pages();
+		$this->initialize_post_types();
 		$this->init_controllers();
 	}
 
@@ -190,8 +190,8 @@ class TestPlugin {
 
 	}
 
-	private function initialize_admin_pages() {
-		Event::load_class( $this->loader );
+	private function initialize_post_types() {
+		Ew_Event::load_class( $this->loader );
 	}
 
 	private function init_controllers() {
