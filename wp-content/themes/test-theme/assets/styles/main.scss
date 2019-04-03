@@ -59,10 +59,10 @@
 // should be defined in their respective folders inside of pages folder.
 // Those files are imported here.
 
-  // Import common styles for general page
-  @import "pages/common/common-page";
-
   // Import front-page styles
   @import "pages/front-page/front-page";
+
+  // Import single page styles
+  @import "pages/single-page/single-page";
 
 // endregion

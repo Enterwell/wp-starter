@@ -1,0 +1,7 @@
+.single-page {
+  .c-container {
+    p a {
+      @include simpleLinkStyles($color-black, $color-red, underline, underline);
+    }
+  }
+}

@@ -3,12 +3,15 @@
  * Page template for showing front page of the site.
  */
 
-// Creates view model
+// Create view model factory
+$view_model_factory = new \Ew\FrontPageViewModelFactory();
+
+// Create view model
 $view_model = [
 	'jsRoute'   => 'frontPage',
 	'bodyClass' => 'front-page',
-	'vm'        => new \Ew\BaseViewModel()
+	'vm'        => $view_model_factory->build()
 ];
 
-// Render views
+// Render view
 $ew_twig->render( 'pages/front-page/front-page.twig', $view_model );

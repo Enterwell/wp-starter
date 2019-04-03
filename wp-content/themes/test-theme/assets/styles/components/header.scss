@@ -16,6 +16,7 @@
 
   // Navbar content container
   .c-container{
+    margin-top: 0;
     height: 100%;
     @extend %clearfix;
 
@@ -33,7 +34,7 @@
       // Navbar menu item
       .navbar-item{
         @extend %center-vertically;
-        @include simpleLinkStyles($color-white, $color-white);
+        @include simpleLinkStyles($color-white, $color-red);
         padding: 15px;
       }
     }

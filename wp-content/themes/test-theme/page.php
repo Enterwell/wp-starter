@@ -1,18 +1,19 @@
 <?php
 /**
- * The template for displaying all single posts and attachments
+ * The template for displaying all pages
  */
 
-	// Get the post
-	$post = get_post();
+// Get the post
+$post = get_post();
 
-	// Create view model
-	$view_model = [
-		'bodyClass' => 'single-page',
-		'post' => $post,
-		'content' => $post->post_content,
-		'vm' => new \Ew\BaseViewModel()
-	];
+// Create view model factory
+$view_model_factory = new \Ew\SinglePageViewModelFactory();
 
-	// Render twig
-	$ew_twig->render('pages/single-page/single-page.twig', $view_model);
+// Create view model
+$view_model = [
+	'bodyClass' => 'single-page',
+	'vm'        => $view_model_factory->build( $post )
+];
+
+// Render view
+$ew_twig->render( 'pages/single-page/single-page.twig', $view_model );

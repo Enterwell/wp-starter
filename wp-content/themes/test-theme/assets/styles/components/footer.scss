@@ -2,5 +2,18 @@
 ////
 
 footer {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  height: $height-footer;
+  background-color: $color-black;
+  color: $color-white;
 
+  .c-container {
+    text-align: center;
+  }
+
+  a {
+    @include simpleLinkStyles($color-white, $color-red);
+  }
 }

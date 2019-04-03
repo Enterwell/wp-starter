@@ -5,8 +5,13 @@
  * @package WordPress
  * @subpackage Starter_Theme
  */
-?>
-<?php get_header(); ?>
 
+// Create the view model
+$view_model = [
+	'jsRoute'   => '404Page',
+	'bodyClass' => '404-page',
+	'vm'        => new \Ew\BaseViewModel()
+];
 
-<?php get_footer(); ?>
+// Render view
+$ew_twig->render( 'pages/404-page/404-page.twig', $view_model );

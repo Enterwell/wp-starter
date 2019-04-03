@@ -6,5 +6,7 @@
 %content{
 
   // Place post content styles here
-
+  a {
+    @include simpleLinkStyles($color-white, $color-red, underline);
+  }
 }

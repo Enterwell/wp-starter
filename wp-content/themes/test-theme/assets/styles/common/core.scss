@@ -14,27 +14,14 @@ html {
 body{
   // Define content container class
   // This class defines main container for page content.
-  .c-container{
+  .c-container {
+    position: relative;
     max-width: $max-width-page-container;
     width: 100%;
-    margin: auto;
+    margin: 80px auto 0;
     padding: 0 $padding-page-container;
     box-sizing: border-box;
     overflow: hidden;
-  }
-
-}
-
-// No scroll
-.no-scroll {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100vh;
-  overflow: hidden;
-
-  .pgdpr-cookies {
-    display: none;
+    font-size: 1.5rem;
   }
 }

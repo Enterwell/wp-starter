@@ -4,6 +4,7 @@
     {% include 'components/common/navbar.twig' %}
 
     <div class="c-container">
-        <h1>{{ vm.title }}</h1>
+        <h1>{{ vm.post_title }}</h1>
+        <p>{{ vm.post_content | raw }}</p>
     </div>
 {% endblock %}
