@@ -24,6 +24,12 @@ import Router from './utils/router';
       // Common scripts to be initialized on all pages
       init: () => {
         console.log('common init fired!');
+
+        // Set the main content height
+        let windowHeight = $(window).height();
+        let footerHeight = $('footer').outerHeight();
+        let navbarHeight = $('.c-navbar').outerHeight();
+        $('main').height(windowHeight - (footerHeight + navbarHeight));
       },
       // Common scripts to be fired after all init scripts executed
       finalize: () => {

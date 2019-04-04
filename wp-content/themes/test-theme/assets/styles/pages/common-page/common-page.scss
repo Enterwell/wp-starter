@@ -1,3 +1,7 @@
+// All styles common for all pages
+//
+
 main {
+  overflow: hidden;
   @extend %content;
 }
