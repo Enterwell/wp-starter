@@ -15,11 +15,14 @@ class SinglePostViewModelFactory {
 	 * @return SinglePostViewModel
 	 */
 	public function build( $wp_post ) {
+		// Create view model
 		$vm = new SinglePostViewModel();
 
-		$vm->post_title   = $wp_post->post_title;
-		$vm->post_content = $wp_post->post_content;
+		// Set variables from $wp_post
+		$vm->postTitle   = $wp_post->post_title;
+		$vm->postContent = apply_filters( 'the_content', $wp_post->post_content );
 
+		// Return view model
 		return $vm;
 	}
 }

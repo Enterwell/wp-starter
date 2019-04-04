@@ -12,7 +12,7 @@ class ApiService {
    * @param apiData
    */
   constructor(apiData = {}) {
-    this.apiUrl = apiData.apiUrl || '/wp-json/wp-podravka-juhe/v1/';
+    this.apiUrl = apiData.apiUrl || '/wp-json/wp-ew/v1/';
     this.apiNonce = apiData.apiNonce || '';
   }
 

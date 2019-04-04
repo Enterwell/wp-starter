@@ -3,10 +3,10 @@
 namespace Ew;
 
 /**
- * Class FrontPageViewModel
+ * Class HomePageViewModel
  * @package Ew
  */
-class FrontPageViewModel extends BaseViewModel {
+class HomePageViewModel extends BaseViewModel {
 	/**
 	 * @var string
 	 */

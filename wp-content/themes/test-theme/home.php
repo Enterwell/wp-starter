@@ -1,17 +1,17 @@
 <?php
 /**
- * Page template for showing front page of the site.
+ * Page template for showing home page of the site.
  */
 
 // Create view model factory
-$view_model_factory = new \Ew\FrontPageViewModelFactory();
+$view_model_factory = new \Ew\HomePageViewModelFactory();
 
 // Create view model
 $view_model = [
-	'jsRoute'   => 'frontPage',
-	'bodyClass' => 'front-page',
+	'jsRoute'   => 'homePage',
+	'bodyClass' => 'home-page',
 	'vm'        => $view_model_factory->build()
 ];
 
 // Render view
-$ew_twig->render( 'pages/front-page/front-page.twig', $view_model );
+$ew_twig->render( 'pages/home-page/home-page.twig', $view_model );

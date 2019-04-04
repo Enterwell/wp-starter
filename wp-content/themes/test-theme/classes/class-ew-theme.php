@@ -70,7 +70,7 @@ class Ew_Theme {
 			wp_enqueue_style( 'ew_styles_main', THEME_URL . "/assets/dist/main.css", [], false, false );
 
 			// Include scripts
-			wp_enqueue_script( 'ew_scripts_main', "//192.168.0.76:10001/bundle.min.js", [], false, true );
+			wp_enqueue_script( 'ew_scripts_main', "//192.168.0.39:10000/bundle.min.js", [], false, true );
 
 			return;
 		}

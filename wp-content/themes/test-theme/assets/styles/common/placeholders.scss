@@ -5,19 +5,9 @@
 // Clearfix is used to clear float
 // inside of the element
 %clearfix{
-
   &:before, &:after{
     display: block;
     content: ' ';
     clear: both;
   }
-}
-
-// Centers element vertically inside of
-// parent element that has specified height.
-%center-vertically{
-  position: relative;
-  display: inline-block;
-  top: 50%;
-  transform: translateY(-50%);
 }

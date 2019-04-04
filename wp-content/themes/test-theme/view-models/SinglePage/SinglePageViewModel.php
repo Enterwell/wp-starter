@@ -10,10 +10,10 @@ class SinglePageViewModel extends BaseViewModel {
 	/**
 	 * @var string
 	 */
-	public $page_title;
+	public $pageTitle;
 
 	/**
 	 * @var string
 	 */
-	public $page_content;
+	public $pageContent;
 }

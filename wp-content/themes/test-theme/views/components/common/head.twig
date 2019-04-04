@@ -1,4 +1,4 @@
-{% set faviconPrefix = vm.themeUrl ~ '/assets/images/favicon' %}
+{% set faviconPrefix = get_theme_url() ~ '/assets/images/favicon' %}
 
 <head>
 
@@ -16,7 +16,6 @@
     <link rel="manifest" href="{{ faviconPrefix }}/site.webmanifest">
     <meta name="msapplication-TileColor" content=“#da532c”>
     <meta name="theme-color" content="#ffffff">
-
 
     {{ function('wp_head') }}
 

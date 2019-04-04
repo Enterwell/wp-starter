@@ -27,17 +27,22 @@ class SearchPageViewModelFactory {
 	 * @return SearchPageViewModel
 	 */
 	public function build( $wp_query ) {
+		// Create view model
 		$vm = new SearchPageViewModel();
 
+		// Build the archive view model
 		$archiveVm = $this->archiveViewModelFactory->build( $wp_query );
 
+		// Set variables from $archiveVm
+		$vm->posts        = $archiveVm->posts;
 		// Paging variables
 		$vm->currentPage  = $archiveVm->currentPage;
 		$vm->pagesTotal   = $archiveVm->pagesTotal;
 		$vm->postsPerPage = $archiveVm->postsPerPage;
+		// Set searchQuery from $_GET
 		$vm->searchQuery  = ! empty( $_GET['s'] ) ? $_GET['s'] : '';
-		$vm->posts        = $archiveVm->posts;
 
+		// Return view model
 		return $vm;
 	}
 }

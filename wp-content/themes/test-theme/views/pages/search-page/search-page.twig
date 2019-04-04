@@ -1,22 +1,24 @@
 {% extends 'base.twig' %}
 
 {% block content %}
-    {% include 'components/common/navbar.twig' %}
-
     <div class="c-container">
-        <h1>Search page</h1>
+        <main>
+            <h1>Search page</h1>
 
-        Search query: {{ vm.searchQuery }}<br/>
+            Search query: {{ vm.searchQuery }}<br/>
 
-        Current page: {{ vm.currentPage }}
-        Pages total: {{ vm.pagesTotal }}
-        Posts per page: {{ vm.postsPerPage }}
+            Current page: {{ vm.currentPage }}
+            Pages total: {{ vm.pagesTotal }}
+            Posts per page: {{ vm.postsPerPage }}
 
-        {% for post in vm.posts %}
-            <div class="post">
-                <h2><a href="{{ post.link }}">{{ post.post_title }}</a></h2>
-                <p>{{ post.post_excerpt | raw }}</p>
-            </div>
-        {% endfor %}
+            {% for post in vm.posts %}
+                <div class="post">
+                    <h2><a href="{{ post.link }}">{{ post.post_title }}</a></h2>
+                    <p>{{ post.post_excerpt | raw }}</p>
+                </div>
+            {% endfor %}
+        </main>
     </div>
+
+    {% include 'components/common/navbar.twig' %}
 {% endblock %}

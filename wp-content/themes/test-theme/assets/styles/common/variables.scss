@@ -1,41 +1,15 @@
-/**
+//
+// This file contains all common variables used in whole project.
+//
 
-This file contains all common variables used in whole project.
+// Page container
+$max-width-page-container: 1440px;
+$padding-page-container: 20px;
 
-*/
+// Breakpoints
+$breakpoint-tablet: 768px;
+$breakpoint-mobile: 500px;
 
-// 1rem = 10px
-$font-size-base: 62.5%;
-
-$transformation-duration-simple: 150ms;
-$transformation-easing-simple: ease-in;
-
-// region Navbar
-
-  // Define navbar height
-  $height-navbar: 60px;
-
-  // Define navbar z-index
-  $z-index-navbar: 20;
-
-// endregion
-
-// region Footer
-
-  // Define footer height
-  $height-footer: 250px;
-
-// endregion
-
-// region Page container
-  // Page container width
-  $max-width-page-container: 1440px;
-
-  // Page container padding
-  $padding-page-container: 20px;
-// endregion
-
-// Region breakpoints
-  $breakpoint-tablet: 768px;
-  $breakpoint-mobile: 500px;
-// endregion
+// Navbars
+$height-navbar: 60px;
+$height-wp-admin-bar: 32px;

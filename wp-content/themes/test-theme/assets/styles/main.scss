@@ -4,65 +4,55 @@
 // components used in project.
 //
 
-
-// region COMMON FILES
-//
 // All common files (colors, variables etc.) are included
 // in this section.
 
-  // Import styles to normalize default browser styles across
-  // different browsers
-  @import "common/normalize";
+// Import styles to normalize default browser styles across different browsers
+@import "common/normalize";
 
-  // Import all variables for all styles
-  @import "common/variables";
+// Import all variables for all styles
+@import "common/variables";
 
-  // Import all colors for all styles
-  @import "common/colors";
+// Import all colors for all styles
+@import "common/colors";
 
-  // Import placeholder selectors
-  @import "common/placeholders";
+// Import placeholder selectors
+@import "common/placeholders";
 
-  // Import mixins
-  @import "common/mixins";
+// Import mixins
+@import "common/mixins";
 
-  // Import core styles
-  @import "common/core";
+// Import core styles
+@import "common/core";
 
-  // Import post content styles
-  @import "common/post-content";
+// Import post content styles
+@import "common/post-content";
 
-  // Import button styles
-  @import "common/buttons";
+// Import button styles
+@import "common/buttons";
 
-  // Import fonts
-  @import "../fonts/fonts";
+// Import fonts
+@import "../fonts/fonts";
 
-// endregion
-
-// region COMPONENTS
-//
 // If same styles are applied to elements across different pages
 // of the project those elements should be labeled as components
 // and their styles should be defined in a file in components folder.
 
-  // Import header styles
-  @import "components/header";
+// Import header styles
+@import "components/header";
 
-  // Import footer styles
-  @import "components/footer";
-// endregion
+// Import footer styles
+@import "components/footer";
 
-// region PAGES
-//
-// All pages (front-page, home-page, blog index page, archive page...) styles
+// Import container styles
+@import "components/container";
+
+// All pages (home-page, blog index page, archive page...) styles
 // should be defined in their respective folders inside of pages folder.
 // Those files are imported here.
 
-  // Import front-page styles
-  @import "pages/front-page/front-page";
+// Import styles common to all pages
+@import "pages/common-page/common-page";
 
-  // Import single page styles
-  @import "pages/single-page/single-page";
-
-// endregion
+// Import home page styles
+@import "pages/home-page/home-page";

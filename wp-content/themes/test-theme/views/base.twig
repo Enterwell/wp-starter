@@ -6,18 +6,11 @@
 <html class="ie ie8" {{ function('language_attributes') }}>
 <![endif]-->
 <!--[if !(IE 7) & !(IE 8)]><!-->
-<html {{ function('language_attributes') }}>
+<html {{ function('language_attributes') }} class="{{ is_admin_logged_in() ? 'admin-logged-in' : '' }}">
 
     {% include 'components/common/head.twig' %}
 
     <body data-route="{{ jsRoute|default('') }}" class="{{ bodyClass|default('') }} ">
-        {#{% if PGdprIsCookieAccepted('marketing-cookies') == true %}#}
-            {# Google tag manager #}
-            {#<!-- Google Tag Manager (noscript) -->#}
-            {#<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TC47ZRT"#}
-                              {#height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>#}
-            {#<!-- End Google Tag Manager (noscript) -->#}
-        {#{% endif %}#}
         {% block content %} {% endblock %}
 
         {% block footer %}

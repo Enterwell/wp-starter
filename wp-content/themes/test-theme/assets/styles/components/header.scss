@@ -5,12 +5,10 @@
 
 //noinspection SassScssResolvedByNameOnly
 .c-navbar{
-
   position: fixed;
   top: 0;
   width: 100%;
   height: $height-navbar;
-  z-index: $z-index-navbar;
   background-color: $color-black;
   color: $color-white;
 
@@ -22,8 +20,11 @@
 
     // Navbar logo container
     .navbar-logo-container{
-      @extend %center-vertically;
       float: left;
+      position: relative;
+      display: inline-block;
+      top: 50%;
+      transform: translateY(-50%);
     }
 
     // Navbar menu items container
@@ -33,11 +34,18 @@
 
       // Navbar menu item
       .navbar-item{
-        @extend %center-vertically;
-        @include simpleLinkStyles($color-white, $color-red);
+        position: relative;
+        display: inline-block;
+        top: 50%;
+        transform: translateY(-50%);
         padding: 15px;
+        @include simpleLinkStyles($color-white, $color-red);
       }
     }
+  }
+
+  &.admin-logged-in {
+    top: 32px;
   }
 }
 

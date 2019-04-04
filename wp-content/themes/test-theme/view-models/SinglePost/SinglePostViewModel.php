@@ -10,10 +10,10 @@ class SinglePostViewModel extends BaseViewModel {
 	/**
 	 * @var string
 	 */
-	public $post_title;
+	public $postTitle;
 
 	/**
 	 * @var string
 	 */
-	public $post_content;
+	public $postContent;
 }

@@ -1,17 +1,19 @@
-// Include jquery as global script
-require('exports-loader?!gsap');
-require('exports-loader?!./vendors/jquery.gsap.min');
-require('exports-loader?!slick-carousel');
+// Reguires via exports-loader
+// require('exports-loader?!gsap');
+// require('exports-loader?!./vendors/jquery.gsap.min');
+// require('exports-loader?!slick-carousel');
 
-import 'animation.gsap';
-import 'debug.addIndicators';
-import FrontPage from './pages/front-page/front-page';
+// Imports via webpack aliases
+// import 'animation.gsap';
+// import 'debug.addIndicators';
+
+// Import js for pages
+import HomePage from './pages/home-page/home-page';
 
 // Include router
 import Router from './utils/router';
 
 (function ($) {
-  'use strict';
 
   // Create new router
   const router = new Router();
@@ -19,22 +21,19 @@ import Router from './utils/router';
   // Define all theme routes
   const themeRoutes = {
     common: {
+      // Common scripts to be initialized on all pages
       init: () => {
-
-        // Common scripts to be initialized on all pages
         console.log('common init fired!');
       },
-
+      // Common scripts to be fired after all init scripts executed
       finalize: () => {
-
-        // Common scripts to be fired after all init scripts executed
         console.log('common finalize fired!');
       },
     },
 
-    frontPage: {
+    homePage: {
       init: () => {
-        FrontPage.init();
+        HomePage.init();
       },
     },
   };
@@ -44,10 +43,7 @@ import Router from './utils/router';
 
   // Apply router
   $(document).ready(() => {
-
     // Load all router events
     router.loadEvents();
-
   });
-
 })($);

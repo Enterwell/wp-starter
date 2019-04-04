@@ -6,22 +6,16 @@
 @import "variables";
 
 html {
+  margin-top: $height-navbar;
   font-size: 10px;
   font-family: 'Raleway', sans-serif;
   font-weight: normal;
+
+  &.admin-logged-in {
+    margin-top: $height-navbar + $height-wp-admin-bar !important;
+  }
 }
 
-body{
-  // Define content container class
-  // This class defines main container for page content.
-  .c-container {
-    position: relative;
-    max-width: $max-width-page-container;
-    width: 100%;
-    margin: 80px auto 0;
-    padding: 0 $padding-page-container;
-    box-sizing: border-box;
-    overflow: hidden;
-    font-size: 1.5rem;
-  }
+body {
+  font-size: 1.6rem;
 }

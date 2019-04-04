@@ -14,6 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 require_once( THEME_DIR . '/classes/twig-extensions/class-ew-twig-extension-svg.php' );
 require_once( THEME_DIR . '/classes/twig-extensions/class-ew-twig-extension-image.php' );
 require_once( THEME_DIR . '/classes/twig-extensions/class-ew-twig-extension-menu.php' );
+require_once( THEME_DIR . '/classes/twig-extensions/class-ew-twig-extension-utils.php' );
 
 /**
  * Class Ew_Twig
@@ -92,6 +93,8 @@ class Ew_Twig {
 		$this->twig->addExtension( new Ew_Twig_Extension_Svg() );
 		// Add image extension
 		$this->twig->addExtension( new Ew_Twig_Extension_Image() );
+		// Add utils extension
+		$this->twig->addExtension( new Ew_Twig_Extension_Utils() );
 	}
 
 	/**

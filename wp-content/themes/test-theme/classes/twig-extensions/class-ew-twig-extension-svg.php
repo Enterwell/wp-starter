@@ -33,7 +33,7 @@ class Ew_Twig_Extension_Svg extends Twig_Extension {
 	public function load_svg( $icon_name ) {
 
 		// Get svg file path
-		$default_svg_path = THEME_DIR . '/assets/images/icons/';
+		$default_svg_path = THEME_DIR . '/assets/images/';
 		$svg_path         = apply_filters( 'ew_svg_path', $default_svg_path );
 
 		// Check if icon has svg extension
