@@ -71,12 +71,11 @@ const ScssModulesLoader = {
  * Configuration for Webpack development server.
  */
 const WebpackDevServerConfig = {
-  host: WebAppServerSettings.host,
+  // Set up dev server host
+  host: WebpackDevServerSettings.host,
 
-  // We use webpack dev server as proxy for our app server.
-  proxy: {
-    '*': WebAppServerSettings.address,
-  },
+  // Set up dev server port
+  port: WebpackDevServerSettings.port,
 
   // Add header to allow CORS requests to webpack dev server
   // - since we use it as proxy requests will be coming from
@@ -84,9 +83,6 @@ const WebpackDevServerConfig = {
   headers: {
     'Access-Control-Allow-Origin': '*',
   },
-
-  // Set up dev server port
-  port: WebpackDevServerSettings.port,
 };
 
 // Export webpack config

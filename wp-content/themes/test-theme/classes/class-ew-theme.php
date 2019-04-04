@@ -69,8 +69,12 @@ class Ew_Theme {
 			// Include styles
 			wp_enqueue_style( 'ew_styles_main', THEME_URL . "/assets/dist/main.css", [], false, false );
 
+			// Retrieves the servers ip
+			$server_host = gethostname();
+			$server_ip   = gethostbyname( $server_host );
+
 			// Include scripts
-			wp_enqueue_script( 'ew_scripts_main', "//192.168.0.39:10000/bundle.min.js", [], false, true );
+			wp_enqueue_script( 'ew_scripts_main', "//" . $server_ip . ":" . $theme_config['webpackPort'] . "/bundle.min.js", [], false, true );
 
 			return;
 		}
