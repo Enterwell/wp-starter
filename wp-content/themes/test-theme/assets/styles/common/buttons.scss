@@ -1,1 +1,18 @@
 // File for defining common button styles
+
+.example-btn {
+  background-color: $color-black;
+  color: $color-white;
+  border: none;
+  outline: none;
+  padding: 10px 20px;
+  transition: all 150ms ease-out;
+
+  &:hover {
+    background-color: lighten($color-black, 20%);
+  }
+
+  &:disabled {
+    background-color: lighten($color-black, 80%);
+  }
+}

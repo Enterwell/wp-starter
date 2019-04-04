@@ -3,5 +3,17 @@
 //
 
 .home-page {
+  main {
+    text-align: center;
 
+    h1 {
+      &.red {
+        color: $color-red;
+      }
+    }
+
+    button {
+      margin-top: 30px;
+    }
+  }
 }

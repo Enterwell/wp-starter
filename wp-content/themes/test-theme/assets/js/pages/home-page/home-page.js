@@ -1,22 +1,32 @@
 function HomePage($) {
   // Constants declaration
-  const EXAMPLE_CONST = 'example';
+  const COLOR_RED_CLASS = 'red';
 
   // Elements declaration
-  let $homePageTitle;
+  let $title;
+  let $exampleBtn;
 
   /**
    * Elements initialization
    */
   function initElements() {
-    $homePageTitle = 'js-home-page-title';
+    $title = $('.js-home-title');
+    $exampleBtn = $('.js-home-btn');
   }
 
   /**
    * Registers all the needed events for the page
    */
   function initEvents() {
+    $exampleBtn.on('click', changeTitleColor);
+  }
 
+  /**
+   * Change title color
+   */
+  function changeTitleColor() {
+    $title.addClass(COLOR_RED_CLASS);
+    $exampleBtn.prop('disabled', true);
   }
 
   function init() {
