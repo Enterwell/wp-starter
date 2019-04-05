@@ -191,7 +191,7 @@ class TestPlugin {
 	}
 
 	private function initialize_post_types() {
-		Ew_Event::load_class( $this->loader );
+		Event::load_class( $this->loader );
 	}
 
 	private function init_controllers() {

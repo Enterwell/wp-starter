@@ -33,7 +33,7 @@ class Events_Service {
 
 		// If there is no event in db, create new
 		if ( empty( $event ) ) {
-			$event = new Ew_Event( $wp_post );
+			$event = new Event( $wp_post );
 		}
 
 		// Fill the event variables with the values from the request
