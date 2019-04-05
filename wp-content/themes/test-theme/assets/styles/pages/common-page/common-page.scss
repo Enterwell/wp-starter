@@ -1,7 +1,10 @@
 // All styles common for all pages
 //
 
+@import "../../common/variables";
+
+$footer-paddings: calc(80px + 110px);
+
 main {
-  overflow: hidden;
-  @extend %content;
+  min-height: calc(100vh - #{$height-navbar} - #{$footer-paddings});
 }

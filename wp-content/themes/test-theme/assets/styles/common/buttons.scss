@@ -1,15 +1,19 @@
 // File for defining common button styles
 
-.example-btn {
+.c-button {
   background-color: $color-black;
   color: $color-white;
   border: none;
   outline: none;
   padding: 10px 20px;
-  transition: all 150ms ease-out;
+  transition: background-color 150ms ease-out, transform 150ms ease-out;
 
-  &:hover {
+  &:hover, &:focus {
     background-color: lighten($color-black, 20%);
+  }
+
+  &:active {
+    transform: translateY(1px);
   }
 
   &:disabled {

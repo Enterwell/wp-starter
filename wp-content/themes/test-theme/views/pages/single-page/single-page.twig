@@ -1,12 +1,11 @@
 {% extends 'base.twig' %}
 
 {% block content %}
-    <div class="c-container">
-        <main>
+    <main>
+        <div class="c-container">
             <h1>{{ vm.pageTitle }}</h1>
-            {{ vm.pageContent | raw }}
-        </main>
-    </div>
-
+            <div class="single-page__content">{{ vm.pageContent | raw }}</div>
+        </div>
+    </main>
     {% include 'components/common/navbar.twig' %}
 {% endblock %}

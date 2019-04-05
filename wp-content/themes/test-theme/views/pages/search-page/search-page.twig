@@ -1,8 +1,8 @@
 {% extends 'base.twig' %}
 
 {% block content %}
-    <div class="c-container">
-        <main>
+    <main>
+        <div class="c-container">
             <h1>Search page</h1>
 
             Search query: {{ vm.searchQuery }}<br/>
@@ -17,8 +17,7 @@
                     <p>{{ post.post_excerpt | raw }}</p>
                 </div>
             {% endfor %}
-        </main>
-    </div>
-
+        </div>
+    </main>
     {% include 'components/common/navbar.twig' %}
 {% endblock %}
