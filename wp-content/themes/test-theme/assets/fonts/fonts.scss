@@ -1,0 +1,7 @@
+$fontsRoute: '../fonts/';
+
+// Raleway
+@font-face {
+  font-family: 'Raleway';
+  src: url($fontsRoute + 'Raleway/Raleway-Regular.ttf')  format('truetype');
+}

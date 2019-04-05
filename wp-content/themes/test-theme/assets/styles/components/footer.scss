@@ -1,0 +1,17 @@
+//// All footer styles are defined here.
+////
+
+footer {
+  width: 100%;
+  padding: 80px 0 110px;
+  background-color: $color-black;
+  color: $color-white;
+
+  .c-container {
+    text-align: center;
+  }
+
+  a {
+    @include simpleLinkStyles($color-white, $color-red);
+  }
+}

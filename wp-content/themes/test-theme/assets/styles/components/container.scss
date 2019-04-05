@@ -1,0 +1,13 @@
+// Define content container class
+// This class defines main container for page content.
+
+.c-container {
+  position: relative;
+  max-width: $max-width-page-container;
+  width: 100%;
+  margin: auto;
+  padding: 0 $padding-page-container;
+  box-sizing: border-box;
+  overflow: hidden;
+  font-size: 1.5rem;
+}
