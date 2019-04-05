@@ -3,11 +3,11 @@
 namespace Ew;
 
 /**
- * Class Ew_Event
+ * Class Event
  */
-class Ew_Event {
+class Event {
 	/**
-	 * Ew_Event post type
+	 * Event post type
 	 *
 	 * @var string
 	 */
@@ -41,7 +41,7 @@ class Ew_Event {
 	public $end_date;
 
 	/**
-	 * Ew_Event constructor.
+	 * Event constructor.
 	 *
 	 * @param $wp_post
 	 * @param array $row (from wp_ew_events table in database)
@@ -70,7 +70,7 @@ class Ew_Event {
 	}
 
 	/**
-	 * Load Ew_Event class
+	 * Load Event class
 	 *
 	 * @param $loader
 	 */

@@ -1,6 +1,6 @@
 <?php
 /**
- * @var \Ew\Ew_Event $event
+ * @var \Ew\Event $event
  */
 ?>
 
