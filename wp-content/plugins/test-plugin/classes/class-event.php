@@ -11,7 +11,7 @@ class Ew_Event {
 	 *
 	 * @var string
 	 */
-	public static $POST_TYPE = 'event';
+	public static $POST_TYPE = 'ew-event';
 
 	/**
 	 * Post type label
