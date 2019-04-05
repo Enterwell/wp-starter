@@ -1,0 +1,79 @@
+//
+// This file defines post content styles.
+// All styles for single post content (h1 to p elements) needs to be defined here.
+//
+
+%content{
+  font-family: 'Raleway', sans-serif;
+
+  h1,h2,h3,h4,h5,h6 {
+    font-weight: 600;
+    line-height: 1.2;
+    font-family: 'Raleway', sans-serif;
+  }
+
+  h1 {
+    font-size: 4.5em;
+    margin-top: 0.53em;
+    margin-bottom: 0.53em;
+    text-align: center;
+  }
+
+  h2 {
+    font-size: 3.33em;
+    margin-top: 0.4em;
+    margin-bottom: 0.4em;
+  }
+
+  h3 {
+    font-size: 2.25em;
+    margin-top: 0.4em;
+    margin-bottom: 0.4em;
+  }
+
+  h4 {
+    font-size: 1.5em;
+    margin-top: 0.67em;
+    margin-bottom: 0.67em;
+  }
+
+  h5 {
+    font-size: 1.06em;
+    margin-top: 0.94em;
+    margin-bottom: 0.94em;
+  }
+
+  h6 {
+    font-size: 1em;
+    margin-top: 1em;
+    margin-bottom: 1em;
+  }
+
+  p {
+    margin-top: 1em;
+    margin-bottom: 1.5em;
+  }
+
+  strong {
+    font-weight: 700;
+  }
+
+  em {
+    font-style: italic;
+  }
+
+  a {
+    @include simpleLinkStyles($color-black, $color-red, underline, underline);
+  }
+
+  ul,ol {
+    margin-top: 1em;
+    margin-bottom: 1.5em;
+    padding-left: 1.1em;
+  }
+
+  li {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+  }
+}

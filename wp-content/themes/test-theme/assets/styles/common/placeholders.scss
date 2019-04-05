@@ -1,0 +1,13 @@
+// This file contains common placeholder selectors
+// for all styles in this project.
+//
+
+// Clearfix is used to clear float
+// inside of the element
+%clearfix{
+  &:before, &:after{
+    display: block;
+    content: ' ';
+    clear: both;
+  }
+}

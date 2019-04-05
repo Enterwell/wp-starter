@@ -1,0 +1,21 @@
+//
+// File for definition of all core common contents such as
+// default project font (for html element), some body styles
+// etc.
+//
+@import "variables";
+
+html {
+  margin-top: $height-navbar;
+  font-size: 10px;
+  font-family: 'Raleway', sans-serif;
+  font-weight: normal;
+
+  &.admin-logged-in {
+    margin-top: $height-navbar + $height-wp-admin-bar !important;
+  }
+}
+
+body {
+  font-size: 1.6rem;
+}
