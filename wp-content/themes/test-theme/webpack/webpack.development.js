@@ -137,5 +137,8 @@ module.exports = {
     new webpack.NoEmitOnErrorsPlugin(),
     new webpack.NamedModulesPlugin(),
     plugins.InitProvidePlugin()
-  ]
+  ],
+
+  // Stats
+  stats: 'minimal'
 };
