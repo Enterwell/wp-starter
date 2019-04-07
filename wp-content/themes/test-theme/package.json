@@ -78,14 +78,11 @@
   },
   "dependencies": {
     "@enterwell/enum-helper": "^1.0.0",
-    "animejs": "^2.1.0",
     "axios": "^0.18.0",
     "classnames": "^2.2.5",
     "debounce": "^1.0.2",
     "exports-loader": "^0.7.0",
     "gsap": "1.20.4",
-    "gyronorm": "^2.0.6",
-    "masonry-layout": "^4.2.0",
     "mobx": "^3.3.0",
     "mobx-react": "^4.3.3",
     "moment": "^2.18.1",
@@ -93,10 +90,7 @@
     "prop-types": "^15.6.0",
     "react": "^16.0.0",
     "react-dom": "^16.0.0",
-    "react-transition-group": "^2.2.0",
     "scrollmagic": "^2.0.5",
-    "shortid": "^2.2.8",
-    "slick-carousel": "^1.7.1",
-    "superagent": "^3.6.2"
+    "slick-carousel": "^1.7.1"
   }
 }
