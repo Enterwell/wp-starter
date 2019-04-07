@@ -37,7 +37,7 @@ function HomePage($) {
   // Functions that are explicitly returned can be called from the rest of the application
   // Specifically, we'll be able to call init function via HomePage.init() outside this file
   return {
-    init: init,
+    init
   };
 }
 
