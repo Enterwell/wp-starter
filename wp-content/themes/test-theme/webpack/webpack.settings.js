@@ -19,7 +19,7 @@ const PATHS = {
 const WebpackDevServerSettings = {
   port: ewThemeConfig.webpackPort,
   host: ewThemeConfig.webpackHost,
-  address: 'http://192.133.23.11:'+ewThemeConfig.webpackPort+'/',
+  address: 'http://'+ewThemeConfig.webpackHost+':'+ewThemeConfig.webpackPort+'/',
 };
 
 /**
