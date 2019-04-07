@@ -6,7 +6,6 @@ const webpack = require('webpack');
 const settings = require('./webpack.settings');
 
 const PATHS = settings.PATHS;
-const WebAppServerSettings = settings.WebAppServerSettings;
 const WebpackDevServerSettings = settings.WebpackDevServerSettings;
 
 // Include plugins
@@ -109,6 +108,7 @@ module.exports = {
     // Output file name as [entry-point-name].min.js
     filename: '[name].min.js',
 
+    // Public path for output
     publicPath: 'http://localhost:10001/'
   },
 
