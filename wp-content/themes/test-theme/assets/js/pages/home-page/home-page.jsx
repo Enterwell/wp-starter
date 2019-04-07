@@ -1,3 +1,7 @@
+import React from 'react';
+import ReactHelper from '../../react/helpers/ReactHelper';
+import Home from '../../react/views/Home/Home';
+
 function HomePage($) {
   // Constants declaration
   const COLOR_RED_CLASS = 'red';
@@ -5,6 +9,7 @@ function HomePage($) {
   // Elements declaration
   let $title;
   let $exampleBtn;
+  let $reactRoot;
 
   /**
    * Elements initialization
@@ -12,6 +17,7 @@ function HomePage($) {
   function initElements() {
     $title = $('.js-home-title');
     $exampleBtn = $('.js-home-btn');
+    $reactRoot = $('#react-root');
   }
 
   /**
@@ -29,9 +35,18 @@ function HomePage($) {
     $exampleBtn.prop('disabled', true);
   }
 
+  /**
+   * Renders react.
+   */
+  function renderReact() {
+    // Renders the react
+    ReactHelper.renderComponent(<Home/>, $reactRoot[0]);
+  }
+
   function init() {
     initElements();
     initEvents();
+    renderReact();
   }
 
   // Functions that are explicitly returned can be called from the rest of the application

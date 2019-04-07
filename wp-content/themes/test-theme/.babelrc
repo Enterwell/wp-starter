@@ -1,14 +1,16 @@
 {
   "presets": [
-    [
-      "env",
-      {
-        "modules": false
-      }
-    ]
+    "@babel/preset-env",
+    "@babel/preset-react"
   ],
   "plugins": [
-    "transform-object-rest-spread"
+    "transform-object-rest-spread",
+    "@babel/plugin-transform-runtime",
+    ["@babel/plugin-proposal-decorators", { "legacy": true }],
+    ["@babel/plugin-proposal-class-properties", {"loose": true}],
+    "@babel/transform-modules-commonjs",
+    "@babel/plugin-transform-async-to-generator",
+    "react-hot-loader/babel",
   ],
   "env": {
     "production": {
