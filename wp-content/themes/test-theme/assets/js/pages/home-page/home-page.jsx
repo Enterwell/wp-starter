@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactHelper from '../../react/helpers/ReactHelper';
-import Home from '../../react/views/Home/Home';
+import HomeView from '../../react/views/Home/HomeView';
+import HomeViewModel from '../../react/views/Home/HomeViewModel';
 
 function HomePage($) {
   // Constants declaration
@@ -39,8 +40,11 @@ function HomePage($) {
    * Renders react.
    */
   function renderReact() {
+    // Creates the view model
+    const vm = new HomeViewModel();
+
     // Renders the react
-    ReactHelper.renderComponent(<Home/>, $reactRoot[0]);
+    ReactHelper.renderComponent(<HomeView/>, $reactRoot[0], {homeVm: vm});
   }
 
   function init() {

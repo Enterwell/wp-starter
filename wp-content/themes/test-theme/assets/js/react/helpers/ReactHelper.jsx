@@ -2,6 +2,7 @@
 import React from 'react';
 import {AppContainer} from 'react-hot-loader';
 import {render} from 'react-dom';
+import {Provider} from 'mobx-react';
 
 /**
  * React helper class.
@@ -10,16 +11,19 @@ class ReactHelper {
   /**
      * Renders the react component.
      *
-     * @param {*} component
-     * @param {*} root
+     * @param {*} component Root react component
+     * @param {*} root Element in which React will render
+     * @param {object} rootStoreObj Object that will be exploded as props to Mobx Provider
      */
-  renderComponent(component, root) {
+  renderComponent(component, root, rootStoreObj = {}) {
     // Renders the react
     render(
       <AppContainer>
-        <React.Fragment>
-          {component}
-        </React.Fragment>
+        <Provider {...rootStoreObj}>
+          <React.Fragment>
+            {component}
+          </React.Fragment>
+        </Provider>
       </AppContainer>,
       root
     );
