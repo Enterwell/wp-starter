@@ -1,6 +1,8 @@
 module.exports = {
-  renameSearch: 'ew-name',
-  renameValue: 'test',
-  replaceSearch: 'foo',
-  replaceValue: 'bar'
+  namespace: 'EwStarter',
+  pluginNameForClassNames: 'EnterwellPlugin',
+  pluginNameForFileNames: 'enterwell-plugin',
+  pluginNameForFunctions: 'enterwell_plugin',
+  abstractControllerFileName: 'class-aewstarter-controller.php',
+  baseRoute: 'wp-ew',
 };
