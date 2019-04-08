@@ -6,7 +6,6 @@ const webpack = require('webpack');
 const settings = require('./webpack.settings');
 
 const PATHS = settings.PATHS;
-const WebAppServerSettings = settings.WebAppServerSettings;
 const WebpackDevServerSettings = settings.WebpackDevServerSettings;
 
 // Include plugins
@@ -83,6 +82,10 @@ const WebpackDevServerConfig = {
   headers: {
     'Access-Control-Allow-Origin': '*',
   },
+
+  // Hot reload
+  hot: true,
+  hotOnly: true
 };
 
 // Export webpack config
@@ -90,10 +93,10 @@ module.exports = {
   // Define entries for javascript and style files.
   entry: {
     // Main entry for all files
-    bundle: [
+    "bundle": [
       'babel-polyfill',
-      'react-hot-loader/patch',
-      PATHS.scripts + '/main.js',
+      'react-hot-loader/patch', // Patch for react hot loader
+      PATHS.scripts + '/main.js'
     ],
   },
 
@@ -105,13 +108,8 @@ module.exports = {
     // Output file name as [entry-point-name].min.js
     filename: '[name].min.js',
 
-    /**
-     * Webpack output public path.
-     *
-     * For better understanding read this:
-     * @link https://webpack.js.org/configuration/output/#output-publicpath
-     */
-    publicPath: WebpackDevServerSettings.address,
+    // Public path for output
+    publicPath: 'http://localhost:10001/'
   },
 
   // Define source maps so bundled code could be split to parts
@@ -139,6 +137,8 @@ module.exports = {
     new webpack.NoEmitOnErrorsPlugin(),
     new webpack.NamedModulesPlugin(),
     plugins.InitProvidePlugin()
-    // new webpack.HotModuleReplacementPlugin()
   ],
+
+  // Stats
+  stats: 'minimal'
 };
