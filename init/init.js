@@ -8,8 +8,8 @@ const renamer = new Renamer();
 replace({
   regex: 'EwStarter',
   replacement: config.namespace,
-  paths: ['plugins/enterwell-plugin'],
-  exclude: 'plugins/enterwell-plugin/vendor',
+  paths: ['wp-content/plugins/enterwell-plugin'],
+  exclude: 'wp-content/plugins/enterwell-plugin/vendor',
   recursive: true
 });
 
@@ -17,7 +17,7 @@ replace({
 replace({
   regex: 'EnterwellPlugin',
   replacement: config.pluginNameForClassNames,
-  paths: ['plugins/enterwell-plugin'],
+  paths: ['wp-content/plugins/enterwell-plugin'],
   recursive: true
 });
 
@@ -25,7 +25,7 @@ replace({
 replace({
   regex: 'enterwell-plugin',
   replacement: config.pluginNameForFileNames,
-  paths: ['plugins/enterwell-plugin'],
+  paths: ['wp-content/plugins/enterwell-plugin'],
   recursive: true,
 });
 
@@ -33,7 +33,7 @@ replace({
 replace({
   regex: 'test_plugin',
   replacement: config.pluginNameForFunctions,
-  paths: ['plugins/enterwell-plugin'],
+  paths: ['wp-content/plugins/enterwell-plugin'],
   recursive: true
 });
 
@@ -41,7 +41,7 @@ replace({
 replace({
   regex: 'class-aewstarter-controller.php',
   replacement: config.abstractControllerFileName,
-  paths: ['plugins/enterwell-plugin'],
+  paths: ['wp-content/plugins/enterwell-plugin'],
   recursive: true
 });
 
@@ -49,13 +49,13 @@ replace({
 replace({
   regex: 'wp-ew',
   replacement: config.baseRoute,
-  paths: ['plugins/enterwell-plugin'],
+  paths: ['wp-content/plugins/enterwell-plugin'],
   recursive: true
 });
 
 // Rename plugin in folder and file names
 renamer.rename({
-  files: ['plugins/**'],
+  files: ['wp-content/plugins/**'],
   find: 'enterwell-plugin',
   replace: config.pluginNameForFileNames,
   recursive: true,
@@ -63,7 +63,7 @@ renamer.rename({
 
 // Rename abstract controller
 renamer.rename({
-  files: ['plugins/enterwell-plugin/**'],
+  files: ['wp-content/plugins/enterwell-plugin/**'],
   find: 'class-aewstarter-controller.php',
   replace: config.abstractControllerFileName,
   recursive: true,
