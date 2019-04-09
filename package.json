@@ -1,0 +1,10 @@
+{
+  "name": "ew-wp-starter",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "devDependencies": {
+    "renamer": "^1.1.1",
+    "replace": "^1.1.0"
+  }
+}
