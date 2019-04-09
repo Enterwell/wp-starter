@@ -1,66 +1,55 @@
-var Router = function () {
-
+const Router = function () {
   this.defaults = {
-    'defaultFunctionName': 'init',
+    defaultFunctionName: 'init',
   };
 
   this.hooks = {
-    'commonEvents': 'common',
-    'finalizeEvent': 'finalize',
+    commonEvents: 'common',
+    finalizeEvent: 'finalize',
   };
 
   this.routes = {};
-
 };
 
 Router.prototype.setRoutes = function (routes) {
-
   this.routes = routes;
-
 };
 
 Router.prototype.fire = function (scope, functionName, args) {
-
   // Set function to fire name
-  functionName = !!functionName ? functionName : this.defaults.defaultFunctionName;
+  functionName = functionName || this.defaults.defaultFunctionName;
 
   // Decide weather to fire function with function event
   const toFireFunction = functionName !== '' && this.routes[scope] && typeof this.routes[scope][functionName] === 'function';
 
   // Fire function
-  if (!!toFireFunction)
+  if (toFireFunction)
     this.routes[scope][functionName](args);
-
 };
 
 Router.prototype.loadEvents = function () {
-
   // Fire common events
   this.fire(this.hooks.commonEvents);
 
   // Get body route attributes
-  var bodyRouteAttributes = document.body.getAttribute('data-route');
+  const bodyRouteAttributes = document.body.getAttribute('data-route');
 
   // If there is any of body route attributes
-  if (!!bodyRouteAttributes) {
-
+  if (bodyRouteAttributes) {
     // Get all of them (split by whitespace)
-    var bodyRouteAttributesParts = bodyRouteAttributes.replace(/-/g, '_').split(/\s+/);
+    const bodyRouteAttributesParts = bodyRouteAttributes.replace(/-/g, '_').split(/\s+/);
 
     // Fire functions for each
-    for (var i = 0; i < bodyRouteAttributesParts.length; i++) {
-
+    for (let i = 0; i < bodyRouteAttributesParts.length; i++) {
       const dataAttrValue = bodyRouteAttributesParts[i];
 
       this.fire(dataAttrValue);
       this.fire(dataAttrValue, this.hooks.finalizeEvent);
-
     }
   }
 
   // Fire common finalize event handlers
   this.fire(this.hooks.commonEvents, this.hooks.finalizeEvent);
-
 };
 
-module.exports = Router;
+export default Router;

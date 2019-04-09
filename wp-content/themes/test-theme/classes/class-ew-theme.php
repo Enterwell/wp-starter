@@ -16,6 +16,23 @@ require_once "class-ew-view-models-loader.php";
  */
 class Ew_Theme {
 
+  /**
+   * Get the local IP address.
+   *
+   * @return string
+   */
+  protected static function get_local_ip(){
+    exec("ipconfig /all", $output);
+        foreach($output as $line){
+            if (preg_match("/(.*)IPv4 Address(.*)/", $line)){
+                $ip = $line;
+                $ip = str_replace("IPv4 Address. . . . . . . . . . . :","",$ip);
+                $ip = str_replace("(Preferred)","",$ip);
+            }
+        }
+    return trim($ip);
+  }
+
 	/**
 	 * Load this class.
 	 */
@@ -70,8 +87,7 @@ class Ew_Theme {
 			wp_enqueue_style( 'ew_styles_main', THEME_URL . "/assets/dist/main.css", [], false, false );
 
 			// Retrieves the servers ip
-			$server_host = gethostname();
-			$server_ip   = gethostbyname( $server_host );
+      $server_ip   = self::get_local_ip();
 
 			// Include scripts
 			wp_enqueue_script( 'ew_scripts_main', "//" . $server_ip . ":" . $theme_config['webpackPort'] . "/bundle.min.js", [], false, true );
