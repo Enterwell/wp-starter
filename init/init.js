@@ -54,6 +54,13 @@ replace({
   recursive: true
 });
 
+// Replace theme name in .gitignore
+replace({
+  regex: 'test-theme',
+  replacement: config.themeNameForFileNames,
+  paths: ['.gitignore']
+});
+
 // Rename plugin in folder and file names
 renamer.rename({
   files: ['wp-content/plugins/**'],
