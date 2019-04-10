@@ -8,8 +8,8 @@ const renamer = new Renamer();
 replace({
   regex: 'EwStarter',
   replacement: config.namespace,
-  paths: ['wp-content/plugins/enterwell-plugin'],
-  exclude: 'wp-content/plugins/enterwell-plugin/vendor',
+  paths: ['wp-content/plugins/enterwell-plugin', 'wp-content/themes/enterwell-theme'],
+  exclude: 'wp-content/plugins/enterwell-plugin/vendor, wp-content/themes/enterwell-theme/vendor, wp-content/themes/enterwell-theme/node_modules',
   recursive: true
 });
 
@@ -49,7 +49,8 @@ replace({
 replace({
   regex: 'wp-ew',
   replacement: config.baseRoute,
-  paths: ['wp-content/plugins/enterwell-plugin'],
+  paths: ['wp-content/plugins/enterwell-plugin', 'wp-content/themes/enterwell-theme'],
+  exclude: 'wp-content/plugins/enterwell-plugin/vendor, wp-content/themes/enterwell-theme/vendor, wp-content/themes/enterwell-theme/node_modules',
   recursive: true
 });
 
@@ -69,3 +70,9 @@ renamer.rename({
   recursive: true,
 });
 
+// Rename theme folder
+renamer.rename({
+  files: ['wp-content/themes/**'],
+  find: 'enterwell-theme',
+  replace: config.themeNameForFileNames
+});

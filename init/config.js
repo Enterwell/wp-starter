@@ -5,4 +5,5 @@ module.exports = {
   pluginNameForFunctions: 'enterwell_plugin',
   abstractControllerFileName: 'class-aewstarter-controller.php',
   baseRoute: 'wp-ew',
+  themeNameForFileNames: 'enterwell-theme'
 };
