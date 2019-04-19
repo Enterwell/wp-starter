@@ -11,7 +11,7 @@
 import HomePage from './pages/home-page/home-page';
 
 // Include router
-import Router from './utils/router';
+import Router from './vendors/router';
 
 // Create new router
 const router = new Router();

@@ -1,5 +1,6 @@
 // Imports
 import {action, observable} from 'mobx';
+import DateTimeHelper from '../../../helpers/DateTimeHelper';
 
 // Consts
 const INTERVAL_IN_MS = 10;
@@ -10,6 +11,7 @@ const INTERVAL_IN_MS = 10;
 class HomeViewModel {
   // Time spent
   @observable timeSpent = 0;
+  @observable currentUTCTime = DateTimeHelper.toISOstring(new Date());
 
   /**
    * Creates the new instance.
@@ -26,6 +28,7 @@ class HomeViewModel {
   onInterval() {
     // Updates the time spent
     this.timeSpent += INTERVAL_IN_MS;
+    this.currentUTCTime = DateTimeHelper.toISOstring(new Date());
   }
 }
 
