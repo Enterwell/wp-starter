@@ -35,6 +35,8 @@ class HomeView extends React.Component {
           alt="boom"
         />
         <p>
+          Trenutno UTC vrijeme je: {this.vm.currentUTCTime}
+          <br/>
           Ovdje ste već {this.vm.timeSpent / 1000} sekundi.
           <br/>
           To znam jer MobX. 😎

@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactHelper from '../../react/helpers/ReactHelper';
+import ReactHelper from '../../helpers/ReactHelper';
 import HomeView from '../../react/views/Home/HomeView';
 import HomeViewModel from '../../react/views/Home/HomeViewModel';
 

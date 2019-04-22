@@ -61,12 +61,11 @@ replace({
   paths: ['.gitignore']
 });
 
-// Rename plugin in folder and file names
-renamer.rename({
-  files: ['wp-content/plugins/**'],
-  find: 'enterwell-plugin',
-  replace: config.pluginNameForFileNames,
-  recursive: true,
+// Replace webAppServerAddress in ew-theme-config.json
+replace({
+  regex: 'http://ew-wp-starter.local/',
+  replacement: config.webAppServerAddress,
+  paths: ['wp-content/themes/enterwell-theme/ew-theme-config.json']
 });
 
 // Rename abstract controller
@@ -74,6 +73,14 @@ renamer.rename({
   files: ['wp-content/plugins/enterwell-plugin/**'],
   find: 'class-aewstarter-controller.php',
   replace: config.abstractControllerFileName,
+  recursive: true,
+});
+
+// Rename plugin in folder and file names
+renamer.rename({
+  files: ['wp-content/plugins/**'],
+  find: 'enterwell-plugin',
+  replace: config.pluginNameForFileNames,
   recursive: true,
 });
 
