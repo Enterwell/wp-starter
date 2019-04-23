@@ -18,7 +18,7 @@ class Ew_Twig_Extension_Localization extends Twig_Extension {
 	 */
 	public function getFunctions() {
 		return [
-			new Twig_SimpleFunction( 'translate', [ $this, 'localization']),
+			new Twig_SimpleFunction( 'translate', [ $this, 'localization' ] ),
 		];
 	}
 
@@ -28,6 +28,6 @@ class Ew_Twig_Extension_Localization extends Twig_Extension {
 	 * @param $string
 	 */
 	public function localization( $string ) {
-		_e( $string, THEME_TEXTDOMAIN);
+		_e( $string, THEME_TEXTDOMAIN );
 	}
 }
