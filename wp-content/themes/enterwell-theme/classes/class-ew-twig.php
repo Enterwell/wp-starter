@@ -15,6 +15,7 @@ require_once( THEME_DIR . '/classes/twig-extensions/class-ew-twig-extension-svg.
 require_once( THEME_DIR . '/classes/twig-extensions/class-ew-twig-extension-image.php' );
 require_once( THEME_DIR . '/classes/twig-extensions/class-ew-twig-extension-menu.php' );
 require_once( THEME_DIR . '/classes/twig-extensions/class-ew-twig-extension-utils.php' );
+require_once( THEME_DIR . '/classes/twig-extensions/class-ew-twig-extension-localization.php' );
 
 /**
  * Class Ew_Twig
@@ -54,10 +55,10 @@ class Ew_Twig {
 		) );
 
 		// Add twig functions.
-		add_action('init', [$this, 'add_twig_functions']);
+		add_action( 'init', [ $this, 'add_twig_functions' ] );
 
 		// Add twig extensions
-		add_action('init', [$this, 'add_twig_extensions']);
+		add_action( 'init', [ $this, 'add_twig_extensions' ] );
 	}
 
 	/**
@@ -86,15 +87,17 @@ class Ew_Twig {
 	 */
 	function add_twig_extensions() {
 		// Add dump extension
-		$this->twig->addExtension(new Twig_Extension_Debug());
+		$this->twig->addExtension( new Twig_Extension_Debug() );
 		// Add menu extension
-		$this->twig->addExtension(new Ew_Twig_Extension_Menu());
+		$this->twig->addExtension( new Ew_Twig_Extension_Menu() );
 		// Add svg extension
 		$this->twig->addExtension( new Ew_Twig_Extension_Svg() );
 		// Add image extension
 		$this->twig->addExtension( new Ew_Twig_Extension_Image() );
 		// Add utils extension
 		$this->twig->addExtension( new Ew_Twig_Extension_Utils() );
+		// Add localization extension
+		$this->twig->addExtension( new Ew_Twig_Extension_Localization() );
 	}
 
 	/**
