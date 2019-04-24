@@ -7,14 +7,16 @@
     - U *C:\Windows\System32\drivers\etc\hosts* dodati liniju    
 			`127.0.0.1	new-project.local`
     - U C:\xampp\apache\conf\extra\httpd-vhosts.conf dodati sljedeći dio koda:
-			```<VirtualHost *:80> 
-     				DocumentRoot "C:\xampp\htdocs\new-project"
-     				ServerName new-project.local 
-     				<Directory "C:\xampp\htdocs\new-project">     
-          					Order allow,deny
-          					Allow from all  
-                    </Directory>
-            </VirtualHost>```
+			```
+			<VirtualHost *:80> 
+                DocumentRoot "C:\xampp\htdocs\new-project"
+                ServerName new-project.local 
+                <Directory "C:\xampp\htdocs\new-project">     
+                        Order allow,deny
+                        Allow from all  
+                </Directory>
+            </VirtualHost>
+            ```
 Napomena: Ako ste prije ovog koraka imali pokrenut Apache, restartajte ga kako bi uvažio promjene koje su napravljene.
 5. Pokrenuti rename plugina i teme uz pomoć sljedećih koraka:
     - U fileu init/config.js postaviti vrijednosti koje odgovaraju trenutnom projektu. Vrijednosti koje su defaultno postavljene su vrijednosti koje su trenutno aktivne u kodu startera i treba slijediti njihov naming (npr. ako je postavljena vrijednost nazvana camelCaseom, nazovimo tako i novu vrijednost). Slijedi pregled config vrijednosti:
