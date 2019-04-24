@@ -1,24 +1,29 @@
 # POKRETANJE NOVOG PROJEKTA
 
-1. U *xampp/htdocs* folderu klonirati prazan repozitorij projekta koji pokrećete.
-2. Unutar kloniranog foldera klonirati ew-wp-starter sa https://enterwell.visualstudio.com/WordPress%20starter/_git/ew-wp-starter
-3. Prebaciti sve fileove osim *.git* foldera iz ew-wp-startera u root folder novog projekta i izbrisati ew-wp-starter (sada prazni) folder.
-4. Dodati projekt u *vhosts* i *hosts* fileove. Pretpostavimo da se projekt zove *New project*, da želimo da host name bude *new-project.local* i da se projekt nalazi u folderu *C:\xampp\htdocs\new-project*
-    - U *C:\Windows\System32\drivers\etc\hosts* dodati liniju    
-			`127.0.0.1	new-project.local`
-    - U C:\xampp\apache\conf\extra\httpd-vhosts.conf dodati sljedeći dio koda:
-			```
-			<VirtualHost *:80> 
-                DocumentRoot "C:\xampp\htdocs\new-project"
-                ServerName new-project.local 
-                <Directory "C:\xampp\htdocs\new-project">     
-                        Order allow,deny
-                        Allow from all  
-                </Directory>
-            </VirtualHost>
-            ```
-Napomena: Ako ste prije ovog koraka imali pokrenut Apache, restartajte ga kako bi uvažio promjene koje su napravljene.
-5. Pokrenuti rename plugina i teme uz pomoć sljedećih koraka:
+- U *xampp/htdocs* folderu klonirati prazan repozitorij projekta koji pokrećete.
+- Unutar kloniranog foldera klonirati ew-wp-starter sa https://enterwell.visualstudio.com/WordPress%20starter/_git/ew-wp-starter
+- Prebaciti sve fileove osim *.git* foldera iz ew-wp-startera u root folder novog projekta i izbrisati ew-wp-starter (sada prazni) folder.
+- Dodati projekt u *vhosts* i *hosts* fileove. Pretpostavimo da se projekt zove *New project*, da želimo da host name bude *new-project.local* i da se projekt nalazi u folderu *C:\xampp\htdocs\new-project*
+- Modificirati sljedeće fileove:
+
+U *C:\Windows\System32\drivers\etc\hosts* dodati liniju    
+
+    127.0.0.1	new-project.local
+
+U C:\xampp\apache\conf\extra\httpd-vhosts.conf dodati sljedeći dio koda:
+
+    <VirtualHost *:80>                            
+        DocumentRoot "C:\xampp\htdocs\new-project"                
+        ServerName new-project.local                          
+        <Directory "C:\xampp\htdocs\new-project">          
+            Order allow,deny    
+            Allow from all 
+        </Directory>
+    </VirtualHost>
+        
+**Napomena**: Ako ste prije ovog koraka imali pokrenut Apache, restartajte ga kako bi uvažio promjene koje su napravljene.
+
+- Pokrenuti rename plugina i teme uz pomoć sljedećih koraka:
     - U fileu init/config.js postaviti vrijednosti koje odgovaraju trenutnom projektu. Vrijednosti koje su defaultno postavljene su vrijednosti koje su trenutno aktivne u kodu startera i treba slijediti njihov naming (npr. ako je postavljena vrijednost nazvana camelCaseom, nazovimo tako i novu vrijednost). Slijedi pregled config vrijednosti:
         - namespace - na vrhu php fileova često navodimo namespace koji nam osigurava da se naše varijable ne poklapaju s varijablama nekog drugog projekta (npr. stvaramo li klasu event, ona vrlo vjerojatno već postoji u nekom drugom projektu - ali za klasu EwStarter\Event rizik preklapanja je zanemariv)
         - pluginNameForFileNames - unutar plugina postoji više fileova koji u svom imenu sadrže ime plugina, a pošto fileove imenujemo stavljajući minus između riječi, ovdje treba unijeti ime plugina u obliku enterwell-plugin
