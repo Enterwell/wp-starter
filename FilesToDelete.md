@@ -9,7 +9,7 @@
 - *services/class-events-service.php*
 - *services/class-locations-service.php*
 - Unutar *includes/class-enterwell-plugin.php* sve pozive gore navedenih fileova
-- Unutar *class-entewell-plugin-activator.php* dio koji createa tablice *$events_table* i *$locations_table*
+- Unutar *class-entewell-plugin-activator.php* dio koji stvara tablice *\$events_table* i *\$locations_table*
 
 ##TEMA
 - *assets/fonts* - pobrisati folder *Raleway* i njegovo postavljanje u fileu *fonts.scss*
