@@ -1,7 +1,7 @@
 # POKRETANJE NOVOG PROJEKTA
 
 - U *xampp/htdocs* folderu klonirati prazan repozitorij projekta koji pokrećete.
-- Unutar kloniranog foldera klonirati ew-wp-starter sa https://enterwell.visualstudio.com/WordPress%20starter/_git/ew-wp-starter
+- Unutar kloniranog foldera klonirati [ew-wp-starter](https://enterwell.visualstudio.com/WordPress%20starter/_git/ew-wp-starter).
 - Prebaciti sve fileove osim *.git* foldera iz ew-wp-startera u root folder novog projekta i izbrisati ew-wp-starter (sada prazni) folder.
 - Dodati projekt u *vhosts* i *hosts* fileove. Pretpostavimo da se projekt zove *New project*, da želimo da host name bude *new-project.local* i da se projekt nalazi u folderu *C:\xampp\htdocs\new-project*. Tada je potrebno:
 
@@ -58,5 +58,5 @@
     - U wp-adminu upaliti plugin
 
     Ako nema errora, unutar root foldera pokrenuti naredbu `bash cleanup.sh` koja će očistiti projekt od fileova koji su nam bili potrebni za renaming i nakon toga više nemaju svrhu u projektu.
-- Proći kroz fileove koji se trebaju obrisati (https://enterwell.visualstudio.com/WordPress%20starter/_git/ew-wp-starter?path=%2Ffiles-to-delete.txt&version=GBdev.readme). Ako niste sigurni hoće li vam određeni file trebati u razvoju, slobodno ga ostavite pa na kraju projekta još jednom prođite kroz fileove i izbrišite viškove tad kad znate da vam nisu od koristi.
+- Proći kroz [fileove koji se trebaju obrisati](https://enterwell.visualstudio.com/WordPress%20starter/_git/ew-wp-starter?path=%2Ffiles-to-delete.txt&version=GBdev.readme). Ako niste sigurni hoće li vam određeni file trebati u razvoju, slobodno ga ostavite pa na kraju projekta još jednom prođite kroz fileove i izbrišite viškove tad kad znate da vam nisu od koristi.
 - Početi s programiranjem :)
