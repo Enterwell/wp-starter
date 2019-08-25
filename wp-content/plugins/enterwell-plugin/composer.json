@@ -1,0 +1,6 @@
+{
+    "require": {
+        "vlucas/phpdotenv": "^2.5",
+        "enterwell/wp-helpers": "^1.0"
+    }
+}

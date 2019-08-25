@@ -1,0 +1,12 @@
+{% extends 'base.twig' %}
+
+{% block content %}
+    <main>
+        <div class="c-container">
+            <h1 class="js-home-title">{{ vm.title }}</h1>
+            <button class="c-button js-home-btn">Change title color</button>
+            <div id="react-root"></div>
+        </div>
+    </main>
+    {% include 'components/common/navbar.twig' %}
+{% endblock %}

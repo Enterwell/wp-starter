@@ -1,0 +1,27 @@
+{
+  "project": {
+    "name": ""
+  },
+  "git": {
+    "projectUrlWithCredentials": "",
+    "deployBranch": "prod",
+    "buildBranch": "dev"
+  },
+  "ssh": {
+    "address": "",
+    "username": "",
+    "privateKeyFilePath": ""
+  },
+  "wordpress": {
+    "themeName": ""
+  },
+  "sharedFiles": [
+    "wp-config.php"
+  ],
+  "sharedDirs": [
+    "wp-content/uploads",
+  ],
+  "writableDirs": [
+    "wp-content/uploads"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "git": {
+    "projectUrlWithCredentials": "",
+    "deployBranch": "prod",
+    "buildBranch": "dev"
+  },
+  "ssh": {
+    "address": "",
+    "username": "",
+    "privateKeyFilePath": ""
+  }
+}
