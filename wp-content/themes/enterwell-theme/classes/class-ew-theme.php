@@ -16,23 +16,6 @@ require_once "class-ew-view-models-loader.php";
  */
 class Ew_Theme {
 
-  /**
-   * Get the local IP address.
-   *
-   * @return string
-   */
-  protected static function get_local_ip(){
-    exec("ipconfig /all", $output);
-        foreach($output as $line){
-            if (preg_match("/(.*)IPv4 Address(.*)/", $line)){
-                $ip = $line;
-                $ip = str_replace("IPv4 Address. . . . . . . . . . . :","",$ip);
-                $ip = str_replace("(Preferred)","",$ip);
-            }
-        }
-    return trim($ip);
-  }
-
 	/**
 	 * Load this class.
 	 */
@@ -87,7 +70,7 @@ class Ew_Theme {
 			wp_enqueue_style( 'ew_styles_main', THEME_URL . "/assets/dist/main.css", [], false, false );
 
 			// Retrieves the servers ip
-      $server_ip   = self::get_local_ip();
+			$server_ip = self::get_local_ip();
 
 			// Include scripts
 			wp_enqueue_script( 'ew_scripts_main', "//" . $server_ip . ":" . $theme_config['webpackPort'] . "/bundle.min.js", [], false, true );
@@ -95,9 +78,19 @@ class Ew_Theme {
 			return;
 		}
 
+		$style_relative_path = '/assets/dist/styles.min.css';
+		$script_relative_path = '/assets/dist/bundle.min.js';
+
+		$style_file = THEME_DIR . $style_relative_path;
+		$script_file = THEME_DIR . $script_relative_path;
+
+		// Try to get style and script version as file modified time from file - fallback is version from theme config
+		$style_version = file_exists($style_file) ? filemtime($style_file) : $theme_config['version'];
+		$script_version = file_exists($script_file) ? filemtime($script_file) : $theme_config['version'];
+
 		// If development environment is not defined, load production styles and scripts
-		wp_enqueue_style( 'ew_styles_main', THEME_URL . '/assets/dist/styles.min.css?v=' . $theme_config['version'] );
-		wp_enqueue_script( 'ew_scripts_main', THEME_URL . '/assets/dist/bundle.min.js?v=' . $theme_config['version'], [], false, true );
+		wp_enqueue_style( 'ew_styles_main', THEME_URL . '/assets/dist/styles.min.css', [], $style_version);
+		wp_enqueue_script( 'ew_scripts_main', THEME_URL . '/assets/dist/bundle.min.js', [], $script_version, true );
 	}
 
 	/**
@@ -167,6 +160,24 @@ class Ew_Theme {
 
 		// Echo vars
 		echo $js_vars_output;
+	}
+
+	/**
+	 * Get the local IP address.
+	 *
+	 * @return string
+	 */
+	protected static function get_local_ip() {
+		exec( "ipconfig /all", $output );
+		foreach ( $output as $line ) {
+			if ( preg_match( "/(.*)IPv4 Address(.*)/", $line ) ) {
+				$ip = $line;
+				$ip = str_replace( "IPv4 Address. . . . . . . . . . . :", "", $ip );
+				$ip = str_replace( "(Preferred)", "", $ip );
+			}
+		}
+
+		return trim( $ip );
 	}
 
 }
