@@ -16,4 +16,4 @@ wp-config.php
 
 node_modules
 /vendor/*
-wp-content/themes/enterwell-theme/assets/dist/*
+wp-content/themes/test-theme/assets/dist/*
