@@ -162,22 +162,31 @@ class Ew_Theme {
 		echo $js_vars_output;
 	}
 
-	/**
-	 * Get the local IP address.
-	 *
-	 * @return string
-	 */
-	protected static function get_local_ip() {
-		exec( "ipconfig /all", $output );
-		foreach ( $output as $line ) {
-			if ( preg_match( "/(.*)IPv4 Address(.*)/", $line ) ) {
-				$ip = $line;
-				$ip = str_replace( "IPv4 Address. . . . . . . . . . . :", "", $ip );
-				$ip = str_replace( "(Preferred)", "", $ip );
-			}
-		}
-
-		return trim( $ip );
-	}
+    /**
+     * Get the local IP address.
+     *
+     * @return string
+     */
+    protected static function get_local_ip()
+    {
+        $localIp = null;
+        exec("ipconfig /all", $output);
+        foreach ($output as $line) {
+            if (preg_match("/(.*)IPv4 Address(.*)/", $line)) {
+                $ip = $line;
+                $ip = str_replace("IPv4 Address. . . . . . . . . . . :", "", $ip);
+                $ip = str_replace("(Preferred)", "", $ip);
+                $ip = trim($ip);
+                $startString = '192.168';
+                if (substr_compare($ip, $startString, 0, strlen($startString)) === 0) {
+                    $localIp = trim($ip);
+                }
+            }
+        }
+        if ($localIp === null) {
+            $localIp = trim($ip);
+        }
+        return $localIp;
+    }
 
 }
