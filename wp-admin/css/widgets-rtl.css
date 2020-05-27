@@ -1,9 +1,17 @@
+/*! This file is auto-generated */
 /* General Widgets Styles */
 
 .widget {
 	margin: 0 auto 10px;
 	position: relative;
 	box-sizing: border-box;
+}
+
+.widget.open {
+	z-index: 99;
+}
+.widget.open:focus-within {
+	z-index: 100;
 }
 
 .widget-top {
@@ -39,7 +47,7 @@
 .widgets-holder-wrap .widget-inside {
 	border-top: none;
 	padding: 1px 15px 15px 15px;
-	line-height: 16px;
+	line-height: 1.23076923;
 }
 
 .widget.widget-dirty .widget-control-close-wrapper {
@@ -84,15 +92,36 @@
 	margin-left: 8px;
 }
 
+.media-widget-control .attachment-media-view .button-add-media,
 .media-widget-control .placeholder {
 	border: 1px dashed #b4b9be;
 	box-sizing: border-box;
 	cursor: pointer;
-	line-height: 20px;
+	line-height: 1.6;
 	padding: 9px 0;
 	position: relative;
 	text-align: center;
 	width: 100%;
+}
+
+.media-widget-control .attachment-media-view .button-add-media {
+	cursor: pointer;
+	background-color: #edeff0;
+	color: #32373c;
+}
+
+.media-widget-control .attachment-media-view .button-add-media:hover {
+	background-color: #fbfbfc;
+}
+
+.media-widget-control .attachment-media-view .button-add-media:focus {
+	background-color: #fbfbfc;
+	border-style: solid;
+	border-color: #5b9dd9;
+	box-shadow: 0 0 3px rgba( 0, 115, 170, .8 );
+	/* Only visible in Windows High Contrast mode */
+	outline: 2px solid transparent;
+	outline-offset: -2px;
 }
 
 .media-widget-control .media-widget-preview {
@@ -112,6 +141,9 @@
 .media-widget-control .media-widget-preview img {
 	max-width: 100%;
 	vertical-align: middle;
+	background-image: linear-gradient(-45deg, #c4c4c4 25%, transparent 25%, transparent 75%, #c4c4c4 75%, #c4c4c4), linear-gradient(-45deg, #c4c4c4 25%, transparent 25%, transparent 75%, #c4c4c4 75%, #c4c4c4);
+	background-position: 100% 0, 10px 10px;
+	background-size: 20px 20px;
 }
 .media-widget-control .media-widget-preview .wp-video-shortcode {
 	background: #000;
@@ -124,6 +156,7 @@
 .media-frame.media-widget .image-details .embed-media-settings .setting.align,
 .media-frame.media-widget .attachment-display-settings .setting.align,
 .media-frame.media-widget .embed-media-settings .setting.align,
+.media-frame.media-widget .embed-media-settings .legend-inline,
 .media-frame.media-widget .embed-link-settings .setting.link-text,
 .media-frame.media-widget .replace-attachment,
 .media-frame.media-widget .checkbox-setting.autoplay {
@@ -222,7 +255,7 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	background-color: rgba( 0, 0, 0, .5 );
+	background-color: rgba(0, 0, 0, 0.5);
 }
 
 .media-widget-gallery-preview .gallery-icon-placeholder-text {
@@ -308,7 +341,7 @@
 .sidebar-name .handlediv:focus .toggle-indicator:before {
 	box-shadow:
 		0 0 0 1px #5b9dd9,
-		0 0 2px 1px rgba(30, 140, 190, .8);
+		0 0 2px 1px rgba(30, 140, 190, 0.8);
 }
 
 .sidebar-name h2,
@@ -482,7 +515,7 @@ div#widgets-right .closed .widgets-sortables {
 /* Dragging a widget over a closed sidebar */
 #widgets-right .widgets-holder-wrap.widget-hover {
 	border-color: #72777c;
-	box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 /* Accessibility Mode */
@@ -520,7 +553,7 @@ div#widgets-right .closed .widgets-sortables {
 	color: #666;
 	background: #EEE;
 	padding: 0 15px;
-	line-height: 43px;
+	line-height: 3.30769230;
 	border-right: 1px solid #DDD;
 }
 
@@ -573,6 +606,10 @@ div#widgets-right .closed .widgets-sortables {
 
 .widget-inside {
 	background: #fff;
+}
+
+.widget-inside select {
+	max-width: 100%;
 }
 
 /* Dragging widgets over the available widget area show's a "Deactivate" message */
@@ -639,7 +676,7 @@ div#widgets-right .closed .widgets-sortables {
 div#widgets-right .widget-top:hover,
 #widgets-left .widget-top:hover {
 	border-color: #999;
-	box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .widgets-chooser ul.widgets-chooser-sidebars {
@@ -735,7 +772,7 @@ div#widgets-right .widget-top:hover,
 	left: 15px;
 }
 .text-widget-fields .wp-pointer .wp-pointer-buttons {
-	line-height: 1.4em;
+	line-height: 1.4;
 }
 
 .custom-html-widget-fields > p > .CodeMirror {
@@ -781,7 +818,6 @@ ul.CodeMirror-hints {
 	}
 
 	div.widget {
-		margin: 0 auto !important;
 		max-width: 480px;
 	}
 

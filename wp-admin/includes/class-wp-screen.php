@@ -14,7 +14,9 @@
  */
 final class WP_Screen {
 	/**
-	 * Any action associated with the screen. 'add' for *-add.php and *-new.php screens. Empty otherwise.
+	 * Any action associated with the screen.
+	 *
+	 * 'add' for *-add.php and *-new.php screens. Empty otherwise.
 	 *
 	 * @since 3.3.0
 	 * @var string
@@ -22,8 +24,10 @@ final class WP_Screen {
 	public $action;
 
 	/**
-	 * The base type of the screen. This is typically the same as $id but with any post types and taxonomies stripped.
-	 * For example, for an $id of 'edit-post' the base is 'edit'.
+	 * The base type of the screen.
+	 *
+	 * This is typically the same as `$id` but with any post types and taxonomies stripped.
+	 * For example, for an `$id` of 'edit-post' the base is 'edit'.
 	 *
 	 * @since 3.3.0
 	 * @var string
@@ -78,8 +82,10 @@ final class WP_Screen {
 
 	/**
 	 * The base menu parent.
-	 * This is derived from $parent_file by removing the query string and any .php extension.
-	 * $parent_file values of 'edit.php?post_type=page' and 'edit.php?post_type=post' have a $parent_base of 'edit'.
+	 *
+	 * This is derived from `$parent_file` by removing the query string and any .php extension.
+	 * `$parent_file` values of 'edit.php?post_type=page' and 'edit.php?post_type=post'
+	 * have a `$parent_base` of 'edit'.
 	 *
 	 * @since 3.3.0
 	 * @var string
@@ -88,7 +94,8 @@ final class WP_Screen {
 
 	/**
 	 * The parent_file for the screen per the admin menu system.
-	 * Some $parent_file values are 'edit.php?post_type=page', 'edit.php', and 'options-general.php'.
+	 *
+	 * Some `$parent_file` values are 'edit.php?post_type=page', 'edit.php', and 'options-general.php'.
 	 *
 	 * @since 3.3.0
 	 * @var string
@@ -97,6 +104,7 @@ final class WP_Screen {
 
 	/**
 	 * The post type associated with the screen, if any.
+	 *
 	 * The 'edit.php?post_type=page' screen has a post type of 'page'.
 	 * The 'edit-tags.php?taxonomy=$taxonomy&post_type=page' screen has a post type of 'page'.
 	 *
@@ -107,6 +115,7 @@ final class WP_Screen {
 
 	/**
 	 * The taxonomy associated with the screen, if any.
+	 *
 	 * The 'edit-tags.php?taxonomy=category' screen has a taxonomy of 'category'.
 	 *
 	 * @since 3.3.0
@@ -202,9 +211,11 @@ final class WP_Screen {
 			return $hook_name;
 		}
 
-		$post_type = $taxonomy = null;
-		$in_admin  = false;
-		$action    = '';
+		$post_type       = null;
+		$taxonomy        = null;
+		$in_admin        = false;
+		$action          = '';
+		$is_block_editor = false;
 
 		if ( $hook_name ) {
 			$id = $hook_name;
@@ -215,7 +226,7 @@ final class WP_Screen {
 		// For those pesky meta boxes.
 		if ( $hook_name && post_type_exists( $hook_name ) ) {
 			$post_type = $id;
-			$id        = 'post'; // changes later. ends up being $base.
+			$id        = 'post'; // Changes later. Ends up being $base.
 		} else {
 			if ( '.php' == substr( $id, -4 ) ) {
 				$id = substr( $id, 0, -4 );
@@ -294,6 +305,13 @@ final class WP_Screen {
 						$post = get_post( $post_id );
 						if ( $post ) {
 							$post_type = $post->post_type;
+
+							/** This filter is documented in wp-admin/post.php */
+							$replace_editor = apply_filters( 'replace_editor', false, $post );
+
+							if ( ! $replace_editor ) {
+								$is_block_editor = use_block_editor_for_post( $post );
+							}
 						}
 					}
 					break;
@@ -314,6 +332,12 @@ final class WP_Screen {
 				if ( null === $post_type ) {
 					$post_type = 'post';
 				}
+
+				// When creating a new post, use the default block editor support value for the post type.
+				if ( empty( $post_id ) ) {
+					$is_block_editor = use_block_editor_for_post_type( $post_type );
+				}
+
 				$id = $post_type;
 				break;
 			case 'edit':
@@ -349,7 +373,7 @@ final class WP_Screen {
 
 		if ( isset( self::$_registry[ $id ] ) ) {
 			$screen = self::$_registry[ $id ];
-			if ( $screen === get_current_screen() ) {
+			if ( get_current_screen() === $screen ) {
 				return $screen;
 			}
 		} else {
@@ -357,13 +381,14 @@ final class WP_Screen {
 			$screen->id = $id;
 		}
 
-		$screen->base       = $base;
-		$screen->action     = $action;
-		$screen->post_type  = (string) $post_type;
-		$screen->taxonomy   = (string) $taxonomy;
-		$screen->is_user    = ( 'user' == $in_admin );
-		$screen->is_network = ( 'network' == $in_admin );
-		$screen->in_admin   = $in_admin;
+		$screen->base            = $base;
+		$screen->action          = $action;
+		$screen->post_type       = (string) $post_type;
+		$screen->taxonomy        = (string) $taxonomy;
+		$screen->is_user         = ( 'user' == $in_admin );
+		$screen->is_network      = ( 'network' == $in_admin );
+		$screen->in_admin        = $in_admin;
+		$screen->is_block_editor = $is_block_editor;
 
 		self::$_registry[ $id ] = $screen;
 
@@ -376,7 +401,7 @@ final class WP_Screen {
 	 * @see set_current_screen()
 	 * @since 3.3.0
 	 *
-	 * @global WP_Screen $current_screen
+	 * @global WP_Screen $current_screen WordPress current screen object.
 	 * @global string    $taxnow
 	 * @global string    $typenow
 	 */
@@ -429,7 +454,7 @@ final class WP_Screen {
 	 * @return bool True if the block editor is being loaded, false otherwise.
 	 */
 	public function is_block_editor( $set = null ) {
-		if ( $set !== null ) {
+		if ( null !== $set ) {
 			$this->is_block_editor = (bool) $set;
 		}
 
@@ -450,6 +475,7 @@ final class WP_Screen {
 
 	/**
 	 * Set the parent information for the screen.
+	 *
 	 * This is called in admin-header.php after the menu parent for the screen has been determined.
 	 *
 	 * @since 3.3.0
@@ -464,7 +490,9 @@ final class WP_Screen {
 
 	/**
 	 * Adds an option for the screen.
-	 * Call this in template files after admin.php is loaded and before admin-header.php is loaded to add screen options.
+	 *
+	 * Call this in template files after admin.php is loaded and before admin-header.php is loaded
+	 * to add screen options.
 	 *
 	 * @since 3.3.0
 	 *
@@ -578,7 +606,13 @@ final class WP_Screen {
 
 	/**
 	 * Add a help tab to the contextual help for the screen.
-	 * Call this on the load-$pagenow hook for the relevant screen.
+	 *
+	 * Call this on the `load-$pagenow` hook for the relevant screen,
+	 * or fetch the `$current_screen` object, or use get_current_screen()
+	 * and then call the method from the object.
+	 *
+	 * You may need to filter `$current_screen` using an if or switch statement
+	 * to prevent new help tabs from being added to ALL admin screens.
 	 *
 	 * @since 3.3.0
 	 * @since 4.4.0 The `$priority` argument was added.
@@ -587,7 +621,8 @@ final class WP_Screen {
 	 *     Array of arguments used to display the help tab.
 	 *
 	 *     @type string $title    Title for the tab. Default false.
-	 *     @type string $id       Tab ID. Must be HTML-safe. Default false.
+	 *     @type string $id       Tab ID. Must be HTML-safe and should be unique for this menu.
+	 *                            It is NOT allowed to contain any empty spaces. Default false.
 	 *     @type string $content  Optional. Help tab content in plain text or HTML. Default empty string.
 	 *     @type string $callback Optional. A callback to generate the tab content. Default false.
 	 *     @type int    $priority Optional. The priority of the tab, used for ordering. Default 10.
@@ -647,7 +682,9 @@ final class WP_Screen {
 
 	/**
 	 * Add a sidebar to the contextual help for the screen.
-	 * Call this in template files after admin.php is loaded and before admin-header.php is loaded to add a sidebar to the contextual help.
+	 *
+	 * Call this in template files after admin.php is loaded and before admin-header.php is loaded
+	 * to add a sidebar to the contextual help.
 	 *
 	 * @since 3.3.0
 	 *
@@ -753,13 +790,18 @@ final class WP_Screen {
 		 * Filters the legacy contextual help list.
 		 *
 		 * @since 2.7.0
-		 * @deprecated 3.3.0 Use get_current_screen()->add_help_tab() or
-		 *                   get_current_screen()->remove_help_tab() instead.
+		 * @deprecated 3.3.0 Use {@see get_current_screen()->add_help_tab()} or
+		 *                   {@see get_current_screen()->remove_help_tab()} instead.
 		 *
 		 * @param array     $old_compat_help Old contextual help.
 		 * @param WP_Screen $this            Current WP_Screen instance.
 		 */
-		self::$_old_compat_help = apply_filters( 'contextual_help_list', self::$_old_compat_help, $this );
+		self::$_old_compat_help = apply_filters_deprecated(
+			'contextual_help_list',
+			array( self::$_old_compat_help, $this ),
+			'3.3.0',
+			'get_current_screen()->add_help_tab(), get_current_screen()->remove_help_tab()'
+		);
 
 		$old_help = isset( self::$_old_compat_help[ $this->id ] ) ? self::$_old_compat_help[ $this->id ] : '';
 
@@ -767,14 +809,19 @@ final class WP_Screen {
 		 * Filters the legacy contextual help text.
 		 *
 		 * @since 2.7.0
-		 * @deprecated 3.3.0 Use get_current_screen()->add_help_tab() or
-		 *                   get_current_screen()->remove_help_tab() instead.
+		 * @deprecated 3.3.0 Use {@see get_current_screen()->add_help_tab()} or
+		 *                   {@see get_current_screen()->remove_help_tab()} instead.
 		 *
 		 * @param string    $old_help  Help text that appears on the screen.
 		 * @param string    $screen_id Screen ID.
 		 * @param WP_Screen $this      Current WP_Screen instance.
 		 */
-		$old_help = apply_filters( 'contextual_help', $old_help, $this->id, $this );
+		$old_help = apply_filters_deprecated(
+			'contextual_help',
+			array( $old_help, $this->id, $this ),
+			'3.3.0',
+			'get_current_screen()->add_help_tab(), get_current_screen()->remove_help_tab()'
+		);
 
 		// Default help only if there is no old-style block of text and no new-style help tabs.
 		if ( empty( $old_help ) && ! $this->get_help_tabs() ) {
@@ -783,12 +830,17 @@ final class WP_Screen {
 			 * Filters the default legacy contextual help text.
 			 *
 			 * @since 2.8.0
-			 * @deprecated 3.3.0 Use get_current_screen()->add_help_tab() or
-			 *                   get_current_screen()->remove_help_tab() instead.
+			 * @deprecated 3.3.0 Use {@see get_current_screen()->add_help_tab()} or
+			 *                   {@see get_current_screen()->remove_help_tab()} instead.
 			 *
 			 * @param string $old_help_default Default contextual help text.
 			 */
-			$default_help = apply_filters( 'default_contextual_help', '' );
+			$default_help = apply_filters_deprecated(
+				'default_contextual_help',
+				array( '' ),
+				'3.3.0',
+				'get_current_screen()->add_help_tab(), get_current_screen()->remove_help_tab()'
+			);
 			if ( $default_help ) {
 				$old_help = '<p>' . $default_help . '</p>';
 			}
@@ -871,7 +923,7 @@ final class WP_Screen {
 				</div>
 			</div>
 		<?php
-		// Setup layout columns
+		// Setup layout columns.
 
 		/**
 		 * Filters the array of screen layout columns.
@@ -900,7 +952,7 @@ final class WP_Screen {
 		}
 		$GLOBALS['screen_layout_columns'] = $this->columns; // Set the global for back-compat.
 
-		// Add screen options
+		// Add screen options.
 		if ( $this->show_screen_options() ) {
 			$this->render_screen_options();
 		}
@@ -912,16 +964,16 @@ final class WP_Screen {
 		}
 		?>
 		<div id="screen-meta-links">
-		<?php if ( $this->get_help_tabs() ) : ?>
-			<div id="contextual-help-link-wrap" class="hide-if-no-js screen-meta-toggle">
-			<button type="button" id="contextual-help-link" class="button show-settings" aria-controls="contextual-help-wrap" aria-expanded="false"><?php _e( 'Help' ); ?></button>
+		<?php if ( $this->show_screen_options() ) : ?>
+			<div id="screen-options-link-wrap" class="hide-if-no-js screen-meta-toggle">
+			<button type="button" id="show-settings-link" class="button show-settings" aria-controls="screen-options-wrap" aria-expanded="false"><?php _e( 'Screen Options' ); ?></button>
 			</div>
 			<?php
 		endif;
-		if ( $this->show_screen_options() ) :
+		if ( $this->get_help_tabs() ) :
 			?>
-			<div id="screen-options-link-wrap" class="hide-if-no-js screen-meta-toggle">
-			<button type="button" id="show-settings-link" class="button show-settings" aria-controls="screen-options-wrap" aria-expanded="false"><?php _e( 'Screen Options' ); ?></button>
+			<div id="contextual-help-link-wrap" class="hide-if-no-js screen-meta-toggle">
+			<button type="button" id="contextual-help-link" class="button show-settings" aria-controls="contextual-help-wrap" aria-expanded="false"><?php _e( 'Help' ); ?></button>
 			</div>
 		<?php endif; ?>
 		</div>
@@ -1000,7 +1052,10 @@ final class WP_Screen {
 			)
 		);
 
-		$wrapper_start = $wrapper_end = $form_start = $form_end = '';
+		$wrapper_start = '';
+		$wrapper_end   = '';
+		$form_start    = '';
+		$form_end      = '';
 
 		// Output optional wrapper.
 		if ( $options['wrap'] ) {
@@ -1101,7 +1156,7 @@ final class WP_Screen {
 		$special = array( '_title', 'cb', 'comment', 'media', 'name', 'title', 'username', 'blogname' );
 
 		foreach ( $columns as $column => $title ) {
-			// Can't hide these for they are special
+			// Can't hide these for they are special.
 			if ( in_array( $column, $special ) ) {
 				continue;
 			}
@@ -1143,17 +1198,18 @@ final class WP_Screen {
 		?>
 		<fieldset class='columns-prefs'>
 		<legend class="screen-layout"><?php _e( 'Layout' ); ?></legend>
-												<?php
-												for ( $i = 1; $i <= $num; ++$i ) :
-													?>
-													<label class="columns-prefs-<?php echo $i; ?>">
-				<input type='radio' name='screen_columns' value='<?php echo esc_attr( $i ); ?>'
-													<?php checked( $screen_layout_columns, $i ); ?> />
-													<?php printf( _n( '%s column', '%s columns', $i ), number_format_i18n( $i ) ); ?>
-				</label>
-													<?php
-			endfor;
-												?>
+		<?php for ( $i = 1; $i <= $num; ++$i ) : ?>
+			<label class="columns-prefs-<?php echo $i; ?>">
+			<input type='radio' name='screen_columns' value='<?php echo esc_attr( $i ); ?>' <?php checked( $screen_layout_columns, $i ); ?> />
+			<?php
+				printf(
+					/* translators: %s: Number of columns on the page. */
+					_n( '%s column', '%s columns', $i ),
+					number_format_i18n( $i )
+				);
+			?>
+			</label>
+		<?php endfor; ?>
 		</fieldset>
 		<?php
 	}
@@ -1199,13 +1255,13 @@ final class WP_Screen {
 			$per_page = apply_filters( "{$option}", $per_page );
 		}
 
-		// Back compat
+		// Back compat.
 		if ( isset( $this->post_type ) ) {
 			/** This filter is documented in wp-admin/includes/post.php */
 			$per_page = apply_filters( 'edit_posts_per_page', $per_page, $this->post_type );
 		}
 
-		// This needs a submit button
+		// This needs a submit button.
 		add_filter( 'screen_options_show_submit', '__return_true' );
 
 		?>
@@ -1232,7 +1288,7 @@ final class WP_Screen {
 	public function render_view_mode() {
 		$screen = get_current_screen();
 
-		// Currently only enabled for posts lists
+		// Currently only enabled for posts lists.
 		if ( 'edit' !== $screen->base ) {
 			return;
 		}
@@ -1260,7 +1316,7 @@ final class WP_Screen {
 
 		global $mode;
 
-		// This needs a submit button
+		// This needs a submit button.
 		add_filter( 'screen_options_show_submit', '__return_true' );
 		?>
 		<fieldset class="metabox-prefs view-mode">

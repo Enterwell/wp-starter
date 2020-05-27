@@ -1,3 +1,4 @@
+/*! This file is auto-generated */
 /* Fixes for IE 7 bugs */
 
 #dashboard-widgets form .input-text-wrap input,
@@ -469,12 +470,6 @@ div#dashboard-widgets {
 
 .subsubsub li {
 	display: inline;
-}
-
-a.post-state-format {
-	text-indent: 0;
-	line-height: 0;
-	font-size: 0;
 }
 
 table.ie-fixed {

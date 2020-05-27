@@ -85,14 +85,14 @@ class WP_Site_Icon {
 	public function create_attachment_object( $cropped, $parent_attachment_id ) {
 		$parent     = get_post( $parent_attachment_id );
 		$parent_url = wp_get_attachment_url( $parent->ID );
-		$url        = str_replace( basename( $parent_url ), basename( $cropped ), $parent_url );
+		$url        = str_replace( wp_basename( $parent_url ), wp_basename( $cropped ), $parent_url );
 
 		$size       = @getimagesize( $cropped );
 		$image_type = ( $size ) ? $size['mime'] : 'image/jpeg';
 
 		$object = array(
 			'ID'             => $parent_attachment_id,
-			'post_title'     => basename( $cropped ),
+			'post_title'     => wp_basename( $cropped ),
 			'post_content'   => $url,
 			'post_mime_type' => $image_type,
 			'guid'           => $url,
@@ -154,7 +154,7 @@ class WP_Site_Icon {
 		natsort( $this->site_icon_sizes );
 		$this->site_icon_sizes = array_reverse( $this->site_icon_sizes );
 
-		// ensure that we only resize the image into
+		// Ensure that we only resize the image into sizes that allow cropping.
 		foreach ( $sizes as $name => $size_array ) {
 			if ( isset( $size_array['crop'] ) ) {
 				$only_crop_sizes[ $name ] = $size_array;
