@@ -1,0 +1,25 @@
+.itsec-module-settings-notice-list .notice .notice__action {
+    margin-left: .5em;
+}
+
+.itsec-module-settings-notice-list {
+    position: relative;
+    padding-bottom: 1em;
+    font-size: 13px;
+
+    &:empty {
+        display: none;
+    }
+}
+
+.itsec-module-settings-content .components-editor-notices__snackbar {
+    position: fixed;
+    bottom: 100px;
+    padding-left: 16px;
+    padding-right: 16px;
+    width: max-content;
+}
+
+.itsec-module-settings-content .components-snackbar {
+    width: max-content;
+}

@@ -6,7 +6,7 @@
  */
 
 /**
- * Class WPSEO_Plugin_Importer
+ * Class WPSEO_Plugin_Importer.
  *
  * Class with functionality to import meta data from other plugins.
  */
@@ -180,7 +180,7 @@ abstract class WPSEO_Plugin_Importer {
 	 *
 	 * @return bool Clone status.
 	 */
-	protected function meta_key_clone( $old_key, $new_key, $replace_values = array() ) {
+	protected function meta_key_clone( $old_key, $new_key, $replace_values = [] ) {
 		global $wpdb;
 
 		// First we create a temp table with all the values for meta_key.
@@ -203,7 +203,10 @@ abstract class WPSEO_Plugin_Importer {
 			)
 		);
 
-		// We set meta_id to NULL so on re-insert into the postmeta table, MYSQL can set new meta_id's and we don't get duplicates.
+		/*
+		 * We set meta_id to NULL so on re-insert into the postmeta table, MYSQL can set
+		 * new meta_id's and we don't get duplicates.
+		 */
 		$wpdb->query( 'UPDATE tmp_meta_table SET meta_id = NULL' );
 
 		// Now we rename the meta_key.
@@ -234,7 +237,7 @@ abstract class WPSEO_Plugin_Importer {
 	 */
 	protected function meta_keys_clone( $clone_keys ) {
 		foreach ( $clone_keys as $clone_key ) {
-			$result = $this->meta_key_clone( $clone_key['old_key'], $clone_key['new_key'], isset( $clone_key['convert'] ) ? $clone_key['convert'] : array() );
+			$result = $this->meta_key_clone( $clone_key['old_key'], $clone_key['new_key'], isset( $clone_key['convert'] ) ? $clone_key['convert'] : [] );
 			if ( ! $result ) {
 				return false;
 			}
@@ -304,7 +307,7 @@ abstract class WPSEO_Plugin_Importer {
 		global $wpdb;
 
 		// Now we replace values if needed.
-		if ( is_array( $replace_values ) && $replace_values !== array() ) {
+		if ( is_array( $replace_values ) && $replace_values !== [] ) {
 			foreach ( $replace_values as $old_value => $new_value ) {
 				$wpdb->query(
 					$wpdb->prepare(

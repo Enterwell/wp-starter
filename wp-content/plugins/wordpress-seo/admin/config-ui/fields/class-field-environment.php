@@ -6,7 +6,7 @@
  */
 
 /**
- * Class WPSEO_Config_Field_Environment
+ * Class WPSEO_Config_Field_Environment.
  */
 class WPSEO_Config_Field_Environment extends WPSEO_Config_Field_Choice {
 
@@ -25,15 +25,15 @@ class WPSEO_Config_Field_Environment extends WPSEO_Config_Field_Choice {
 	}
 
 	/**
-	 * Set adapter
+	 * Set adapter.
 	 *
 	 * @param WPSEO_Configuration_Options_Adapter $adapter Adapter to register lookup on.
 	 */
 	public function set_adapter( WPSEO_Configuration_Options_Adapter $adapter ) {
 		$adapter->add_custom_lookup(
 			$this->get_identifier(),
-			array( $this, 'get_data' ),
-			array( $this, 'set_data' )
+			[ $this, 'get_data' ],
+			[ $this, 'set_data' ]
 		);
 	}
 

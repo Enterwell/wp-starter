@@ -11,17 +11,21 @@
 class WPSEO_Link_Type_Classifier {
 
 	/**
+	 * Host of the URL.
+	 *
 	 * @var string
 	 */
 	protected $base_host = '';
 
 	/**
+	 * Path of the URL.
+	 *
 	 * @var string
 	 */
 	protected $base_path = '';
 
 	/**
-	 * Constructor setting the base url
+	 * Constructor setting the base url.
 	 *
 	 * @param string $base_url The base url to set.
 	 */
@@ -47,7 +51,7 @@ class WPSEO_Link_Type_Classifier {
 
 		// Because parse_url may return false.
 		if ( ! is_array( $url_parts ) ) {
-			$url_parts = array();
+			$url_parts = [];
 		}
 
 		if ( $this->contains_protocol( $url_parts ) && $this->is_external_link( $url_parts ) ) {
@@ -58,11 +62,11 @@ class WPSEO_Link_Type_Classifier {
 	}
 
 	/**
-	 * Returns true when the link starts with https:// or http://
+	 * Checks whether a link starts with an HTTP[S] protocol.
 	 *
 	 * @param array $url_parts The url parts to use.
 	 *
-	 * @return bool True if the url starts with a protocol.
+	 * @return bool True if the url starts with an https:// or http:// protocol.
 	 */
 	protected function contains_protocol( array $url_parts ) {
 		return isset( $url_parts['scheme'] ) && $url_parts['scheme'] !== null;
@@ -76,7 +80,7 @@ class WPSEO_Link_Type_Classifier {
 	 * @return bool True when the link doesn't contain the home url.
 	 */
 	protected function is_external_link( array $url_parts ) {
-		if ( isset( $url_parts['scheme'] ) && ! in_array( $url_parts['scheme'], array( 'http', 'https' ), true ) ) {
+		if ( isset( $url_parts['scheme'] ) && ! in_array( $url_parts['scheme'], [ 'http', 'https' ], true ) ) {
 			return true;
 		}
 		// When the base host is equal to the host.

@@ -149,3 +149,18 @@ final class ITSEC_Version_Management_Settings_Page extends ITSEC_Module_Settings
 	}
 }
 new ITSEC_Version_Management_Settings_Page();
+
+final class ITSEC_Passwordless_Login_Settings_Page extends ITSEC_Module_Settings_Page {
+	public function __construct() {
+		$this->id = 'passwordless-login';
+		$this->title = __( 'Passwordless Login', 'better-wp-security' );
+		$this->description = __( 'Enable logging in without a password.', 'better-wp-security' );
+		$this->type = 'recommended';
+		$this->pro = true;
+		$this->upsell = true;
+		$this->upsell_url = 'https://ithemes.com/new-wordpress-passwordless-login-ithemes-security/?utm_source=wordpressadmin&utm_medium=widget&utm_campaign=itsecfreecta';
+
+		parent::__construct();
+	}
+}
+new ITSEC_Passwordless_Login_Settings_Page();

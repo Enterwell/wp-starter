@@ -3,16 +3,31 @@
 /**
  * Plugin activation, upgrade, deactivation and uninstall
  *
- * @package iThemes-Security
  * @since   4.0
+ * @package iThemes-Security
  */
 final class ITSEC_Setup {
+	private static $protected = [
+		4117,
+	];
+
+	/**
+	 * Setups plugin data when activating the plugin.
+	 *
+	 * @return true|WP_Error
+	 */
 	public static function handle_activation() {
-		self::setup_plugin_data();
+		$setup = self::setup_plugin_data();
+
+		if ( is_wp_error( $setup ) ) {
+			return $setup;
+		}
 
 		if ( ! ITSEC_Modules::get_setting( 'global', 'initial_build' ) ) {
 			ITSEC_Modules::set_setting( 'global', 'initial_build', ITSEC_Core::get_plugin_build() );
 		}
+
+		return true;
 	}
 
 	public static function handle_deactivation() {
@@ -45,15 +60,31 @@ final class ITSEC_Setup {
 		}
 	}
 
+	/**
+	 * Setups plugin data for the latest build.
+	 *
+	 * @param int|false $build The build number to upgrade from. Pass false to use the current build.
+	 *
+	 * @return true|WP_Error
+	 */
 	public static function handle_upgrade( $build = false ) {
 		if ( ! ITSEC_Modules::get_setting( 'global', 'initial_build' ) ) {
 			ITSEC_Modules::set_setting( 'global', 'initial_build', ITSEC_Core::get_plugin_build() - 1 );
 		}
 
-		self::setup_plugin_data( $build );
+		return self::setup_plugin_data( $build );
 	}
 
 	private static function setup_plugin_data( $build = false ) {
+		// Ensure that the database tables are present and updated to the current schema.
+		$created = ITSEC_Lib::create_database_tables();
+
+		if ( is_wp_error( $created ) ) {
+			return $created;
+		}
+
+		ITSEC_Modules::initialize_container();
+
 		// Determine build number of current data if it was not passed in.
 
 		if ( empty( $build ) ) {
@@ -91,8 +122,17 @@ final class ITSEC_Setup {
 			ITSEC_Modules::set_setting( 'global', 'activation_timestamp', ITSEC_Core::get_current_time_gmt() );
 		}
 
-		// Ensure that the database tables are present and updated to the current schema.
-		ITSEC_Lib::create_database_tables();
+		$mutex = null;
+
+		if ( self::should_do_protected_upgrade( $build ) ) {
+			$mutex = self::init_protected_upgrade();
+
+			if ( ! $mutex ) {
+				ITSEC_Storage::reload();
+
+				return new WP_Error( 'no_mutex', __( 'Failed to acquire a mutex.', 'better-wp-security' ) );
+			}
+		}
 
 		// Run activation routines for modules to ensure that they are properly set up.
 		$itsec_modules = ITSEC_Modules::get_instance();
@@ -107,8 +147,21 @@ final class ITSEC_Setup {
 				self::upgrade_data_to_4031();
 			}
 
+			if ( $build < 4067 ) {
+				delete_site_option( 'itsec_pro_just_activated' );
+			}
+
 			if ( $build < 4069 ) {
 				self::upgrade_data_to_4069();
+				delete_site_option( 'itsec_free_just_activated' );
+			}
+
+			if ( $build < 4076 ) {
+				$digest = wp_next_scheduled( 'itsec_digest_email' );
+
+				if ( $digest ) {
+					wp_unschedule_event( $digest, 'itsec_digest_email' );
+				}
 			}
 
 			// Run upgrade routines for modules to ensure that they are up-to-date.
@@ -158,6 +211,93 @@ final class ITSEC_Setup {
 
 		// Update stored build number.
 		ITSEC_Modules::set_setting( 'global', 'build', ITSEC_Core::get_plugin_build() );
+		ITSEC_Storage::save();
+
+		if ( $mutex ) {
+			$mutex->release();
+		}
+
+		return true;
+	}
+
+	/**
+	 * Should the upgrade routine be done in a protected manner with locks.
+	 *
+	 * @param int $current_build
+	 *
+	 * @return bool
+	 */
+	private static function should_do_protected_upgrade( $current_build ) {
+		foreach ( self::$protected as $build ) {
+			if ( $current_build < $build ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Initialize the protected upgrade.
+	 *
+	 * @return ITSEC_Mutex|null
+	 */
+	private static function init_protected_upgrade() {
+		usleep( 50000 );
+		$mutex = ITSEC_Mutex::get( 'protected-upgrade', 5 );
+
+		if ( ! $mutex ) {
+			if ( self::wait_for_completed_upgrade() ) {
+				return null;
+			}
+
+			self::handle_uncompleted_upgrade();
+		}
+
+		usleep( 50000 );
+
+		if ( ! $mutex->exists() ) {
+			if ( self::wait_for_completed_upgrade() ) {
+				return null;
+			}
+
+			self::handle_uncompleted_upgrade();
+		}
+
+		return $mutex;
+	}
+
+	/**
+	 * Wait for the upgrade routine to be completed.
+	 *
+	 * @return bool
+	 */
+	private static function wait_for_completed_upgrade() {
+		$count = 0;
+
+		do {
+			$count ++;
+			usleep( 50000 );
+
+			if ( ITSEC_Core::get_plugin_build() === ITSEC_Core::get_saved_plugin_build( false ) ) {
+				return true;
+			}
+
+		} while ( $count < 20 );
+
+		return false;
+	}
+
+	/**
+	 * Handle when an upgrade has not been able to be completed.
+	 */
+	private static function handle_uncompleted_upgrade() {
+		if ( 'cli' === php_sapi_name() ) {
+			die( 'Upgrade in progress. Please try again later' );
+		}
+
+		wp_safe_redirect( $_SERVER['REQUEST_URI'] );
+		die;
 	}
 
 	private static function deactivate() {
@@ -264,7 +404,7 @@ final class ITSEC_Setup {
 
 		if ( is_multisite() ) {
 			$network_plugins = (array) get_site_option( 'active_sitewide_plugins', array() );
-			$active_plugins = array_merge( $active_plugins, array_keys( $network_plugins ) );
+			$active_plugins  = array_merge( $active_plugins, array_keys( $network_plugins ) );
 		}
 
 		return $active_plugins;

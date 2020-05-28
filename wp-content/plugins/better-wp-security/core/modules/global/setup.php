@@ -6,10 +6,10 @@ if ( ! class_exists( 'ITSEC_Global_Setup' ) ) {
 
 		public function __construct() {
 
-			add_action( 'itsec_modules_do_plugin_activation',   array( $this, 'execute_activate'   )          );
-			add_action( 'itsec_modules_do_plugin_deactivation', array( $this, 'execute_deactivate' )          );
-			add_action( 'itsec_modules_do_plugin_uninstall',    array( $this, 'execute_uninstall'  )          );
-			add_action( 'itsec_modules_do_plugin_upgrade',      array( $this, 'execute_upgrade'    ), null, 2 );
+			add_action( 'itsec_modules_do_plugin_activation', array( $this, 'execute_activate' ) );
+			add_action( 'itsec_modules_do_plugin_deactivation', array( $this, 'execute_deactivate' ) );
+			add_action( 'itsec_modules_do_plugin_uninstall', array( $this, 'execute_uninstall' ) );
+			add_action( 'itsec_modules_do_plugin_upgrade', array( $this, 'execute_upgrade' ), null, 2 );
 
 		}
 
@@ -50,8 +50,8 @@ if ( ! class_exists( 'ITSEC_Global_Setup' ) ) {
 
 				if ( $options['log_info'] ) {
 					$new_log_info = substr( sanitize_title( get_bloginfo( 'name' ) ), 0, 20 ) . '-' . wp_generate_password( 30, false );
-					$old_file = path_join( $options['log_location'], 'event-log-' . $options['log_info'] . '.log' );
-					$new_file = path_join( $options['log_location'], 'event-log-' . $new_log_info . '.log' );
+					$old_file     = path_join( $options['log_location'], 'event-log-' . $options['log_info'] . '.log' );
+					$new_file     = path_join( $options['log_location'], 'event-log-' . $new_log_info . '.log' );
 
 					// If the file exists already, don't update the location unless we successfully move it.
 					if ( file_exists( $old_file ) && rename( $old_file, $new_file ) ) {
@@ -128,8 +128,13 @@ if ( ! class_exists( 'ITSEC_Global_Setup' ) ) {
 					ITSEC_Modules::set_setting( 'global', 'proxy', 'disabled' );
 				}
 			}
-		}
 
+			if ( $itsec_old_version < 4116 ) {
+				if ( ITSEC_Core::is_pro() && ITSEC_Modules::get_setting( 'security-check-pro', 'remote_ip_index' ) ) {
+					ITSEC_Modules::set_setting( 'global', 'proxy', 'security-check' );
+				}
+			}
+		}
 	}
 
 }

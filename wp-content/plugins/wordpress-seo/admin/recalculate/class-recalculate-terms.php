@@ -6,7 +6,7 @@
  */
 
 /**
- * This class handles the calculation of the SEO score for all terms
+ * This class handles the calculation of the SEO score for all terms.
  */
 class WPSEO_Recalculate_Terms extends WPSEO_Recalculate {
 
@@ -47,11 +47,11 @@ class WPSEO_Recalculate_Terms extends WPSEO_Recalculate {
 
 		return get_terms(
 			get_taxonomies(),
-			array(
+			[
 				'hide_empty' => false,
 				'number'     => $items_per_page,
-				'offset'     => $items_per_page * abs( $paged - 1 ),
-			)
+				'offset'     => ( $items_per_page * abs( $paged - 1 ) ),
+			]
 		);
 	}
 
@@ -77,22 +77,22 @@ class WPSEO_Recalculate_Terms extends WPSEO_Recalculate {
 		 */
 		$description = apply_filters( 'wpseo_term_description_for_recalculation', $description, $item );
 
-		return array(
+		return [
 			'term_id'       => $item->term_id,
 			'taxonomy'      => $item->taxonomy,
 			'text'          => $description,
 			'keyword'       => $focus_keyword,
 			'url'           => urldecode( $item->slug ),
-			'pageTitle'     => apply_filters( 'wpseo_title', wpseo_replace_vars( $title, $item, array( 'page' ) ) ),
+			'pageTitle'     => apply_filters( 'wpseo_title', wpseo_replace_vars( $title, $item, [ 'page' ] ) ),
 			'meta'          => apply_filters( 'wpseo_metadesc', wpseo_replace_vars( $meta, $item ) ),
-			'keyword_usage' => array(
+			'keyword_usage' => [
 				$focus_keyword => WPSEO_Taxonomy_Meta::get_keyword_usage( $focus_keyword, $item->term_id, $item->taxonomy ),
-			),
-		);
+			],
+		];
 	}
 
 	/**
-	 * Gets the focus keyword for the term
+	 * Gets the focus keyword for the term.
 	 *
 	 * @param stdClass|WP_Term $term Term to determine the keyword for.
 	 *
@@ -108,7 +108,7 @@ class WPSEO_Recalculate_Terms extends WPSEO_Recalculate {
 	}
 
 	/**
-	 * Get the title for given term
+	 * Get the title for given term.
 	 *
 	 * @param stdClass|WP_Term $term The term object.
 	 *
@@ -116,12 +116,12 @@ class WPSEO_Recalculate_Terms extends WPSEO_Recalculate {
 	 */
 	private function get_title( $term ) {
 		$title = WPSEO_Taxonomy_Meta::get_term_meta( $term->term_id, $term->taxonomy, 'title' );
-		if ( '' !== $title ) {
+		if ( $title !== '' ) {
 			return $title;
 		}
 
 		$default_from_options = $this->default_from_options( 'title-tax', $term->taxonomy );
-		if ( false !== $default_from_options ) {
+		if ( $default_from_options !== false ) {
 			return $default_from_options;
 		}
 
@@ -129,7 +129,7 @@ class WPSEO_Recalculate_Terms extends WPSEO_Recalculate {
 	}
 
 	/**
-	 * Get the meta description for given post
+	 * Get the meta description for given post.
 	 *
 	 * @param stdClass|WP_Term $term The term object.
 	 *
@@ -137,12 +137,12 @@ class WPSEO_Recalculate_Terms extends WPSEO_Recalculate {
 	 */
 	private function get_meta_description( $term ) {
 		$meta_description = WPSEO_Taxonomy_Meta::get_term_meta( $term->term_id, $term->taxonomy, 'desc' );
-		if ( '' !== $meta_description ) {
+		if ( $meta_description !== '' ) {
 			return $meta_description;
 		}
 
 		$default_from_options = $this->default_from_options( 'metadesc-tax', $term->taxonomy );
-		if ( false !== $default_from_options ) {
+		if ( $default_from_options !== false ) {
 			return $default_from_options;
 		}
 

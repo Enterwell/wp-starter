@@ -1,5 +1,7 @@
 <?php
 
+use iThemesSecurity\Lib\Lockout\Host_Context;
+
 class ITSEC_Four_Oh_Four {
 
 	private $settings;
@@ -33,8 +35,8 @@ class ITSEC_Four_Oh_Four {
 			! in_array( '/' . ITSEC_Lib::get_request_path(), $this->settings['white_list'], true ) &&
 			! in_array( '.' . pathinfo( $uri[0], PATHINFO_EXTENSION ), $this->settings['types'], true )
 		) {
-			ITSEC_Log::add_notice( 'four_oh_four', 'found_404', array( 'SERVER' => $_SERVER ) );
-			$itsec_lockout->do_lockout( 'four_oh_four' );
+			ITSEC_Log::add_notice( 'four_oh_four', 'found_404', array( 'SERVER' => ITSEC_Lib::get_server_snapshot() ) );
+			$itsec_lockout->do_lockout( new Host_Context( 'four_oh_four' ) );
 		} else {
 			do_action( 'itsec_four_oh_four_whitelisted', $uri );
 		}
@@ -43,9 +45,9 @@ class ITSEC_Four_Oh_Four {
 	/**
 	 * Register 404 detection for lockout
 	 *
-	 * @param  array $lockout_modules array of lockout modules
+	 * @param array $lockout_modules array of lockout modules
 	 *
-	 * @return array                   array of lockout modules
+	 * @return array
 	 */
 	public function register_lockout( $lockout_modules ) {
 

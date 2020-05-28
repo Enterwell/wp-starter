@@ -6,19 +6,19 @@
  */
 
 /**
- * Class WPSEO_Recalculate_Scores
+ * Class WPSEO_Recalculate_Scores.
  *
- * This class handles the SEO score recalculation for all posts with a filled focus keyword
+ * This class handles the SEO score recalculation for all posts with a filled focus keyword.
  */
 class WPSEO_Recalculate_Scores_Ajax {
 
 	/**
-	 * Initialize the AJAX hooks
+	 * Initialize the AJAX hooks.
 	 */
 	public function __construct() {
-		add_action( 'wp_ajax_wpseo_recalculate_scores', array( $this, 'recalculate_scores' ) );
-		add_action( 'wp_ajax_wpseo_update_score', array( $this, 'save_score' ) );
-		add_action( 'wp_ajax_wpseo_recalculate_total', array( $this, 'get_total' ) );
+		add_action( 'wp_ajax_wpseo_recalculate_scores', [ $this, 'recalculate_scores' ] );
+		add_action( 'wp_ajax_wpseo_update_score', [ $this, 'save_score' ] );
+		add_action( 'wp_ajax_wpseo_recalculate_total', [ $this, 'get_total' ] );
 	}
 
 	/**
@@ -28,17 +28,18 @@ class WPSEO_Recalculate_Scores_Ajax {
 		check_ajax_referer( 'wpseo_recalculate', 'nonce' );
 
 		wp_die(
-			wp_json_encode(
-				array(
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason: WPSEO_Utils::format_json_encode is considered safe.
+			WPSEO_Utils::format_json_encode(
+				[
 					'posts' => $this->calculate_posts(),
 					'terms' => $this->calculate_terms(),
-				)
+				]
 			)
 		);
 	}
 
 	/**
-	 * Start recalculation
+	 * Start recalculation.
 	 */
 	public function recalculate_scores() {
 		check_ajax_referer( 'wpseo_recalculate', 'nonce' );
@@ -49,7 +50,8 @@ class WPSEO_Recalculate_Scores_Ajax {
 			$response = $fetch_object->get_items_to_recalculate( $paged );
 
 			if ( ! empty( $response ) ) {
-				wp_die( wp_json_encode( $response ) );
+				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason: WPSEO_Utils::format_json_encode is considered safe.
+				wp_die( WPSEO_Utils::format_json_encode( $response ) );
 			}
 		}
 
@@ -57,7 +59,7 @@ class WPSEO_Recalculate_Scores_Ajax {
 	}
 
 	/**
-	 * Saves the new linkdex score for given post
+	 * Saves the new linkdex score for given post.
 	 */
 	public function save_score() {
 		check_ajax_referer( 'wpseo_recalculate', 'nonce' );
@@ -88,32 +90,32 @@ class WPSEO_Recalculate_Scores_Ajax {
 	}
 
 	/**
-	 * Gets the total number of posts
+	 * Gets the total number of posts.
 	 *
 	 * @return int
 	 */
 	private function calculate_posts() {
 		$count_posts_query = new WP_Query(
-			array(
+			[
 				'post_type'      => 'any',
 				'meta_key'       => '_yoast_wpseo_focuskw',
 				'posts_per_page' => 1,
 				'fields'         => 'ids',
-			)
+			]
 		);
 
 		return $count_posts_query->found_posts;
 	}
 
 	/**
-	 * Get the total number of terms
+	 * Get the total number of terms.
 	 *
 	 * @return int
 	 */
 	private function calculate_terms() {
 		$total = 0;
-		foreach ( get_taxonomies( array(), 'objects' ) as $taxonomy ) {
-			$total += wp_count_terms( $taxonomy->name, array( 'hide_empty' => false ) );
+		foreach ( get_taxonomies( [], 'objects' ) as $taxonomy ) {
+			$total += wp_count_terms( $taxonomy->name, [ 'hide_empty' => false ] );
 		}
 
 		return $total;

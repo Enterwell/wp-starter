@@ -1,0 +1,103 @@
+@import "colors.scss";
+@import "animations.scss";
+
+.itsec-admin-bar-admin-notices__content.components-popover::after {
+    border-color: #E5EAEE !important;
+}
+
+.itsec-admin-notice-panel {
+    padding: 1em;
+    background: #E5EAEE;
+    width: 420px;
+    box-sizing: border-box;
+
+    & .itsec-admin-notice-panel__header {
+        border-bottom: 1px solid $light-blue;
+        margin-bottom: 1em;
+
+        h3 {
+            color: $main-blue;
+            text-align: center;
+        }
+
+        p {
+            text-align: center;
+            font-style: oblique;
+        }
+    }
+
+    .is-mobile & {
+        width: 100%;
+        overflow-x: auto;
+        height: 100%;
+
+        & header {
+            & h3 {
+                display: none;
+            }
+
+            & p {
+                margin-top: 0;
+            }
+        }
+    }
+
+    & .itsec-admin-notice-panel__configure-trigger.components-button {
+        padding: 5px;
+        height: 30px;
+        position: absolute;
+        right: 1em;
+        top: 1em;
+        transition: opacity 400ms;
+
+        &:hover {
+            opacity: .5;
+            box-shadow: none !important;
+        }
+    }
+
+    &.itsec-admin-notice-panel--is-configuring .itsec-admin-notice-panel__configure-trigger.components-button {
+        color: $main-blue;
+
+        &:hover {
+            color: $main-blue;
+        }
+    }
+
+    & .itsec-admin-notice-panel__configure-highlighted-logs {
+        border-bottom: 1px solid #7ABEED;
+        margin-bottom: 1em;
+        padding-bottom: 1em;
+
+        & li {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid #ccc;
+            margin-bottom: 1em;
+            padding-bottom: 1em;
+            padding-top: 0;
+            margin-top: 0;
+
+            &:last-child {
+                border-bottom: none;
+                margin-bottom: 0;
+                padding-bottom: 0;
+            }
+
+            & label {
+                margin-left: calc(24px + 1em);
+                font-size: 14px;
+                font-weight: bold;
+            }
+
+            & .components-form-toggle.is-checked .components-form-toggle__track {
+                background-color: $main-blue;
+                border-color: $main-blue;
+            }
+
+            & .components-form-toggle__input:disabled + .components-form-toggle__track {
+                opacity: .5;
+            }
+        }
+    }
+}

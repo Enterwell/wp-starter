@@ -1,5 +1,7 @@
 <?php
 
+use \iThemesSecurity\User_Groups;
+
 class ITSEC_Global_Validator extends ITSEC_Validator {
 	public function get_id() {
 		return 'global';
@@ -19,11 +21,10 @@ class ITSEC_Global_Validator extends ITSEC_Validator {
 		}
 
 
-		$this->vars_to_skip_validate_matching_fields = array( 'digest_last_sent', 'digest_messages', 'digest_email', 'email_notifications', 'notification_email', 'backup_email', 'show_new_dashboard_notice', 'proxy_override', 'proxy', 'proxy_header', 'server_ips', 'initial_build' );
-		$this->set_previous_if_empty( array( 'did_upgrade', 'log_info', 'show_security_check', 'build', 'activation_timestamp', 'lock_file', 'cron_status', 'use_cron', 'cron_test_time', 'proxy', 'proxy_header', 'server_ips', 'initial_build' ) );
+		$this->vars_to_skip_validate_matching_fields = array( 'digest_last_sent', 'digest_messages', 'digest_email', 'email_notifications', 'notification_email', 'backup_email', 'show_new_dashboard_notice', 'proxy_override', 'proxy', 'proxy_header', 'server_ips', 'initial_build', 'feature_flags' );
+		$this->set_previous_if_empty( array( 'did_upgrade', 'log_info', 'show_security_check', 'build', 'activation_timestamp', 'lock_file', 'cron_status', 'use_cron', 'cron_test_time', 'proxy', 'proxy_header', 'server_ips', 'initial_build', 'feature_flags' ) );
 		$this->set_default_if_empty( array( 'log_location', 'nginx_file', 'enable_grade_report' ) );
-		$this->preserve_setting_if_exists( array(  'digest_email', 'email_notifications', 'notification_email', 'backup_email', 'proxy_override' ) );
-
+		$this->preserve_setting_if_exists( array( 'digest_email', 'email_notifications', 'notification_email', 'backup_email', 'proxy_override' ) );
 
 		$this->sanitize_setting( 'bool', 'write_files', __( 'Write to Files', 'better-wp-security' ) );
 		$this->sanitize_setting( 'bool', 'blacklist', __( 'Blacklist Repeat Offender', 'better-wp-security' ) );
@@ -55,19 +56,57 @@ class ITSEC_Global_Validator extends ITSEC_Validator {
 
 		$allowed_tags = $this->get_allowed_tags();
 
-		$this->settings['lockout_message'] = trim( wp_kses( $this->settings['lockout_message'], $allowed_tags ) );
-		$this->settings['user_lockout_message'] = trim( wp_kses( $this->settings['user_lockout_message'], $allowed_tags ) );
+		$this->settings['lockout_message']           = trim( wp_kses( $this->settings['lockout_message'], $allowed_tags ) );
+		$this->settings['user_lockout_message']      = trim( wp_kses( $this->settings['user_lockout_message'], $allowed_tags ) );
 		$this->settings['community_lockout_message'] = trim( wp_kses( $this->settings['community_lockout_message'], $allowed_tags ) );
 
 		$this->sanitize_setting( 'newline-separated-ips', 'server_ips', __( 'Server IPs', 'better-wp-security' ) );
+		$this->sanitize_setting( 'array', 'feature_flags', __( 'Feature Flags', 'better-wp-security' ) );
+		$this->sanitize_setting( 'user-groups', 'manage_group', __( 'Manage Group', 'better-wp-security' ) );
+	}
+
+	protected function validate_settings() {
+		if ( ITSEC_Core::is_interactive() && $this->settings['manage_group'] && $this->settings['manage_group'] !== $this->previous_settings['manage_group'] ) {
+			$matcher = ITSEC_Modules::get_container()->get( User_Groups\Matcher::class );
+
+			if ( ! $matcher->matches( User_Groups\Match_Target::for_user( wp_get_current_user() ), $this->settings['manage_group'] ) ) {
+				$this->add_error( new WP_Error( 'itsec-validator-global-cannot-exclude-self', __( 'The configuration you have chosen removes your capability to manage iThemes Security.', 'better-wp-security' ), [ 'status' => 400 ] ) );
+				$this->set_can_save( false );
+			}
+		}
 	}
 
 	public function get_proxy_types() {
-		return array(
-			'automatic' => esc_html__( 'Automatic', 'better-wp-security' ),
-			'manual'    => esc_html__( 'Manual', 'better-wp-security' ),
-			'disabled'  => esc_html__( 'Disabled', 'better-wp-security' ),
-		);
+		ITSEC_Lib::load( 'ip-detector' );
+
+		return ITSEC_Lib_IP_Detector::get_proxy_types();
+	}
+
+	public function get_proxy_header_options() {
+		ITSEC_Lib::load( 'ip-detector' );
+
+		$possible_headers = ITSEC_Lib_IP_Detector::get_proxy_headers();
+		$possible_headers[] = 'REMOTE_ADDR';
+
+		$ucwords = version_compare( phpversion(), '5.5.16', '>=' ) || ( version_compare( phpversion(), '5.4.32', '>=' ) && version_compare( phpversion(), '5.5.0', '<' ) );
+		$options = array();
+
+		foreach ( $possible_headers as $header ) {
+			$label = $header;
+
+			if ( 0 === strpos( $header, 'HTTP_' ) ) {
+				$label = substr( $label, 5 );
+			}
+
+			$label = str_replace( '_', '-', $label );
+			$label = strtolower( $label );
+			$label = $ucwords ? ucwords( $label, '-' ) : implode( '-', array_map( 'ucfirst', explode( '-', $label ) ) );
+			$label = str_replace('Ip', 'IP', $label );
+
+			$options[ $header ] = $label;
+		}
+
+		return $options;
 	}
 
 	public function get_valid_log_types() {

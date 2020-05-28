@@ -19,6 +19,7 @@ class ITSEC_Lib_Login_Interstitial {
 	const R_INTERSTITIAL = 'itsec_interstitial';
 	const R_ASYNC_ACTION = 'itsec_interstitial_async_action';
 	const R_GET_STATE = 'itsec_interstitial_get_state';
+	const R_SAME_BROWSER_DENY = 'itsec_interstitial_browser_deny';
 
 	const C_SAME_BROWSER = 'itsec_interstitial_browser';
 	const SAME_BROWSER_PAYLOAD = 'same-browser';
@@ -153,6 +154,8 @@ class ITSEC_Lib_Login_Interstitial {
 	 * @api
 	 *
 	 * @param ITSEC_Login_Interstitial_Session $session
+	 *
+	 * @return bool
 	 */
 	public function proceed_to_next( ITSEC_Login_Interstitial_Session $session ) {
 
@@ -160,7 +163,8 @@ class ITSEC_Lib_Login_Interstitial {
 		$session->add_completed_interstitial( $current );
 
 		$session->set_current_interstitial( $this->get_next_interstitial( $session ) );
-		$session->save();
+
+		return $session->save();
 	}
 
 	/**
@@ -209,6 +213,13 @@ class ITSEC_Lib_Login_Interstitial {
 	 */
 	public function initialize_same_browser( ITSEC_Login_Interstitial_Session $session ) {
 		ITSEC_Lib::set_cookie( self::C_SAME_BROWSER, $session->get_signature_for_payload( self::SAME_BROWSER_PAYLOAD ) );
+
+		/**
+		 * Fires when the login interstitial initializes the Same Browser API for async actions.
+		 *
+		 * @param ITSEC_Login_Interstitial_Session $session
+		 */
+		do_action( 'itsec_login_interstitial_initialize_same_browser', $session );
 	}
 
 	/**
@@ -239,7 +250,11 @@ class ITSEC_Lib_Login_Interstitial {
 		foreach ( $this->get_applicable_interstitials( $user ) as $action => $opts ) {
 			$session = ITSEC_Login_Interstitial_Session::create( $user, $action );
 
-			$this->build_session_from_global_state( $session );
+			if ( is_wp_error( $session ) ) {
+				wp_die( $session );
+			}
+
+			$session->initialize_from_global_state();
 
 			if ( isset( $_REQUEST[ self::SHOW_AFTER_LOGIN ], $this->registered[ $_REQUEST[ self::SHOW_AFTER_LOGIN ] ] ) ) {
 				$session->add_show_after( $_REQUEST[ self::SHOW_AFTER_LOGIN ] );
@@ -252,34 +267,14 @@ class ITSEC_Lib_Login_Interstitial {
 
 		if ( isset( $_REQUEST[ self::SHOW_AFTER_LOGIN ], $this->registered[ $_REQUEST[ self::SHOW_AFTER_LOGIN ] ] ) ) {
 			$session = ITSEC_Login_Interstitial_Session::create( $user, $_REQUEST[ self::SHOW_AFTER_LOGIN ] );
-			$this->build_session_from_global_state( $session );
+
+			if ( is_wp_error( $session ) ) {
+				wp_die( $session );
+			}
+
+			$session->initialize_from_global_state();
 			$session->save();
 			$this->show_interstitial( $session );
-		}
-	}
-
-	/**
-	 * Build up the interstitial session configuration from the global state.
-	 *
-	 * This does not set the show afters because this is also used by the show after code.
-	 *
-	 * @param ITSEC_Login_Interstitial_Session $session
-	 */
-	private function build_session_from_global_state( ITSEC_Login_Interstitial_Session $session ) {
-		if ( isset( $_REQUEST['interim-login'] ) ) {
-			$session->set_interim_login();
-		}
-
-		if ( ! empty( $_REQUEST['redirect_to'] ) ) {
-			$session->set_redirect_to( $_REQUEST['redirect_to'] );
-		} elseif ( ! did_action( 'login_init' ) && ( $ref = wp_get_referer() ) ) {
-			$session->set_redirect_to( $ref );
-		} elseif ( ! did_action( 'login_init' ) ) {
-			$session->set_redirect_to( $_SERVER['REQUEST_URI'] );
-		}
-
-		if ( ! empty( $_REQUEST['rememberme'] ) ) {
-			$session->set_remember_me();
 		}
 	}
 
@@ -459,6 +454,12 @@ class ITSEC_Lib_Login_Interstitial {
 			$this->display_wp_login_message( new WP_Error( 'unsupported', esc_html__( 'Unsupported Interstitial. Please login again.', 'better-wp-security' ) ) );
 		}
 
+		if ( isset( $_REQUEST[ self::R_SAME_BROWSER_DENY ] ) ) {
+			$session->delete();
+			wp_redirect( wp_login_url() );
+			die;
+		}
+
 		$args = array(
 			'same_browser' => false,
 		);
@@ -471,7 +472,12 @@ class ITSEC_Lib_Login_Interstitial {
 		}
 
 		$this->current_session = $session;
-		$result                = $interstitial->handle_async_action( $session, $action, $args );
+
+		if ( ! $args['same_browser'] && 'GET' === $_SERVER['REQUEST_METHOD'] ) {
+			$this->display_async_action_confirmation( $session, $action );
+		}
+
+		$result = $interstitial->handle_async_action( $session, $action, $args );
 
 		if ( null === $result ) {
 			$this->display_wp_login_message( new WP_Error( 'unsupported', esc_html__( 'Unsupported Interstitial. Please login again.', 'better-wp-security' ) ) );
@@ -485,7 +491,7 @@ class ITSEC_Lib_Login_Interstitial {
 			$result = array();
 		}
 
-		if ( $args['same_browser'] && empty( $args['allow_same_browser'] ) ) {
+		if ( $args['same_browser'] && empty( $result['allow_same_browser'] ) ) {
 			$this->do_next_step( $session, array(
 				'delete'        => false,
 				'allow_interim' => false,
@@ -602,7 +608,9 @@ class ITSEC_Lib_Login_Interstitial {
 		wp_enqueue_script( 'itsec-login-interstitial-util' );
 		?>
 
-		<?php if ( $this->error ) : ?>
+		<?php if ( $this->error && $this->error->get_error_data() === 'message' ) : ?>
+			<p class="message"><?php echo $this->error->get_error_message(); ?></p>
+		<?php elseif ( $this->error ): ?>
 			<div id="login-error" class="message" style="border-left-color: #dc3232;">
 				<?php echo $this->error->get_error_message(); ?>
 			</div>
@@ -694,6 +702,95 @@ class ITSEC_Lib_Login_Interstitial {
 		<?php elseif ( ! empty( $message['message'] ) ): ?>
 			<p class="message"><?php echo $message['message']; ?></p>
 		<?php endif; ?>
+
+		<p id="backtoblog">
+			<a href="<?php echo esc_url( home_url( '/' ) ); ?>" title="<?php esc_attr_e( 'Are you lost?', 'better-wp-security' ); ?>">
+				<?php echo esc_html( sprintf( __( '&larr; Back to %s', 'better-wp-security' ), get_bloginfo( 'title', 'display' ) ) ); ?>
+			</a>
+		</p>
+
+		</div>
+		<?php do_action( 'login_footer' ); ?>
+		<div class="clear"></div>
+		</body>
+		</html>
+		<?php
+		die;
+	}
+
+	/**
+	 * Display a confirmation button for an async action.
+	 *
+	 * @param ITSEC_Login_Interstitial_Session $session
+	 * @param string                           $action
+	 */
+	private function display_async_action_confirmation( ITSEC_Login_Interstitial_Session $session, $action ) {
+		if ( ! function_exists( 'login_header' ) ) {
+			require_once( dirname( __FILE__ ) . '/includes/function.login-header.php' );
+		}
+
+		$form_action = $this->get_async_action_url( $session, $action );
+
+		login_header();
+		?>
+		<style type="text/css">
+			.login h2 {
+				margin-bottom: 10px;
+				font-size: 14px;
+			}
+
+			.itsec-login-interstitial-confirm-async-action {
+				vertical-align: top;
+				display: block;
+				text-decoration: none;
+				height: 28px;
+				margin: 0 0 15px 0;
+				cursor: pointer;
+				-webkit-appearance: none;
+				border-radius: 3px;
+				white-space: nowrap;
+				box-sizing: border-box;
+				background: #0083E3;
+				color: #fff;
+				text-shadow: none;
+				padding: 20px 30px;
+				line-height: 0;
+				box-shadow: none;
+				font-weight: 300;
+				font-size: 1.2em;
+				border: none;
+				width: 100%;
+				text-align: center;
+			}
+			.itsec-login-interstitial-confirm-async-action:last-child {
+				margin-bottom: 0;
+			}
+			.itsec-login-interstitial-confirm-async-action:hover,
+			.itsec-login-interstitial-confirm-async-action:focus {
+				background: #006799;
+				color: #fff;
+			}
+			.itsec-login-interstitial-confirm-async-action.itsec-login-interstitial-confirm-async-action--deny {
+				background: #d54e21;
+			}
+			.itsec-login-interstitial-confirm-async-action.itsec-login-interstitial-confirm-async-action--deny:hover,
+			.itsec-login-interstitial-confirm-async-action.itsec-login-interstitial-confirm-async-action--deny:focus {
+				background: #983818;
+			}
+		</style>
+		<form action="<?php echo esc_url( $form_action ); ?>" method="post" autocomplete="off">
+
+			<h2><?php esc_html_e( 'Please Verify the Login Request', 'better-wp-security' ); ?></h2>
+
+			<?php do_action( 'itsec_login_interstitial_async_action_confirmation_before_confirm', $session, $action ); ?>
+
+			<button class="itsec-login-interstitial-confirm-async-action">
+				<?php esc_html_e( 'Confirm Login', 'better-wp-security' ); ?>
+			</button>
+			<button name="<?php echo esc_attr( self::R_SAME_BROWSER_DENY ); ?>" class="itsec-login-interstitial-confirm-async-action itsec-login-interstitial-confirm-async-action--deny">
+				<?php esc_html_e( 'Deny Login', 'better-wp-security' ); ?>
+			</button>
+		</form>
 
 		<p id="backtoblog">
 			<a href="<?php echo esc_url( home_url( '/' ) ); ?>" title="<?php esc_attr_e( 'Are you lost?', 'better-wp-security' ); ?>">

@@ -29,7 +29,7 @@ class ITSEC_Settings_Page_Sidebar_Widget_Mail_List_Signup extends ITSEC_Settings
 				method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate"
 				target="_blank" novalidate>
 				<div style="text-align: center;">
-					<img src="<?php echo plugins_url( 'img/security-ebook.png', __FILE__ ) ?>" width="145" height="187" alt="WordPress Security - A Pocket Guide">
+					<img src="<?php echo plugins_url( 'img/security-ebook.png', __FILE__ ) ?>" style="max-width: 100%" alt="WordPress Security - A Pocket Guide">
 				</div>
 				<p><?php _e( 'Get tips for securing your site + the latest WordPress security updates, news and releases from iThemes.', 'better-wp-security' ); ?></p>
 

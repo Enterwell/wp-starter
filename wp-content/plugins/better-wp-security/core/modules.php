@@ -1,5 +1,9 @@
 <?php
 
+use iThemesSecurity\Contracts\Runnable;
+use iThemesSecurity\Exception\Unsatisfied_Module_Dependencies_Exception;
+use Pimple\Container;
+
 final class ITSEC_Modules {
 	/**
 	 * @var ITSEC_Modules - Static property to hold our singleton instance
@@ -15,11 +19,25 @@ final class ITSEC_Modules {
 	private $_module_settings = false;
 	private $_module_validators = false;
 	private $_settings_files_loaded = false;
+	private $loaded_containers = [];
+	private $labels = array();
+
+	/** @var Container */
+	private $pimple;
+
+	/** @var Psr\Container\ContainerInterface */
+	private $container;
+
+	/** @var bool */
+	private $initialized_container = false;
 
 	protected function __construct() {
 		// Action triggered from another part of Security which runs when the settings page is loaded.
 		add_action( 'itsec-settings-page-init', array( $this, 'load_settings_page' ) );
 		add_action( 'itsec-logs-page-init', array( $this, 'load_settings_page' ) );
+
+		$this->pimple    = new Container();
+		$this->container = new Pimple\Psr11\Container( $this->pimple );
 	}
 
 	/**
@@ -52,16 +70,17 @@ final class ITSEC_Modules {
 
 		if ( ! is_dir( $path ) ) {
 			trigger_error( sprintf( __( 'An attempt to register the %1$s module failed since the supplied path (%2$s) is invalid. This could indicate an invalid modification or incomplete installation of the iThemes Security plugin. Please reinstall the plugin and try again.', 'better-wp-security' ), $slug, $path ) );
+
 			return false;
 		}
 
 		$self->_module_paths[ $slug ] = $path;
-		$self->_available_modules = array_keys( $self->_module_paths );
+		$self->_available_modules     = array_keys( $self->_module_paths );
 
 		if ( 'always-active' === $type ) {
-			$self->_always_active_modules[$slug] = true;
-		} else if ( 'default-active' === $type ) {
-			$self->_default_active_modules[$slug] = true;
+			$self->_always_active_modules[ $slug ] = true;
+		} elseif ( 'default-active' === $type ) {
+			$self->_default_active_modules[ $slug ] = true;
 		}
 
 		return true;
@@ -84,8 +103,7 @@ final class ITSEC_Modules {
 			unset( $self->_module_paths[ $slug ] );
 			$self->_available_modules = array_keys( $self->_module_paths );
 
-			unset( $self->_always_active_modules[$slug] );
-			unset( $self->_default_active_modules[$slug] );
+			unset( $self->_always_active_modules[ $slug ], $self->_default_active_modules[ $slug ] );
 
 			return true;
 		}
@@ -105,7 +123,7 @@ final class ITSEC_Modules {
 		$self = self::get_instance();
 
 		foreach ( $self->_module_paths as $slug => $path ) {
-			$self->_module_paths[$slug] = str_replace( $old_dir, $new_dir, $path );
+			$self->_module_paths[ $slug ] = str_replace( $old_dir, $new_dir, $path );
 		}
 	}
 
@@ -115,8 +133,7 @@ final class ITSEC_Modules {
 	 * @param ITSEC_Settings $settings
 	 */
 	public static function register_settings( $settings ) {
-		$self = self::get_instance();
-		$self->_module_settings[ $settings->get_id() ] = $settings;
+		self::get_instance()->_module_settings[ $settings->get_id() ] = $settings;
 	}
 
 	/**
@@ -150,8 +167,6 @@ final class ITSEC_Modules {
 	 * @return array
 	 */
 	public static function get_defaults( $slug ) {
-		$self = self::get_instance();
-
 		$settings_obj = self::get_settings_obj( $slug );
 
 		if ( is_null( $settings_obj ) || ! is_callable( array( $settings_obj, 'get_defaults' ) ) ) {
@@ -171,12 +186,10 @@ final class ITSEC_Modules {
 	 * @return mixed
 	 */
 	public static function get_default( $slug, $name, $default = null ) {
-		$self = self::get_instance();
-
 		$defaults = self::get_defaults( $slug );
 
-		if ( isset( $defaults[$name] ) ) {
-			return $defaults[$name];
+		if ( isset( $defaults[ $name ] ) ) {
+			return $defaults[ $name ];
 		}
 
 		return $default;
@@ -190,8 +203,6 @@ final class ITSEC_Modules {
 	 * @return array
 	 */
 	public static function get_settings( $slug ) {
-		$self = self::get_instance();
-
 		$settings_obj = self::get_settings_obj( $slug );
 
 		if ( is_null( $settings_obj ) || ! is_callable( array( $settings_obj, 'get_all' ) ) ) {
@@ -212,8 +223,6 @@ final class ITSEC_Modules {
 	 * @return mixed
 	 */
 	public static function get_setting( $slug, $name, $default = null ) {
-		$self = self::get_instance();
-
 		$settings_obj = self::get_settings_obj( $slug );
 
 		if ( is_null( $settings_obj ) || ! is_callable( array( $settings_obj, 'get' ) ) ) {
@@ -234,8 +243,6 @@ final class ITSEC_Modules {
 	 * @return array|WP_Error
 	 */
 	public static function set_settings( $slug, $settings ) {
-		$self = self::get_instance();
-
 		$settings_obj = self::get_settings_obj( $slug );
 
 		if ( is_null( $settings_obj ) || ! is_callable( array( $settings_obj, 'set_all' ) ) ) {
@@ -251,21 +258,21 @@ final class ITSEC_Modules {
 	/**
 	 * Update a single setting in a module.
 	 *
-	 * The new value will be validated, updated- in-memory, and persisted.
+	 * The new value will be validated and updated in memory. The change isn't persisted until
+	 * the end of the request or a manual call to {@see ITSEC_Storage::save()}.
 	 *
-	 * @param string $slug The module slug.
-	 * @param string $name The setting name to updated.
-	 * @param mixed $value The settings' new value.
+	 * @param string $slug  The module slug.
+	 * @param string $name  The setting name to updated.
+	 * @param mixed  $value The settings' new value.
 	 *
 	 * @return array|false
 	 */
 	public static function set_setting( $slug, $name, $value ) {
-		$self = self::get_instance();
-
 		$settings_obj = self::get_settings_obj( $slug );
 
 		if ( is_null( $settings_obj ) || ! is_callable( array( $settings_obj, 'set_all' ) ) ) {
 			trigger_error( sprintf( __( 'Unable to find a valid settings object for %s. Setting was unable to be saved.', 'better-wp-security' ), $slug ) );
+
 			return false;
 		}
 
@@ -280,8 +287,7 @@ final class ITSEC_Modules {
 	 * @param ITSEC_Validator $validator
 	 */
 	public static function register_validator( $validator ) {
-		$self = self::get_instance();
-		$self->_module_validators[ $validator->get_id() ] = $validator;
+		self::get_instance()->_module_validators[ $validator->get_id() ] = $validator;
 	}
 
 	/**
@@ -349,14 +355,14 @@ final class ITSEC_Modules {
 
 		if ( ! is_array( $self->_active_modules ) ) {
 			$self->_active_modules = array();
-		} else if ( isset( $self->_active_modules[0] ) ) {
+		} elseif ( isset( $self->_active_modules[0] ) ) {
 			// Found data from an old format.
 			foreach ( $self->_active_modules as $key => $value ) {
 				if ( ! is_bool( $value ) ) {
-					unset( $self->_active_modules[$key] );
+					unset( $self->_active_modules[ $key ] );
 
-					if ( ! isset( $self->_active_modules[$value] ) ) {
-						$self->_active_modules[$value] = true;
+					if ( ! isset( $self->_active_modules[ $value ] ) ) {
+						$self->_active_modules[ $value ] = true;
 					}
 				}
 			}
@@ -398,6 +404,7 @@ final class ITSEC_Modules {
 	 */
 	public static function get_always_active_modules() {
 		$self = self::get_instance();
+
 		return array_keys( $self->_always_active_modules );
 	}
 
@@ -411,7 +418,7 @@ final class ITSEC_Modules {
 	public static function is_always_active( $module_id ) {
 		$self = self::get_instance();
 
-		if ( ! empty( $self->_always_active_modules[$module_id] ) ) {
+		if ( ! empty( $self->_always_active_modules[ $module_id ] ) ) {
 			return true;
 		}
 
@@ -432,7 +439,7 @@ final class ITSEC_Modules {
 			self::get_active_modules();
 		}
 
-		if ( ! empty( $self->_always_active_modules[$module_id] ) ) {
+		if ( ! empty( $self->_always_active_modules[ $module_id ] ) ) {
 			return true;
 		}
 
@@ -468,8 +475,10 @@ final class ITSEC_Modules {
 			$was_active = $self->_active_modules[ $module_id ];
 		}
 
-		if ( is_wp_error( $error = self::load_module_file( 'activate.php', $module_id ) ) ) {
-			return $error;
+		try {
+			self::load_module_file( 'activate.php', $module_id );
+		} catch ( Unsatisfied_Module_Dependencies_Exception $e ) {
+			return new WP_Error( 'itsec-modules-cannot-activate-module-unsatisfied-dependencies', $e->getMessage() );
 		}
 
 		$self->_active_modules[ $module_id ] = true;
@@ -553,44 +562,81 @@ final class ITSEC_Modules {
 	 *
 	 * The file will only be loaded once and will not error if does not exist.
 	 *
-	 * @param string $file    The file name to load, including extension.
+	 * @param string          $file    The file name to load, including extension.
 	 * @param string|string[] $modules The modules to load the files from. Accepts either a module slug, an array of
 	 *                                 module slugs, ':all' to load the files from all modules, or ':active' to load the
 	 *                                 files from active modules.
+	 * @param callable|null   $process Callback to run returned values from module files through.
 	 *
 	 * @return bool|WP_Error True if a module matching the $modules parameter is found, false otherwise.
 	 */
-	public static function load_module_file( $file, $modules = ':all' ) {
+	public static function load_module_file( $file, $modules = ':all', callable $process = null ) {
 		$self = self::get_instance();
 
 		if ( ':all' === $modules ) {
 			$modules = self::get_available_modules();
-		} else if ( ':active' === $modules ) {
-			if ( ITSEC_Core::is_temp_disable_modules_set() ) {
-				$modules = array();
-			} else {
-				$modules = self::get_active_modules();
-			}
-
-			$modules = array_merge( $modules, array_keys( $self->_always_active_modules ) );
-			$modules = array_unique( $modules );
-		} else if ( is_string( $modules ) ) {
+		} elseif ( ':active' === $modules ) {
+			$modules = self::get_active_modules_to_run();
+		} elseif ( is_string( $modules ) ) {
 			$modules = array( $modules );
-		} else if ( ! is_array( $modules ) ) {
+		} elseif ( ! is_array( $modules ) ) {
 			return false;
 		}
 
 		foreach ( $modules as $module ) {
-			if ( ! empty( $self->_module_paths[$module] ) && file_exists( "{$self->_module_paths[$module]}/{$file}" ) ) {
-				$returned = include_once( "{$self->_module_paths[$module]}/{$file}" );
+			if ( empty( $self->_module_paths[ $module ] ) ) {
+				continue;
+			}
 
-				if ( is_wp_error( $returned ) ) {
-					return $returned;
+			$self->load_container_definitions( $module );
+			$returned = null;
+
+			if ( self::get_container()->has( "module.{$module}.files" ) ) {
+				$files = self::get_container()->get( "module.{$module}.files" );
+
+				if ( isset( $files[ $file ] ) ) {
+					$returned = $files[ $file ];
+				}
+			}
+
+			if ( ! $returned ) {
+				$path = "{$self->_module_paths[$module]}/{$file}";
+
+				if ( ! file_exists( $path ) ) {
+					continue;
+				}
+
+				$returned = include_once( $path );
+			}
+
+			if ( $returned ) {
+				if ( $process ) {
+					$process( $returned, $module );
+				} else {
+					$self->run( $returned );
 				}
 			}
 		}
 
 		return true;
+	}
+
+	/**
+	 * Get a list of the active modules to run.
+	 *
+	 * @return string[]
+	 */
+	protected static function get_active_modules_to_run() {
+		if ( ITSEC_Core::is_temp_disable_modules_set() ) {
+			$modules = array();
+		} else {
+			$modules = self::get_active_modules();
+		}
+
+		$modules = array_merge( $modules, array_keys( self::get_instance()->_always_active_modules ) );
+		$modules = array_unique( $modules );
+
+		return $modules;
 	}
 
 	/**
@@ -601,9 +647,21 @@ final class ITSEC_Modules {
 	}
 
 	/**
+	 * Initialize the container.
+	 */
+	public static function initialize_container() {
+		foreach ( self::get_active_modules_to_run() as $module ) {
+			self::get_instance()->load_container_definitions( $module );
+		}
+
+		self::get_instance()->initialized_container = true;
+	}
+
+	/**
 	 * Load and run all active modules.
 	 */
 	public static function run_active_modules() {
+		self::initialize_container();
 		// The active.php file is for code that will only run when the module is active.
 		self::load_module_file( 'active.php', ':active' );
 	}
@@ -648,6 +706,19 @@ final class ITSEC_Modules {
 	}
 
 	/**
+	 * Get the container.
+	 *
+	 * @return \Psr\Container\ContainerInterface
+	 */
+	public static function get_container() {
+		if ( ! self::get_instance()->initialized_container ) {
+			self::initialize_container();
+		}
+
+		return self::get_instance()->container;
+	}
+
+	/**
 	 * Load the settings controller for all registered modules.
 	 *
 	 * This function can only be run once per-request.
@@ -661,5 +732,54 @@ final class ITSEC_Modules {
 
 		$this->_settings_files_loaded = true;
 	}
+
+	/**
+	 * Get labels for a module.
+	 *
+	 * @param string $module
+	 *
+	 * @return array
+	 */
+	public static function get_labels( $module ) {
+		if ( ! isset( self::get_instance()->labels[ $module ] ) ) {
+			self::get_instance()->labels[ $module ] = [];
+			self::load_module_file( 'labels.php', $module, function ( $labels, $module ) {
+				if ( is_array( $labels ) ) {
+					self::get_instance()->labels[ $module ] = $labels;
+				}
+			} );
+		}
+
+		return self::get_instance()->labels[ $module ];
+	}
+
+	private function run( $definition ) {
+		if ( $definition && is_string( $definition ) ) {
+			$object = $this->container->get( $definition );
+
+			if ( $object instanceof Runnable ) {
+				$object->run();
+			}
+		}
+	}
+
+	/**
+	 * Load the container definitions for a module.
+	 *
+	 * @param string $module
+	 */
+	private function load_container_definitions( $module ) {
+		if ( ! isset( $this->loaded_containers[ $module ] ) && isset( $this->_module_paths[ $module ] ) ) {
+			$path = $this->_module_paths[ $module ] . '/container.php';
+
+			if ( file_exists( $this->_module_paths[ $module ] . '/container.php' ) && $register = include( $path ) ) {
+				$this->loaded_containers[ $module ] = true;
+				$register( $this->pimple );
+			} else {
+				$this->loaded_containers[ $module ] = false;
+			}
+		}
+	}
 }
+
 ITSEC_Modules::get_instance();

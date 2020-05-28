@@ -46,6 +46,15 @@ class ITSEC_Password_Requirements_Settings extends ITSEC_Settings {
 			$this->settings['requirement_settings'][ $code ] = wp_parse_args( $current, $requirement['defaults'] );
 		}
 	}
+
+	protected function handle_settings_changes( $old_settings ) {
+		parent::handle_settings_changes( $old_settings );
+
+		if ( $this->settings['enabled_requirements'] !== $old_settings['enabled_requirements'] ) {
+			ITSEC_Response::add_store_dispatch( 'ithemes-security/user-groups', 'fetchGroupsSettings' );
+			ITSEC_Response::add_store_dispatch( 'ithemes-security/core', 'fetchIndex', [ true ] );
+		}
+	}
 }
 
 ITSEC_Modules::register_settings( new ITSEC_Password_Requirements_Settings() );

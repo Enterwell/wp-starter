@@ -221,7 +221,7 @@ final class ITSEC_Log {
 
 		$entries = ITSEC_Log_Util::get_entries( array( 'id' => $id ), 0, 1, 'id', 'DESC', 'all' );
 
-		return $entries[0];
+		return isset( $entries[0] ) ? $entries[0] : array();
 	}
 
 	public static function get_number_of_entries( $filters = array() ) {
@@ -245,6 +245,8 @@ final class ITSEC_Log {
 			'notice'         => esc_html__( 'Notice', 'better-wp-security' ),
 			'debug'          => esc_html__( 'Debug', 'better-wp-security' ),
 			'process-start'  => esc_html__( 'Process', 'better-wp-security' ),
+			'process-update' => esc_html__( 'Process Update', 'better-wp-security' ),
+			'process-stop'   => esc_html__( 'Process Stop', 'better-wp-security' ),
 		);
 	}
 

@@ -1,13 +1,27 @@
 <?php
 
-final class ITSEC_Strong_Passwords {
+use iThemesSecurity\Contracts\Runnable;
+use iThemesSecurity\User_Groups;
+
+final class ITSEC_Strong_Passwords implements Runnable {
 
 	const STRENGTH_KEY = 'itsec-password-strength';
 
-	public function __construct() {
+	/** @var User_Groups\Matcher */
+	private $matcher;
 
+	/**
+	 * ITSEC_Strong_Passwords constructor.
+	 *
+	 * @param User_Groups\Matcher $matcher
+	 */
+	public function __construct( User_Groups\Matcher $matcher ) {
+		$this->matcher = $matcher;
+	}
+
+	public function run() {
 		add_action( 'itsec_register_password_requirements', array( $this, 'register_requirements' ) );
-
+		add_action( 'itsec_register_user_group_settings', [ $this, 'register_group_setting' ] );
 		add_action( 'admin_enqueue_scripts', array( $this, 'add_scripts' ) );
 		add_action( 'resetpass_form', array( $this, 'add_scripts_to_wp_login' ) );
 		add_action( 'itsec_password_requirements_change_form', array( $this, 'add_scripts_to_wp_login' ) );
@@ -23,9 +37,22 @@ final class ITSEC_Strong_Passwords {
 			'reason'                  => array( $this, 'reason' ),
 			'meta'                    => self::STRENGTH_KEY,
 			'evaluate_if_not_enabled' => true,
-			'defaults'                => array( 'role' => 'administrator' ),
+			'defaults'                => array(
+				'group' => ITSEC_Modules::get_settings_obj( 'user-groups' )->get_groups_for_all_users(),
+			),
 			'settings_config'         => array( $this, 'get_settings_config' ),
 		) );
+	}
+
+	public function register_group_setting( User_Groups\Settings_Registry $registry ) {
+		if ( ITSEC_Lib_Password_Requirements::is_requirement_enabled( 'strength' ) ) {
+			$registry->register( new User_Groups\Settings_Registration( 'password-requirements', 'requirement_settings.strength.group', User_Groups\Settings_Registration::T_MULTIPLE, static function () {
+				return [
+					'title'       => __( 'Require Strong Passwords', 'better-wp-security' ),
+					'description' => __( 'Force users in the group to use strong passwords.', 'better-wp-security' ),
+				];
+			} ) );
+		}
 	}
 
 	/**
@@ -34,7 +61,6 @@ final class ITSEC_Strong_Passwords {
 	 * @return void
 	 */
 	public function add_scripts() {
-
 		global $pagenow;
 
 		if ( 'profile.php' !== $pagenow ) {
@@ -46,11 +72,8 @@ final class ITSEC_Strong_Passwords {
 		}
 
 		$settings = ITSEC_Lib_Password_Requirements::get_requirement_settings( 'strength' );
-		$role     = isset( $settings['role'] ) ? $settings['role'] : 'administrator';
 
-		require_once( ITSEC_Core::get_core_dir() . '/lib/class-itsec-lib-canonical-roles.php' );
-
-		if ( ITSEC_Lib_Canonical_Roles::is_user_at_least( $role ) ) {
+		if ( $this->matcher->matches( User_Groups\Match_Target::for_user( wp_get_current_user() ), $settings['group'] ) ) {
 			wp_enqueue_script( 'itsec_strong_passwords', plugins_url( 'js/script.js', __FILE__ ), array( 'jquery' ), ITSEC_Core::get_plugin_build() );
 		}
 	}
@@ -69,11 +92,8 @@ final class ITSEC_Strong_Passwords {
 		}
 
 		$settings = ITSEC_Lib_Password_Requirements::get_requirement_settings( 'strength' );
-		$role     = isset( $settings['role'] ) ? $settings['role'] : 'administrator';
 
-		require_once( ITSEC_Core::get_core_dir() . '/lib/class-itsec-lib-canonical-roles.php' );
-
-		if ( ITSEC_Lib_Canonical_Roles::is_user_at_least( $role, $user ) ) {
+		if ( $this->matcher->matches( User_Groups\Match_Target::for_user( $user ), $settings['group'] ) ) {
 			wp_enqueue_script( 'itsec_strong_passwords', plugins_url( 'js/script.js', __FILE__ ), array( 'jquery' ), ITSEC_Core::get_plugin_build() );
 		}
 	}
@@ -112,16 +132,17 @@ final class ITSEC_Strong_Passwords {
 	 * @return bool
 	 */
 	public function validate( $strength, $user, $settings, $args ) {
-
 		if ( (int) $strength === 4 ) {
 			return true;
 		}
 
-		require_once( ITSEC_Core::get_core_dir() . '/lib/class-itsec-lib-canonical-roles.php' );
+		if ( ! $user = get_userdata( $user->ID ) ) {
+			return true;
+		}
 
-		$role = isset( $args['canonical'] ) ? $args['canonical'] : ITSEC_Lib_Canonical_Roles::get_user_role( $user );
+		$target = isset( $args['target'] ) ? $args['target'] : User_Groups\Match_Target::for_user( $user );
 
-		if ( ! ITSEC_Lib_Canonical_Roles::is_canonical_role_at_least( $settings['role'], $role ) ) {
+		if ( ! $this->matcher->matches( $target, $settings['group'] ) ) {
 			return true;
 		}
 
@@ -143,22 +164,17 @@ final class ITSEC_Strong_Passwords {
 	 * @param ITSEC_Form $form
 	 */
 	public function render_settings( $form ) {
-
-		$href = 'http://codex.wordpress.org/Roles_and_Capabilities';
-		$link = '<a href="' . $href . '" target="_blank" rel="noopener noreferrer">' . $href . '</a>';
 		?>
 		<tr>
 			<th scope="row">
-				<label for="itsec-password-requirements-requirement_settings-strength-role">
-					<?php esc_html_e( 'Minimum Role', 'better-wp-security' ); ?>
+				<label for="itsec-password-requirements-requirement_settings-strength-group">
+					<?php esc_html_e( 'User Group', 'better-wp-security' ); ?>
 				</label>
 			</th>
 			<td>
-				<?php $form->add_canonical_roles( 'role' ); ?>
+				<?php $form->add_user_groups( 'group', 'password-requirements', 'requirement_settings.strength.group' ); ?>
 				<br/>
-				<label for="itsec-password-requirements-requirement_settings-strength-role"><?php _e( 'Minimum role at which a user must choose a strong password.', 'better-wp-security' ); ?></label>
-				<p class="description"><?php printf( __( 'For more information on WordPress roles and capabilities please see %s.', 'better-wp-security' ), $link ); ?></p>
-				<p class="warningtext description"><?php _e( 'Warning: If your site invites public registrations setting the role too low may annoy your members.', 'better-wp-security' ); ?></p>
+				<label for="itsec-password-requirements-requirement_settings-strength-group"><?php _e( 'Force users in the selected groups to use strong passwords.', 'better-wp-security' ); ?></label>
 			</td>
 		</tr>
 		<?php
@@ -173,8 +189,7 @@ final class ITSEC_Strong_Passwords {
 	 */
 	public function sanitize_settings( $settings ) {
 		return array(
-			array( 'string', 'role', esc_html__( 'Minimum Role for Strong Passwords', 'better-wp-security' ) ),
-			array( 'canonical-roles', 'role', esc_html__( 'Minimum Role for Strong Passwords', 'better-wp-security' ) ),
+			array( 'user-groups', 'group', esc_html__( 'User Groups for Strong Passwords', 'better-wp-security' ) ),
 		);
 	}
 
@@ -215,5 +230,3 @@ final class ITSEC_Strong_Passwords {
 		return $results->score;
 	}
 }
-
-new ITSEC_Strong_Passwords();

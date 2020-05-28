@@ -1,0 +1,42 @@
+@import "colors.scss";
+
+.itsec-admin-notice-list-actions {
+    & .components-icon-button {
+        padding: 2px !important;
+
+        &:hover {
+            background-color: darken(#E5EAEE, 10) !important;
+            box-shadow: none !important;
+        }
+    }
+}
+
+.itsec-admin-notice-list-actions__more-menu-items .components-popover__content > div {
+    overflow: hidden;
+    padding: 7px 0;
+}
+
+.itsec-admin-notice-list-actions__more-menu-items .components-button {
+    width: 100%;
+    min-height: 38px;
+    box-sizing: border-box;
+    padding: 10px;
+    color: #0073aa;
+    justify-content: space-between;
+    align-items: center;
+
+    &:focus {
+        outline-offset: -2px;
+        outline: 1px dotted #555d66;
+        box-shadow: none;
+    }
+
+    &:hover {
+        color: #191e23;
+        background: #f3f4f5;
+    }
+
+    & .components-spinner {
+        margin: 0;
+    }
+}

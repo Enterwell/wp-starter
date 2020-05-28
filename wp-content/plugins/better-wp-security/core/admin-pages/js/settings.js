@@ -216,6 +216,19 @@ var itsecSettingsPage = {
 		itsecUtil.sendAJAXRequest( module, 'save', data, itsecSettingsPage.saveSettingsCallback );
 	},
 
+	scrollTop: function() {
+		var $container = jQuery( '.itsec-module-cards-container' );
+		var view = $container.hasClass( 'grid' ) ? 'grid' : 'list';
+
+		if ( 'grid' === view ) {
+			$container.find( '.itsec-module-settings-content-container:visible' ).animate( { 'scrollTop': 0 }, 'fast' );
+		}
+
+		if ( 'list' === view ) {
+			jQuery( document ).scrollTop( 0 );
+		}
+	},
+
 	saveSettingsCallback: function( results ) {
 		if ( '' === results.module ) {
 			jQuery( '#itsec-save' ).prop( 'disabled', false );

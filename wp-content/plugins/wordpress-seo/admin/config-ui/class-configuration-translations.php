@@ -6,7 +6,7 @@
  */
 
 /**
- * Class WPSEO_Configuration_Structure
+ * Class WPSEO_Configuration_Structure.
  */
 class WPSEO_Configuration_Translations {
 
@@ -15,7 +15,7 @@ class WPSEO_Configuration_Translations {
 	 *
 	 * @var array
 	 */
-	protected $translations = array();
+	protected $translations = [];
 
 	/**
 	 * The locale.
@@ -35,7 +35,7 @@ class WPSEO_Configuration_Translations {
 	}
 
 	/**
-	 * Retrieve the translations
+	 * Retrieve the translations.
 	 *
 	 * @return array
 	 */
@@ -58,6 +58,6 @@ class WPSEO_Configuration_Translations {
 			}
 		}
 
-		return array();
+		return [];
 	}
 }

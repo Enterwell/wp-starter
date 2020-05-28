@@ -4,6 +4,8 @@ final class ITSEC_File_Change_Logs {
 	public function __construct() {
 		add_filter( 'itsec_logs_prepare_file_change_entry_for_list_display', array( $this, 'filter_entry_for_list_display' ), 10, 3 );
 		add_filter( 'itsec_logs_prepare_file_change_entry_for_details_display', array( $this, 'filter_entry_for_details_display' ), 10, 4 );
+		add_filter( 'itsec_highlighted_log_file-change-report_notice_title', array( $this, 'filter_highlight_title' ), 10, 2 );
+		add_filter( 'itsec_highlighted_log_file-change-report_notice_message', array( $this, 'filter_highlight_message' ), 10, 2 );
 	}
 
 	public function filter_entry_for_list_display( $entry, $code, $code_data ) {
@@ -11,9 +13,9 @@ final class ITSEC_File_Change_Logs {
 
 		if ( 'scan' === $code && 'process-start' === $entry['type'] ) {
 			$entry['description'] = esc_html__( 'Scan Performance', 'better-wp-security' );
-		} else if ( 'no-changes-found' === $code ) {
+		} elseif ( 'no-changes-found' === $code ) {
 			$entry['description'] = esc_html__( 'No Changes Found', 'better-wp-security' );
-		} else if ( 'changes-found' === $code ) {
+		} elseif ( 'changes-found' === $code ) {
 			if ( isset( $code_data[0] ) ) {
 				$entry['description'] = sprintf( esc_html__( '%1$d Added, %2$d Removed, %3$d Changed', 'better-wp-security' ), $code_data[0], $code_data[1], $code_data[2] );
 			} else {
@@ -44,7 +46,7 @@ final class ITSEC_File_Change_Logs {
 		} elseif ( 'recovery-scheduled' === $code ) {
 			$entry['description'] = esc_html__( 'Recovery Scheduled', 'better-wp-security' );
 		} elseif ( 'file-scan-aborted' === $code ) {
-			if  ( ! empty( $code_data[0] ) ) {
+			if ( ! empty( $code_data[0] ) ) {
 				if ( $user = get_userdata( $code_data[0] ) ) {
 					$by = $user->display_name;
 				} else {
@@ -71,7 +73,7 @@ final class ITSEC_File_Change_Logs {
 	public function filter_entry_for_details_display( $details, $entry, $code, $code_data ) {
 		$entry = $this->filter_entry_for_list_display( $entry, $code, $code_data );
 
-		$details['module']['content'] = $entry['module_display'];
+		$details['module']['content']      = $entry['module_display'];
 		$details['description']['content'] = $entry['description'];
 
 		if ( 'changes-found' === $code || 'no-changes-found' === $code ) {
@@ -94,9 +96,9 @@ final class ITSEC_File_Change_Logs {
 			);
 
 			foreach ( $types as $type => $header ) {
-				$details[$type] = array(
+				$details[ $type ] = array(
 					'header'  => $header,
-					'content' => '<pre>' . implode( "\n", array_keys( $entry['data'][$type] ) ) . '</pre>',
+					'content' => '<pre>' . implode( "\n", array_keys( $entry['data'][ $type ] ) ) . '</pre>',
 				);
 			}
 		}
@@ -105,5 +107,18 @@ final class ITSEC_File_Change_Logs {
 
 		return $details;
 	}
+
+	public function filter_highlight_title( $title, $entry ) {
+		return esc_html__( 'iThemes Security noticed file changes in your WordPress site.', 'better-wp-security' );
+	}
+
+	public function filter_highlight_message( $title, $entry ) {
+		return sprintf(
+			esc_html__( 'Please %1$sreview the logs%2$s to make sure your system has not been compromised.', 'better-wp-security' ),
+			'<a href="{{ $view }}">',
+			'</a>'
+		);
+	}
 }
+
 new ITSEC_File_Change_Logs();

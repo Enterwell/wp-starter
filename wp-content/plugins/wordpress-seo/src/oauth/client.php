@@ -2,14 +2,15 @@
 /**
  * Yoast extension of the Model class.
  *
- * @package Yoast\WP\Free\Oauth
+ * @package Yoast\WP\SEO\Oauth
  */
 
-namespace Yoast\WP\Free\Oauth;
+namespace Yoast\WP\SEO\Oauth;
 
+use WPSEO_Options;
+use WPSEO_Utils;
 use YoastSEO_Vendor\League\OAuth2\Client\Provider\GenericProvider;
 use YoastSEO_Vendor\League\OAuth2\Client\Token\AccessToken;
-use YoastSEO_Vendor\League\OAuth2\Client\Token\AccessTokenInterface;
 
 /**
  * Represents the oAuth client.
@@ -26,7 +27,7 @@ class Client {
 	/**
 	 * Contains the set access tokens.
 	 *
-	 * @var AccessTokenInterface[]
+	 * @var \YoastSEO_Vendor\League\OAuth2\Client\Token\AccessTokenInterface[]
 	 */
 	private $access_tokens;
 
@@ -54,7 +55,7 @@ class Client {
 	 *
 	 * @codeCoverageIgnore
 	 *
-	 * @return Client Instance of this class.
+	 * @return \Yoast\WP\SEO\Oauth\Client Instance of this class.
 	 */
 	public static function get_instance() {
 		if ( static::$instance === null ) {
@@ -72,13 +73,15 @@ class Client {
 	 * @return void
 	 */
 	public function save_configuration( array $config ) {
-		foreach ( array_keys( $this->config ) as $allowed_config_key ) {
-			if ( ! array_key_exists( $allowed_config_key, $config ) ) {
+		$allowed_config_keys = [ 'clientId', 'secret' ];
+		foreach ( $allowed_config_keys as $allowed_config_key ) {
+			if ( ! \array_key_exists( $allowed_config_key, $config ) ) {
 				continue;
 			}
 
 			$this->config[ $allowed_config_key ] = $config[ $allowed_config_key ];
 		}
+		$this->update_option();
 	}
 
 	/**
@@ -121,8 +124,8 @@ class Client {
 	/**
 	 * Saves the access token for the given user.
 	 *
-	 * @param int                  $user_id      User id to receive token for.
-	 * @param AccessTokenInterface $access_token The access token to save.
+	 * @param int                                                              $user_id      User ID to receive token for.
+	 * @param \YoastSEO_Vendor\League\OAuth2\Client\Token\AccessTokenInterface $access_token The access token to save.
 	 *
 	 * @return void
 	 */
@@ -134,13 +137,13 @@ class Client {
 	/**
 	 * Retrieves an access token.
 	 *
-	 * @param null|int $user_id User id to receive token for.
+	 * @param null|int $user_id User ID to receive token for.
 	 *
-	 * @return bool|AccessTokenInterface False if not found. Token when found.
+	 * @return bool|\YoastSEO_Vendor\League\OAuth2\Client\Token\AccessTokenInterface False if not found. Token when found.
 	 */
 	public function get_access_token( $user_id = null ) {
 		if ( $user_id === null ) {
-			return reset( $this->access_tokens );
+			return \reset( $this->access_tokens );
 		}
 
 		if ( ! isset( $this->access_tokens[ $user_id ] ) ) {
@@ -153,7 +156,7 @@ class Client {
 	/**
 	 * Removes an access token from the list of access token.
 	 *
-	 * @param int $user_id The user id to remove the access token for.
+	 * @param int $user_id The user ID to remove the access token for.
 	 *
 	 * @return void
 	 */
@@ -170,14 +173,14 @@ class Client {
 	/**
 	 * Returns an instance of the oAuth provider.
 	 *
-	 * @return GenericProvider The provider.
+	 * @return \YoastSEO_Vendor\League\OAuth2\Client\Provider\GenericProvider The provider.
 	 */
 	public function get_provider() {
 		return new GenericProvider(
 			[
 				'clientId'                => $this->config['clientId'],
 				'clientSecret'            => $this->config['secret'],
-				'redirectUri'             => ( \WPSEO_Utils::is_plugin_network_active() ) ? home_url( 'yoast/oauth/callback' ) : network_home_url( 'yoast/oauth/callback' ),
+				'redirectUri'             => ( WPSEO_Utils::is_plugin_network_active() ) ? \home_url( 'yoast/oauth/callback' ) : \network_home_url( 'yoast/oauth/callback' ),
 				'urlAuthorize'            => 'https://yoast.com/login/oauth/authorize',
 				'urlAccessToken'          => 'https://yoast.com/login/oauth/token',
 				'urlResourceOwnerDetails' => 'https://my.yoast.com/api/sites/current',
@@ -190,10 +193,10 @@ class Client {
 	 *
 	 * @param array $access_tokens The access tokens to format.
 	 *
-	 * @return AccessTokenInterface[] The formatted access tokens.
+	 * @return \YoastSEO_Vendor\League\OAuth2\Client\Token\AccessTokenInterface[] The formatted access tokens.
 	 */
 	protected function format_access_tokens( $access_tokens ) {
-		if ( ! is_array( $access_tokens ) ||  $access_tokens === [] ) {
+		if ( ! \is_array( $access_tokens ) || $access_tokens === [] ) {
 			return [];
 		}
 
@@ -213,10 +216,13 @@ class Client {
 	 * @return array
 	 */
 	protected function get_option() {
-		$option_value = \WPSEO_Options::get( 'myyoast-oauth', false );
+		$option_value = WPSEO_Options::get( 'myyoast_oauth', false );
 
-		if ( ! $option_value ) {
-			return json_decode( $option_value, true );
+		if ( $option_value ) {
+			return \wp_parse_args(
+				\json_decode( $option_value, true ),
+				$this->get_default_option()
+			);
 		}
 
 		return $this->get_default_option();
@@ -230,9 +236,9 @@ class Client {
 	 * @return void
 	 */
 	protected function update_option() {
-		\WPSEO_Options::set(
-			'myyoast-oauth',
-			wp_json_encode(
+		WPSEO_Options::set(
+			'myyoast_oauth',
+			WPSEO_Utils::format_json_encode(
 				[
 					'config'        => $this->config,
 					'access_tokens' => $this->access_tokens,

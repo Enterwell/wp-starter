@@ -1,0 +1,20 @@
+.components-base-control > ul.components-hierarchical-checkbox-control__group {
+    padding-left: 0;
+}
+
+ul.components-hierarchical-checkbox-control__group {
+    padding-left: 1em;
+}
+
+.components-hierarchical-checkbox-control__group .components-hierarchical-checkbox-control__option {
+    list-style-type: none;
+}
+
+.components-hierarchical-checkbox-control__option--has-children {
+    margin-bottom: 1em;
+}
+
+.components-hierarchical-checkbox-control__option--has-children > .components-base-control {
+    font-weight: bold;
+}
+

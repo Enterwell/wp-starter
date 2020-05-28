@@ -233,6 +233,15 @@ abstract class ITSEC_Scheduler {
 	}
 
 	/**
+	 * Get a registered custom schedules.
+	 *
+	 * @return array
+	 */
+	public function get_custom_schedules() {
+		return $this->custom_schedules;
+	}
+
+	/**
 	 * Register an event loop.
 	 *
 	 * This allows for splitting up a long running process across multiple page loads.
@@ -362,5 +371,16 @@ abstract class ITSEC_Scheduler {
 	 */
 	public function uninstall() {
 
+	}
+
+	/**
+	 * Reset the scheduler.
+	 *
+	 * This unregisters all events, and re-registers them.
+	 */
+	public function reset() {
+		$this->uninstall();
+		$this->run();
+		$this->register_events();
 	}
 }

@@ -11,9 +11,11 @@
 class WPSEO_Indexable_Service_Term_Provider extends WPSEO_Indexable_Provider {
 
 	/**
-	 * @var array List of fields that need to be renamed.
+	 * List of fields that need to be renamed.
+	 *
+	 * @var array
 	 */
-	protected $renameable_fields = array(
+	protected $renameable_fields = [
 		'description'                 => 'desc',
 		'breadcrumb_title'            => 'bctitle',
 		'og_title'                    => 'opengraph-title',
@@ -26,19 +28,20 @@ class WPSEO_Indexable_Service_Term_Provider extends WPSEO_Indexable_Provider {
 		'primary_focus_keyword'       => 'focuskw',
 		'primary_focus_keyword_score' => 'linkdex',
 		'readability_score'           => 'content_score',
-	);
+	];
 
 	/**
 	 * Returns an array with data for the target object.
 	 *
 	 * @param integer $object_id The target object id.
-	 * @param bool    $as_object Optional. Whether or not to return the indexable as an object. Defaults to false.
+	 * @param bool    $as_object Optional. Whether or not to return the indexable
+	 *                           as an object. Defaults to false.
 	 *
 	 * @return array|WPSEO_Term_Indexable The retrieved data. Defaults to an array format.
 	 */
 	public function get( $object_id, $as_object = false ) {
 		if ( ! $this->is_indexable( $object_id ) ) {
-			return array();
+			return [];
 		}
 
 		$indexable = WPSEO_Term_Indexable::from_object( $object_id );
@@ -64,7 +67,7 @@ class WPSEO_Indexable_Service_Term_Provider extends WPSEO_Indexable_Provider {
 	public function patch( $object_id, $requestdata ) {
 		$indexable = $this->get( $object_id, true );
 
-		if ( $indexable === array() ) {
+		if ( $indexable === [] ) {
 			throw WPSEO_Invalid_Indexable_Exception::non_existing_indexable( $object_id );
 		}
 
@@ -103,7 +106,7 @@ class WPSEO_Indexable_Service_Term_Provider extends WPSEO_Indexable_Provider {
 	 * @return array The compatible indexable data.
 	 */
 	protected function prefix_indexable_data( $indexable_data ) {
-		$converted_data = array();
+		$converted_data = [];
 
 		foreach ( $indexable_data as $key => $item ) {
 			if ( substr( strtolower( $key ), 0, 6 ) !== 'wpseo_' ) {

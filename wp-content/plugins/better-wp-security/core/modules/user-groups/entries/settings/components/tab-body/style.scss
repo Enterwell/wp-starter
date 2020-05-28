@@ -1,0 +1,15 @@
+@import "colors.scss";
+
+.itsec-user-groups-group-tab__row {
+    padding: 1em;
+}
+
+.itsec-user-groups-group-tab__row--save {
+    border-top: 1px solid $dark-gray-200;
+    text-align: right;
+}
+
+.itsec-user-groups-group-tab--is-loading {
+    opacity: .5;
+    pointer-events: none;
+}

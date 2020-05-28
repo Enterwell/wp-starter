@@ -1,6 +1,18 @@
 <?php
 
 final class ITSEC_Schema {
+	const TABLES = [
+		'itsec_logs',
+		'itsec_lockouts',
+		'itsec_temp',
+		'itsec_distributed_storage',
+		'itsec_geolocation_cache',
+		'itsec_fingerprints',
+		'itsec_opaque_tokens',
+		'itsec_user_groups',
+		'itsec_mutexes',
+	];
+
 	/**
 	 * Creates appropriate database tables.
 	 *
@@ -8,7 +20,7 @@ final class ITSEC_Schema {
 	 *
 	 * @since 3.9.0
 	 *
-	 * @return void
+	 * @return true|WP_Error
 	 */
 	public static function create_database_tables() {
 		global $wpdb;
@@ -36,6 +48,7 @@ CREATE TABLE {$wpdb->base_prefix}itsec_logs (
 	KEY code (code),
 	KEY type (type),
 	KEY timestamp (timestamp),
+	KEY init_timestamp (init_timestamp),
 	KEY user_id (user_id),
 	KEY blog_id (blog_id)
 ) $charset_collate;
@@ -51,6 +64,7 @@ CREATE TABLE {$wpdb->base_prefix}itsec_lockouts (
 	lockout_user bigint(20) UNSIGNED,
 	lockout_username varchar(60),
 	lockout_active int(1) NOT NULL DEFAULT 1,
+	lockout_context TEXT,
 	PRIMARY KEY  (lockout_id),
 	KEY lockout_expire_gmt (lockout_expire_gmt),
 	KEY lockout_host (lockout_host),
@@ -114,10 +128,61 @@ CREATE TABLE {$wpdb->base_prefix}itsec_fingerprints (
 	UNIQUE KEY fingerprint_user__hash (fingerprint_user,fingerprint_hash),
 	UNIQUE KEY fingerprint_uuid (fingerprint_uuid)
 ) $charset_collate;
+
+CREATE TABLE {$wpdb->base_prefix}itsec_opaque_tokens (
+    token_id char(64) NOT NULL,
+    token_hashed char(64) NOT NULL,
+    token_type VARCHAR(32) NOT NULL,
+    token_data TEXT NOT NULL,
+    token_created_at DATETIME NOT NULL,
+    PRIMARY KEY  (token_id),
+    UNIQUE KEY token_hashed (token_hashed)
+) $charset_collate;
+
+CREATE TABLE {$wpdb->base_prefix}itsec_user_groups (
+    group_id char(36) NOT NULL,
+    group_label varchar(255) NOT NULL default '',
+    group_roles TEXT,
+    group_canonical TEXT,
+    group_users TEXT,
+    group_min_role varchar(255),
+    group_created_at DATETIME,
+    PRIMARY KEY  (group_id)
+) $charset_collate;
+
+CREATE TABLE {$wpdb->base_prefix}itsec_mutexes (
+    mutex_id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+    mutex_name varchar(100) NOT NULL,
+    mutex_expires int(11) UNSIGNED NOT NULL,
+    PRIMARY KEY  (mutex_id),
+    UNIQUE KEY mutex_name (mutex_name)
+) $charset_collate;
 ";
 
-		require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-		dbDelta( $tables );
+		$wp_error = new WP_Error();
+		ITSEC_Lib::add_to_wp_error( $wp_error, ITSEC_Lib::db_delta_with_error_handling( $tables ) );
+
+		foreach ( self::TABLES as $table ) {
+			if ( ! count( $wpdb->get_results( "SHOW TABLES LIKE '{$wpdb->base_prefix}{$table}'" ) ) ) {
+				$wp_error->add(
+					'missing_table',
+					sprintf( __( 'The %s table is not installed.', 'better-wp-security' ), $table )
+				);
+			}
+		}
+
+		/**
+		 * Fires when the DB schema is installed or updated.
+		 *
+		 * @param WP_Error $wp_error
+		 */
+		do_action( 'itsec_install_schema', $wp_error );
+
+		if ( $wp_error->has_errors() ) {
+			return $wp_error;
+		}
+
+		return true;
 	}
 
 	public static function remove_database_tables() {
@@ -130,5 +195,7 @@ CREATE TABLE {$wpdb->base_prefix}itsec_fingerprints (
 		$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->base_prefix}itsec_distributed_storage;" );
 		$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->base_prefix}itsec_geolocation_cache;" );
 		$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->base_prefix}itsec_fingerprints;" );
+		$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->base_prefix}itsec_user_groups;" );
+		$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->base_prefix}itsec_mutexes;" );
 	}
 }

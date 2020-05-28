@@ -16,7 +16,9 @@ _deprecated_file( __FILE__, 'WPSEO 7.0' );
 class WPSEO_Option_InternalLinks {
 
 	/**
-	 * @var        string Option name.
+	 * Option name.
+	 *
+	 * @var string
 	 * @deprecated 7.0
 	 */
 	public $option_name = '';
@@ -27,7 +29,7 @@ class WPSEO_Option_InternalLinks {
 	 * @param string $method The method to 'call'.
 	 * @param array  $args   Possibly given arguments.
 	 */
-	public function __call( $method, array $args = array() ) {
+	public function __call( $method, array $args = [] ) {
 		_deprecated_function( $method, 'WPSEO 7.0' );
 	}
 

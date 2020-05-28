@@ -272,6 +272,9 @@ final class ITSEC_Mail {
 			if ( 'user' === $lockout['type'] ) {
 				/* translators: 1: Username */
 				$lockout['description'] = sprintf( wp_kses( __( '<b>User:</b> %1$s', 'better-wp-security' ), array( 'b' => array() ) ), $lockout['id'] );
+			} elseif ( 'username' === $lockout['type'] ) {
+				/* translators: 1: Username */
+				$lockout['description'] = sprintf( wp_kses( __( '<b>Username:</b> %1$s', 'better-wp-security' ), array( 'b' => array() ) ), $lockout['id'] );
 			} else {
 				/* translators: 1: Hostname */
 				$lockout['description'] = sprintf( wp_kses( __( '<b>Host:</b> %1$s', 'better-wp-security' ), array( 'b' => array() ) ), $lockout['id'] );
@@ -338,7 +341,7 @@ final class ITSEC_Mail {
 				$style .= 'padding:5px 10px;';
 			}
 
-			$html .= '<th style="' . $style .'">';
+			$html .= '<th style="' . $style . '">';
 			$html .= $header;
 			$html .= '</th>';
 		}
@@ -421,14 +424,20 @@ final class ITSEC_Mail {
 	/**
 	 * Add an image to the email.
 	 *
-	 * @param string $src   URL of the image.
-	 * @param int    $width Max width of the image in pixels.
+	 * @param string $src_or_name URL of the image or the name of the mail image.
+	 * @param int    $width       Max width of the image in pixels.
 	 */
-	public function add_image( $src, $width ) {
-		$this->add_html( $this->get_image( $src, $width ) );
+	public function add_image( $src_or_name, $width ) {
+		$this->add_html( $this->get_image( $src_or_name, $width ) );
 	}
 
-	public function get_image( $src, $width ) {
+	public function get_image( $src_or_name, $width ) {
+		if ( false === strpos( $src_or_name, '.' ) ) {
+			$src = $this->get_image_url( $src_or_name );
+		} else {
+			$src = $src_or_name;
+		}
+
 		$module = $this->get_template( 'image.html' );
 		$module = $this->replace_all( $module, array(
 			'src'   => $src,
@@ -467,6 +476,14 @@ final class ITSEC_Mail {
 		$this->deferred      = '';
 
 		$this->add_html( $deferred, $group );
+	}
+
+	public function insert_before( $identifier, $html ) {
+		$this->groups = ITSEC_Lib::array_insert_before( $identifier, $this->groups, count( $this->groups ), $html );
+	}
+
+	public function insert_after( $identifier, $html ) {
+		$this->groups = ITSEC_Lib::array_insert_after( $identifier, $this->groups, count( $this->groups ), $html );
 	}
 
 	/**

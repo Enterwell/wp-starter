@@ -17,7 +17,7 @@ _deprecated_file( __FILE__, 'WPSEO 9.6' );
 class WPSEO_Recalibration_Beta_Notification implements WPSEO_WordPress_Integration {
 
 	/**
-	 * The name of the notifier.s
+	 * The name of the notifiers.
 	 *
 	 * @var string
 	 */
@@ -29,7 +29,7 @@ class WPSEO_Recalibration_Beta_Notification implements WPSEO_WordPress_Integrati
 	 * @deprecated 9.6
 	 */
 	public function __construct() {
-		_deprecated_constructor( 'WPSEO_Recalibration_Beta_Notification', 'WPSEO 9.6' );
+		_deprecated_function( __METHOD__, '9.6' );
 	}
 
 	/**

@@ -11,16 +11,24 @@
 class WPSEO_Product_Upsell_Notice {
 
 	/**
+	 * Holds the name of the user meta key.
+	 *
+	 * The value of this database field holds whether the user has dismissed this notice or not.
+	 *
 	 * @var string
 	 */
 	const USER_META_DISMISSED = 'wpseo-remove-upsell-notice';
 
 	/**
+	 * Holds the option name.
+	 *
 	 * @var string
 	 */
 	const OPTION_NAME = 'wpseo';
 
 	/**
+	 * Holds the options.
+	 *
 	 * @var array
 	 */
 	protected $options;
@@ -36,15 +44,7 @@ class WPSEO_Product_Upsell_Notice {
 	 * Checks if the notice should be added or removed.
 	 */
 	public function initialize() {
-		if ( $this->is_notice_dismissed() ) {
-			$this->remove_notification();
-
-			return;
-		}
-
-		if ( $this->should_add_notification() ) {
-			$this->add_notification();
-		}
+		$this->remove_notification();
 	}
 
 	/**
@@ -70,7 +70,7 @@ class WPSEO_Product_Upsell_Notice {
 
 		$this->dismiss_notice();
 
-		wp_redirect( admin_url( 'admin.php?page=wpseo_dashboard' ) );
+		wp_safe_redirect( admin_url( 'admin.php?page=wpseo_dashboard' ) );
 		exit;
 	}
 
@@ -108,7 +108,7 @@ class WPSEO_Product_Upsell_Notice {
 	}
 
 	/**
-	 * Adds a notification to the notification center.
+	 * Removes a notification to the notification center.
 	 */
 	protected function remove_notification() {
 		$notification_center = Yoast_Notification_Center::get();
@@ -157,21 +157,16 @@ class WPSEO_Product_Upsell_Notice {
 
 		$message .= $this->get_premium_upsell_section() . "\n\n";
 
-		$message .= sprintf(
-			/* translators: %1$s is the notification dismissal link start tag, %2$s is the link closing tag. */
-			__( '%1$sPlease don\'t show me this notification anymore%2$s', 'wordpress-seo' ),
-			'<a class="button" href="' . admin_url( '?page=' . WPSEO_Admin::PAGE_IDENTIFIER . '&yoast_dismiss=upsell' ) . '">',
-			'</a>'
-		);
+		$message .= '<a class="button" href="' . admin_url( '?page=' . WPSEO_Admin::PAGE_IDENTIFIER . '&yoast_dismiss=upsell' ) . '">' . __( 'Please don\'t show me this notification anymore', 'wordpress-seo' ) . '</a>';
 
 		$notification = new Yoast_Notification(
 			$message,
-			array(
+			[
 				'type'         => Yoast_Notification::WARNING,
 				'id'           => 'wpseo-upsell-notice',
 				'capabilities' => 'wpseo_manage_options',
 				'priority'     => 0.8,
-			)
+			]
 		);
 
 		return $notification;
@@ -194,7 +189,7 @@ class WPSEO_Product_Upsell_Notice {
 	}
 
 	/**
-	 * Returns the set options
+	 * Returns the set options.
 	 *
 	 * @return mixed|void
 	 */

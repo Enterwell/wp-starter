@@ -8,30 +8,21 @@
 /**
  * Represents the logic to determine if the current page is a WooCommerce shop page.
  */
-class WPSEO_WooCommerce_Shop_Page implements WPSEO_WordPress_Integration {
+class WPSEO_WooCommerce_Shop_Page {
 
 	/**
-	 * @var int Holds the shop page id.
+	 * Holds the shop page id.
+	 *
+	 * @var int
 	 */
 	protected static $shop_page_id;
 
 	/**
-	 * @var bool True when current page is the shop page.
+	 * True when current page is the shop page.
+	 *
+	 * @var bool
 	 */
 	protected static $is_shop_page;
-
-	/**
-	 * Registers the hooks
-	 *
-	 * @return void
-	 */
-	public function register_hooks() {
-		if ( ! $this->is_woocommerce_active() ) {
-			return;
-		}
-
-		add_filter( 'wpseo_frontend_page_type_simple_page_id', array( $this, 'get_page_id' ) );
-	}
 
 	/**
 	 * Determines whether or not WooCommerce is active.
@@ -40,21 +31,6 @@ class WPSEO_WooCommerce_Shop_Page implements WPSEO_WordPress_Integration {
 	 */
 	private function is_woocommerce_active() {
 		return WPSEO_Utils::is_woocommerce_active();
-	}
-
-	/**
-	 * Returns the ID of the WooCommerce shop page when the currently opened page is the shop page.
-	 *
-	 * @param int $page_id The page id.
-	 *
-	 * @return int The Page ID of the shop.
-	 */
-	public function get_page_id( $page_id ) {
-		if ( ! $this->is_shop_page() ) {
-			return $page_id;
-		}
-
-		return $this->get_shop_page_id();
 	}
 
 	/**
@@ -88,5 +64,23 @@ class WPSEO_WooCommerce_Shop_Page implements WPSEO_WordPress_Integration {
 		}
 
 		return self::$shop_page_id;
+	}
+
+	/* ********************* DEPRECATED METHODS ********************* */
+
+	/**
+	 * Returns the ID of the WooCommerce shop page when the currently opened page is the shop page.
+	 *
+	 * @codeCoverageIgnore
+	 * @deprecated 14.0
+	 *
+	 * @param int $page_id The page id.
+	 *
+	 * @return int The Page ID of the shop.
+	 */
+	public function get_page_id( $page_id ) {
+		_deprecated_function( __METHOD__, 'WPSEO 14.0' );
+
+		return $page_id;
 	}
 }

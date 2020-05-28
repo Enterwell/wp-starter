@@ -11,9 +11,11 @@
 class WPSEO_Collector {
 
 	/**
+	 * Holds the collections.
+	 *
 	 * @var WPSEO_Collection[]
 	 */
-	protected $collections = array();
+	protected $collections = [];
 
 	/**
 	 * Adds a collection object to the collections.
@@ -30,7 +32,7 @@ class WPSEO_Collector {
 	 * @return array The collected data.
 	 */
 	public function collect() {
-		$data = array();
+		$data = [];
 
 		foreach ( $this->collections as $collection ) {
 			$data = array_merge( $data, $collection->get() );
@@ -45,6 +47,6 @@ class WPSEO_Collector {
 	 * @return false|string The encode string.
 	 */
 	public function get_as_json() {
-		return wp_json_encode( $this->collect() );
+		return WPSEO_Utils::format_json_encode( $this->collect() );
 	}
 }
