@@ -1,6 +1,6 @@
 <?php
 
-class ITSEC_Settings_Page_Sidebar_Widget_Support extends ITSEC_Settings_Page_Sidebar_Widget {
+class ITSEC_Settings_Page_Sidebar_Widget_Free_Support extends ITSEC_Settings_Page_Sidebar_Widget {
 	public function __construct() {
 		$this->id = 'support';
 		$this->title = __( 'Need Help Securing Your Site?', 'better-wp-security' );
@@ -17,4 +17,4 @@ class ITSEC_Settings_Page_Sidebar_Widget_Support extends ITSEC_Settings_Page_Sid
 	}
 
 }
-new ITSEC_Settings_Page_Sidebar_Widget_Support();
+new ITSEC_Settings_Page_Sidebar_Widget_Free_Support();

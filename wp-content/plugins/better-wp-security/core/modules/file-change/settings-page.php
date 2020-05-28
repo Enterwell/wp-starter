@@ -132,14 +132,6 @@ final class ITSEC_File_Change_Settings_Page extends ITSEC_Module_Settings_Page {
 				<label for="itsec-file-change-types"><?php _e( 'File types listed here will not be checked for changes. While it is possible to change files such as images it is quite rare and nearly all known WordPress attacks exploit php, js and other text files.', 'better-wp-security' ); ?></label>
 			</td>
 		</tr>
-		<tr>
-			<th scope="row"><label for="itsec-file-change-notify_admin"><?php _e( 'Display File Change Admin Warning', 'better-wp-security' ); ?></label></th>
-			<td>
-				<?php $form->add_checkbox( 'notify_admin' ); ?>
-				<label for="itsec-file-change-notify_admin"><?php _e( 'Display file change admin warning', 'better-wp-security' ); ?></label>
-				<p class="description"><?php _e( 'Disabling this feature will prevent the file change warning from displaying to the site administrator in the WordPress Dashboard. Note that disabling both the error message and the email notification will result in no notifications of file changes. The only way you will be able to tell is by manually checking the log files.', 'better-wp-security' ); ?></p>
-			</td>
-		</tr>
 		<?php do_action( 'itsec-file-change-settings-form', $form ); ?>
 	</table>
 <?php

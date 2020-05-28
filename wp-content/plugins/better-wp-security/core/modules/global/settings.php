@@ -39,10 +39,14 @@ final class ITSEC_Global_Settings_New extends ITSEC_Settings {
 			'cron_test_time'            => 0,
 			'enable_grade_report'       => false,
 			'server_ips'                => array(),
+			'feature_flags'             => array(),
+			'manage_group'              => array(),
 		);
 	}
 
 	protected function handle_settings_changes( $old_settings ) {
+		parent::handle_settings_changes( $old_settings );
+
 		if ( $this->settings['write_files'] && ! $old_settings['write_files'] ) {
 			ITSEC_Response::regenerate_server_config();
 			ITSEC_Response::regenerate_wp_config();
@@ -57,7 +61,7 @@ final class ITSEC_Global_Settings_New extends ITSEC_Settings {
 			ITSEC_Modules::load_module_file( 'activate.php', 'grade-report' );
 			ITSEC_Response::flag_new_notifications_available();
 			ITSEC_Response::refresh_page();
-		} else if ( ! $this->settings['enable_grade_report'] && $old_settings['enable_grade_report'] ) {
+		} elseif ( ! $this->settings['enable_grade_report'] && $old_settings['enable_grade_report'] ) {
 			update_site_option( 'itsec-enable-grade-report', false );
 			ITSEC_Modules::load_module_file( 'deactivate.php', 'grade-report' );
 			ITSEC_Response::refresh_page();
@@ -82,6 +86,12 @@ final class ITSEC_Global_Settings_New extends ITSEC_Settings {
 		$current = ITSEC_Core::get_scheduler();
 
 		$new->uninstall();
+
+		foreach ( $current->get_custom_schedules() as $slug => $interval ) {
+			$new->register_custom_schedule( $slug, $interval );
+		}
+
+		$new->run();
 
 		foreach ( $current->get_recurring_events() as $event ) {
 			$new->schedule( $event['schedule'], $event['id'], $event['data'], array(

@@ -184,6 +184,44 @@ class ITSEC_Login_Interstitial_Session {
 	}
 
 	/**
+	 * Get a meta value by key.
+	 *
+	 * @param string $key
+	 *
+	 * @return mixed|null The meta value, or null if the meta key does not exist.
+	 */
+	public function get_meta( $key ) {
+		return isset( $this->data['meta'][ $key ] ) ? $this->data['meta'][ $key ] : null;
+	}
+
+	/**
+	 * Set meta key-value pair.
+	 *
+	 * @param string $key   The meta key to set the value for.
+	 * @param mixed  $value The value to set. Must be serializable.
+	 *
+	 * @return $this
+	 */
+	public function set_meta( $key, $value ) {
+		$this->data['meta'][ $key ] = $value;
+
+		return $this;
+	}
+
+	/**
+	 * Remove a meta value by key.
+	 *
+	 * @param string $key
+	 *
+	 * @return $this
+	 */
+	public function remove_meta( $key ) {
+		unset( $this->data['meta'][ $key ] );
+
+		return $this;
+	}
+
+	/**
 	 * Verify the session.
 	 *
 	 * @param int    $user_id
@@ -387,11 +425,42 @@ class ITSEC_Login_Interstitial_Session {
 	}
 
 	/**
+	 * Build up the interstitial session configuration from the global state.
+	 *
+	 * This does not set the show afters because this is also used by the show after code.
+	 */
+	public function initialize_from_global_state() {
+		if ( isset( $_REQUEST['interim-login'] ) ) {
+			$this->set_interim_login();
+		}
+
+		if ( ! empty( $_REQUEST['redirect_to'] ) ) {
+			$this->set_redirect_to( $_REQUEST['redirect_to'] );
+		} elseif ( ! did_action( 'login_init' ) && ( $ref = wp_get_referer() ) ) {
+			$this->set_redirect_to( $ref );
+		} elseif ( ! did_action( 'login_init' ) ) {
+			$this->set_redirect_to( $_SERVER['REQUEST_URI'] );
+		}
+
+		if ( ! empty( $_REQUEST['rememberme'] ) ) {
+			$this->set_remember_me();
+		}
+
+		do_action( 'itsec_initialize_login_interstitial_session_from_global_state', $this );
+	}
+
+	/**
 	 * Save the session.
 	 *
 	 * @return bool
 	 */
 	public function save() {
+		$this->log( 'save', [
+			'current'    => $this->get_current_interstitial(),
+			'completed'  => $this->get_completed_interstitials(),
+			'show_after' => $this->get_show_after(),
+		] );
+
 		return update_metadata_by_mid( 'user', $this->get_id(), $this->data, self::META_KEY );
 	}
 
@@ -409,7 +478,26 @@ class ITSEC_Login_Interstitial_Session {
 			}
 		}
 
+		if ( ! empty( $this->data['log'] ) ) {
+			ITSEC_Log::add_process_stop( $this->data['log'] );
+		}
+
 		return $deleted;
+	}
+
+	/**
+	 * Log an update to this interstitial.
+	 *
+	 * @param string      $code
+	 * @param mixed|false $data
+	 * @param array|false $overrides
+	 */
+	protected function log( $code, $data = false, $overrides = array() ) {
+		if ( ! empty( $this->data['log'] ) ) {
+			$reference         = $this->data['log'];
+			$reference['code'] = $code;
+			ITSEC_Log::add_process_update( $reference, $data, $overrides );
+		}
 	}
 
 	/**
@@ -421,6 +509,10 @@ class ITSEC_Login_Interstitial_Session {
 	 * @return ITSEC_Login_Interstitial_Session|WP_Error
 	 */
 	public static function create( WP_User $user, $current = '' ) {
+		$log = ITSEC_Log::add_process_start( 'login-interstitial', 'create', [
+			'current' => $current,
+			'_server' => ITSEC_Lib::get_server_snapshot(),
+		], [ 'user_id' => $user->ID ] );
 
 		$data = array(
 			'uuid'          => wp_generate_uuid4(),
@@ -432,13 +524,21 @@ class ITSEC_Login_Interstitial_Session {
 			'remember_me'   => false,
 			'interim_login' => false,
 			'state'         => array(),
+			'meta'          => array(),
+			'log'           => $log,
 		);
 
 		if ( ! $mid = add_user_meta( $user->ID, self::META_KEY, $data ) ) {
-			return new WP_Error( 'itsec-lib-login-interstitial-save-failed', esc_html__( 'Failed to create interstitial state.', 'better-wp-security' ) );
+			$error = new WP_Error( 'itsec-lib-login-interstitial-save-failed', esc_html__( 'Failed to create interstitial state.', 'better-wp-security' ) );
+			ITSEC_Log::add_process_stop( $log, $error );
+
+			return $error;
 		}
 
-		return new self( $user, $mid, $data );
+		$session = new self( $user, $mid, $data );
+		$session->log( 'created', $mid );
+
+		return $session;
 	}
 
 	/**

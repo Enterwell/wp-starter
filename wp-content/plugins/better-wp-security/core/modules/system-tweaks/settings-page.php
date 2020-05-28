@@ -45,7 +45,7 @@ final class ITSEC_System_Tweaks_Settings_Page extends ITSEC_Module_Settings_Page
 			<td>
 				<?php $form->add_checkbox( 'request_methods' ); ?>
 				<label for="itsec-system-tweaks-request_methods"><?php esc_html_e( 'Filter Request Methods', 'better-wp-security' ); ?></label>
-				<p class="description"><?php printf( wp_kses( __( 'Filter out hits with the trace, delete, or track request methods. This should not be enabled if you use the <a href="%s">WordPress REST API</a>.', 'better-wp-security' ), array( 'a' => array( 'href' => array() ) ) ), esc_url( 'https://wordpress.org/plugins/rest-api/' ) ); ?></p>
+				<p class="description"><?php esc_html_e( 'Filter out hits with the trace or track request methods.', 'better-wp-security' ); ?></p>
 			</td>
 		</tr>
 		<tr>

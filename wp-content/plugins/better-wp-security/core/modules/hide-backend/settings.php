@@ -17,6 +17,7 @@ final class ITSEC_Hide_Backend_Settings extends ITSEC_Settings {
 	}
 
 	protected function handle_settings_changes( $old_settings ) {
+		parent::handle_settings_changes( $old_settings );
 
 		if ( $this->settings['enabled'] && ! $old_settings['enabled'] ) {
 			$url      = get_site_url() . '/' . $this->settings['slug'];

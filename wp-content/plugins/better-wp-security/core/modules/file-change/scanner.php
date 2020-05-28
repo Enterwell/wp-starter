@@ -159,9 +159,9 @@ class ITSEC_File_Change_Scanner {
 	 * Is there a scan scheduled.
 	 *
 	 * @param ITSEC_Scheduler $scheduler The scheduler to use.
-	 * @param bool $user_initiated 			 Whether the user initiated scan is running or the scheduled loop scan. 
+	 * @param bool $user_initiated 			 Whether the user initiated scan is running or the scheduled loop scan.
 	 * 																	 Null to check either.
-	 * 
+	 *
 	 * @return bool Is it scheduled.
 	 */
 	private static function is_scheduled( $scheduler, $user_initiated = null ) {
@@ -795,10 +795,6 @@ class ITSEC_File_Change_Scanner {
 
 		ITSEC_Modules::set_setting( 'file-change', 'last_scan', $found_changes ? $id : 0 );
 		update_site_option( 'itsec_file_change_latest', $list );
-
-		if ( $found_changes && $this->settings['notify_admin'] ) {
-			ITSEC_Modules::set_setting( 'file-change', 'show_warning', true );
-		}
 
 		if ( $process = $storage->get( 'process' ) ) {
 			ITSEC_Log::add_process_stop( $process );

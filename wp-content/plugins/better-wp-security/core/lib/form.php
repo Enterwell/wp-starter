@@ -1,5 +1,7 @@
 <?php
 
+use iThemesSecurity\User_Groups\Matchables_Source;
+
 final class ITSEC_Form {
 	private $options = array();
 	private $tracked_booleans = array();
@@ -7,7 +9,6 @@ final class ITSEC_Form {
 	private $tracked_arrays = array();
 	private $input_group = '';
 	private $input_group_stack = array();
-
 
 	public function __construct( $options = array() ) {
 		$this->options =& $options;
@@ -25,10 +26,6 @@ final class ITSEC_Form {
 
 		if ( isset( $data['data'] ) && isset( $data['data']['--itsec-form-serialized-data'] ) ) {
 			parse_str( $data['data']['--itsec-form-serialized-data'], $data );
-		}
-
-		if ( get_magic_quotes_gpc() ) {
-			$data = stripslashes_deep( $data );
 		}
 
 		$defaults = array(
@@ -491,6 +488,54 @@ final class ITSEC_Form {
 		}
 
 		$this->add_select( $var, $options );
+	}
+
+	public function add_user_group( $var, $options = array() ) {
+		$source  = ITSEC_Modules::get_container()->get( Matchables_Source::class );
+
+		$user_groups = [];
+		foreach ( $source->all() as $matchable ) {
+			$user_groups[ $matchable->get_id() ] = $matchable->get_label();
+		}
+
+		if ( isset( $options['value'] ) ) {
+			$options['value'] = wp_parse_args( $options['value'], $user_groups );
+		} else {
+			$options['value'] = $user_groups;
+		}
+
+		$this->add_select( $var, $options );
+	}
+
+	public function add_user_groups( $var, $module, $setting = '', $options = array() ) {
+		$source  = ITSEC_Modules::get_container()->get( Matchables_Source::class );
+
+		$user_groups = [];
+		foreach ( $source->all() as $matchable ) {
+			$user_groups[ $matchable->get_id() ] = $matchable->get_label();
+		}
+
+		if ( isset( $options['value'] ) ) {
+			$options['value'] = wp_parse_args( $options['value'], $user_groups );
+		} else {
+			$options['value'] = $user_groups;
+		}
+
+		$options['data-module'] = $module;
+		$options['data-setting'] = $setting ?: $var;
+
+		$options['class'] = 'itsec-form-input--type-user-groups';
+
+		$this->add_multi_select( $var, $options );
+		wp_enqueue_script( 'itsec-form-user-groups' );
+		wp_enqueue_style( 'itsec-jquery-multi-select' );
+	}
+
+	public function get_dotted_var( $var ) {
+		$dot   = $this->input_group_stack;
+		$dot[] = $var;
+
+		return implode( '.', $dot );
 	}
 
 	public function get_clean_var( $var ) {

@@ -61,6 +61,7 @@ class ITSEC_Notification_Center_Settings extends ITSEC_Settings {
 	}
 
 	protected function handle_settings_changes( $old_settings ) {
+		parent::handle_settings_changes( $old_settings );
 
 		$nc = ITSEC_Core::get_notification_center();
 

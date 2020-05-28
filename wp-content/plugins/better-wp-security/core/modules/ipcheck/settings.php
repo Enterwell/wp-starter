@@ -10,7 +10,7 @@ final class ITSEC_Network_Brute_Force_Settings extends ITSEC_Settings {
 			'api_key'       => '',
 			'api_secret'    => '',
 			'enable_ban'    => true,
-			'updates_optin' => true,
+			'updates_optin' => false,
 			'api_nag'       => true,
 		);
 	}

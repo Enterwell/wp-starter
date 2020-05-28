@@ -50,6 +50,7 @@ final class ITSEC_Network_Brute_Force_Settings_Page extends ITSEC_Module_Setting
 	}
 
 	protected function render_settings( $form ) {
+		$form->set_options( array( 'updates_optin' => false ) );
 		$settings = $form->get_options();
 
 ?>
@@ -72,7 +73,7 @@ final class ITSEC_Network_Brute_Force_Settings_Page extends ITSEC_Module_Setting
 				<th scope="row"><label for="itsec-network-brute-force-updates_optin"><?php _e( 'Receive Email Updates', 'better-wp-security' ); ?></label></th>
 				<td>
 					<?php $form->add_checkbox( 'updates_optin' ); ?>
-					<label for="itsec-network-brute-force-updates_optin"><?php _e( 'Receive email updates about WordPress Security from iThemes.', 'better-wp-security' ); ?></label>
+					<label for="itsec-network-brute-force-updates_optin"><?php _e( 'Receive email updates about WordPress Security and marketing news from iThemes.', 'better-wp-security' ); ?></label>
 				</td>
 			</tr>
 		</table>

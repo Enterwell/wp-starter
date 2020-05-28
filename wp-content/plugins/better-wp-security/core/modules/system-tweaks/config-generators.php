@@ -112,7 +112,7 @@ final class ITSEC_System_Tweaks_Config_Generators {
 		if ( $input['request_methods'] ) {
 			$rewrites .= "\n";
 			$rewrites .= "\t\t# " . __( 'Filter Request Methods - Security > Settings > System Tweaks > Request Methods', 'better-wp-security' ) . "\n";
-			$rewrites .= "\t\tRewriteCond %{REQUEST_METHOD} ^(TRACE|DELETE|TRACK) [NC]\n";
+			$rewrites .= "\t\tRewriteCond %{REQUEST_METHOD} ^(TRACE|TRACK) [NC]\n";
 			$rewrites .= "\t\tRewriteRule ^.* - [F]\n";
 		}
 
@@ -240,7 +240,7 @@ final class ITSEC_System_Tweaks_Config_Generators {
 		if ( $input['request_methods'] ) {
 			$modification .= "\n";
 			$modification .= "\t# " . __( 'Filter Request Methods - Security > Settings > System Tweaks > Request Methods', 'better-wp-security' ) . "\n";
-			$modification .= "\tif ( \$request_method ~* ^(TRACE|DELETE|TRACK)$ ) { return 403; }\n";
+			$modification .= "\tif ( \$request_method ~* ^(TRACE|TRACK)$ ) { return 403; }\n";
 		}
 
 		// Process suspicious query rules

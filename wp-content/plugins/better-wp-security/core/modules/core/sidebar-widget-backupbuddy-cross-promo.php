@@ -4,7 +4,7 @@ class ITSEC_Settings_Page_Sidebar_Widget_BackupBuddy_Cross_Promo extends ITSEC_S
 	public function __construct() {
 		$this->id = 'backupbuddy-cross-promo';
 		$this->title = __( 'Complete Your Security Strategy With BackupBuddy', 'better-wp-security' );
-		$this->priority = 7;
+		$this->priority = ITSEC_Core::is_pro() ? 11 : 7;
 
 		parent::__construct();
 	}

@@ -34,7 +34,7 @@ abstract class ITSEC_Login_Interstitial {
 	 * @param ITSEC_Login_Interstitial_Session $session
 	 * @param array                            $args
 	 *
-	 * @return string
+	 * @return void
 	 */
 	abstract public function render( ITSEC_Login_Interstitial_Session $session, array $args );
 
@@ -70,8 +70,14 @@ abstract class ITSEC_Login_Interstitial {
 	 *
 	 * @param ITSEC_Login_Interstitial_Session $session
 	 * @param array                            $data
+	 *
+	 * @return WP_Error|null
 	 */
-	public function submit( ITSEC_Login_Interstitial_Session $session, array $data ) { }
+	public function submit( ITSEC_Login_Interstitial_Session $session, array $data ) {
+		_doing_it_wrong( __METHOD__, 'Must override ::submit if has submit handler.', '5.3.0' );
+
+		return new WP_Error( 'internal_server_error', 'Internal Server Error' );
+	}
 
 	/**
 	 * Does the interstitial have async GET actions.

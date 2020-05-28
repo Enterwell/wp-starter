@@ -18,6 +18,7 @@ final class ITSEC_Security_Check_Scanner {
 			'magic-links'         => __( 'Magic Links', 'better-wp-security' ),
 			'malware-scheduling'  => __( 'Malware Scan Scheduling', 'better-wp-security' ),
 			'network-brute-force' => __( 'Network Brute Force Protection', 'better-wp-security' ),
+			'passwordless-login'  => __( 'Passwordless Login', 'better-wp-security' ),
 			'strong-passwords'    => __( 'Strong Passwords', 'better-wp-security' ),
 			'two-factor'          => __( 'Two-Factor Authentication', 'better-wp-security' ),
 			'user-logging'        => __( 'User Logging', 'better-wp-security' ),
@@ -40,6 +41,8 @@ final class ITSEC_Security_Check_Scanner {
 	}
 
 	public static function run_scan() {
+		$admin_group = ( $group_id = ITSEC_Modules::get_settings_obj( 'user-groups' )->get_default_group_id( 'administrator' ) ) ? [ $group_id ] : [];
+
 		require_once( dirname( __FILE__ ) . '/feedback.php' );
 
 		self::$feedback = new ITSEC_Security_Check_Feedback();
@@ -78,11 +81,12 @@ final class ITSEC_Security_Check_Scanner {
 
 		self::add_network_brute_force_signup();
 
+		self::enforce_activation( 'passwordless-login', __( 'Passwordless Login', 'better-wp-security' ) );
 		self::enforce_password_requirement_enabled( 'strength', __( 'Strong Password Enforcement', 'better-wp-security' ) );
 		self::enforce_activation( 'two-factor', __( 'Two-Factor Authentication', 'better-wp-security' ) );
 		self::enforce_setting( 'two-factor', 'available_methods', 'all', esc_html__( 'Changed the Authentication Methods Available to Users setting in Two-Factor Authentication to "All Methods".', 'better-wp-security' ) );
 		self::enforce_setting( 'two-factor', 'exclude_type', 'disabled', esc_html__( 'Changed the Disabled Force Two-Factor for Certain Users to "None".', 'better-wp-security' ) );
-		self::enforce_setting( 'two-factor', 'protect_user_type', 'privileged_users', esc_html__( 'Changed the User Type Protection setting in Two-Factor Authentication to "Privileged Users".', 'better-wp-security' ) );
+		self::enforce_setting( 'two-factor', 'protect_user_group', $admin_group, esc_html__( 'Changed the User Type Protection setting in Two-Factor Authentication to "Privileged Users".', 'better-wp-security' ) );
 		self::enforce_setting( 'two-factor', 'protect_vulnerable_users', true, esc_html__( 'Enabled the Vulnerable User Protection setting in Two-Factor Authentication.', 'better-wp-security' ) );
 		self::enforce_setting( 'two-factor', 'protect_vulnerable_site', true, esc_html__( 'Enabled the Vulnerable Site Protection setting in Two-Factor Authentication.', 'better-wp-security' ) );
 
@@ -123,9 +127,9 @@ final class ITSEC_Security_Check_Scanner {
 			'style_class' => 'regular-text',
 		) );
 		self::$feedback->add_input( 'select', 'updates_optin', array(
-			'format'  => __( 'Receive email updates about WordPress Security from iThemes: %1$s', 'better-wp-security' ),
+			'format'  => __( 'Receive email updates about WordPress Security and marketing news from iThemes: %1$s', 'better-wp-security' ),
 			'options' => array( 'true' => __( 'Yes', 'better-wp-security' ), 'false' => __( 'No', 'better-wp-security' ) ),
-			'value'   => 'true',
+			'value'   => 'false',
 		) );
 		self::$feedback->add_input( 'hidden', 'method', array(
 			'value' => 'activate-network-brute-force',

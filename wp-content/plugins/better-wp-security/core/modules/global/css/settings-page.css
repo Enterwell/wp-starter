@@ -1,0 +1,15 @@
+.itsec-global-proxy-wrapper {
+	margin: 1em 0;
+}
+
+.itsec-global-proxy-wrapper #itsec-global-proxy {
+	margin: 0 !important;
+}
+
+.itsec-global-detected-ip {
+	background: #edeff0;
+	color: #23282d;
+	padding: 10px 20px;
+	border-radius: 14px;
+	max-width: max-content;
+}

@@ -1,0 +1,46 @@
+@import "colors.scss";
+
+.itsec-user-groups-list {
+    display: grid;
+    grid-template-columns: 200px minmax(0, auto);
+    grid-gap: 1.25em;
+    padding-bottom: 2em;
+
+    & > .components-tab-panel__tabs {
+        display: flex;
+        flex-direction: column;
+        margin-top: 2.2em; // Matches .itsec-manage-user-group__label
+    }
+}
+
+.itsec-user-groups-list__item {
+    padding: 1em .5em;
+    margin: 1.25em 0 0;
+    border: 1px solid $dark-gray-200;
+    border-radius: 4px;
+    text-align: left;
+    height: auto;
+
+    &.is-active {
+        border-color: $blue-medium-focus;
+        box-shadow: 0 0 0 1px $blue-medium-focus;
+        outline: 2px solid transparent;
+    }
+
+    &:first-child {
+        margin-top: 0;
+    }
+
+    &:last-child {
+        margin-bottom: 0;
+    }
+}
+
+.itsec-user-groups-list__item--new {
+    justify-content: center;
+    align-items: center;
+
+    & .dashicon {
+        margin-right: 10px;
+    }
+}

@@ -34,7 +34,7 @@
 	cursor: inherit;
 }
 
-ul {
+.itsec-module-settings-container ul {
 	list-style: outside;
 	padding-left: 1em;
 }
@@ -124,8 +124,7 @@ ul {
 	box-shadow: 0 0 20px rgba(0,0,0,0.2);
 	z-index: 510;
 }
-.grid .itsec-modal-navigation,
-.grid .itsec-modal-content-footer {
+.grid .itsec-modal-navigation {
 	display: block;
 }
 .grid .itsec-list-content-footer,
@@ -261,7 +260,10 @@ body.itsec-modal-open {
 .itsec-modal-navigation button.itsec-close-modal::before {
 	content: '\f335';
 }
-.itsec-modal-content-footer {
+.grid .itsec-modal-content-footer {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
 	position: absolute;
 	bottom: 0;
 	left: 0;
@@ -344,18 +346,17 @@ body.itsec-modal-open {
 	box-sizing: border-box;
 }
 .itsec-module-cards {
-	text-align: justify;
-	font-size: 0.1px;
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
 }
 .itsec-module-cards:after {
 	content: '';
-	display: inline-block;
 	width: 100%;
 }
 .itsec-module-card,
 .itsec-module-card-filler {
 	font-size: 16px;
-	display: inline-block;
 	width: 100%;
 	max-width: 32%;
 	text-align: left;
@@ -449,6 +450,12 @@ body.itsec-modal-open {
 	min-height: 14em;
 }
 
+.list .itsec-list-content-footer {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
 @media ( max-width: 782px ) {
 	#poststuff .list .itsec-module-card h2 {
 		line-height: 2.6;
@@ -462,6 +469,10 @@ body.itsec-modal-open {
 	.list .itsec-module-card-content .module-actions {
 		float:none;
 	}
+}
+
+.itsec-module-documentation {
+	font-size: 13px;
 }
 
 /*
@@ -880,6 +891,36 @@ body.security_page_itsec-logs .itsec-module-settings-content-main .form-table .w
 	padding: 15px 10px;
 }
 
+.itsec-settings-module-settings .form-table td {
+	position: relative;
+}
+
+.itsec-settings-module-settings .ms-options-wrap {
+	max-width: 455px;
+}
+
+.itsec-settings-module-settings .ms-options-wrap > .ms-options {
+	margin-left: 10px;
+	margin-right: 10px;
+	width: auto;
+}
+
+.itsec-settings-module-settings .ms-options-wrap > .ms-options > ul label {
+	padding: 4px;
+}
+
+.itsec-settings-module-settings .ms-options-wrap > .ms-options > ul input[type="checkbox"] {
+	position: initial;
+}
+
+.itsec-settings-module-settings .ms-options-wrap > button {
+	text-overflow: ellipsis;
+	overflow: hidden;
+}
+
+.itsec-settings-module-settings .ms-options-wrap > button > span {
+	display: inline;
+}
 
 /***************************************
 	Tooltip

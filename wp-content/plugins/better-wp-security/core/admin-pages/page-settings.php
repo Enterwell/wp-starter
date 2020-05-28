@@ -5,7 +5,11 @@ final class ITSEC_Settings_Page {
 	private static $instance;
 
 	private $self_url = '';
+
+	/** @var ITSEC_Module_Settings_Page[] */
 	private $modules = array();
+
+	/** @var ITSEC_Settings_Page_Sidebar_Widget[] */
 	private $widgets = array();
 	private $translations = array();
 
@@ -165,9 +169,13 @@ final class ITSEC_Settings_Page {
 				ITSEC_Modules::load_module_file( 'active.php', $module );
 			}
 
+			ITSEC_Response::add_store_dispatch( 'ithemes-security/user-groups', 'fetchGroupsSettings' );
+			ITSEC_Response::add_store_dispatch( 'ithemes-security/core', 'fetchIndex', [ true ] );
 			ITSEC_Response::maybe_flag_new_notifications_available();
 		} else if ( 'deactivate' === $method ) {
 			ITSEC_Response::set_response( ITSEC_Modules::deactivate( $module ) );
+			ITSEC_Response::add_store_dispatch( 'ithemes-security/user-groups', 'fetchGroupsSettings' );
+			ITSEC_Response::add_store_dispatch( 'ithemes-security/core', 'fetchIndex', [ true ] );
 			ITSEC_Response::maybe_flag_new_notifications_available();
 		} else if ( 'is_active' === $method ) {
 			ITSEC_Response::set_response( ITSEC_Modules::is_active( $module ) );
@@ -474,7 +482,7 @@ final class ITSEC_Settings_Page {
 							<input type="search" placeholder="<?php esc_attr_e( 'Search Modules', 'better-wp-security' ); ?>" id="search" spellcheck="false" autocomplete="off" autofill="off" x-autocomplete="false">
 						</div>
 						<ul class="subsubsub itsec-feature-tabs hide-if-no-js">
-							<?php echo implode( $feature_tabs, " |</li>\n" ) . "</li>\n"; ?>
+							<?php echo implode( " |</li>\n", $feature_tabs ) . "</li>\n"; ?>
 							<li class="itsec-module-filter hide-if-js" id="itsec-module-filter-search">| <a><?php esc_html_e( 'Search', 'better-wp-security' ); ?></a> <span class="count"></span></li>
 						</ul>
 					</div>
@@ -594,32 +602,48 @@ final class ITSEC_Settings_Page {
 										<?php echo esc_html( $module->title ); ?>
 										<?php do_action( 'itsec_module_settings_after_title', $id ); ?>
 									</h3>
-									<div class="itsec-module-messages-container"></div>
+									<div class="itsec-module-messages-container" id="itsec-module-messages-container-<?php echo esc_attr( $id ); ?>"></div>
 									<div class="itsec-module-settings-content-main">
 										<?php $this->get_module_settings( $id, $form, true ); ?>
 									</div>
 								</div>
 							</div>
 							<div class="itsec-list-content-footer hide-if-no-js">
-								<?php if ( $module->can_save ) : ?>
-									<button class="button button-primary align-left itsec-module-settings-save"><?php echo $this->translations['save_settings']; ?></button>
-								<?php endif; ?>
-								<button class="button button-secondary align-left itsec-module-settings-cancel"><?php _e( 'Cancel', 'better-wp-security' ); ?></button>
+								<div class="itsec-module-footer-actions itsec-module-footer-actions--left">
+									<?php if ( $module->can_save ) : ?>
+										<button class="button button-primary itsec-module-settings-save"><?php echo $this->translations['save_settings']; ?></button>
+									<?php endif; ?>
+									<button class="button button-secondary itsec-module-settings-cancel"><?php _e( 'Cancel', 'better-wp-security' ); ?></button>
+								</div>
+
+								<div class="itsec-module-footer-actions itsec-module-footer-actions--right">
+									<?php if ( $module->documentation ): ?>
+										<a href="<?php echo esc_url( $module->documentation ); ?>" class="itsec-module-documentation"><?php esc_html_e( 'Documentation', 'better-wp-security' ); ?></a>
+									<?php endif; ?>
+								</div>
 							</div>
 							<div class="itsec-modal-content-footer">
-								<?php if ( $module->enabled || $module->always_active || $module->information_only ) : ?>
-									<?php if ( ! $module->always_active && ! $module->information_only ) : ?>
-										<button class="button button-secondary align-right itsec-toggle-activation"><?php echo $this->translations['deactivate']; ?></button>
+								<div class="itsec-module-footer-actions itsec-module-footer-actions--left">
+									<?php if ( $module->can_save ) : ?>
+										<button class="button button-primary itsec-module-settings-save"><?php echo $this->translations['save_settings']; ?></button>
+									<?php else : ?>
+										<button class="button button-primary itsec-close-modal"><?php echo $this->translations['close_settings']; ?></button>
 									<?php endif; ?>
-								<?php else : ?>
-									<button class="button button-primary align-right itsec-toggle-activation"><?php echo $this->translations['activate']; ?></button>
-								<?php endif; ?>
+								</div>
 
-								<?php if ( $module->can_save ) : ?>
-									<button class="button button-primary align-left itsec-module-settings-save"><?php echo $this->translations['save_settings']; ?></button>
-								<?php else : ?>
-									<button class="button button-primary align-left itsec-close-modal"><?php echo $this->translations['close_settings']; ?></button>
-								<?php endif; ?>
+								<div class="itsec-module-footer-actions itsec-module-footer-actions--right">
+									<?php if ( $module->documentation ): ?>
+										<a href="<?php echo esc_url( $module->documentation ); ?>" class="itsec-module-documentation"><?php esc_html_e( 'Documentation', 'better-wp-security' ); ?></a>
+									<?php endif; ?>
+
+									<?php if ( $module->enabled || $module->always_active || $module->information_only ) : ?>
+										<?php if ( ! $module->always_active && ! $module->information_only ) : ?>
+											<button class="button button-secondary itsec-toggle-activation"><?php echo $this->translations['deactivate']; ?></button>
+										<?php endif; ?>
+									<?php else : ?>
+										<button class="button button-primary itsec-toggle-activation"><?php echo $this->translations['activate']; ?></button>
+									<?php endif; ?>
+								</div>
 							</div>
 						</div>
 					<?php endif; ?>

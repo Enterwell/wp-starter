@@ -89,13 +89,13 @@ class ITSEC_Zxcvbn_Dictionary_Match extends ITSEC_Zxcvbn_Match {
 			for ( $j = $i; $j < $length; $j++ ) {
 				$word = substr( $pw_lower, $i, $j - $i + 1 );
 
-				if ( isset( $dictionary->{$word} ) ) {
+				if ( isset( $dictionary[ $word ] ) ) {
 					$result[] = array(
 						'begin'        => $i,
 						'end'          => $j,
 						'token'        => substr( $password, $i, $j - $i + 1 ),
 						'matched_word' => $word,
-						'rank'         => $dictionary->{$word},
+						'rank'         => $dictionary[ $word ],
 					);
 				}
 			}
@@ -110,7 +110,7 @@ class ITSEC_Zxcvbn_Dictionary_Match extends ITSEC_Zxcvbn_Match {
 	 * @return object
 	 */
 	protected static function get_ranked_dictionary( $dictionary_name ) {
-		return json_decode( file_get_contents( dirname( __FILE__ ) . sprintf( '/ranked_frequency_list-%s.json', $dictionary_name ) ) );
+		return json_decode( file_get_contents( dirname( __FILE__ ) . sprintf( '/ranked_frequency_list-%s.json', $dictionary_name ) ), true );
 	}
 
 	public function estimate_guesses() {

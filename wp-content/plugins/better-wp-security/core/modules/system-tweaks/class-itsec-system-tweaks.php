@@ -100,6 +100,10 @@ final class ITSEC_System_Tweaks {
 			return;
 		}
 
+		if ( $_SERVER['REQUEST_METHOD'] === 'GET' && isset( $GLOBALS['pagenow'], $_GET['action'] ) && 'wp-login.php' === $GLOBALS['pagenow'] ) {
+			return;
+		}
+
 		@header( 'HTTP/1.1 414 Request-URI Too Long' );
 		@header( 'Status: 414 Request-URI Too Long' );
 		@header( 'Cache-Control: no-cache, must-revalidate' );

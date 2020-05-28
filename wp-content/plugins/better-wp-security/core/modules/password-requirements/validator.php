@@ -13,6 +13,7 @@ class ITSEC_Password_Requirements_Validator extends ITSEC_Validator {
 	}
 
 	protected function sanitize_settings() {
+		$this->set_previous_if_empty( [ 'enabled_requirements', 'requirement_settings' ] );
 		$this->sanitize_setting( 'array', 'enabled_requirements', __( 'Enabled Requirements', 'better-wp-security' ) );
 		$this->sanitize_setting( 'array', 'requirement_settings', __( 'Requirement Settings', 'better-wp-security' ) );
 

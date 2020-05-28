@@ -54,20 +54,21 @@ var itsecUtil = {
 
 	processAjaxResponse: function( a, status, b, module, method, data, callback ) {
 		var results = {
-			'module':        module,
-			'method':        method,
-			'data':          data,
-			'status':        status,
-			'jqxhr':         null,
-			'success':       false,
-			'response':      null,
-			'errors':        [],
-			'warnings':      [],
-			'messages':      [],
-			'infos':         [],
-			'functionCalls': [],
-			'redirect':      false,
-			'closeModal':    true
+			'module':          module,
+			'method':          method,
+			'data':            data,
+			'status':          status,
+			'jqxhr':           null,
+			'success':         false,
+			'response':        null,
+			'errors':          [],
+			'warnings':        [],
+			'messages':        [],
+			'infos':           [],
+			'functionCalls':   [],
+			'storeDispatches': [],
+			'redirect':        false,
+			'closeModal':      true
 		};
 
 
@@ -81,6 +82,7 @@ var itsecUtil = {
 			results.messages = a.messages;
 			results.infos = a.infos;
 			results.functionCalls = a.functionCalls;
+			results.storeDispatches = a.storeDispatches;
 			results.redirect = a.redirect;
 			results.closeModal = a.closeModal;
 		} else if ( a.responseText ) {
@@ -145,6 +147,30 @@ var itsecUtil = {
 					console.log( 'ERROR: Unable to call missing function:', results.functionCalls[i] );
 				}
 			}
+		}
+
+		itsecUtil.handleStoreDispatches( results.storeDispatches );
+	},
+
+	handleStoreDispatches: function( dispatches ) {
+		if ( !wp.data ) {
+			return;
+		}
+
+		for ( var i = 0; i < dispatches.length; i++ ) {
+			var dispatch = dispatches[ i ];
+			var key = dispatch.store,
+				action = dispatch.action,
+				args = dispatch.args;
+
+			var store = wp.data.dispatch( key );
+
+			if ( ! store ) {
+				console.warn( 'Unable to call store dispatch. The store does not exist.', dispatch );
+				continue;
+			}
+
+			store[ action ].apply( store, args );
 		}
 	},
 

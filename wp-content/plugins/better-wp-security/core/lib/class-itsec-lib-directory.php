@@ -171,18 +171,43 @@ if ( ! class_exists( 'ITSEC_Lib_Directory' ) ) {
 		 *
 		 * @since 1.15.0
 		 *
+		 * @param string $dir
+		 *
 		 * @return bool|WP_Error Boolean true on success or a WP_Error object if an error occurs.
 		 */
 		public static function remove( $dir ) {
+			$emptied = self::empty_directory( $dir );
+
+			if ( is_wp_error( $emptied ) ) {
+				return $emptied;
+			}
+
+			$result = rmdir( $dir );
+			// phpcs:ignore -- Have Tide ignore the following line. We use arguments that don't exist in early versions, but these versions ignore the arguments.
+			@clearstatcache( true, $dir );
+
+			if ( $result ) {
+				return true;
+			}
+
+			return new WP_Error( 'itsec-lib-directory-remove-unknown-error', sprintf( __( 'Unable to remove %s due to an unknown error.', 'better-wp-security' ), $dir ) );
+		}
+
+		/**
+		 * Empty a directory of all it's contents, but don't delete the directory.
+		 *
+		 * @param string $dir
+		 *
+		 * @return bool|WP_Error
+		 */
+		public static function empty_directory( $dir ) {
 			if ( ! ITSEC_Lib_File::exists( $dir ) ) {
 				return true;
 			}
 
-
 			if ( ! ITSEC_Lib_Utility::is_callable_function( 'rmdir' ) ) {
 				return new WP_Error( 'itsec-lib-directory-remove-rmdir-is-disabled', sprintf( __( 'The directory %s could not be removed as the rmdir() function is disabled. This is a system configuration issue.', 'better-wp-security' ), $dir ) );
 			}
-
 
 			$files = self::read( $dir );
 
@@ -198,15 +223,10 @@ if ( ! class_exists( 'ITSEC_Lib_Directory' ) ) {
 				}
 			}
 
-			$result = rmdir( $dir );
 			// phpcs:ignore -- Have Tide ignore the following line. We use arguments that don't exist in early versions, but these versions ignore the arguments.
 			@clearstatcache( true, $dir );
 
-			if ( $result ) {
-				return true;
-			}
-
-			return new WP_Error( 'itsec-lib-directory-remove-unknown-error', sprintf( __( 'Unable to remove %s due to an unknown error.', 'better-wp-security' ), $dir ) );
+			return true;
 		}
 
 		/**
