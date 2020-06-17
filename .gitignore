@@ -20,11 +20,10 @@ wp-config.php
 
 # Theme files
 node_modules
-wp-content/themes/test-theme/assets/dist/*
+wp-content/themes/enterwell-theme/assets/dist/*
 
 # Cache and wp-content files
 wp-content/advanced-cache.php
 wp-content/w3tc-config
 wp-content/cache
-wp-content/uploads/ithemes-security
-wp-content/uploads/logs
+wp-content/uploads

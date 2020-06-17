@@ -8,7 +8,8 @@
     "dev-browser-sync": "cross-env NODE_ENV=development gulp browser-sync",
     "dev-watch": "cross-env NODE_ENV=development gulp styles-watch-dev",
     "start": "concurrently --kill-others \"yarn run dev-webpack\" \"yarn run dev-browser-sync\" \"yarn run dev-watch\"",
-    "build": "cross-env NODE_ENV=development gulp build-prod"
+    "build": "cross-env NODE_ENV=development gulp build-prod",
+    "add-block": "node ./.scripts/createNewBlock.js"
   },
   "author": "Enterwell",
   "license": "ISC",
@@ -76,6 +77,7 @@
     "webpack-dev-middleware": "^1.12.0",
     "webpack-dev-server": "^2.4.1",
     "webpack-hot-middleware": "^2.19.1",
+    "webpack-manifest-plugin": "^2.2.0",
     "webpack-stream": "^4.0.0"
   },
   "dependencies": {

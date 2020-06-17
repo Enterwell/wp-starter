@@ -46,7 +46,10 @@ class Ew_Twig {
 	public function __construct() {
 
 		// Init loader
-		$this->loader = new Twig_Loader_Filesystem( THEME_DIR . static::TEMPLATES_DIR );
+		$this->loader = new Twig_Loader_Filesystem( [
+			THEME_DIR . static::TEMPLATES_DIR,
+			THEME_DIR . '/assets/gutenberg/blocks'
+		] );
 
 		// Init twig.
 		$this->twig = new Twig_Environment( $this->loader, array(

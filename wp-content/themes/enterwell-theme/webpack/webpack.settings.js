@@ -9,6 +9,7 @@ const PATHS = {
   fonts: path.join(__dirname, '../assets/styles/fonts'),
   scripts: path.join(__dirname, '../assets/js'),
   build: path.join(__dirname, '../assets/dist'),
+  gutenberg: path.join(__dirname, '../assets/gutenberg')
 };
 /**
  * Settings for webpack dev server.

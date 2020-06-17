@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
   "webpackPort": 10001,
-  "webpackHost": "0.0.0.0",
+  "webpackHost": "localhost",
   "webAppServerAddress": "http://ew-wp-starter.local/",
   "browserSyncPort": 10000
 }

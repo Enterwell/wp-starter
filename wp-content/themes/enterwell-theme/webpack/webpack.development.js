@@ -1,6 +1,7 @@
 /* eslint comma-dangle: 0 */
 // Imports
 const webpack = require('webpack');
+const ManifestPlugin = require('webpack-manifest-plugin');
 
 // Include settings
 const settings = require('./webpack.settings');
@@ -8,11 +9,16 @@ const settings = require('./webpack.settings');
 const PATHS = settings.PATHS;
 const WebpackDevServerSettings = settings.WebpackDevServerSettings;
 
+const publicPath = WebpackDevServerSettings.address;
+
 // Include plugins
 const plugins = require('./webpack.plugins');
 
 // Include resolve
 const resolve = require('./webpack.resolve');
+
+// Include externals
+const externals = require('./webpack.externals');
 
 // Include common loaders
 const loaders = require('./webpack.loaders');
@@ -93,10 +99,14 @@ module.exports = {
   // Define entries for javascript and style files.
   entry: {
     // Main entry for all files
-    "bundle": [
+    bundle: [
       'babel-polyfill',
       'react-hot-loader/patch', // Patch for react hot loader
       PATHS.scripts + '/main.js'
+    ],
+    // Blocks
+    blocks: [
+      PATHS.gutenberg + '/index.js',
     ],
   },
 
@@ -121,6 +131,9 @@ module.exports = {
   // Adds resolve
   resolve,
 
+  // Adds externals
+  externals,
+
   // Set up loaders for files
   module: {
     // Define rules for files
@@ -136,6 +149,11 @@ module.exports = {
   plugins: [
     new webpack.NoEmitOnErrorsPlugin(),
     new webpack.NamedModulesPlugin(),
+    new ManifestPlugin({
+      fileName: 'asset-manifest.json',
+      writeToFileEmit: true,
+      publicPath,
+    }),
     plugins.InitProvidePlugin()
   ],
 

@@ -47,6 +47,9 @@
 // Import container styles
 @import "components/container";
 
+// Gutenberg styles
+@import "../gutenberg/gutenberg";
+
 // All pages (home-page, blog index page, archive page...) styles
 // should be defined in their respective folders inside of pages folder.
 // Those files are imported here.

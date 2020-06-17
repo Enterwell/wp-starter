@@ -12,6 +12,9 @@ const plugins = require('./webpack.plugins');
 // Include resolve
 const resolve = require('./webpack.resolve');
 
+// Include externals
+const externals = require('./webpack.externals');
+
 // Include common loaders
 const loaders = require('./webpack.loaders');
 
@@ -102,6 +105,10 @@ module.exports = {
       'react-hot-loader/patch',
       PATHS.scripts + '/main.js'
     ],
+
+    blocks: [
+      PATHS.gutenberg + '/index.js',
+    ],
   },
 
   // Define output for webpack
@@ -117,6 +124,9 @@ module.exports = {
   // Add .jsx files to auto resolve
   // Adds resolve
   resolve,
+
+  // Adds externals
+  externals,
 
   // Set up loaders for files
   module: {

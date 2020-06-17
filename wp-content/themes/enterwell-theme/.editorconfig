@@ -29,7 +29,7 @@ trim_trailing_whitespace = true
 # Possible values - true, false
 insert_final_newline = true
 
-[*.{js,jsx,json}]
+[*.{js,jsx,json,scss,css}]
 # Indentation style
 # Possible values - tab, space
 indent_style = space

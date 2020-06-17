@@ -1,6 +1,8 @@
 // Imports
 const path = require('path');
 
+
+
 // Defines the resolve object
 const RESOLVE = {
   // Extensions

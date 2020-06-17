@@ -13,8 +13,6 @@
     "react-hot-loader/babel",
   ],
   "env": {
-    "production": {
-      "presets": ["minify"]
-    }
+    "production": {}
   }
 }
