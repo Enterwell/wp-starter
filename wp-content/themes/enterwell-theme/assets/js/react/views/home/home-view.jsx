@@ -1,11 +1,12 @@
 import React from 'react';
-import { hot } from 'react-hot-loader/root';
+import {hot} from 'react-hot-loader/root';
 import {inject, observer} from 'mobx-react';
 
 /**
  * Home view.
  */
-@inject('homeVm') @observer
+@inject('homeVm')
+@observer
 class HomeView extends React.Component {
   /**
    * View model.

@@ -1,7 +1,7 @@
 {# Get menu items. #}
 {% set navbarItems = ew_get_nav_menu_items('main-navigation-menu') %}
 
-<div class="c-navbar {{ is_admin_logged_in() ? 'admin-logged-in' : '' }}">
+<header class="c-navbar js-modal-add-padding{{ is_admin_logged_in() ? 'admin-logged-in' : '' }}">
     <div class="c-container">
         <div class="navbar-logo-container">
             <span>LOGO HERE</span>
@@ -16,4 +16,4 @@
             </div>
         {% endif %}
     </div>
-</div>
+</header>

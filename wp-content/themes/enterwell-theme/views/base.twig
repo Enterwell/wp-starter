@@ -9,9 +9,12 @@
 <html {{ function('language_attributes') }} class="{{ is_admin_logged_in() ? 'admin-logged-in' : '' }}">
 
     {% include 'components/common/head.twig' %}
+    {% include 'components/common/loading.twig' %}
 
     <body data-route="{{ jsRoute|default('') }}" class="{{ bodyClass|default('') }} ">
-        {% block content %} {% endblock %}
+	{% include 'components/common/navbar.twig' %}
+
+	{% block content %} {% endblock %}
 
         {% block footer %}
             {% include 'components/common/footer.twig' %}

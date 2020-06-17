@@ -1,6 +1,6 @@
 // Imports
 import {action, observable} from 'mobx';
-import DateTimeHelper from '../../../helpers/DateTimeHelper';
+import DateTimeHelper from '../../../helpers/date-time-helper';
 
 // Consts
 const INTERVAL_IN_MS = 10;

@@ -1,12 +1,14 @@
 {% extends 'base.twig' %}
 
 {% block content %}
-    <main>
-        <div class="c-container">
-            <h1 class="js-home-title">{{ vm.title }}</h1>
-            <button class="c-button js-home-btn">Change title color</button>
-            <div id="react-root"></div>
-        </div>
-    </main>
-    {% include 'components/common/navbar.twig' %}
+	<main>
+		<div class="c-container">
+			<h1 class="js-home-title">{{ vm.title }}</h1>
+			<button class="c-button js-home-btn">Change title color</button>
+			<div id="react-root"></div>
+
+			<button class="c-button js-home-modal" data-modal="home-page-modal">Open modal</button>
+		</div>
+	</main>
+	{% include 'pages/home-page/home-page-modal.twig' %}
 {% endblock %}

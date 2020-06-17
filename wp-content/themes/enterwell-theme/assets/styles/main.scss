@@ -39,13 +39,16 @@
 // and their styles should be defined in a file in components folder.
 
 // Import header styles
-@import "components/header";
+@import "components/navbar";
 
 // Import footer styles
 @import "components/footer";
 
 // Import container styles
 @import "components/container";
+
+// Import modal styles
+@import "components/modal";
 
 // Gutenberg styles
 @import "../gutenberg/gutenberg";

@@ -1,7 +1,9 @@
 import React from 'react';
-import ReactHelper from '../../helpers/ReactHelper';
-import HomeView from '../../react/views/Home/HomeView';
-import HomeViewModel from '../../react/views/Home/HomeViewModel';
+import ReactHelper from '../../helpers/react-helper';
+import HomeView from '../../react/views/home/home-view';
+import HomeViewModel from '../../react/views/home/home-view-model';
+
+import '../../components/modal-overlay';
 
 function HomePage($) {
   // Constants declaration
@@ -11,6 +13,7 @@ function HomePage($) {
   let $title;
   let $exampleBtn;
   let $reactRoot;
+  let $homePageModal;
 
   /**
    * Elements initialization
@@ -19,6 +22,10 @@ function HomePage($) {
     $title = $('.js-home-title');
     $exampleBtn = $('.js-home-btn');
     $reactRoot = $('#react-root');
+
+    // Init modal overlay
+    $homePageModal = $('#home-page-modal');
+    $homePageModal.ModalOverlay();
   }
 
   /**

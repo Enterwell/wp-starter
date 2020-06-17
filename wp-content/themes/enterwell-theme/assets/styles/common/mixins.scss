@@ -52,3 +52,28 @@
 
   }
 }
+
+// Mixin that creates responsive container that behaves like image
+// (contains it width/height ratio, and adopts height depending on the available width)
+//
+// Mostly used for images.
+@mixin responsiveImageContainer($width, $height) {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 0;
+  overflow: hidden;
+
+  &:before {
+    display: block;
+    content: "";
+    padding-top: percentage($height/$width);
+    clear: both;
+  }
+
+  &:after {
+    display: block;
+    clear: both;
+    content: "";
+  }
+}

@@ -13,18 +13,21 @@ import HomePage from './pages/home-page/home-page';
 // Include router
 import Router from './vendors/router';
 
+// Include components
+import Loading from './helpers/loading-helper';
+
 // Create new router
 const router = new Router();
-
 // Define all theme routes
 const themeRoutes = {
   // Common scripts for all pages
   common: {
     init: () => {
-      console.log('common init fired!');
+      // Initialize page loading
+      Loading.init();
     },
     finalize: () => {
-      console.log('common finalize fired!');
+      Loading.hide();
     },
   },
 
@@ -36,7 +39,7 @@ const themeRoutes = {
   },
 };
 
-  // Init router
+// Init router
 router.setRoutes(themeRoutes);
 
 // Apply router
