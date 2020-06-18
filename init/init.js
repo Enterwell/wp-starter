@@ -61,11 +61,11 @@ replace({
     paths: ['.gitignore']
 });
 
-// Replace webAppServerAddress in ew-theme-config.json
+// Replace webAppServerAddress in theme-config.json
 replace({
     regex: 'http://ew-wp-starter.local/',
     replacement: config.webAppServerAddress,
-    paths: ['wp-content/themes/ew-theme/ew-theme-config.json']
+    paths: ['wp-content/themes/ew-theme/theme-config.json']
 });
 
 // Rename abstract controller
