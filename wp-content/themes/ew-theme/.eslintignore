@@ -4,5 +4,5 @@ gulp/*
 assets/dist/*
 assets/vendors/*
 .babelrc
-ew-theme-config.json
+theme-config.json
 gulpfile.js

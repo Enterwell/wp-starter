@@ -1,4 +1,4 @@
-const ewThemeConfig = require('../ew-theme-config');
+const ewThemeConfig = require('../theme-config');
 
 const path = require('path');
 
@@ -20,7 +20,7 @@ const PATHS = {
 const WebpackDevServerSettings = {
   port: ewThemeConfig.webpackPort,
   host: ewThemeConfig.webpackHost,
-  address: 'http://'+ewThemeConfig.webpackHost+':'+ewThemeConfig.webpackPort+'/',
+  address: 'http://' + ewThemeConfig.webpackHost + ':' + ewThemeConfig.webpackPort + '/',
 };
 
 /**
