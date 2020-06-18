@@ -86,7 +86,7 @@ renamer.rename({
 
 // Rename theme folder
 renamer.rename({
-    files: ['wp-content/themes/**'],
+    files: ['wp-content/themes/*'],
     find: 'ew-theme',
     replace: config.themeNameForFileNames
 });
