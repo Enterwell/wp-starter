@@ -3,15 +3,14 @@
  * Page template for showing home page of the site.
  */
 
-// Create view model factory
-$view_model_factory = new \EwStarter\HomePageViewModelFactory();
 
 // Create view model
 $view_model = [
-	'jsRoute'   => 'homePage',
+	'jsRoute' => 'homePage',
 	'bodyClass' => 'home-page',
-	'vm'        => $view_model_factory->build()
+	// TODO: If changed add new view model for home
+	'vm' => new \EwStarter\BaseViewModel()
 ];
 
 // Render view
-$ew_twig->render( 'pages/home-page/home-page.twig', $view_model );
+$ew_twig->render('pages/home-page/home-page.twig', $view_model);

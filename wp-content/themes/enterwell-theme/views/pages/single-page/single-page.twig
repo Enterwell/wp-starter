@@ -3,9 +3,10 @@
 {% block content %}
     <main>
         <div class="c-container">
-            <h1>{{ vm.pageTitle }}</h1>
-            <div class="single-page__content">{{ vm.pageContent | raw }}</div>
+			<header>
+				<h1>{{ vm.title }}</h1>
+			</header>
+            <div class="single-page__content">{{ vm.content | raw }}</div>
         </div>
     </main>
-    {% include 'components/common/navbar.twig' %}
 {% endblock %}

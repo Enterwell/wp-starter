@@ -1,11 +1,11 @@
 import React from 'react';
 import ReactHelper from '../../helpers/react-helper';
-import HomeView from '../../react/views/home/home-view';
-import HomeViewModel from '../../react/views/home/home-view-model';
+import FrontPageView from '../../react/views/front-page/front-page-view';
+import FrontPageViewModel from '../../react/views/front-page/front-page-view-model';
 
 import '../../components/modal-overlay';
 
-function HomePage($) {
+function FrontPage($) {
   // Constants declaration
   const COLOR_RED_CLASS = 'red';
 
@@ -13,19 +13,19 @@ function HomePage($) {
   let $title;
   let $exampleBtn;
   let $reactRoot;
-  let $homePageModal;
+  let $frontPageModal;
 
   /**
    * Elements initialization
    */
   function initElements() {
-    $title = $('.js-home-title');
-    $exampleBtn = $('.js-home-btn');
+    $title = $('.js-front-title');
+    $exampleBtn = $('.js-front-btn');
     $reactRoot = $('#react-root');
 
     // Init modal overlay
-    $homePageModal = $('#home-page-modal');
-    $homePageModal.ModalOverlay();
+    $frontPageModal = $('#front-page-modal');
+    $frontPageModal.ModalOverlay();
   }
 
   /**
@@ -48,10 +48,10 @@ function HomePage($) {
    */
   function renderReact() {
     // Creates the view model
-    const vm = new HomeViewModel();
+    const vm = new FrontPageViewModel();
 
     // Renders the react
-    ReactHelper.renderComponent(<HomeView/>, $reactRoot[0], {homeVm: vm});
+    ReactHelper.renderComponent(<FrontPageView/>, $reactRoot[0], {frontPageVm: vm});
   }
 
   function init() {
@@ -67,4 +67,4 @@ function HomePage($) {
   };
 }
 
-export default new HomePage($);
+export default new FrontPage($);

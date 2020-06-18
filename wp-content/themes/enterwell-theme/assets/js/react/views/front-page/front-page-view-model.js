@@ -8,7 +8,7 @@ const INTERVAL_IN_MS = 10;
 /**
  * Home view model.
  */
-class HomeViewModel {
+class FrontPageViewModel {
   // Time spent
   @observable timeSpent = 0;
   @observable currentUTCTime = DateTimeHelper.toISOstring(new Date());
@@ -33,4 +33,4 @@ class HomeViewModel {
 }
 
 // Export
-export default HomeViewModel;
+export default FrontPageViewModel;

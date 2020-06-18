@@ -1,0 +1,17 @@
+{% extends 'base.twig' %}
+
+{% block content %}
+	<main>
+		<div class="c-container">
+			<h1 class="js-front-title">{{ vm.title }}</h1>
+			<button class="c-button js-front-btn">Change title color</button>
+			<div id="react-root"></div>
+
+			<p>
+				This is static front page of the site.
+			</p>
+			<button class="c-button js-front-modal" data-modal="front-page-modal">Open modal</button>
+		</div>
+	</main>
+	{% include 'pages/front-page/front-page-modal.twig' %}
+{% endblock %}

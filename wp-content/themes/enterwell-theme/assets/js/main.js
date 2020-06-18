@@ -8,7 +8,7 @@
 // import 'debug.addIndicators';
 
 // Import js for pages
-import HomePage from './pages/home-page/home-page';
+import FrontPage from './pages/front-page/front-page';
 
 // Include router
 import Router from './vendors/router';
@@ -31,10 +31,10 @@ const themeRoutes = {
     },
   },
 
-  // Scripts to be initialized on the home page
-  homePage: {
+  // Scripts to be initialized on the front page
+  frontPage: {
     init: () => {
-      HomePage.init();
+      FrontPage.init();
     },
   },
 };

@@ -5,9 +5,9 @@ import {inject, observer} from 'mobx-react';
 /**
  * Home view.
  */
-@inject('homeVm')
+@inject('frontPageVm')
 @observer
-class HomeView extends React.Component {
+class FrontPageView extends React.Component {
   /**
    * View model.
    */
@@ -20,7 +20,7 @@ class HomeView extends React.Component {
     super();
 
     // Sets the vm
-    this.vm = props.homeVm;
+    this.vm = props.frontPageVm;
   }
 
   /**
@@ -48,4 +48,4 @@ class HomeView extends React.Component {
 }
 
 // Export component as hot-exported (enableing hot module reload)
-export default hot(HomeView);
+export default hot(FrontPageView);

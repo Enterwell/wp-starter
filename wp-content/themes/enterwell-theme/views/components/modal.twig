@@ -1,0 +1,7 @@
+<div class="c-modal-container {{ containerClass|default("") }}" id="{{ modalId|default('js-default-modal') }}">
+	{% block beforeContent %}{% endblock %}
+	<div class="c-modal-content {{ contentClass|default("") }}">
+		{% block content %}{% endblock %}
+	</div>
+	{% block afterContent %}{% endblock %}
+</div>

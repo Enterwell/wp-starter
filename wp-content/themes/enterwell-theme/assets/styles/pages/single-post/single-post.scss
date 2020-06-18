@@ -1,4 +1,17 @@
 .single-post {
+  main > .c-container{
+    max-width: 80rem;
+    padding-top: 4rem;
+    padding-bottom: 4rem;
+  }
+
+  header{
+    overflow: hidden;
+    h1{
+      font-size: 3.6em;
+    }
+  }
+
   &__content {
     @extend %content;
   }
