@@ -6,87 +6,87 @@ const renamer = new Renamer();
 
 // Replace namespaces
 replace({
-  regex: 'EwStarter',
-  replacement: config.namespace,
-  paths: ['wp-content/plugins/enterwell-plugin', 'wp-content/themes/enterwell-theme'],
-  exclude: 'wp-content/plugins/enterwell-plugin/vendor, wp-content/themes/enterwell-theme/vendor, wp-content/themes/enterwell-theme/node_modules',
-  recursive: true
+    regex: 'EWStarter',
+    replacement: config.namespace,
+    paths: ['wp-content/plugins/ewplugin', 'wp-content/themes/ew-theme'],
+    exclude: 'wp-content/plugins/ewplugin/vendor, wp-content/themes/ew-theme/vendor, wp-content/themes/ew-theme/node_modules',
+    recursive: true
 });
 
 // Replace class names
 replace({
-  regex: 'EnterwellPlugin',
-  replacement: config.pluginNameForClassNames,
-  paths: ['wp-content/plugins/enterwell-plugin'],
-  recursive: true
+    regex: 'EWPlugin',
+    replacement: config.pluginNameForClassNames,
+    paths: ['wp-content/plugins/ewplugin'],
+    recursive: true
 });
 
 // Replace file names
 replace({
-  regex: 'enterwell-plugin',
-  replacement: config.pluginNameForFileNames,
-  paths: ['wp-content/plugins/enterwell-plugin'],
-  recursive: true,
+    regex: 'ewplugin-',
+    replacement: config.pluginNameForFileNames + '-',
+    paths: ['wp-content/plugins/ewplugin'],
+    recursive: true,
 });
 
 // Replace function names
 replace({
-  regex: 'test_plugin',
-  replacement: config.pluginNameForFunctions,
-  paths: ['wp-content/plugins/enterwell-plugin'],
-  recursive: true
+    regex: 'ewplugin_',
+    replacement: config.pluginNameForFunctions + '_',
+    paths: ['wp-content/plugins/ewplugin'],
+    recursive: true
 });
 
 // Replace abstract controller file name
 replace({
-  regex: 'class-aewstarter-controller.php',
-  replacement: config.abstractControllerFileName,
-  paths: ['wp-content/plugins/enterwell-plugin'],
-  recursive: true
+    regex: 'class-aewplugin-controller.php',
+    replacement: config.abstractControllerFileName,
+    paths: ['wp-content/plugins/ewplugin'],
+    recursive: true
 });
 
 // Replace base route
 replace({
-  regex: 'wp-ew',
-  replacement: config.baseRoute,
-  paths: ['wp-content/plugins/enterwell-plugin', 'wp-content/themes/enterwell-theme'],
-  exclude: 'wp-content/plugins/enterwell-plugin/vendor, wp-content/themes/enterwell-theme/vendor, wp-content/themes/enterwell-theme/node_modules',
-  recursive: true
+    regex: 'wp-ew',
+    replacement: config.baseRoute,
+    paths: ['wp-content/plugins/ewplugin', 'wp-content/themes/ew-theme'],
+    exclude: 'wp-content/plugins/ewplugin/vendor, wp-content/themes/ew-theme/vendor, wp-content/themes/ew-theme/node_modules',
+    recursive: true
 });
 
 // Replace theme name in .gitignore
 replace({
-  regex: 'test-theme',
-  replacement: config.themeNameForFileNames,
-  paths: ['.gitignore']
+    regex: 'test-theme',
+    replacement: config.themeNameForFileNames,
+    paths: ['.gitignore']
 });
 
 // Replace webAppServerAddress in ew-theme-config.json
 replace({
-  regex: 'http://ew-wp-starter.local/',
-  replacement: config.webAppServerAddress,
-  paths: ['wp-content/themes/enterwell-theme/ew-theme-config.json']
+    regex: 'http://ew-wp-starter.local/',
+    replacement: config.webAppServerAddress,
+    paths: ['wp-content/themes/ew-theme/ew-theme-config.json']
 });
 
 // Rename abstract controller
 renamer.rename({
-  files: ['wp-content/plugins/enterwell-plugin/**'],
-  find: 'class-aewstarter-controller.php',
-  replace: config.abstractControllerFileName,
-  recursive: true,
+    files: ['wp-content/plugins/ewplugin/**'],
+    find: 'class-aewplugin-controller.php',
+    replace: config.abstractControllerFileName,
+    recursive: true,
 });
 
 // Rename plugin in folder and file names
 renamer.rename({
-  files: ['wp-content/plugins/**'],
-  find: 'enterwell-plugin',
-  replace: config.pluginNameForFileNames,
-  recursive: true,
+    files: ['wp-content/plugins/**'],
+    find: 'ewplugin',
+    replace: config.pluginNameForFileNames,
+    recursive: true,
 });
 
 // Rename theme folder
 renamer.rename({
-  files: ['wp-content/themes/**'],
-  find: 'enterwell-theme',
-  replace: config.themeNameForFileNames
+    files: ['wp-content/themes/**'],
+    find: 'ew-theme',
+    replace: config.themeNameForFileNames
 });
