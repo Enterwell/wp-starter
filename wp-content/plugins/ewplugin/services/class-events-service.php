@@ -1,10 +1,10 @@
 <?php
 
-namespace EwStarter;
+namespace EWStarter;
 
 /**
  * Class Events_Service
- * @package EwStarter
+ * @package EWPlugin
  */
 class Events_Service {
 	/**
@@ -24,10 +24,13 @@ class Events_Service {
 	 * IMPORTANT: NEVER call wp_update_post in function that is called on the save_post hook:
 	 * since wp_update_post includes save_post hook it creates an infinite loop
 	 *
-	 * @param $wp_post
-	 * @param $r
+	 * @param \WP_Post $wp_post
+	 * @param array $r
+	 *
+	 * @return Event
+	 * @throws \Exception
 	 */
-	public function on_save_event( $wp_post, $r ) {
+	public function on_save_event( \WP_Post $wp_post, array $r ): Event {
 		// Check if there is already an event with the given ID in the database
 		$event = $this->events_repository->get_event_by_id( $wp_post->ID );
 

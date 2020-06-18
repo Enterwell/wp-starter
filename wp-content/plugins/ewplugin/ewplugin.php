@@ -1,9 +1,4 @@
 <?php
-
-use EwStarter\EnterwellPluginActivator;
-use EwStarter\EnterwellPluginDeactivator;
-use EwStarter\EnterwellPlugin;
-
 /**
  * The plugin bootstrap file
  *
@@ -14,10 +9,10 @@ use EwStarter\EnterwellPlugin;
  *
  * @link              http://example.com
  * @since             1.0.0
- * @package           EnterwellPlugin
+ * @package           EWPlugin
  *
  * @wordpress-plugin
- * Plugin Name:       EnterwellPlugin
+ * Plugin Name:       EWPlugin
  * Plugin URI:        http://enterwell.net
  * Description:       Administration plugin.
  * Version:           1.0.0
@@ -25,41 +20,41 @@ use EwStarter\EnterwellPlugin;
  * Author URI:        http://enterwell.net/
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
- * Text Domain:       enterwell-plugin
+ * Text Domain:       ewplugin
  * Domain Path:       /languages
  */
 
 // If this file is called directly, abort.
 if ( ! defined( 'WPINC' ) ) {
-    die;
+	die;
 }
 
 /**
  * The code that runs during plugin activation.
  * This action is documented in includes/class-enterwell-plugin-activator.php
  */
-function activate_enterwell_plugin() {
-    require_once plugin_dir_path( __FILE__ ) . 'includes/class-enterwell-plugin-activator.php';
-    EnterwellPluginActivator::activate();
+function activate_ewplugin() {
+	require_once plugin_dir_path( __FILE__ ) . 'includes/class-ewplugin-activator.php';
+	\EWStarter\EWPlugin_Activator::activate();
 }
 
 /**
  * The code that runs during plugin deactivation.
- * This action is documented in includes/class-enterwell-plugin-deactivator.php
+ * This action is documented in includes/class-ewplugin-deactivator.php
  */
-function deactivate_enterwell_plugin() {
-    require_once plugin_dir_path( __FILE__ ) . 'includes/class-enterwell-plugin-deactivator.php';
-    EnterwellPluginDeactivator::deactivate();
+function deactivate_ewplugin() {
+	require_once plugin_dir_path( __FILE__ ) . 'includes/class-ewplugin-deactivator.php';
+	\EWStarter\EWPlugin_Deactivator::deactivate();
 }
 
-register_activation_hook( __FILE__, 'activate_enterwell_plugin' );
-register_deactivation_hook( __FILE__, 'deactivate_enterwell_plugin' );
+register_activation_hook( __FILE__, 'activate_ewplugin' );
+register_deactivation_hook( __FILE__, 'deactivate_ewplugin' );
 
 /**
  * The core plugin class that is used to define internationalization,
  * admin-specific hooks, and public-facing site hooks.
  */
-require plugin_dir_path( __FILE__ ) . 'includes/class-enterwell-plugin.php';
+require plugin_dir_path( __FILE__ ) . 'includes/class-ewplugin.php';
 
 /**
  * Begins execution of the plugin.
@@ -70,10 +65,11 @@ require plugin_dir_path( __FILE__ ) . 'includes/class-enterwell-plugin.php';
  *
  * @since    1.0.0
  */
-function run_enterwell_plugin() {
+function run_ewplugin() {
 
-    $plugin = new EnterwellPlugin();
-    $plugin->run();
+	$plugin = new \EWStarter\EWPlugin();
+	$plugin->run();
 
 }
-run_enterwell_plugin();
+
+run_ewplugin();

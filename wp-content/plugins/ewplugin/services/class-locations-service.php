@@ -1,13 +1,13 @@
 <?php
 
-namespace EwStarter;
+namespace EWStarter;
 
 use Ew\WpHelpers\Classes\Request_Validation_Result;
 use Ew\WpHelpers\Services\Validation_Service;
 
 /**
  * Class Locations_Service
- * @package EwStarter
+ * @package EWPlugin
  */
 class Locations_Service extends Validation_Service {
 	/**
@@ -29,7 +29,7 @@ class Locations_Service extends Validation_Service {
 	 *
 	 * @return Request_Validation_Result
 	 */
-	public function validate_create_request( $r ) {
+	public function validate_create_request( array $r ): Request_Validation_Result {
 		$result = new Request_Validation_Result();
 
 		$required_fields = [
@@ -50,8 +50,9 @@ class Locations_Service extends Validation_Service {
 	 * @param $r
 	 *
 	 * @return mixed
+	 * @throws \Exception
 	 */
-	public function create_from_request( $r ) {
+	public function create_from_request( array $r ): Location {
 		$location = new Location( $r );
 
 		return $this->location_repository->save_location( $location );

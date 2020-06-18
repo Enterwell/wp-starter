@@ -1,6 +1,6 @@
 <?php
 
-namespace EwStarter;
+namespace EWStarter;
 
 /**
  * Fired during plugin deactivation.
@@ -12,7 +12,7 @@ namespace EwStarter;
  * @subpackage EnterwellPlugin/includes
  * @author     Enterwell <info@enterwell.net>
  */
-class EnterwellPluginDeactivator {
+class EWPlugin_Deactivator {
 
 	/**
 	 * Function that is called on plugin deactivation.

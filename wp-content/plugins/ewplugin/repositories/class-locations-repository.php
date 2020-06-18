@@ -1,13 +1,13 @@
 <?php
 
-namespace EwStarter;
+namespace EWStarter;
 
 use Ew\WpHelpers\Classes\Db_Data;
 use Ew\WpHelpers\Repositories\ARepository;
 
 /**
  * Class Locations_Repository
- * @package EwStarter
+ * @package EWPlugin
  */
 class Locations_Repository extends ARepository {
 	/**
@@ -25,7 +25,7 @@ class Locations_Repository extends ARepository {
 	 * @return mixed
 	 * @throws \Exception
 	 */
-	public function save_location( $location ) {
+	public function save_location( Location $location ): Location {
 		$data = $this->get_db_data( $location );
 
 		if ( $this->location_row_exists( $location->id ) ) {
@@ -45,11 +45,12 @@ class Locations_Repository extends ARepository {
 
 	/**
 	 * Get db data from Location object
+	 *
 	 * @param $location
 	 *
 	 * @return array
 	 */
-	private function get_db_data( $location ) {
+	private function get_db_data( Location $location ): array {
 		$db_data = new Db_Data();
 		$db_data->add_data( 'id', $location->id, '%d' );
 		$db_data->add_data( 'location_name', $location->name, '%s' );
@@ -59,11 +60,12 @@ class Locations_Repository extends ARepository {
 
 	/**
 	 * Check if row with the given id already exists in database
+	 *
 	 * @param $id
 	 *
 	 * @return bool
 	 */
-	private function location_row_exists( $id ) {
+	private function location_row_exists( int $id ): bool {
 		$query  = $this->db->prepare( "SELECT * FROM {$this->table_name} WHERE id = %d", intval( $id ) );
 		$result = $this->db->get_row( $query );
 
@@ -81,7 +83,7 @@ class Locations_Repository extends ARepository {
 	 * @return Location
 	 * @throws \Exception
 	 */
-	protected function _construct_object( $table_row, $object_data = null ) {
+	protected function _construct_object( $table_row, $object_data = null ): Location {
 		return new Location( $table_row );
 	}
 }

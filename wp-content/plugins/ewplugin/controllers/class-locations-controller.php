@@ -1,12 +1,12 @@
 <?php
 
-namespace EwStarter;
+namespace EWStarter;
 
 /**
  * Class Locations_Controller
- * @package EwStarter
+ * @package EWPlugin
  */
-class Locations_Controller extends AEwStarter_Controller {
+class Locations_Controller extends AEWPlugin_Controller {
 	/**
 	 * @var Locations_Service
 	 */

@@ -1,18 +1,18 @@
 <?php
 
-namespace EwStarter;
+namespace EWStarter;
 
 /**
- * The public-facing functionality of the plugin.
+ * The admin-specific functionality of the plugin.
  *
  * Defines the plugin name, version, and two examples hooks for how to
  * enqueue the admin-specific stylesheet and JavaScript.
  *
  * @package    EnterwellPlugin
- * @subpackage EnterwellPlugin/public
+ * @subpackage EnterwellPlugin/admin
  * @author     Enterwell <info@enterwell.net>
  */
-class EnterwellPluginPublic {
+class EWPlugin_Admin {
 
 	/**
 	 * The ID of this plugin.
@@ -36,32 +36,28 @@ class EnterwellPluginPublic {
 	 * Initialize the class and set its properties.
 	 *
 	 * @since    1.0.0
-	 * @param      string    $plugin_name   The name of the plugin.
-	 * @param      string    $version       The version of this plugin.
+	 * @param      string    $plugin_name       The name of this plugin.
+	 * @param      string    $version    The version of this plugin.
 	 */
-	public function __construct( $plugin_name, $version ) {
-
+	public function __construct( string $plugin_name, string $version ) {
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
-
 	}
 
 	/**
-	 * Register the stylesheets for the public-facing side of the site.
+	 * Register the stylesheets for the admin area.
 	 *
 	 * @since    1.0.0
 	 */
 	public function enqueue_styles() {
-
 	}
 
 	/**
-	 * Register the stylesheets for the public-facing side of the site.
+	 * Register the JavaScript for the admin area.
 	 *
 	 * @since    1.0.0
 	 */
 	public function enqueue_scripts() {
-
 	}
 
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace EwStarter;
+namespace EWStarter;
 
 /**
  * Fired during plugin activation.
@@ -8,21 +8,21 @@ namespace EwStarter;
  * This class defines all code necessary to run during the plugin's activation.
  *
  * @since      1.0.0
- * @package    EnterwellPlugin
- * @subpackage EnterwellPlugin/includes
+ * @package    EWPlugin
+ * @subpackage EWPlugin/includes
  * @author     Enterwell <info@enterwell.net>
  */
-class EnterwellPluginActivator {
+class EWPlugin_Activator {
 	/**
 	 * Database version
 	 * Should be updated every time we modify the database
 	 */
-	const DB_VERSION = '0.0.4.';
+	const DB_VERSION = '0.0.1';
 
 	/**
 	 * Database version option name
 	 */
-	const DB_VERSION_OPTION_NAME = '_ew_db_version';
+	const DB_VERSION_OPTION_NAME = '_ewplugin_db_version';
 
 
 	/**

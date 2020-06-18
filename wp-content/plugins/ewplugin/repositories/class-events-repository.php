@@ -1,6 +1,6 @@
 <?php
 
-namespace EwStarter;
+namespace EWStarter;
 
 use Ew\WpHelpers\Classes\Db_Data;
 use Ew\WpHelpers\Classes\Request_Validation_Result;
@@ -8,7 +8,7 @@ use Ew\WpHelpers\Repositories\ARepository;
 
 /**
  * Class Events_Repository
- * @package EwStarter
+ * @package EWPlugin
  */
 class Events_Repository extends ARepository {
 	/**
@@ -20,12 +20,14 @@ class Events_Repository extends ARepository {
 
 	/**
 	 * Get the event from database with the given id
+	 *
 	 * @param $event_id
 	 *
 	 * @return bool|mixed
 	 */
-	public function get_event_by_id( $event_id ) {
+	public function get_event_by_id( int $event_id ): Event {
 		$wp_post = get_post( $event_id );
+
 		return $this->_get_single_by_field( 'id', intval( $event_id ), '%d', $wp_post );
 	}
 
@@ -36,9 +38,10 @@ class Events_Repository extends ARepository {
 	 *
 	 * @param $event
 	 *
+	 * @return Event
 	 * @throws \Exception
 	 */
-	public function save_event( $event ) {
+	public function save_event( Event $event ): Event {
 		$this->validate_event( $event );
 
 		$data = $this->get_db_data( $event );
@@ -58,11 +61,12 @@ class Events_Repository extends ARepository {
 
 	/**
 	 * Validate the given event
+	 *
 	 * @param $event
 	 *
 	 * @throws \Exception
 	 */
-	public function validate_event( $event ) {
+	public function validate_event( Event $event ) {
 		$result = new Request_Validation_Result();
 
 		if ( empty( $event->id ) ) {
@@ -82,11 +86,11 @@ class Events_Repository extends ARepository {
 	 *
 	 * @return array
 	 */
-	private function get_db_data( $event ) {
+	private function get_db_data( Event $event ): array {
 		$data = new Db_Data();
 		$data->add_data( 'id', $event->id, '%d' );
-		$data->add_data( 'start_date', $event->start_date->format(EW_DATE_FORMAT), '%s' );
-		$data->add_data( 'end_date', $event->end_date->format(EW_DATE_FORMAT), '%s' );
+		$data->add_data( 'start_date', $event->start_date->format( EW_DATE_FORMAT ), '%s' );
+		$data->add_data( 'end_date', $event->end_date->format( EW_DATE_FORMAT ), '%s' );
 
 		return $data->get_data();
 	}
@@ -98,7 +102,7 @@ class Events_Repository extends ARepository {
 	 *
 	 * @return bool
 	 */
-	public function event_row_exists( $id ) {
+	public function event_row_exists( int $id ): bool {
 		$query  = $this->db->prepare( "SELECT * FROM {$this->table_name} WHERE id = %d", intval( $id ) );
 		$result = $this->db->get_row( $query );
 
@@ -116,7 +120,7 @@ class Events_Repository extends ARepository {
 	 * @return Event
 	 * @throws \Exception
 	 */
-	protected function _construct_object( $table_row, $object_data = null ) {
+	protected function _construct_object( $table_row, $object_data = null ): Event {
 		return new Event( $object_data, $table_row );
 	}
 }

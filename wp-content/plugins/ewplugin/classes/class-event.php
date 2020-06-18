@@ -1,6 +1,6 @@
 <?php
 
-namespace EwStarter;
+namespace EWStarter;
 
 /**
  * Class Event
@@ -48,7 +48,7 @@ class Event {
 	 *
 	 * @throws \Exception
 	 */
-	public function __construct( $wp_post, $row = [] ) {
+	public function __construct( \WP_Post $wp_post, array $row = [] ) {
 		if ( empty( $wp_post ) ) {
 			throw new \Exception( 'No post in event constructor' );
 		}
@@ -74,7 +74,7 @@ class Event {
 	 *
 	 * @param $loader
 	 */
-	public static function load_class( $loader ) {
+	public static function load_class( EWPlugin_Loader $loader ) {
 		// Init post type action
 		$loader->add_action( 'init', static::class, 'init_post_type' );
 		// Add event meta boxes
@@ -138,7 +138,12 @@ class Event {
 		], static::$POST_TYPE, 'advanced', 'default' );
 	}
 
-	public static function render_event_dates_editor( $post ) {
+	/**
+	 * Renders event dates editor html.
+	 *
+	 * @param \WP_Post $post
+	 */
+	public static function render_event_dates_editor( \WP_Post $post ) {
 		$eventsRepository = new Events_Repository();
 		$event            = $eventsRepository->get_event_by_id( $post->ID );
 		require_once PLUGIN_DIR . 'admin/views/events/event-dates-meta-box.php';
@@ -152,7 +157,7 @@ class Event {
 	 * @param $post_id
 	 * @param $post
 	 */
-	public static function save_event( $post_id, $post ) {
+	public static function save_event( int $post_id, \WP_Post $post ) {
 		// If post is revision or is not event post type return
 		if ( wp_is_post_revision( $post_id ) || $post->post_type !== static::$POST_TYPE || defined( 'DOING_AJAX' ) ) {
 			return;
