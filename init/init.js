@@ -23,16 +23,16 @@ replace({
 
 // Replace file names
 replace({
-    regex: 'ewplugin-',
-    replacement: config.pluginNameForFileNames + '-',
+    regex: '-ewplugin',
+    replacement: '-' + config.pluginNameForFileNames,
     paths: ['wp-content/plugins/ewplugin'],
     recursive: true,
 });
 
 // Replace function names
 replace({
-    regex: 'ewplugin_',
-    replacement: config.pluginNameForFunctions + '_',
+    regex: '_ewplugin',
+    replacement: '_' + config.pluginNameForFunctions,
     paths: ['wp-content/plugins/ewplugin'],
     recursive: true
 });
