@@ -61,3 +61,11 @@
     Ako nema errora, unutar root foldera pokrenuti naredbu `bash cleanup.sh` koja će očistiti projekt od fileova koji su nam bili potrebni za renaming i nakon toga više nemaju svrhu u projektu.
 - Proći kroz [fileove koji se trebaju obrisati](https://enterwell.visualstudio.com/WordPress%20starter/_git/ew-wp-starter?path=%2Ffiles-to-delete.txt&version=GBdev.readme). Ako niste sigurni hoće li vam određeni file trebati u razvoju, slobodno ga ostavite pa na kraju projekta još jednom prođite kroz fileove i izbrišite viškove tad kad znate da vam nisu od koristi.
 - Početi s programiranjem :)
+
+# Build skripta
+U rootu projekta imamo bash skriptu `build.sh` koja:
+- u folder `.build` pripremi wordpress stranicu kakva se treba deployati na server
+- to nam je korisno kod stranica koje deployamo preko FTP-a, samo pozovemo skriptu ona će:
+    - buildati javascript i css teme `yarn build`
+    - očistiti build folder
+    - u folder kopirati sve fileove koji su potrebni na serveru
