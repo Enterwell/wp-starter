@@ -56,9 +56,9 @@ replace({
 
 // Replace theme name in .gitignore
 replace({
-    regex: 'test-theme',
+    regex: 'ew-theme',
     replacement: config.themeNameForFileNames,
-    paths: ['.gitignore']
+    paths: ['.gitignore', 'build.sh']
 });
 
 // Replace webAppServerAddress in theme-config.json
