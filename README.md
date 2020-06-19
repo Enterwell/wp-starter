@@ -32,7 +32,8 @@
         - baseRoute - (objašnjenje uz primjer projekta s host nameom *new-project.local*) osnovna ruta za API za naš primjer je *new-project.local/wp-json/wp-np/v1/*. U ovoj varijabli uređujemo *wp-np* dio stringa. On treba biti kratak, tako da je dobar izbor za ovu vrijednost ‘wp-’ + neki akronim imena projekta (primjerice, New project - *wp-np*). Dio ‘wp-’ ne mijenjamo.
         - themeNameForFileNames - odabir imena teme u obliku u kojemu su riječi odvojene minusom (inicijalno *enterwell-theme*)
         - webAppServerAddress - URL na kojem će se posluživati naša aplikacija (odgovara host nameu koji smo unijeli u hosts i vhosts u 4. koraku)
-    2. U terminalu se pozicionirati unutar root foldera i pokrenuti naredbu `bash init.sh`
+    2. Pokrenuti `yarn install` u root folderu da se instaliraju dependency-i potrebni za starter
+    3. Pokrenuti starter skriptu koja će iz startera i konfiguracije napraviti strukturu projekta `yarn init`
 - U browseru otići na *localhost* i tamo proći kroz WordPress instalaciju: bit će potrebno unijeti ime baze koja će biti korištena, postaviti username (root) i password (‘’). Ostale podatke ostaviti kako jesu. Na sljedećem koraku unijeti podatke o stranici (mogu se naknadno mijenjati) te o svom useru (username, mail, password - na lokalnoj bazi slobodno staviti weak password).
 - Logirati se u WordPress s postavljenim usernameom i passwordom. Po defaultu će biti postavljena tema *twentynineteen* koja ne postoji u našem starteru pa u wp-adminu treba na appearance->themes izabrati odgovarajuću temu.
 - Napraviti sljedeću zamjenu:
