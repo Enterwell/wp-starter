@@ -20,10 +20,13 @@ wp-config.php
 
 # Theme files
 node_modules
-wp-content/themes/enterwell-theme/assets/dist/*
+wp-content/themes/ew-theme/assets/dist/*
 
 # Cache and wp-content files
 wp-content/advanced-cache.php
 wp-content/w3tc-config
 wp-content/cache
 wp-content/uploads
+
+# Ignore .build dir
+.build
