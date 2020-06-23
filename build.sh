@@ -30,6 +30,15 @@ tar -xzf ./.build/wp-content/plugins.tar.gz -C ./.build/
 rm ./.build/wp-content/themes.tar.gz
 rm ./.build/wp-content/plugins.tar.gz
 
+# Remove plugin files
+rm -rf ./.build/wp-content/plugins/ewplugin/tests
+rm -rf ./.build/wp-content/plugins/ewplugin/.phpcs.xml.dist
+rm -rf ./.build/wp-content/plugins/ewplugin/.travis.yml
+rm -rf ./.build/wp-content/plugins/ewplugin/phpunit.phar
+rm -rf ./.build/wp-content/plugins/ewplugin/phpunit.xml.dist
+rm -rf ./.build/wp-content/plugins/ewplugin/composer.json
+rm -rf ./.build/wp-content/plugins/ewplugin/composer.lock
+
 # Remove theme files
 rm -rf ./.build/wp-content/themes/ew-theme/.scripts
 rm -rf ./.build/wp-content/themes/ew-theme/gulp

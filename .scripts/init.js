@@ -19,6 +19,7 @@ replace({
     replacement: config.pluginNameForClassNames,
     paths: ['wp-content/plugins/ewplugin'],
     recursive: true
+
 });
 
 // Replace file names
@@ -59,6 +60,13 @@ replace({
     regex: 'ew-theme',
     replacement: config.themeNameForFileNames,
     paths: ['.gitignore', 'build.sh']
+});
+
+// Replace theme name in .gitignore
+replace({
+    regex: 'ewplugin',
+    replacement: config.pluginNameForFileNames,
+    paths: ['build.sh']
 });
 
 // Replace webAppServerAddress in theme-config.json

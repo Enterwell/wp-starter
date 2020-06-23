@@ -28,7 +28,7 @@ class Locations_Repository extends ARepository {
 	public function save_location( Location $location ): Location {
 		$data = $this->get_db_data( $location );
 
-		if ( $this->location_row_exists( $location->id ) ) {
+		if ( ! empty( $location->id ) ) {
 			$result = $this->db->update( $this->table_name, $data['values'], [ 'id' => $location->id ] );
 			if ( $result === false ) {
 				throw new \Exception( 'Event update failed' );
@@ -38,6 +38,8 @@ class Locations_Repository extends ARepository {
 			if ( $result === false ) {
 				throw new \Exception( 'Event insert failed' );
 			}
+
+			$location->id = $this->db->insert_id;
 		}
 
 		return $location;
@@ -56,20 +58,6 @@ class Locations_Repository extends ARepository {
 		$db_data->add_data( 'location_name', $location->name, '%s' );
 
 		return $db_data->get_data();
-	}
-
-	/**
-	 * Check if row with the given id already exists in database
-	 *
-	 * @param $id
-	 *
-	 * @return bool
-	 */
-	private function location_row_exists( int $id ): bool {
-		$query  = $this->db->prepare( "SELECT * FROM {$this->table_name} WHERE id = %d", intval( $id ) );
-		$result = $this->db->get_row( $query );
-
-		return ! empty( $result );
 	}
 
 	/**

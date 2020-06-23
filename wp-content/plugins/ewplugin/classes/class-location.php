@@ -22,6 +22,10 @@ class Location {
 	 * @param array $row
 	 */
 	public function __construct( array $row = [] ) {
+		if ( empty( $row ) ) {
+			return;
+		}
+
 		$this->id   = intval( $row['id'] );
 		$this->name = $row['location_name'];
 	}

@@ -11,6 +11,7 @@ dbexport/*
 # Ignore private files
 *.log
 .htaccess
+.svn
 sitemap.xml
 sitemap.xml.gz
 wp-config.php
