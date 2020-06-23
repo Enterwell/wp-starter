@@ -41,6 +41,7 @@ rm -rf ./.build/wp-content/themes/ew-theme/assets/js/pages
 rm -rf ./.build/wp-content/themes/ew-theme/assets/js/react
 rm -rf ./.build/wp-content/themes/ew-theme/assets/js/services
 rm -rf ./.build/wp-content/themes/ew-theme/assets/js/main.js
+rm -rf ./.build/wp-content/themes/ew-theme/assets/styles
 rm -rf ./.build/wp-content/themes/ew-theme/.babelrc
 rm -rf ./.build/wp-content/themes/ew-theme/.editorconfig
 rm -rf ./.build/wp-content/themes/ew-theme/.eslintignore
