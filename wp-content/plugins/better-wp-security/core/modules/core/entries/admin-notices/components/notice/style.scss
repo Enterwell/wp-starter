@@ -1,0 +1,104 @@
+@import "colors.scss";
+@import "mixins.scss";
+
+$border-radius: 3px;
+$side-padding: 20px;
+
+.itsec-admin-notice {
+    background: white;
+    border-radius: $border-radius;
+    box-shadow: 0 0 5px rgba(211, 211, 211, 0.35);
+}
+
+.itsec-admin-notice__header {
+    background: #eeecec;
+    padding: $side-padding / 2;
+    border-top-left-radius: $border-radius;
+    border-top-right-radius: $border-radius;
+
+    & .components-button {
+        margin-top: 1em;
+
+        @include bordered-button('blue');
+    }
+
+    .itsec-admin-notice--severity-error & {
+        background: $alert-red;
+
+        & .components-button {
+            @include bordered-button('red');
+        }
+    }
+
+    .itsec-admin-notice--severity-warning & {
+        background: $alert-orange;
+
+        & .components-button {
+            @include bordered-button('orange');
+        }
+    }
+
+    .itsec-admin-notice--severity-info & {
+        background: $alert-blue;
+    }
+
+    .itsec-admin-notice--severity-success & {
+        background: $alert-green;
+
+        & .components-button {
+            @include bordered-button('green');
+        }
+    }
+}
+
+.itsec-admin-notice .itsec-admin-notice__header:last-child {
+    border-bottom-left-radius: $border-radius;
+    border-bottom-right-radius: $border-radius;
+}
+
+.itsec-admin-notice__header .itsec-admin-notice__header-inset {
+    background: white;
+    border-radius: 5px;
+    padding: $side-padding / 2;
+}
+
+.itsec-admin-notice__header h4 {
+    font-size: 14px;
+    margin: 0;
+}
+
+.itsec-admin-notice__message {
+    padding: 10px $side-padding;
+
+    & p:first-child {
+        margin-top: 0;
+    }
+
+    & p:last-child {
+        margin-bottom: 0;
+    }
+}
+
+.itsec-admin-notice__meta {
+    background: #eeecec;
+    padding: 5px $side-padding;
+    margin: 0;
+    display: grid;
+    grid-template: auto / min-content 1fr;
+    grid-gap: 5px 20px;
+
+    & dt,
+    & dd {
+        margin: 0;
+    }
+
+    & dt {
+        text-transform: uppercase;
+        color: darken(#444444, 25);
+    }
+}
+
+.itsec-admin-notice__footer {
+    padding: 5px $side-padding;
+    font-size: 11px;
+}

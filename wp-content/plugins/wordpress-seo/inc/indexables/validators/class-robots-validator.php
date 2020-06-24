@@ -6,20 +6,22 @@
  */
 
 /**
- * Class WPSEO_Robots_Validator
+ * Class WPSEO_Robots_Validator.
  */
 class WPSEO_Robots_Validator implements WPSEO_Endpoint_Validator {
 
 	/**
-	 * @var array The robots keys to validate.
+	 * The robots keys to validate.
+	 *
+	 * @var array
 	 */
-	private $robots_to_validate = array(
+	private $robots_to_validate = [
 		'is_robots_nofollow',
 		'is_robots_noarchive',
 		'is_robots_noimageindex',
 		'is_robots_nosnippet',
 		'is_robots_noindex',
-	);
+	];
 
 	/**
 	 * Validates the passed request data.

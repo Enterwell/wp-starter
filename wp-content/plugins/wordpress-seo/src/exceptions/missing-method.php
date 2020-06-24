@@ -5,12 +5,14 @@
  * @package Yoast\YoastSEO\Exceptions
  */
 
-namespace Yoast\WP\Free\Exceptions;
+namespace Yoast\WP\SEO\Exceptions;
+
+use Exception;
 
 /**
  * The exception when a method does not exists.
  */
-class Missing_Method extends \Exception {
+class Missing_Method extends Exception {
 
 	/**
 	 * Creates exception for a method that does not exists in a class.
@@ -22,9 +24,9 @@ class Missing_Method extends \Exception {
 	 */
 	public static function for_class( $method, $class_name ) {
 		return new static(
-			sprintf(
+			\sprintf(
 				/* translators: %1$s expands to the method name. %2$s expands to the class name */
-				__( 'Method %1$s() does not exist in class %2$s', 'wordpress-seo' ),
+				\__( 'Method %1$s() does not exist in class %2$s', 'wordpress-seo' ),
 				$method,
 				$class_name
 			)

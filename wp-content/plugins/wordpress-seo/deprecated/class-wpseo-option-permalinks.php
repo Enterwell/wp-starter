@@ -16,7 +16,9 @@ _deprecated_file( __FILE__, 'WPSEO 7.0' );
 class WPSEO_Option_Permalinks {
 
 	/**
-	 * @var  string  option name
+	 * Option name.
+	 *
+	 * @var string
 	 */
 	public $option_name = '';
 
@@ -26,23 +28,23 @@ class WPSEO_Option_Permalinks {
 	 * @param string $method The method to 'call'.
 	 * @param array  $args   Possibly given arguments.
 	 */
-	public function __call( $method, array $args = array() ) {
+	public function __call( $method, array $args = [] ) {
 		_deprecated_function( $method, 'WPSEO 7.0' );
 	}
 
 	/**
-	 * Add the actions and filters for the option
+	 * Add the actions and filters for the option.
 	 *
 	 * @deprecated 7.0
 	 *
 	 * @return void
 	 */
 	protected function __construct() {
-		_deprecated_constructor( __CLASS__, 'WPSEO 7.0' );
+		_deprecated_function( __METHOD__, '7.0' );
 	}
 
 	/**
-	 * Get the singleton instance of this class
+	 * Get the singleton instance of this class.
 	 *
 	 * @deprecated 7.0
 	 *
@@ -53,7 +55,7 @@ class WPSEO_Option_Permalinks {
 	}
 
 	/**
-	 * Validate the option
+	 * Validate the option.
 	 *
 	 * @deprecated 7.0
 	 *

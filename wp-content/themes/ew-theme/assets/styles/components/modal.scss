@@ -1,0 +1,169 @@
+// Defines common modal styles
+.c-modal-container {
+
+  // Transition for modal content
+  %modalContentTransition {
+    transition: opacity 300ms ease-in;
+  }
+
+  // Transition for modal section
+  %modalSectionTransition {
+    transition: transform 300ms ease-in, opacity 400ms ease-out;
+  }
+
+  // Modal container styles
+  @extend %clearfix;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 0;
+  background-color: rgba(black, .85);
+  opacity: 0;
+  overflow: hidden;
+  z-index: 10000;
+  -webkit-overflow-scrolling: touch;
+  transition: opacity 400ms ease-in;
+
+  // Set inner container styles
+  .c-container {
+    overflow: hidden;
+    position: relative;
+    min-width: 100vw;
+    min-height: 100vh;
+    @extend %clearfix;
+  }
+
+  // Modal content styles
+  .c-modal-content {
+    @extend %modalContentTransition;
+    max-width: 900px;
+    margin: auto;
+    overflow: hidden;
+    opacity: 0;
+    position: absolute;
+    top: 45%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    box-sizing: border-box;
+    background-color: #f1f1f1;;
+    padding: 20px;
+    -webkit-font-smoothing: antialiased;
+
+    &.file-modal__loading-container--visible {
+      .file-modal__loading-container {
+        display: block;
+      }
+
+      .file-modal__media-container {
+        display: none;
+      }
+    }
+  }
+
+  // Modal close button
+  &__close {
+    position: absolute;
+    right: 65px;
+    top: 65px;
+    width: 26px;
+    height: 26px;
+    transition: 200ms ease all;
+    z-index: 105 + 1;
+
+    // Hr
+    &__divider {
+      border-color: #fff;
+      border-top: 2px;
+      background-color: #fff;
+      display: block;
+      height: 2px;
+      width: 100%;
+
+      // Rotate first divider
+      &:nth-child(1) {
+        transform-origin: 50% 50%;
+        transform: rotate(-45deg) translate(-8px, 8px);
+      }
+
+      // Rotate second divider
+      &:nth-child(2) {
+        transform-origin: 50% 50%;
+        transform: rotate(45deg) translate(7px, 6px);
+      }
+    }
+  }
+
+  // Element inside modal content that has simple transition
+  .c-modal-transition-element {
+    @extend %modalSectionTransition;
+    transform: translateY(3rem);
+    opacity: 0;
+  }
+
+  &.c-modal-visible {
+    opacity: 1;
+    overflow: auto;
+
+    .c-modal-content {
+      opacity: 1;
+    }
+  }
+
+  // Modal responsive styles
+  @include respondBetween(0, 768px) {
+
+    // Set container padding
+    .c-container {
+      padding: 3.6rem;
+    }
+
+    // Set close button padding
+    &__close {
+      right: 40px;
+      top: 40px;
+    }
+  }
+}
+
+// Set body overflow hidden when modal visible
+body {
+  &.c-modal-visible {
+    overflow: hidden !important;
+    //padding-right: 17px;
+
+    .c-modal-container.c-modal-visible {
+      height: 100vh;
+    }
+  }
+
+}
+
+.c-modal-loading-container {
+  width: 100%;
+  height: 100%;
+  background-color: white;
+  position: absolute;
+  left: 0;
+  top: 0;
+  border-radius: 5px;
+  transition: all 300ms ease-out;
+  transform: scaleY(0);
+
+  img {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    transition: opacity 100ms ease-in;
+  }
+
+  &--visible {
+    transform: none;
+
+    img {
+      opacity: 1;
+    }
+  }
+}

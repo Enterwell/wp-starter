@@ -12,7 +12,8 @@ jQuery( document ).ready( function ( $ ) {
 		$( '#itsec-security-check-details-container' ).html( '' );
 
 		var data = {
-			'method': 'secure-site'
+			'method': 'secure-site',
+			pro: $( '#itsec-security-check-security_check_pro' ).is( ':checked' ),
 		};
 
 		itsecUtil.sendModuleAJAXRequest( 'security-check', data, function( results ) {

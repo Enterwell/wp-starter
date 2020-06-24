@@ -24,10 +24,12 @@ final class ITSEC_Admin_Page_Loader {
 	}
 
 	public function add_scripts() {
-
+		wp_register_script( 'itsec-jquery-multi-select', plugin_dir_url( __FILE__ ) . '/js/lib/jquery.multiselect.js', array( 'jquery' ), '2.4.17' );
+		wp_register_script( 'itsec-form-user-groups', plugin_dir_url( __FILE__ ) . '/js/form-user-groups.js', array( 'itsec-jquery-multi-select', 'lodash' ), 1 );
 	}
 
 	public function add_styles() {
+		wp_register_style( 'itsec-jquery-multi-select', plugin_dir_url( __FILE__ ) . '/js/lib/jquery.multiselect.css', array(), '2.4.17' );
 		wp_enqueue_style( 'itsec-settings-page-style', plugins_url( 'css/style.css', __FILE__ ), array(), ITSEC_Core::get_plugin_build() );
 	}
 
@@ -63,7 +65,7 @@ final class ITSEC_Admin_Page_Loader {
 			return $this->page_id;
 		}
 
-		if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
+		if ( wp_doing_ajax() ) {
 			if ( isset( $_REQUEST['action'] ) && preg_match( '/^itsec_(.+)_page$/', $_REQUEST['action'], $match ) ) {
 				$this->page_id = $match[1];
 			}

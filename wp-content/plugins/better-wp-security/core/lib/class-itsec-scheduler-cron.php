@@ -457,6 +457,8 @@ class ITSEC_Scheduler_Cron extends ITSEC_Scheduler {
 	}
 
 	public function uninstall() {
+		remove_action( self::HOOK, array( $this, 'process' ) );
+		remove_filter( 'cron_schedules', array( $this, 'register_cron_schedules' ) );
 
 		$crons = _get_cron_array();
 

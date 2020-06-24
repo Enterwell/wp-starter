@@ -13,15 +13,18 @@ if ( ! defined( 'WPSEO_VERSION' ) ) {
 	exit();
 }
 
-/* {@internal Important: Make sure the options added to the array here are in line with the options set in the WPSEO_Option_MS::$allowed_access_options property.}} */
+/*
+ * {@internal Important: Make sure the options added to the array here are in line with the
+ * options set in the WPSEO_Option_MS::$allowed_access_options property.}}
+ */
 $yform->select(
 	'access',
 	/* translators: %1$s expands to Yoast SEO */
 	sprintf( __( 'Who should have access to the %1$s settings', 'wordpress-seo' ), 'Yoast SEO' ),
-	array(
+	[
 		'admin'      => __( 'Site Admins (default)', 'wordpress-seo' ),
 		'superadmin' => __( 'Super Admins only', 'wordpress-seo' ),
-	)
+	]
 );
 
 if ( get_blog_count() <= 100 ) {

@@ -1,5 +1,8 @@
 <?php
 
+use iThemesSecurity\User_Groups\Matcher;
+use iThemesSecurity\User_Groups;
+
 require_once( dirname( __FILE__ ) . '/fingerprinting/class-itsec-fingerprint.php' );
 require_once( dirname( __FILE__ ) . '/fingerprinting/class-itsec-fingerprint-comparison.php' );
 require_once( dirname( __FILE__ ) . '/fingerprinting/class-itsec-fingerprint-value.php' );
@@ -155,15 +158,19 @@ class ITSEC_Lib_Fingerprinting {
 	 * @return bool
 	 */
 	public static function applies_to_user( $user = false ) {
-
-		if ( ! $role = ITSEC_Modules::get_setting( 'fingerprinting', 'role' ) ) {
+		if ( ! $group = ITSEC_Modules::get_setting( 'fingerprinting', 'group' ) ) {
 			return false;
 		}
 
-		require_once( ITSEC_Core::get_core_dir() . 'lib/class-itsec-lib-canonical-roles.php' );
+		if ( ! $user = ITSEC_Lib::get_user( $user ) ) {
+			return false;
+		}
 
 		$had_filter = remove_filter( 'user_has_cap', array( 'ITSEC_Fingerprinting', 'restrict_capabilities' ), 10 );
-		$applies    = ITSEC_Lib_Canonical_Roles::is_user_at_least( $role, $user );
+
+		/** @var User_Groups\Matcher $matcher */
+		$matcher = ITSEC_Modules::get_container()->get( Matcher::class );
+		$applies = $matcher->matches( User_Groups\Match_Target::for_user( $user ), $group);
 
 		if ( $had_filter ) {
 			add_filter( 'user_has_cap', array( 'ITSEC_Fingerprinting', 'restrict_capabilities' ), 10, 4 );

@@ -1,5 +1,7 @@
 <?php
 
+use iThemesSecurity\User_Groups\Matchables_Source;
+
 abstract class ITSEC_Validator {
 	protected $run_validate_matching_fields = true;
 	protected $run_validate_matching_types = true;
@@ -28,11 +30,13 @@ abstract class ITSEC_Validator {
 	}
 
 	abstract public function get_id();
-	protected function sanitize_settings() {}
-	protected function validate_settings() {}
+
+	protected function sanitize_settings() { }
+
+	protected function validate_settings() { }
 
 	public function validate( $settings ) {
-		$this->settings = $settings;
+		$this->settings          = $settings;
 		$this->previous_settings = ITSEC_Modules::get_settings( $this->get_id() );
 
 		$this->sanitize_settings();
@@ -52,14 +56,14 @@ abstract class ITSEC_Validator {
 		$id = $this->get_id();
 
 		foreach ( array_keys( $this->defaults ) as $name ) {
-			if ( ! isset( $this->settings[$name] ) && ! in_array( $name, $this->vars_to_skip_validate_matching_fields ) ) {
+			if ( ! isset( $this->settings[ $name ] ) && ! in_array( $name, $this->vars_to_skip_validate_matching_fields ) ) {
 				$this->add_error( new WP_Error( "itsec-validator-$id-validate_matching_fields-missing-name-$name", sprintf( __( 'A validation function for %1$s received data that did not have the required entry for %2$s.', 'better-wp-security' ), $id, $name ) ) );
 				$this->set_can_save( false );
 			}
 		}
 
 		foreach ( array_keys( $this->settings ) as $name ) {
-			if ( ! isset( $this->defaults[$name] ) && ! in_array( $name, $this->vars_to_skip_validate_matching_fields ) ) {
+			if ( ! isset( $this->defaults[ $name ] ) && ! in_array( $name, $this->vars_to_skip_validate_matching_fields ) ) {
 				$this->add_error( new WP_Error( "itsec-validator-$id-validate_matching_fields-unknown-name-$name", sprintf( __( 'A validation function for %1$s received data that has an entry for %2$s when no such entry exists.', 'better-wp-security' ), $id, $name ) ) );
 				$this->set_can_save( false );
 			}
@@ -75,14 +79,14 @@ abstract class ITSEC_Validator {
 				continue;
 			}
 
-			if ( ! isset( $this->settings[$name] ) ) {
+			if ( ! isset( $this->settings[ $name ] ) ) {
 				// Skip missing entries to allow implementations that use validate_matching_types() but not
 				// validate_matching_fields().
 				continue;
 			}
 
-			if ( gettype( $value ) !== gettype( $this->settings[$name] ) ) {
-				$this->add_error( new WP_Error( "itsec-validator-$id-validate_matching_types-inmatching-type-$name", sprintf( __( 'A validation function for %1$s received data that does not match the expected data type for the %2$s entry. A data type of %3$s was expected, but a data type of %4$s was received.', 'better-wp-security' ), $id, $name, gettype( $value ), gettype( $this->settings[$name] ) ) ) );
+			if ( gettype( $value ) !== gettype( $this->settings[ $name ] ) ) {
+				$this->add_error( new WP_Error( "itsec-validator-$id-validate_matching_types-inmatching-type-$name", sprintf( __( 'A validation function for %1$s received data that does not match the expected data type for the %2$s entry. A data type of %3$s was expected, but a data type of %4$s was received.', 'better-wp-security' ), $id, $name, gettype( $value ), gettype( $this->settings[ $name ] ) ) ) );
 				$this->set_can_save( false );
 			}
 		}
@@ -90,56 +94,57 @@ abstract class ITSEC_Validator {
 
 	final protected function set_default_if_empty( $vars ) {
 		foreach ( (array) $vars as $var ) {
-			if ( ! isset( $this->settings[$var] ) || '' === $this->settings[$var] ) {
-				$this->settings[$var] = $this->defaults[$var];
+			if ( ! isset( $this->settings[ $var ] ) || '' === $this->settings[ $var ] ) {
+				$this->settings[ $var ] = $this->defaults[ $var ];
 			}
 		}
 	}
 
 	final protected function set_previous_if_empty( $vars ) {
 		foreach ( (array) $vars as $var ) {
-			if ( ! isset( $this->settings[$var] ) || '' === $this->settings[$var] ) {
-				$this->settings[$var] = $this->previous_settings[$var];
+			if ( ! isset( $this->settings[ $var ] ) || '' === $this->settings[ $var ] ) {
+				$this->settings[ $var ] = $this->previous_settings[ $var ];
 			}
 		}
 	}
 
 	final protected function preserve_setting_if_exists( $vars ) {
 		foreach ( (array) $vars as $var ) {
-			if ( array_key_exists( $var, $this->previous_settings ) && ( ! isset( $this->settings['var'] ) || '' === $this->settings[ $var ] ) ) {
+			if ( array_key_exists( $var, $this->previous_settings ) && ( ! isset( $this->settings[ $var ] ) || '' === $this->settings[ $var ] ) ) {
 				$this->settings[ $var ] = $this->previous_settings[ $var ];
 			}
 		}
 	}
 
-	final protected function sanitize_setting( $type, $var, $name, $prevent_save_on_error = true, $trim_value = true ) {
+	final protected function sanitize_setting( $type, $var, $name, $prevent_save_on_error = true, $trim_value = true, $custom_error = '' ) {
 		$id = $this->get_id();
 
-		if ( ! isset( $this->settings[$var] ) ) {
+		if ( ! isset( $this->settings[ $var ] ) ) {
 			$this->add_error( new WP_Error( "itsec-validator-missing-var-$id-$var", sprintf( __( 'A validation check for %1$s failed. The %2$s value is missing. This could be due to a problem with the iThemes Security installation or an invalid modification. Please reinstall iThemes Security and try again.', 'better-wp-security' ), $id, $name ) ) );
+
 			return false;
 		}
 
-		if ( $trim_value && is_string( $this->settings[$var] ) ) {
-			$this->settings[$var] = trim( $this->settings[$var] );
+		if ( $trim_value && is_string( $this->settings[ $var ] ) ) {
+			$this->settings[ $var ] = trim( $this->settings[ $var ] );
 		}
 
 		$error = false;
 
 		if ( 'string' === $type ) {
-			$this->settings[$var] = (string) $this->settings[$var];
-		} else if ( 'non-empty-string' === $type ) {
-			$this->settings[$var] = (string) $this->settings[$var];
+			$this->settings[ $var ] = (string) $this->settings[ $var ];
+		} elseif ( 'non-empty-string' === $type ) {
+			$this->settings[ $var ] = (string) $this->settings[ $var ];
 
-			if ( empty( $this->settings[$var] ) ) {
+			if ( empty( $this->settings[ $var ] ) ) {
 				$error = sprintf( __( 'The %1$s value cannot be empty.', 'better-wp-security' ), $name );
 			}
-		} else if ( 'title' === $type ) {
-			$this->settings[$var] = sanitize_title( $this->settings[$var] );
-		} else if ( 'non-empty-title' === $type ) {
-			$this->settings[$var] = sanitize_title( $this->settings[$var] );
+		} elseif ( 'title' === $type ) {
+			$this->settings[ $var ] = sanitize_title( $this->settings[ $var ] );
+		} elseif ( 'non-empty-title' === $type ) {
+			$this->settings[ $var ] = sanitize_title( $this->settings[ $var ] );
 
-			if ( empty( $this->settings[$var] ) ) {
+			if ( empty( $this->settings[ $var ] ) ) {
 				$error = sprintf( __( 'The %1$s value cannot be empty.', 'better-wp-security' ), $name );
 			}
 		} elseif ( 'text' === $type || 'non-empty-text' === $type ) {
@@ -155,63 +160,63 @@ abstract class ITSEC_Validator {
 			if ( 'non-empty-text' === $type && empty( $this->settings[ $var ] ) ) {
 				$error = sprintf( __( 'The %1$s value cannot be empty.', 'better-wp-security' ), $name );
 			}
-		} else if ( 'array' === $type ) {
-			if ( ! is_array( $this->settings[$var] ) ) {
-				if ( empty( $this->settings[$var] ) ) {
-					$this->settings[$var] = array();
+		} elseif ( 'array' === $type ) {
+			if ( ! is_array( $this->settings[ $var ] ) ) {
+				if ( empty( $this->settings[ $var ] ) ) {
+					$this->settings[ $var ] = array();
 				} else {
-					$this->settings[$var] = array( $this->settings[$var] );
+					$this->settings[ $var ] = array( $this->settings[ $var ] );
 				}
 			}
-		} else if ( 'bool' === $type ) {
-			if ( 'false' === $this->settings[$var] ) {
-				$this->settings[$var] = false;
-			} else if ( 'true' === $this->settings[$var] ) {
-				$this->settings[$var] = true;
+		} elseif ( 'bool' === $type ) {
+			if ( 'false' === $this->settings[ $var ] ) {
+				$this->settings[ $var ] = false;
+			} elseif ( 'true' === $this->settings[ $var ] ) {
+				$this->settings[ $var ] = true;
 			} else {
-				$this->settings[$var] = (bool) $this->settings[$var];
+				$this->settings[ $var ] = (bool) $this->settings[ $var ];
 			}
-		} else if ( 'int' === $type ) {
-			$test_val = intval( $this->settings[$var] );
-			if ( (string) $test_val === (string) $this->settings[$var] ) {
-				$this->settings[$var] = $test_val;
+		} elseif ( 'int' === $type ) {
+			$test_val = intval( $this->settings[ $var ] );
+			if ( (string) $test_val === (string) $this->settings[ $var ] ) {
+				$this->settings[ $var ] = $test_val;
 			} else {
 				$error = sprintf( __( 'The %1$s value must be an integer.', 'better-wp-security' ), $name );
 			}
-		} else if ( 'positive-int' === $type ) {
-			$test_val = intval( $this->settings[$var] );
-			if ( (string) $test_val === (string) $this->settings[$var] && $test_val >= 0 ) {
-				$this->settings[$var] = $test_val;
+		} elseif ( 'positive-int' === $type ) {
+			$test_val = intval( $this->settings[ $var ] );
+			if ( (string) $test_val === (string) $this->settings[ $var ] && $test_val >= 0 ) {
+				$this->settings[ $var ] = $test_val;
 			} else {
 				$error = sprintf( __( 'The %1$s value must be a positive integer.', 'better-wp-security' ), $name );
 			}
-		} else if ( 'number' === $type ) {
-			if ( is_numeric($this->settings[ $var ] ) ) {
+		} elseif ( 'number' === $type ) {
+			if ( is_numeric( $this->settings[ $var ] ) ) {
 				$this->settings[ $var ] = (float) $this->settings[ $var ];
 			} else {
 				$error = sprintf( __( 'The %1$s value must be a number.', 'better-wp-security' ), $name );
 			}
-		} else if ( 'email' === $type ) {
-			$this->settings[$var] = sanitize_text_field( $this->settings[$var] );
+		} elseif ( 'email' === $type ) {
+			$this->settings[ $var ] = sanitize_text_field( $this->settings[ $var ] );
 
-			if ( empty( $this->settings[$var] ) || ! is_email( $this->settings[$var] ) ) {
+			if ( empty( $this->settings[ $var ] ) || ! is_email( $this->settings[ $var ] ) ) {
 				$error = sprintf( __( 'The %1$s value must be a valid email address.', 'better-wp-security' ), $name );
 			}
-		} else if ( 'valid-username' === $type ) {
-			$this->settings[$var] = sanitize_text_field( $this->settings[$var] );
+		} elseif ( 'valid-username' === $type ) {
+			$this->settings[ $var ] = sanitize_text_field( $this->settings[ $var ] );
 
-			if ( ! empty( $this->settings[$var] ) && ! validate_username( $this->settings[$var] ) ) {
+			if ( ! empty( $this->settings[ $var ] ) && ! validate_username( $this->settings[ $var ] ) ) {
 				$error = sprintf( __( 'The %1$s value is not a valid username.', 'better-wp-security' ), $name );
 			}
-		} else if ( 'date' === $type ) {
-			$val = $this->settings[$var];
+		} elseif ( 'date' === $type ) {
+			$val = $this->settings[ $var ];
 
 			$separator = '[\-/\. ]';
 
 			if ( preg_match( "|^(\d\d\d\d)$separator(\d\d?)$separator(\d\d?)$|", $val, $match ) ) {
-				$year = intval( $match[1] );
+				$year  = intval( $match[1] );
 				$month = intval( $match[2] );
-				$day = intval( $match[3] );
+				$day   = intval( $match[3] );
 
 				if ( ! checkdate( $month, $day, $year ) ) {
 					$error = sprintf( __( 'The %1$s value must be a valid date.', 'better-wp-security' ), $name );
@@ -219,215 +224,250 @@ abstract class ITSEC_Validator {
 			} else {
 				$error = sprintf( __( 'The %1$s value must be a valid date in the format of YYYY-MM-DD.', 'better-wp-security' ), $name );
 			}
-		} else if ( 'writable-directory' === $type ) {
-			if ( ! is_string( $this->settings[$var] ) ) {
+		} elseif ( 'writable-directory' === $type ) {
+			if ( ! is_string( $this->settings[ $var ] ) ) {
 				$error = sprintf( __( 'The %1$s value must be a string.', 'better-wp-security' ), $name );
 			} else {
 				require_once( ITSEC_Core::get_core_dir() . 'lib/class-itsec-lib-directory.php' );
 
-				$this->settings[$var] = rtrim( $this->settings[$var], DIRECTORY_SEPARATOR );
+				$this->settings[ $var ] = rtrim( $this->settings[ $var ], DIRECTORY_SEPARATOR );
 
-				if ( ! ITSEC_Lib_Directory::is_dir( $this->settings[$var] ) ) {
-					$result = ITSEC_Lib_Directory::create( $this->settings[$var] );
+				if ( ! ITSEC_Lib_Directory::is_dir( $this->settings[ $var ] ) ) {
+					$result = ITSEC_Lib_Directory::create( $this->settings[ $var ] );
 
 					if ( is_wp_error( $result ) ) {
 						$error = sprintf( _x( 'The directory supplied in %1$s cannot be used as a valid directory. %2$s', '%1$s is the input name. %2$s is the error message.', 'better-wp-security' ), $name, $result->get_error_message() );
 					}
 				}
 
-				if ( empty( $error ) && ! ITSEC_Lib_Directory::is_writable( $this->settings[$var] ) ) {
+				if ( empty( $error ) && ! ITSEC_Lib_Directory::is_writable( $this->settings[ $var ] ) ) {
 					$error = sprintf( __( 'The directory supplied in %1$s is not writable. Please select a directory that can be written to.', 'better-wp-security' ), $name );
 				}
 
 				if ( empty( $error ) ) {
-					ITSEC_Lib_Directory::add_file_listing_protection( $this->settings[$var] );
+					ITSEC_Lib_Directory::add_file_listing_protection( $this->settings[ $var ] );
 				}
 			}
-		} else if ( 'writable-file' === $type ) {
-			if ( ! is_string( $this->settings[$var] ) ) {
+		} elseif ( 'writable-file' === $type ) {
+			if ( ! is_string( $this->settings[ $var ] ) ) {
 				$error = sprintf( __( 'The %1$s value must be a string.', 'better-wp-security' ), $name );
 			} else {
 				require_once( ITSEC_Core::get_core_dir() . 'lib/class-itsec-lib-directory.php' );
 
-				if ( ! ITSEC_Lib_File::is_file( $this->settings[$var] ) && ITSEC_Lib_File::exists( $this->settings[$var] ) ) {
+				if ( ! ITSEC_Lib_File::is_file( $this->settings[ $var ] ) && ITSEC_Lib_File::exists( $this->settings[ $var ] ) ) {
 					$error = sprintf( __( 'The file path supplied in %1$s cannot be used as it already exists but is not a file. Please supply a valid file path.', 'better-wp-security' ), $name );
 				} else {
-					$result = ITSEC_Lib_Directory::create( dirname( $this->settings[$var] ) );
+					$result = ITSEC_Lib_Directory::create( dirname( $this->settings[ $var ] ) );
 
 					if ( is_wp_error( $result ) ) {
 						$error = sprintf( _x( 'The file path supplied in %1$s cannot be used as the parent directory cannot be created. %2$s', '%1$s is the input name. %2$s is the error message.', 'better-wp-security' ), $name, $result->get_error_message() );
-					} else if ( ! ITSEC_Lib_File::exists( $this->settings[$var] ) ) {
-						$result = ITSEC_Lib_File::write( $this->settings[$var], '' );
+					} elseif ( ! ITSEC_Lib_File::exists( $this->settings[ $var ] ) ) {
+						$result = ITSEC_Lib_File::write( $this->settings[ $var ], '' );
 
 						if ( is_wp_error( $result ) ) {
 							$error = sprintf( __( 'The file path supplied in %1$s could not be created. Please supply a file path that can be written to.', 'better-wp-security' ), $name );
-						} else if ( ! is_writable( $this->settings[$var] ) ) {
+						} elseif ( ! is_writable( $this->settings[ $var ] ) ) {
 							$error = sprintf( __( 'The file path supplied in %1$s was successfully created, but it cannot be updated. Please supply a file path that can be written to.', 'better-wp-security' ), $name );
 						}
-					} else if ( ! is_writable( $this->settings[$var] ) ) {
+					} elseif ( ! is_writable( $this->settings[ $var ] ) ) {
 						$error = sprintf( __( 'The file path supplied in %1$s is not writable. Please supply a file path that can be written to.', 'better-wp-security' ), $name );
 					}
 				}
 			}
-		} else if ( is_array( $type ) && 2 === count( $type ) && $this === $type[0] ) {
-			$this->settings[$var] = $this->convert_string_to_array( $this->settings[$var] );
+		} elseif ( is_array( $type ) && 2 === count( $type ) && $this === $type[0] ) {
+			$this->settings[ $var ] = $this->convert_string_to_array( $this->settings[ $var ] );
 
-			if ( ! is_array( $this->settings[$var] ) ) {
+			if ( ! is_array( $this->settings[ $var ] ) ) {
 				$error = sprintf( __( 'The %1$s value must be a string with each entry separated by a new line.', 'better-wp-security' ), $name );
 			} else {
 				$invalid_entries = array();
 
-				foreach ( $this->settings[$var] as $index => $entry ) {
-					$entry = sanitize_text_field( trim( $entry ) );
-					$this->settings[$var][$index] = $entry;
+				foreach ( $this->settings[ $var ] as $index => $entry ) {
+					$entry                            = sanitize_text_field( trim( $entry ) );
+					$this->settings[ $var ][ $index ] = $entry;
 
 					if ( empty( $entry ) ) {
-						unset( $this->settings[$var][$index] );
+						unset( $this->settings[ $var ][ $index ] );
 					} else {
 						$result = call_user_func( $type, $entry );
 
 						if ( false === $result ) {
 							$invalid_entries[] = $entry;
 						} else {
-							$this->settings[$var][$index] = $result;
+							$this->settings[ $var ][ $index ] = $result;
 						}
 					}
 				}
 
-				$this->settings[$var] = array_unique( $this->settings[$var] );
+				$this->settings[ $var ] = array_unique( $this->settings[ $var ] );
 
 				if ( ! empty( $invalid_entries ) ) {
 					$error = wp_sprintf( _n( 'The following entry in %1$s is invalid: %2$l', 'The following entries in %1$s are invalid: %2$l', count( $invalid_entries ), 'better-wp-security' ), $name, $invalid_entries );
 				}
 			}
-		} else if ( is_array( $type ) ) {
-			if ( is_array( $this->settings[$var] ) ) {
+		} elseif ( is_array( $type ) ) {
+			if ( is_array( $this->settings[ $var ] ) ) {
 				$invalid_entries = array();
 
-				foreach ( $this->settings[$var] as $index => $entry ) {
-					$entry = sanitize_text_field( trim( $entry ) );
-					$this->settings[$var][$index] = $entry;
+				foreach ( $this->settings[ $var ] as $index => $entry ) {
+					$entry                            = sanitize_text_field( trim( $entry ) );
+					$this->settings[ $var ][ $index ] = $entry;
 
 					if ( empty( $entry ) ) {
-						unset( $this->settings[$var][$index] );
-					} else if ( ! in_array( $entry, $type, true ) ) {
+						unset( $this->settings[ $var ][ $index ] );
+					} elseif ( ! in_array( $entry, $type, true ) ) {
 						$invalid_entries[] = $entry;
 					}
 				}
 
-				$this->settings[$var] = array_unique( $this->settings[$var] );
+				$this->settings[ $var ] = array_unique( $this->settings[ $var ] );
 
 				if ( ! empty( $invalid_entries ) ) {
 					$error = wp_sprintf( _n( 'The following entry in %1$s is invalid: %2$l', 'The following entries in %1$s are invalid: %2$l', count( $invalid_entries ), 'better-wp-security' ), $name, $invalid_entries );
 				}
-			} else if ( ! in_array( $this->settings[$var], $type, true ) ) {
+			} elseif ( ! in_array( $this->settings[ $var ], $type, true ) ) {
 				$error = wp_sprintf( _n( 'The valid value for %1$s is: %2$l.', 'The valid values for %1$s are: %2$l.', count( $type ), 'better-wp-security' ), $name, $type );
-				$type = 'array';
+				$type  = 'array';
 			}
 		} elseif ( 'canonical-roles' === $type ) {
 			$roles = array( 'administrator', 'editor', 'author', 'contributor', 'subscriber' );
 
-			if ( is_array( $this->settings[$var] ) ) {
+			if ( is_array( $this->settings[ $var ] ) ) {
 				$invalid_entries = array();
 
-				foreach ( $this->settings[$var] as $index => $entry ) {
-					$entry = sanitize_text_field( trim( $entry ) );
-					$this->settings[$var][$index] = $entry;
+				foreach ( $this->settings[ $var ] as $index => $entry ) {
+					$entry                            = sanitize_text_field( trim( $entry ) );
+					$this->settings[ $var ][ $index ] = $entry;
 
 					if ( empty( $entry ) ) {
-						unset( $this->settings[$var][$index] );
-					} else if ( ! in_array( $entry, $roles, true ) ) {
+						unset( $this->settings[ $var ][ $index ] );
+					} elseif ( ! in_array( $entry, $roles, true ) ) {
 						$invalid_entries[] = $entry;
 					}
 				}
 
-				$this->settings[$var] = array_unique( $this->settings[$var] );
+				$this->settings[ $var ] = array_unique( $this->settings[ $var ] );
 
 				if ( ! empty( $invalid_entries ) ) {
 					$error = wp_sprintf( _n( 'The following entry in %1$s is invalid: %2$l', 'The following entries in %1$s are invalid: %2$l', count( $invalid_entries ), 'better-wp-security' ), $name, $invalid_entries );
 				}
-			} else if ( ! in_array( $this->settings[$var], $roles, true ) ) {
+			} elseif ( ! in_array( $this->settings[ $var ], $roles, true ) ) {
 				$error = wp_sprintf( _n( 'The valid value for %1$s is: %2$l.', 'The valid values for %1$s are: %2$l.', count( $roles ), 'better-wp-security' ), $name, $roles );
-				$type = 'array';
+				$type  = 'array';
 			}
-		} else if ( 'newline-separated-array' === $type ) {
-			$this->settings[$var] = $this->convert_string_to_array( $this->settings[$var] );
+		} elseif ( 'newline-separated-array' === $type ) {
+			$this->settings[ $var ] = $this->convert_string_to_array( $this->settings[ $var ] );
 
-			if ( ! is_array( $this->settings[$var] ) ) {
+			if ( ! is_array( $this->settings[ $var ] ) ) {
 				$error = sprintf( __( 'The %1$s value must be a string with each entry separated by a new line.', 'better-wp-security' ), $name );
 			}
-		} else if ( 'newline-separated-emails' === $type ) {
-			$this->settings[$var] = $this->convert_string_to_array( $this->settings[$var] );
+		} elseif ( 'newline-separated-emails' === $type ) {
+			$this->settings[ $var ] = $this->convert_string_to_array( $this->settings[ $var ] );
 
-			if ( ! is_array( $this->settings[$var] ) ) {
+			if ( ! is_array( $this->settings[ $var ] ) ) {
 				$error = sprintf( __( 'The %1$s value must be a string with each entry separated by a new line.', 'better-wp-security' ), $name );
 			} else {
 				$invalid_emails = array();
 
-				foreach ( $this->settings[$var] as $index => $email ) {
-					$email = sanitize_text_field( trim( $email ) );
-					$this->settings[$var][$index] = $email;
+				foreach ( $this->settings[ $var ] as $index => $email ) {
+					$email                            = sanitize_text_field( trim( $email ) );
+					$this->settings[ $var ][ $index ] = $email;
 
 					if ( empty( $email ) ) {
-						unset( $this->settings[$var][$index] );
-					} else if ( ! is_email( $email ) ) {
+						unset( $this->settings[ $var ][ $index ] );
+					} elseif ( ! is_email( $email ) ) {
 						$invalid_emails[] = $email;
 					}
 				}
 
-				$this->settings[$var] = array_unique( $this->settings[$var] );
+				$this->settings[ $var ] = array_unique( $this->settings[ $var ] );
 
 				if ( ! empty( $invalid_emails ) ) {
 					$error = wp_sprintf( _n( 'The following email in %1$s is invalid: %2$l', 'The following emails in %1$s are invalid: %2$l', count( $invalid_emails ), 'better-wp-security' ), $name, $invalid_emails );
 				}
 			}
-		} else if ( 'newline-separated-ips' === $type ) {
-			$this->settings[$var] = $this->convert_string_to_array( $this->settings[$var] );
+		} elseif ( 'newline-separated-ips' === $type ) {
+			$this->settings[ $var ] = $this->convert_string_to_array( $this->settings[ $var ] );
 
-			if ( ! is_array( $this->settings[$var] ) ) {
+			if ( ! is_array( $this->settings[ $var ] ) ) {
 				$error = sprintf( __( 'The %1$s value must be a string with each entry separated by a new line.', 'better-wp-security' ), $name );
 			} else {
 				require_once( ITSEC_Core::get_core_dir() . 'lib/class-itsec-lib-ip-tools.php' );
 
 				$invalid_ips = array();
 
-				foreach ( $this->settings[$var] as $index => $ip ) {
+				foreach ( $this->settings[ $var ] as $index => $ip ) {
 					$ip = trim( $ip );
 
 					if ( '' === $ip ) {
-						unset( $this->settings[$var][$index] );
+						unset( $this->settings[ $var ][ $index ] );
 					} else {
 						$validated_ip = ITSEC_Lib_IP_Tools::ip_wild_to_ip_cidr( $ip );
 
 						if ( false === $validated_ip ) {
 							$invalid_ips[] = $ip;
 						} else {
-							$this->settings[$var][$index] = $validated_ip;
+							$this->settings[ $var ][ $index ] = $validated_ip;
 						}
 					}
 				}
 
-				$this->settings[$var] = array_unique( $this->settings[$var] );
+				$this->settings[ $var ] = array_unique( $this->settings[ $var ] );
 
 				if ( ! empty( $invalid_ips ) ) {
 					$error = wp_sprintf( _n( 'The following IP in %1$s is invalid: %2$l', 'The following IPs in %1$s are invalid: %2$l', count( $invalid_ips ), 'better-wp-security' ), $name, $invalid_ips );
 				}
 			}
-		} else if ( 'newline-separated-extensions' === $type ) {
-			$this->settings[$var] = $this->convert_string_to_array( $this->settings[$var] );
+		} elseif ( 'user-groups' === $type ) {
+			$source = ITSEC_Modules::get_container()->get( Matchables_Source::class );
 
-			if ( ! is_array( $this->settings[$var] ) ) {
+			$this->sanitize_setting( 'array', $var, $name, $prevent_save_on_error, $trim_value, $custom_error );
+			$invalid_user_groups = [];
+
+			foreach ( $this->settings[ $var ] as $i => $group ) {
+				if ( ! is_string( $group ) ) {
+					unset( $this->settings[ $var ][ $i ] );
+
+					continue;
+				}
+
+				if ( $source->has( $group ) ) {
+					continue;
+				}
+
+				if ( in_array( $group, $this->previous_settings[ $var ], true ) ) {
+					unset( $this->settings[ $var ][ $i ] );
+				} else {
+					$invalid_user_groups[] = $group;
+				}
+			}
+
+			$this->settings[ $var ] = wp_is_numeric_array( $this->settings[ $var ] ) ? array_values( $this->settings[ $var ] ) : $this->settings[ $var ];
+
+			if ( $invalid_user_groups ) {
+				$error = wp_sprintf( _n( 'The following entry in %1$s is invalid: %2$l', 'The following entries in %1$s are invalid: %2$l', count( $invalid_user_groups ), 'better-wp-security' ), $name, $invalid_user_groups );
+			}
+		} elseif ( 'user-group' === $type ) {
+			$source = ITSEC_Modules::get_container()->get( Matchables_Source::class );
+
+			if ( ! $source->has( $this->settings[ $var ] ) ) {
+				$error = sprintf( __( 'The user group selected for %1$s is invalid.', 'better-wp-security' ), $name );
+			}
+		} elseif ( 'newline-separated-extensions' === $type ) {
+			$this->settings[ $var ] = $this->convert_string_to_array( $this->settings[ $var ] );
+
+			if ( ! is_array( $this->settings[ $var ] ) ) {
 				$error = sprintf( __( 'The %1$s value must be a string with each entry separated by a new line.', 'better-wp-security' ), $name );
 			} else {
 				$invalid_extensions = array();
 
-				foreach ( $this->settings[$var] as $index => $extension ) {
+				foreach ( $this->settings[ $var ] as $index => $extension ) {
 					if ( ! preg_match( '/^(\.[^.]+)+$/', $extension ) ) {
 						$invalid_extensions[] = $extension;
 					}
 				}
 
-				$this->settings[$var] = array_unique( $this->settings[$var] );
+				$this->settings[ $var ] = array_unique( $this->settings[ $var ] );
 
 				if ( ! empty( $invalid_extensions ) ) {
 					$error = wp_sprintf( _n( 'The following extension in %1$s is invalid: %2$l', 'The following extensions in %1$s are invalid: %2$l', count( $invalid_extensions ), 'better-wp-security' ), $name, $invalid_extensions );
@@ -452,7 +492,7 @@ abstract class ITSEC_Validator {
 						if ( false === $result ) {
 							$invalid_entries[] = is_string( $entry ) ? $entry : $index;
 						} elseif ( is_wp_error( $result ) ) {
-							$invalid_entries[] =  "'{$index}': {$result->get_error_message()}";
+							$invalid_entries[] = "'{$index}': {$result->get_error_message()}";
 						} else {
 							$this->settings[ $var ][ $index ] = $result;
 						}
@@ -470,6 +510,10 @@ abstract class ITSEC_Validator {
 		}
 
 		if ( false !== $error ) {
+			if ( $custom_error ) {
+				$error = $custom_error;
+			}
+
 			$this->add_error( $this->generate_error( $id, $var, $type, $error ) );
 			$this->vars_to_skip_validate_matching_types[] = $var;
 
@@ -490,7 +534,7 @@ abstract class ITSEC_Validator {
 	final protected function convert_string_to_array( $string ) {
 		if ( is_string( $string ) ) {
 			$array = preg_split( "/[\r\n]+/", $string );
-		} else if ( is_array( $string ) ) {
+		} elseif ( is_array( $string ) ) {
 			$array = $string;
 		} else {
 			return $string;
@@ -500,9 +544,9 @@ abstract class ITSEC_Validator {
 			$val = trim( $val );
 
 			if ( empty( $val ) ) {
-				unset( $array[$key] );
+				unset( $array[ $key ] );
 			} else {
-				$array[$key] = $val;
+				$array[ $key ] = $val;
 			}
 		}
 

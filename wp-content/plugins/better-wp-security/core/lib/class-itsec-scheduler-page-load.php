@@ -381,6 +381,7 @@ class ITSEC_Scheduler_Page_Load extends ITSEC_Scheduler {
 	}
 
 	public function uninstall() {
+		remove_action( 'init', array( $this, 'init' ) );
 		delete_site_option( self::OPTION );
 	}
 }

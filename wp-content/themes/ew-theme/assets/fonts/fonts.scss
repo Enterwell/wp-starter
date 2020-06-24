@@ -1,0 +1,22 @@
+$fontsRoute: '../fonts/';
+
+// Raleway light
+@font-face {
+  font-family: 'Raleway';
+  src: url($fontsRoute + 'Raleway/Raleway-Light.ttf') format('truetype');
+  font-weight: 300;
+}
+
+// Raleway normal
+@font-face {
+  font-family: 'Raleway';
+  src: url($fontsRoute + 'Raleway/Raleway-Regular.ttf') format('truetype');
+  font-weight: normal;
+}
+
+// Raleway bold
+@font-face {
+  font-family: 'Raleway';
+  src: url($fontsRoute + 'Raleway/Raleway-Bold.ttf') format('truetype');
+  font-weight: bold;
+}

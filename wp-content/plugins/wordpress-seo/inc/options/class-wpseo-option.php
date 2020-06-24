@@ -12,48 +12,47 @@
  * Some guidelines:
  * [Retrieving options]
  * - Use the normal get_option() to retrieve an option. You will receive a complete array for the option.
- *    Any subkeys which were not set, will have their default values in place.
+ *   Any subkeys which were not set, will have their default values in place.
  * - In other words, you will normally not have to check whether a subkey isset() as they will *always* be set.
- *    They will also *always* be of the correct variable type.
- *    The only exception to this are the options with variable option names based on post_type or taxonomy
- *    as those will not always be available before the taxonomy/post_type is registered.
- *    (they will be available if a value was set, they won't be if it wasn't as the class won't know
- *    that a default needs to be injected).
+ *   They will also *always* be of the correct variable type.
+ *   The only exception to this are the options with variable option names based on post_type or taxonomy
+ *   as those will not always be available before the taxonomy/post_type is registered.
+ *   (they will be available if a value was set, they won't be if it wasn't as the class won't know
+ *   that a default needs to be injected).
  *
  * [Updating/Adding options]
  * - For multisite site_options, please use the WPSEO_Options::update_site_option() method.
  * - For normal options, use the normal add/update_option() functions. As long a the classes here
  *   are instantiated, validation for all options and their subkeys will be automatic.
  * - On (succesfull) update of a couple of options, certain related actions will be run automatically.
- *    Some examples:
- *      - on change of wpseo[yoast_tracking], the cron schedule will be adjusted accordingly
- *      - on change of wpseo and wpseo_title, some caches will be cleared
- *
+ *   Some examples:
+ *   - on change of wpseo[yoast_tracking], the cron schedule will be adjusted accordingly
+ *   - on change of wpseo and wpseo_title, some caches will be cleared
  *
  * [Important information about add/updating/changing these classes]
  * - Make sure that option array key names are unique across options. The WPSEO_Options::get_all()
- *    method merges most options together. If any of them have non-unique names, even if they
- *    are in a different option, they *will* overwrite each other.
+ *   method merges most options together. If any of them have non-unique names, even if they
+ *   are in a different option, they *will* overwrite each other.
  * - When you add a new array key in an option: make sure you add proper defaults and add the key
- *    to the validation routine in the proper place or add a new validation case.
- *    You don't need to do any upgrading as any option returned will always be merged with the
- *    defaults, so new options will automatically be available.
- *    If the default value is a string which need translating, add this to the concrete class
- *    translate_defaults() method.
+ *   to the validation routine in the proper place or add a new validation case.
+ *   You don't need to do any upgrading as any option returned will always be merged with the
+ *   defaults, so new options will automatically be available.
+ *   If the default value is a string which need translating, add this to the concrete class
+ *   translate_defaults() method.
  * - When you remove an array key from an option: if it's important that the option is really removed,
- *    add the WPSEO_Option::clean_up( $option_name ) method to the upgrade run.
- *    This will re-save the option and automatically remove the array key no longer in existance.
+ *   add the WPSEO_Option::clean_up( $option_name ) method to the upgrade run.
+ *   This will re-save the option and automatically remove the array key no longer in existance.
  * - When you rename a sub-option: add it to the clean_option() routine and run that in the upgrade run.
  * - When you change the default for an option sub-key, make sure you verify that the validation routine will
- *    still work the way it should.
- *    Example: changing a default from '' (empty string) to 'text' with a validation routine with tests
- *    for an empty string will prevent a user from saving an empty string as the real value. So the
- *    test for '' with the validation routine would have to be removed in that case.
+ *   still work the way it should.
+ *   Example: changing a default from '' (empty string) to 'text' with a validation routine with tests
+ *   for an empty string will prevent a user from saving an empty string as the real value. So the
+ *   test for '' with the validation routine would have to be removed in that case.
  * - If an option needs specific actions different from defined in this abstract class, you can just overrule
- *    a method by defining it in the concrete class.
+ *   a method by defining it in the concrete class.
  *
- * @todo       - [JRF => testers] Double check that validation will not cause errors when called
- *               from upgrade routine (some of the WP functions may not yet be available).
+ * @todo [JRF => testers] Double check that validation will not cause errors when called
+ *       from upgrade routine (some of the WP functions may not yet be available).
  */
 abstract class WPSEO_Option {
 
@@ -122,7 +121,7 @@ abstract class WPSEO_Option {
 	 *
 	 * @var array
 	 */
-	public $ms_exclude = array();
+	public $ms_exclude = [];
 
 	/**
 	 * Name for an option higher in the hierarchy to override setting access.
@@ -158,9 +157,12 @@ abstract class WPSEO_Option {
 			 * The option validation routines remove the default filters to prevent failing
 			 * to insert an option if it's new. Let's add them back afterwards.
 			 */
-			add_action( 'add_option', array( $this, 'add_default_filters' ) ); // Adding back after INSERT.
+			add_action( 'add_option', [ $this, 'add_default_filters' ] ); // Adding back after INSERT.
 
-			add_action( 'update_option', array( $this, 'add_default_filters' ) );
+			add_action( 'update_option', [ $this, 'add_default_filters' ] );
+
+			// Refills the cache when the option has been updated.
+			add_action( 'update_option_' . $this->option_name, [ 'WPSEO_Options', 'clear_cache' ], 10 );
 		}
 		elseif ( is_multisite() ) {
 			/*
@@ -171,23 +173,25 @@ abstract class WPSEO_Option {
 			 * on an insert/update failure. Please use the WPSEO_Options::update_site_option() method
 			 * for updating site options to make sure the filters are in place.
 			 */
-			add_action( 'add_site_option_' . $this->option_name, array( $this, 'add_default_filters' ) );
-			add_action( 'update_site_option_' . $this->option_name, array( $this, 'add_default_filters' ) );
+			add_action( 'add_site_option_' . $this->option_name, [ $this, 'add_default_filters' ] );
+			add_action( 'update_site_option_' . $this->option_name, [ $this, 'add_default_filters' ] );
 
+			// Refills the cache when the option has been updated.
+			add_action( 'update_site_option_' . $this->option_name, [ 'WPSEO_Options', 'clear_cache' ], 1, 0 );
 		}
 
 
 		/*
 		 * Make sure the option will always get validated, independently of register_setting()
 		 * (only available on back-end).
-		*/
-		add_filter( 'sanitize_option_' . $this->option_name, array( $this, 'validate' ) );
+		 */
+		add_filter( 'sanitize_option_' . $this->option_name, [ $this, 'validate' ] );
 
 		// Flushes the rewrite rules when option is updated.
-		add_action( 'update_option_' . $this->option_name, array( 'WPSEO_Utils', 'clear_rewrites' ) );
+		add_action( 'update_option_' . $this->option_name, [ 'WPSEO_Utils', 'clear_rewrites' ] );
 
 		/* Register our option for the admin pages */
-		add_action( 'admin_init', array( $this, 'register_setting' ) );
+		add_action( 'admin_init', [ $this, 'register_setting' ] );
 
 
 		/* Set option group name if not given */
@@ -197,18 +201,18 @@ abstract class WPSEO_Option {
 
 		/* Translate some defaults as early as possible - textdomain is loaded in init on priority 1. */
 		if ( method_exists( $this, 'translate_defaults' ) ) {
-			add_action( 'init', array( $this, 'translate_defaults' ), 2 );
+			add_action( 'init', [ $this, 'translate_defaults' ], 2 );
 		}
 
 		/**
 		 * Enrich defaults once custom post types and taxonomies have been registered
 		 * which is normally done on the init action.
 		 *
-		 * @todo - [JRF/testers] Verify that none of the options which are only available after
+		 * @todo [JRF/testers] Verify that none of the options which are only available after
 		 * enrichment are used before the enriching.
 		 */
 		if ( method_exists( $this, 'enrich_defaults' ) ) {
-			add_action( 'init', array( $this, 'enrich_defaults' ), 99 );
+			add_action( 'init', [ $this, 'enrich_defaults' ], 99 );
 		}
 	}
 
@@ -238,12 +242,12 @@ abstract class WPSEO_Option {
 	/**
 	 * Add filters to make sure that the option default is returned if the option is not set.
 	 *
-	 * @return  void
+	 * @return void
 	 */
 	public function add_default_filters() {
 		// Don't change, needs to check for false as could return prio 0 which would evaluate to false.
-		if ( has_filter( 'default_option_' . $this->option_name, array( $this, 'get_defaults' ) ) === false ) {
-			add_filter( 'default_option_' . $this->option_name, array( $this, 'get_defaults' ) );
+		if ( has_filter( 'default_option_' . $this->option_name, [ $this, 'get_defaults' ] ) === false ) {
+			add_filter( 'default_option_' . $this->option_name, [ $this, 'get_defaults' ] );
 		}
 	}
 
@@ -252,9 +256,9 @@ abstract class WPSEO_Option {
 	 * Validate webmaster tools & Pinterest verification strings.
 	 *
 	 * @param string $key   Key to check, by type of service.
-	 * @param array  $dirty Dirty data.
+	 * @param array  $dirty Dirty data with the new values.
 	 * @param array  $old   Old data.
-	 * @param array  $clean Clean data by reference.
+	 * @param array  $clean Clean data by reference, normally the default values.
 	 */
 	public function validate_verification_string( $key, $dirty, $old, &$clean ) {
 		if ( isset( $dirty[ $key ] ) && $dirty[ $key ] !== '' ) {
@@ -301,56 +305,138 @@ abstract class WPSEO_Option {
 					$clean[ $key ] = $meta;
 				}
 				else {
+					// Restore the previous value, if any.
 					if ( isset( $old[ $key ] ) && preg_match( $regex, $old[ $key ] ) ) {
 						$clean[ $key ] = $old[ $key ];
 					}
+
 					if ( function_exists( 'add_settings_error' ) ) {
 						add_settings_error(
 							$this->group_name, // Slug title of the setting.
-							'_' . $key, // Suffix-id for the error message box.
+							$key, // Suffix-ID for the error message box. WordPress prepends `setting-error-`.
 							/* translators: 1: Verification string from user input; 2: Service name. */
 							sprintf( __( '%1$s does not seem to be a valid %2$s verification string. Please correct.', 'wordpress-seo' ), '<strong>' . esc_html( $meta ) . '</strong>', $service ), // The error message.
-							'error' // Error type, either 'error' or 'updated'.
+							'error' // CSS class for the WP notice, either the legacy 'error' / 'updated' or the new `notice-*` ones.
 						);
 					}
+
+					Yoast_Input_Validation::add_dirty_value_to_settings_errors( $key, $meta );
 				}
 			}
 		}
 	}
 
 	/**
-	 * @param string $key   Key to check, by type of service.
-	 * @param array  $dirty Dirty data.
+	 * Validates an option as a valid URL. Prints out a WordPress settings error
+	 * notice if the URL is invalid.
+	 *
+	 * @param string $key   Key to check, by type of URL setting.
+	 * @param array  $dirty Dirty data with the new values.
 	 * @param array  $old   Old data.
-	 * @param array  $clean Clean data by reference.
+	 * @param array  $clean Clean data by reference, normally the default values.
 	 */
 	public function validate_url( $key, $dirty, $old, &$clean ) {
 		if ( isset( $dirty[ $key ] ) && $dirty[ $key ] !== '' ) {
-			$url = WPSEO_Utils::sanitize_url( $dirty[ $key ] );
-			if ( $url !== '' ) {
-				$clean[ $key ] = $url;
-			}
-			else {
+
+			$submitted_url = trim( htmlspecialchars( $dirty[ $key ], ENT_COMPAT, get_bloginfo( 'charset' ), true ) );
+			$validated_url = filter_var( WPSEO_Utils::sanitize_url( $submitted_url ), FILTER_VALIDATE_URL );
+
+			if ( $validated_url === false ) {
+				if ( function_exists( 'add_settings_error' ) ) {
+					add_settings_error(
+						// Slug title of the setting.
+						$this->group_name,
+						// Suffix-ID for the error message box. WordPress prepends `setting-error-`.
+						$key,
+						// The error message.
+						sprintf(
+							/* translators: %s expands to an invalid URL. */
+							__( '%s does not seem to be a valid url. Please correct.', 'wordpress-seo' ),
+							'<strong>' . esc_html( $submitted_url ) . '</strong>'
+						),
+						// Message type.
+						'error'
+					);
+				}
+
+				// Restore the previous URL value, if any.
 				if ( isset( $old[ $key ] ) && $old[ $key ] !== '' ) {
 					$url = WPSEO_Utils::sanitize_url( $old[ $key ] );
 					if ( $url !== '' ) {
 						$clean[ $key ] = $url;
 					}
 				}
-				if ( function_exists( 'add_settings_error' ) ) {
-					$url = WPSEO_Utils::sanitize_url( $dirty[ $key ] );
-					add_settings_error(
-						$this->group_name, // Slug title of the setting.
-						'_' . $key, // Suffix-id for the error message box.
-						sprintf(
-							/* translators: %s expands to an invalid URL. */
-							__( '%s does not seem to be a valid url. Please correct.', 'wordpress-seo' ),
-							'<strong>' . esc_html( $url ) . '</strong>'
-						), // The error message.
-						'error' // Error type, either 'error' or 'updated'.
-					);
-				}
+
+				Yoast_Input_Validation::add_dirty_value_to_settings_errors( $key, $submitted_url );
+
+				return;
 			}
+
+			// The URL format is valid, let's sanitize it.
+			$url = WPSEO_Utils::sanitize_url( $validated_url );
+
+			if ( $url !== '' ) {
+				$clean[ $key ] = $url;
+			}
+		}
+	}
+
+	/**
+	 * Validates a Facebook App ID.
+	 *
+	 * @param string $key   Key to check, in this case: the Facebook App ID field name.
+	 * @param array  $dirty Dirty data with the new values.
+	 * @param array  $old   Old data.
+	 * @param array  $clean Clean data by reference, normally the default values.
+	 */
+	public function validate_facebook_app_id( $key, $dirty, $old, &$clean ) {
+		if ( isset( $dirty[ $key ] ) && $dirty[ $key ] !== '' ) {
+			$url = 'https://graph.facebook.com/' . $dirty[ $key ];
+
+			$response = wp_remote_get( $url );
+			// These filters are used in the tests.
+			/**
+			 * Filter: 'validate_facebook_app_id_api_response_code' - Allows to filter the Faceboook API response code.
+			 *
+			 * @api int $response_code The Facebook API response header code.
+			 */
+			$response_code = apply_filters( 'validate_facebook_app_id_api_response_code', wp_remote_retrieve_response_code( $response ) );
+			/**
+			 * Filter: 'validate_facebook_app_id_api_response_body' - Allows to filter the Faceboook API response body.
+			 *
+			 * @api string $response_body The Facebook API JSON response body.
+			 */
+			$response_body   = apply_filters( 'validate_facebook_app_id_api_response_body', wp_remote_retrieve_body( $response ) );
+			$response_object = json_decode( $response_body );
+
+			/*
+			 * When the request is successful the response code will be 200 and
+			 * the response object will contain an `id` property.
+			 */
+			if ( $response_code === 200 && isset( $response_object->id ) ) {
+				$clean[ $key ] = $dirty[ $key ];
+				return;
+			}
+
+			// Restore the previous value, if any.
+			if ( isset( $old[ $key ] ) && $old[ $key ] !== '' ) {
+				$clean[ $key ] = $old[ $key ];
+			}
+
+			if ( function_exists( 'add_settings_error' ) ) {
+				add_settings_error(
+					$this->group_name, // Slug title of the setting.
+					$key, // Suffix-ID for the error message box. WordPress prepends `setting-error-`.
+					sprintf(
+						/* translators: %s expands to an invalid Facebook App ID. */
+						__( '%s does not seem to be a valid Facebook App ID. Please correct.', 'wordpress-seo' ),
+						'<strong>' . esc_html( $dirty[ $key ] ) . '</strong>'
+					), // The error message.
+					'error' // CSS class for the WP notice, either the legacy 'error' / 'updated' or the new `notice-*` ones.
+				);
+			}
+
+			Yoast_Input_Validation::add_dirty_value_to_settings_errors( $key, $dirty[ $key ] );
 		}
 	}
 
@@ -358,10 +444,10 @@ abstract class WPSEO_Option {
 	 * Remove the default filters.
 	 * Called from the validate() method to prevent failure to add new options.
 	 *
-	 * @return  void
+	 * @return void
 	 */
 	public function remove_default_filters() {
-		remove_filter( 'default_option_' . $this->option_name, array( $this, 'get_defaults' ) );
+		remove_filter( 'default_option_' . $this->option_name, [ $this, 'get_defaults' ] );
 	}
 
 	/**
@@ -372,7 +458,7 @@ abstract class WPSEO_Option {
 	 * {@internal The enrich_defaults method is used to set defaults for variable array keys
 	 *            in an option, such as array keys depending on post_types and/or taxonomies.}}
 	 *
-	 * @return  array
+	 * @return array
 	 */
 	public function get_defaults() {
 		if ( method_exists( $this, 'translate_defaults' ) ) {
@@ -389,12 +475,12 @@ abstract class WPSEO_Option {
 	/**
 	 * Add filters to make sure that the option is merged with its defaults before being returned.
 	 *
-	 * @return  void
+	 * @return void
 	 */
 	public function add_option_filters() {
 		// Don't change, needs to check for false as could return prio 0 which would evaluate to false.
-		if ( has_filter( 'option_' . $this->option_name, array( $this, 'get_option' ) ) === false ) {
-			add_filter( 'option_' . $this->option_name, array( $this, 'get_option' ) );
+		if ( has_filter( 'option_' . $this->option_name, [ $this, 'get_option' ] ) === false ) {
+			add_filter( 'option_' . $this->option_name, [ $this, 'get_option' ] );
 		}
 	}
 
@@ -402,10 +488,10 @@ abstract class WPSEO_Option {
 	 * Remove the option filters.
 	 * Called from the clean_up methods to make sure we retrieve the original old option.
 	 *
-	 * @return  void
+	 * @return void
 	 */
 	public function remove_option_filters() {
-		remove_filter( 'option_' . $this->option_name, array( $this, 'get_option' ) );
+		remove_filter( 'option_' . $this->option_name, [ $this, 'get_option' ] );
 	}
 
 	/**
@@ -413,9 +499,9 @@ abstract class WPSEO_Option {
 	 *
 	 * This method should *not* be called directly!!! It is only meant to filter the get_option() results.
 	 *
-	 * @param   mixed $options Option value.
+	 * @param mixed $options Option value.
 	 *
-	 * @return  mixed        Option merged with the defaults for that option.
+	 * @return mixed Option merged with the defaults for that option.
 	 */
 	public function get_option( $options = null ) {
 		$filtered = $this->array_filter_merge( $options );
@@ -461,23 +547,23 @@ abstract class WPSEO_Option {
 	/**
 	 * Validate the option
 	 *
-	 * @param  mixed $option_value The unvalidated new value for the option.
+	 * @param mixed $option_value The unvalidated new value for the option.
 	 *
-	 * @return  array          Validated new value for the option.
+	 * @return array Validated new value for the option.
 	 */
 	public function validate( $option_value ) {
 		$clean = $this->get_defaults();
 
 		/* Return the defaults if the new value is empty. */
-		if ( ! is_array( $option_value ) || $option_value === array() ) {
+		if ( ! is_array( $option_value ) || $option_value === [] ) {
 			return $clean;
 		}
 
-		$option_value = array_map( array( 'WPSEO_Utils', 'trim_recursive' ), $option_value );
+		$option_value = array_map( [ 'WPSEO_Utils', 'trim_recursive' ], $option_value );
 
 		$old = $this->get_original_option();
 		if ( ! is_array( $old ) ) {
-			$old = array();
+			$old = [];
 		}
 		$old = array_merge( $clean, $old );
 
@@ -503,6 +589,7 @@ abstract class WPSEO_Option {
 	 * with 'allow_'.
 	 *
 	 * @param string $key Option key.
+	 *
 	 * @return bool True if option key is disabled, false otherwise.
 	 */
 	public function is_disabled( $key ) {
@@ -518,9 +605,9 @@ abstract class WPSEO_Option {
 	 * All concrete classes must contain a validate_option() method which validates all
 	 * values within the option.
 	 *
-	 * @param  array $dirty New value for the option.
-	 * @param  array $clean Clean value for the option, normally the defaults.
-	 * @param  array $old   Old value of the option.
+	 * @param array $dirty New value for the option.
+	 * @param array $clean Clean value for the option, normally the defaults.
+	 * @param array $old   Old value of the option.
 	 */
 	abstract protected function validate_option( $dirty, $clean, $old );
 
@@ -601,7 +688,8 @@ abstract class WPSEO_Option {
 	 * @uses WPSEO_Option::get_original_option()
 	 * @uses WPSEO_Option::import()
 	 *
-	 * @param  string $current_version Optional. Version from which to upgrade, if not set, version specific upgrades will be disregarded.
+	 * @param string $current_version Optional. Version from which to upgrade, if not set,
+	 *                                version specific upgrades will be disregarded.
 	 *
 	 * @return void
 	 */
@@ -624,9 +712,12 @@ abstract class WPSEO_Option {
 	 *    once the admin has dismissed the message (add ajax function)
 	 * Important: all validation routines which add_settings_errors would need to be changed for this to work
 	 *
-	 * @param  array  $option_value          Option value to be imported.
-	 * @param  string $current_version       Optional. Version from which to upgrade, if not set, version specific upgrades will be disregarded.
-	 * @param  array  $all_old_option_values Optional. Only used when importing old options to have access to the real old values, in contrast to the saved ones.
+	 * @param array  $option_value          Option value to be imported.
+	 * @param string $current_version       Optional. Version from which to upgrade, if not set,
+	 *                                      version specific upgrades will be disregarded.
+	 * @param array  $all_old_option_values Optional. Only used when importing old options to
+	 *                                      have access to the real old values, in contrast to
+	 *                                      the saved ones.
 	 *
 	 * @return void
 	 */
@@ -660,6 +751,15 @@ abstract class WPSEO_Option {
 	}
 
 	/**
+	 * Retrieves the option name.
+	 *
+	 * @return string The set option name.
+	 */
+	public function get_option_name() {
+		return $this->option_name;
+	}
+
+	/**
 	 * Concrete classes *may* contain a clean_option method which will clean out old/renamed
 	 * values within the option.
 	 */
@@ -673,22 +773,23 @@ abstract class WPSEO_Option {
 	 * @todo [JRF] - shouldn't this be a straight array merge ? at the end of the day, the validation
 	 * removes any invalid keys on save.
 	 *
-	 * @param  array $options Optional. Current options. If not set, the option defaults for the $option_key will be returned.
+	 * @param array $options Optional. Current options. If not set, the option defaults
+	 *                       for the $option_key will be returned.
 	 *
-	 * @return  array  Combined and filtered options array.
+	 * @return array Combined and filtered options array.
 	 */
 	protected function array_filter_merge( $options = null ) {
 
 		$defaults = $this->get_defaults();
 
-		if ( ! isset( $options ) || $options === false || $options === array() ) {
+		if ( ! isset( $options ) || $options === false || $options === [] ) {
 			return $defaults;
 		}
 
 		$options = (array) $options;
 
 		/*
-		$filtered = array();
+			$filtered = array();
 
 			if ( $defaults !== array() ) {
 				foreach ( $defaults as $key => $default_value ) {
@@ -716,7 +817,10 @@ abstract class WPSEO_Option {
 			return $updated;
 		}
 
-		// This loop could as well call `is_disabled( $key )` for each iteration, however this would be worse performance-wise.
+		/*
+		 * This loop could as well call `is_disabled( $key )` for each iteration,
+		 * however this would be worse performance-wise.
+		 */
 		foreach ( $old as $key => $value ) {
 			if ( isset( $override_option[ self::ALLOW_KEY_PREFIX . $key ] ) && ! $override_option[ self::ALLOW_KEY_PREFIX . $key ] ) {
 				$updated[ $key ] = $old[ $key ];
@@ -739,10 +843,10 @@ abstract class WPSEO_Option {
 	 */
 	protected function get_override_option() {
 		if ( empty( $this->override_option_name ) || $this->multisite_only === true || ! is_multisite() ) {
-			return array();
+			return [];
 		}
 
-		return get_site_option( $this->override_option_name, array() );
+		return get_site_option( $this->override_option_name, [] );
 	}
 
 	/**
@@ -752,15 +856,15 @@ abstract class WPSEO_Option {
 	 * {@internal The wpseo_titles concrete class overrules this method. Make sure that any
 	 *            changes applied here, also get ported to that version.}}
 	 *
-	 * @param  array $dirty Original option as retrieved from the database.
-	 * @param  array $clean Filtered option where any options which shouldn't be in our option
-	 *                      have already been removed and any options which weren't set
-	 *                      have been set to their defaults.
+	 * @param array $dirty Original option as retrieved from the database.
+	 * @param array $clean Filtered option where any options which shouldn't be in our option
+	 *                     have already been removed and any options which weren't set
+	 *                     have been set to their defaults.
 	 *
-	 * @return  array
+	 * @return array
 	 */
 	protected function retain_variable_keys( $dirty, $clean ) {
-		if ( ( is_array( $this->variable_array_key_patterns ) && $this->variable_array_key_patterns !== array() ) && ( is_array( $dirty ) && $dirty !== array() ) ) {
+		if ( ( is_array( $this->variable_array_key_patterns ) && $this->variable_array_key_patterns !== [] ) && ( is_array( $dirty ) && $dirty !== [] ) ) {
 			foreach ( $dirty as $key => $value ) {
 
 				// Do nothing if already in filtered options.
@@ -786,13 +890,13 @@ abstract class WPSEO_Option {
 	 *
 	 * @usedby validate_option() methods for options with variable array keys.
 	 *
-	 * @param  string $key Array key to check.
+	 * @param string $key Array key to check.
 	 *
-	 * @return string      Pattern if it conforms, original array key if it doesn't or if the option
-	 *              does not have variable array keys.
+	 * @return string Pattern if it conforms, original array key if it doesn't or if the option
+	 *                does not have variable array keys.
 	 */
 	protected function get_switch_key( $key ) {
-		if ( ! isset( $this->variable_array_key_patterns ) || ( ! is_array( $this->variable_array_key_patterns ) || $this->variable_array_key_patterns === array() ) ) {
+		if ( ! isset( $this->variable_array_key_patterns ) || ( ! is_array( $this->variable_array_key_patterns ) || $this->variable_array_key_patterns === [] ) ) {
 			return $key;
 		}
 

@@ -6,7 +6,7 @@
  */
 
 /**
- * Class WPSEO_Config_Field
+ * Class WPSEO_Config_Field.
  */
 class WPSEO_Config_Field {
 
@@ -29,21 +29,21 @@ class WPSEO_Config_Field {
 	 *
 	 * @var array
 	 */
-	protected $properties = array();
+	protected $properties = [];
 
 	/**
 	 * Field requirements.
 	 *
 	 * @var array
 	 */
-	protected $requires = array();
+	protected $requires = [];
 
 	/**
 	 * Value of this field.
 	 *
 	 * @var array|mixed
 	 */
-	protected $data = array();
+	protected $data = [];
 
 	/**
 	 * WPSEO_Config_Field constructor.
@@ -57,7 +57,7 @@ class WPSEO_Config_Field {
 	}
 
 	/**
-	 * Get the identifier
+	 * Get the identifier.
 	 *
 	 * @return string
 	 */
@@ -66,7 +66,7 @@ class WPSEO_Config_Field {
 	}
 
 	/**
-	 * Get the component
+	 * Get the component.
 	 *
 	 * @return string
 	 */
@@ -75,7 +75,7 @@ class WPSEO_Config_Field {
 	}
 
 	/**
-	 * Set a property value
+	 * Set a property value.
 	 *
 	 * @param string $name  Property to set.
 	 * @param mixed  $value Value to apply.
@@ -85,7 +85,7 @@ class WPSEO_Config_Field {
 	}
 
 	/**
-	 * Get all the properties
+	 * Get all the properties.
 	 *
 	 * @return array
 	 */
@@ -94,7 +94,7 @@ class WPSEO_Config_Field {
 	}
 
 	/**
-	 * Get the data
+	 * Get the data.
 	 *
 	 * @return mixed
 	 */
@@ -108,9 +108,9 @@ class WPSEO_Config_Field {
 	 * @return array
 	 */
 	public function to_array() {
-		$output = array(
+		$output = [
 			'componentName' => $this->get_component(),
-		);
+		];
 
 		$properties = $this->get_properties();
 		if ( $properties ) {
@@ -126,7 +126,7 @@ class WPSEO_Config_Field {
 	}
 
 	/**
-	 * Set the adapter to use
+	 * Set the adapter to use.
 	 *
 	 * @param WPSEO_Configuration_Options_Adapter $adapter Adapter to register lookup on.
 	 */
@@ -140,14 +140,14 @@ class WPSEO_Config_Field {
 	 * @param mixed  $value Value of the field.
 	 */
 	public function set_requires( $field, $value ) {
-		$this->requires = array(
+		$this->requires = [
 			'field' => $field,
 			'value' => $value,
-		);
+		];
 	}
 
 	/**
-	 * Get the required field settings (if present)
+	 * Get the required field settings (if present).
 	 *
 	 * @return array
 	 */

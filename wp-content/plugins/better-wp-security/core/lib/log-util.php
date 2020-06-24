@@ -4,19 +4,24 @@ final class ITSEC_Log_Util {
 	public static function get_type_counts( $min_timestamp = 0 ) {
 		global $wpdb;
 
-
-		$where = 'parent_id=0';
-		$prepare_args = array();
+		$where = [];
+		$prepare = [];
 
 		if ( $min_timestamp > 0 ) {
-			$where .= ' AND init_timestamp>%s';
-			$prepare_args[] = date( 'Y-m-d H:i:s', $min_timestamp );
+			$where[]        = 'init_timestamp > %s';
+			$prepare[] = date( 'Y-m-d H:i:s', $min_timestamp );
 		}
 
-		$query = "SELECT type, COUNT(*) AS count FROM `{$wpdb->base_prefix}itsec_logs` WHERE $where GROUP BY type";
+		if ( $where ) {
+			$where = 'WHERE ' . implode( ' AND ', $where );
+		} else {
+			$where = '';
+		}
 
-		if ( ! empty( $prepare_args ) ) {
-			$query = $wpdb->prepare( $query, $prepare_args );
+		$query = "SELECT type, COUNT(*) AS count FROM `{$wpdb->base_prefix}itsec_logs` {$where} GROUP BY type";
+
+		if ( ! empty( $prepare ) ) {
+			$query = $wpdb->prepare( $query, $prepare );
 		}
 
 		$results = $wpdb->get_results( $query, ARRAY_A );
@@ -36,6 +41,34 @@ final class ITSEC_Log_Util {
 		}
 
 		return $counts;
+	}
+
+	public static function get_modules() {
+		global $wpdb;
+
+		$items = $wpdb->get_col( "SELECT DISTINCT module FROM {$wpdb->base_prefix}itsec_logs" );
+
+		if ( ! is_array( $items ) ) {
+			return array();
+		}
+
+		$modules = array();
+
+		foreach ( $items as $module_slug ) {
+			$labels = ITSEC_Modules::get_labels( $module_slug );
+
+			if ( ! $labels ) {
+				$labels = ITSEC_Modules::get_labels( str_replace( '_', '-', $module_slug ) );
+			}
+
+			if ( $labels ) {
+				$modules[ $module_slug ] = $labels['title'];
+			} else {
+				$modules[ $module_slug ] = $module_slug;
+			}
+		}
+
+		return $modules;
 	}
 
 	public static function get_entries( $filters = array(), $limit = 100, $page = 1, $sort_by_column = 'timestamp', $sort_direction = 'DESC', $columns = false ) {
@@ -124,10 +157,6 @@ final class ITSEC_Log_Util {
 
 		$where_entries = array();
 
-		if ( ! isset( $filters['parent_id'] ) ) {
-			$filters['parent_id'] = 0;
-		}
-
 		foreach ( (array) $filters as $column => $value ) {
 			if ( preg_match( '/^(.+)_not$/', $column, $match ) ) {
 				$not = true;
@@ -186,8 +215,9 @@ final class ITSEC_Log_Util {
 			$prepare_args[] = date( 'Y-m-d H:i:s', $max_timestamp );
 		}
 
-		$query .= ' WHERE ' . implode( ' AND ', $where_entries );
-
+		if ( $where_entries ) {
+			$query .= ' WHERE ' . implode( ' AND ', $where_entries );
+		}
 
 		if ( ! $get_count ) {
 			if ( ! is_array( $sort_by_column ) ) {
@@ -203,8 +233,9 @@ final class ITSEC_Log_Util {
 			}
 		}
 
-		$query = $wpdb->prepare( $query, $prepare_args );
-
+		if ( $prepare_args ) {
+			$query = $wpdb->prepare( $query, $prepare_args );
+		}
 
 		if ( $get_count ) {
 			return intval( $wpdb->get_var( $query ) );

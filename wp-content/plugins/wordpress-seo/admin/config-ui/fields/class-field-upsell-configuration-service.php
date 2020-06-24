@@ -6,7 +6,7 @@
  */
 
 /**
- * Class WPSEO_Config_Field_Upsell_Configuration_Service
+ * Class WPSEO_Config_Field_Upsell_Configuration_Service.
  */
 class WPSEO_Config_Field_Upsell_Configuration_Service extends WPSEO_Config_Field {
 
@@ -15,12 +15,12 @@ class WPSEO_Config_Field_Upsell_Configuration_Service extends WPSEO_Config_Field
 	 *
 	 * @var array
 	 */
-	private $allowed_html = array(
-		'a' => array(
-			'href'   => array(),
-			'target' => array( '_blank' ),
-		),
-	);
+	private $allowed_html = [
+		'a' => [
+			'href'   => [],
+			'target' => [ '_blank' ],
+		],
+	];
 
 	/**
 	 * WPSEO_Config_Field_Upsell_Configuration_Service constructor.

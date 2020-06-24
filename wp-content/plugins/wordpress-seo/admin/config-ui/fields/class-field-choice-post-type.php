@@ -6,7 +6,7 @@
  */
 
 /**
- * Class WPSEO_Config_Field_Choice_Post_Type
+ * Class WPSEO_Config_Field_Choice_Post_Type.
  */
 class WPSEO_Config_Field_Choice_Post_Type extends WPSEO_Config_Field_Choice {
 
@@ -36,15 +36,15 @@ class WPSEO_Config_Field_Choice_Post_Type extends WPSEO_Config_Field_Choice {
 	}
 
 	/**
-	 * Set adapter
+	 * Set adapter.
 	 *
 	 * @param WPSEO_Configuration_Options_Adapter $adapter Adapter to register lookup on.
 	 */
 	public function set_adapter( WPSEO_Configuration_Options_Adapter $adapter ) {
 		$adapter->add_custom_lookup(
 			$this->get_identifier(),
-			array( $this, 'get_data' ),
-			array( $this, 'set_data' )
+			[ $this, 'get_data' ],
+			[ $this, 'set_data' ]
 		);
 	}
 
@@ -58,6 +58,8 @@ class WPSEO_Config_Field_Choice_Post_Type extends WPSEO_Config_Field_Choice {
 	}
 
 	/**
+	 * Retrieves the data.
+	 *
 	 * @return bool
 	 */
 	public function get_data() {
@@ -71,7 +73,7 @@ class WPSEO_Config_Field_Choice_Post_Type extends WPSEO_Config_Field_Choice {
 	}
 
 	/**
-	 * Set new data
+	 * Set new data.
 	 *
 	 * @param string $visible Visible (true) or hidden (false).
 	 *

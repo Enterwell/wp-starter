@@ -1,12 +1,17 @@
-.idea/*
+# Ignore IDE related files
+.vscode
+.idea
 
+# Ignore starter and deployer files
 deployer/deployer-*-private.json
 vendor/*
 backup/*
 dbexport/*
 
+# Ignore private files
 *.log
 .htaccess
+.svn
 sitemap.xml
 sitemap.xml.gz
 wp-config.php
@@ -14,6 +19,15 @@ wp-config.php
 /readme.html
 /license.txt
 
+# Theme files
 node_modules
-/vendor/*
-wp-content/themes/test-theme/assets/dist/*
+wp-content/themes/ew-theme/assets/dist/*
+
+# Cache and wp-content files
+wp-content/advanced-cache.php
+wp-content/w3tc-config
+wp-content/cache
+wp-content/uploads
+
+# Ignore .build dir
+.build

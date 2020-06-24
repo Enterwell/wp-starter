@@ -3,7 +3,7 @@
 /**
  * Class ITSEC_Fingerprint
  */
-class ITSEC_Fingerprint {
+class ITSEC_Fingerprint implements JsonSerializable {
 
 	const S_APPROVED = 'approved';
 	const S_AUTO_APPROVED = 'auto-approved';
@@ -695,5 +695,74 @@ class ITSEC_Fingerprint {
 		}
 
 		return trim( $str );
+	}
+
+	/**
+	 * Serialize a fingerprint to JSON.
+	 *
+	 * For uses when you need to persist a fingerprint that hasn't been stored yet
+	 * to short term storage.
+	 *
+	 * @return array
+	 */
+	public function jsonSerialize() {
+		if ( $this->_id ) {
+			return null;
+		}
+
+		$approved_at = $this->get_approved_at();
+
+		$values = array();
+
+		foreach ( $this->get_values() as $value ) {
+			$values[ $value->get_source()->get_slug() ] = $value->get_value();
+		}
+
+		return [
+			'user'        => $this->get_user()->ID,
+			'created_at'  => $this->get_created_at()->format( 'Y-m-d H:i:s' ),
+			'values'      => $values,
+			'status'      => $this->get_status(),
+			'uses'        => $this->get_uses(),
+			'approved_at' => $approved_at ? $approved_at->format( 'Y-m-d H:i:s' ) : null,
+		];
+	}
+
+	/**
+	 * Recreate a fingerprint from JSON.
+	 *
+	 * @param string $json
+	 *
+	 * @return ITSEC_Fingerprint|null
+	 */
+	public static function from_json( $json ) {
+		$decoded = json_decode( $json, true );
+
+		if ( ! $decoded ) {
+			return null;
+		}
+
+		ITSEC_Lib::load( 'fingerprinting' );
+
+		$sources = ITSEC_Lib_Fingerprinting::get_sources();
+		$values  = array();
+
+		foreach ( $decoded['values'] as $slug => $value ) {
+			if ( isset( $sources[ $slug ] ) ) {
+				$values[] = new ITSEC_Fingerprint_Value( $sources[ $slug ], $value );
+			}
+		}
+
+		$fingerprint = new ITSEC_Fingerprint(
+			get_userdata( $decoded['user'] ),
+			new DateTime( $decoded['created_at'], new DateTimeZone( 'UTC' ) ),
+			$values
+		);
+
+		$fingerprint->_status      = $decoded['status'];
+		$fingerprint->_uses        = $decoded['uses'];
+		$fingerprint->_approved_at = $decoded['approved_at'] ? new DateTime( $decoded['approved_at'], new DateTimeZone( 'UTC' ) ) : null;
+
+		return $fingerprint;
 	}
 }

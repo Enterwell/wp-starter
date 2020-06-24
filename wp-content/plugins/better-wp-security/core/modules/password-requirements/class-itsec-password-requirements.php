@@ -1,5 +1,7 @@
 <?php
 
+use \iThemesSecurity\User_Groups;
+
 /**
  * Class ITSEC_Password_Requirements
  */
@@ -22,7 +24,8 @@ class ITSEC_Password_Requirements {
 
 		add_action( 'itsec_validate_password', array( $this, 'validate_password' ), 10, 4 );
 
-		add_action( 'wp_login', array( $this, 'flag_check' ), 9, 2 );
+		// This needs to run before the interstitial runs.
+		add_action( 'wp_login', array( $this, 'flag_check' ), - 2000, 2 );
 
 		add_action( 'itsec_login_interstitial_init', array( $this, 'register_interstitial' ) );
 	}
@@ -102,6 +105,7 @@ class ITSEC_Password_Requirements {
 			$args = array(
 				'role'      => $user->role,
 				'canonical' => ITSEC_Lib_Canonical_Roles::get_canonical_role_from_role_and_user( $user->role, $user ),
+				'target'    => User_Groups\Match_Target::for_user( get_userdata( $user->ID ), $user->role )
 			);
 
 			$validated = call_user_func( $requirement['validate'], $evaluation, $user, $settings[ $code ], $args );
@@ -243,7 +247,9 @@ class ITSEC_Password_Requirements {
 				continue;
 			}
 
-			$validated = call_user_func( $requirement['validate'], $evaluation, $user, $settings[ $code ], array() );
+			$validated = call_user_func( $requirement['validate'], $evaluation, $user, $settings[ $code ], array(
+				'target' => User_Groups\Match_Target::for_user( $user ),
+			) );
 
 			if ( true === $validated ) {
 				continue;
@@ -333,38 +339,25 @@ class ITSEC_Password_Requirements {
 			if ( $requirement['flag_check'] && call_user_func( $requirement['flag_check'], $user, $settings ) ) {
 				ITSEC_Lib_Password_Requirements::flag_password_change_required( $user, $code );
 
-				return;
+				continue;
+			}
+
+			if ( $requirement['validate'] ) {
+				$evaluation = get_user_meta( $user->ID, $requirement['meta'], true );
+
+				if ( '' !== $evaluation ) {
+					$validated = call_user_func( $requirement['validate'], $evaluation, $user, $settings, array(
+						'target' => User_Groups\Match_Target::for_user( $user ),
+					) );
+
+					if ( true !== $validated ) {
+						ITSEC_Lib_Password_Requirements::flag_password_change_required( $user, $code );
+
+						continue;
+					}
+				}
 			}
 		}
-	}
-
-	/**
-	 * Is a given requirement enabled.
-	 *
-	 * @param string $requirement
-	 *
-	 * @return bool
-	 */
-	protected function is_requirement_enabled( $requirement ) {
-
-		$requirements = ITSEC_Lib_Password_Requirements::get_registered();
-
-		if ( ! isset( $requirements[ $requirement ] ) ) {
-			return false;
-		}
-
-		// If the requirement does not have any settings, than it is always enabled.
-		if ( null === $requirements[ $requirement ]['settings_config'] ) {
-			return true;
-		}
-
-		$enabled = ITSEC_Modules::get_setting( 'password-requirements', 'enabled_requirements' );
-
-		if ( ! empty( $enabled[ $requirement ] ) ) {
-			return true;
-		}
-
-		return false;
 	}
 
 	/**
@@ -422,7 +415,7 @@ class ITSEC_Password_Requirements {
 			<div id="pass-strength-result" class="hide-if-no-js" aria-live="polite"><?php _e( 'Strength indicator', 'better-wp-security' ); ?></div>
 			<div class="pw-weak">
 				<label>
-					<input type="checkbox" name="pw_weak" class="pw-checkbox" />
+					<input type="checkbox" name="pw_weak" class="pw-checkbox"/>
 					<?php _e( 'Confirm use of weak password' ); ?>
 				</label>
 			</div>

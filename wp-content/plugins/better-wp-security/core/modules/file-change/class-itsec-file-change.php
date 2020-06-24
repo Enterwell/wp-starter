@@ -38,6 +38,10 @@ class ITSEC_File_Change {
 		add_action( 'itsec_scheduled_file-change-fast', array( $this, 'run_scan' ) );
 		ITSEC_Core::get_scheduler()->register_loop( 'file-change', ITSEC_Scheduler::S_DAILY, 60 );
 		ITSEC_Core::get_scheduler()->register_loop( 'file-change-fast', ITSEC_Scheduler::S_DAILY, 0 );
+
+		if ( ITSEC_Modules::get_setting( 'file-change', 'notify_admin' ) ) {
+			add_action( 'itsec_register_highlighted_logs', array( $this, 'register_highlight' ) );
+		}
 	}
 
 	public function run_scan( $job ) {
@@ -116,8 +120,7 @@ class ITSEC_File_Change {
 	 * @param Ithemes_Sync_API $api Sync API object.
 	 */
 	public function register_sync_verbs( $api ) {
-		$api->register( 'itsec-perform-file-scan', 'Ithemes_Sync_Verb_ITSEC_Perform_File_Scan', dirname( __FILE__ ) . '/sync-verbs/itsec-perform-file-scan.php' );
-		$api->register( 'itsec-ping-file-scan', 'Ithemes_Sync_Verb_ITSEC_Ping_File_Scan', dirname( __FILE__ ) . '/sync-verbs/itsec-ping-file-scan.php' );
+		$api->register( 'itsec-latest-file-scan', 'Ithemes_Sync_Verb_ITSEC_Latest_File_Scan', dirname( __FILE__ ) . '/sync-verbs/itsec-latest-file-scan.php' );
 	}
 
 	/**
@@ -173,6 +176,16 @@ class ITSEC_File_Change {
 		}
 
 		return $response;
+	}
+
+	/**
+	 * Register a highlighted log whenever File Change finds changed files.
+	 */
+	public function register_highlight() {
+		ITSEC_Lib_Highlighted_Logs::register_dynamic_highlight( 'file-change-report', array(
+			'module' => 'file_change',
+			'code'   => 'changes-found::%',
+		) );
 	}
 
 	/**

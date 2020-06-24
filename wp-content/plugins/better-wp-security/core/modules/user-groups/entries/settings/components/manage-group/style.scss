@@ -1,0 +1,51 @@
+@import "colors.scss";
+
+.itsec-manage-user-group-tabs {
+    border: 1px solid $dark-gray-200;
+    border-radius: 4px;
+}
+
+.itsec-manage-user-group-tabs .components-tab-panel__tabs {
+    background: $light-gray-200;
+    border-radius: 4px 4px 0 0;
+    display: flex;
+    flex-basis: 0;
+}
+
+.itsec-manage-user-group-tabs__tab.components-button {
+    flex-grow: 1;
+    flex-basis: 0;
+    height: 40px;
+    padding: 3px 15px 0;
+    border-bottom: 1px solid $dark-gray-200;
+    border-right: 1px solid $dark-gray-200;
+    cursor: pointer;
+    font-weight: 400;
+    justify-content: center;
+    align-items: center;
+    text-transform: uppercase;
+    outline-offset: -1px;
+    border-radius: 0;
+
+    &:hover {
+        box-shadow: none !important;
+    }
+
+    &:first-child {
+        border-top-left-radius: 3px;
+    }
+
+    &:last-child {
+        border-top-right-radius: 3px;
+        border-right: none;
+    }
+
+    &.is-active {
+        padding-top: 0;
+        background: white;
+        border-top: 3px solid $main-blue;
+        border-bottom-color: transparent;
+        font-weight: 600;
+        outline: none;
+    }
+}

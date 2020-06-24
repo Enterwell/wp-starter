@@ -6,22 +6,26 @@
  */
 
 /**
- * Config Component interface
+ * Config Component interface.
  */
 interface WPSEO_Config_Component {
 
 	/**
+	 * Get onboarding wizard component identifier.
+	 *
 	 * @return string
 	 */
 	public function get_identifier();
 
 	/**
+	 * Get onboarding wizard component data.
+	 *
 	 * @return mixed
 	 */
 	public function get_data();
 
 	/**
-	 * Save changes
+	 * Save changes.
 	 *
 	 * @param array $data Data provided by the API.
 	 *
@@ -30,6 +34,8 @@ interface WPSEO_Config_Component {
 	public function set_data( $data );
 
 	/**
+	 * Get onboarding wizard component field.
+	 *
 	 * @return WPSEO_Config_Field
 	 */
 	public function get_field();

@@ -6,36 +6,48 @@
  */
 
 /**
- * Class WPSEO_Configuration_Service
+ * Class WPSEO_Configuration_Service.
  */
 class WPSEO_Configuration_Service {
 
 	/**
+	 * Class holding the onboarding wizard configuration.
+	 *
 	 * @var WPSEO_Configuration_Structure
 	 */
 	protected $structure;
 
 	/**
+	 * Class holding the onboarding wizard components.
+	 *
 	 * @var WPSEO_Configuration_Components
 	 */
 	protected $components;
 
 	/**
+	 * Class handling the onboarding wizard persistence.
+	 *
 	 * @var WPSEO_Configuration_Storage
 	 */
 	protected $storage;
 
 	/**
+	 * Class handling the onboarding wizard endpoint.
+	 *
 	 * @var WPSEO_Configuration_Endpoint
 	 */
 	protected $endpoint;
 
 	/**
+	 * Adapter that converts onboarding wizard configuration to WordPress options.
+	 *
 	 * @var WPSEO_Configuration_Options_Adapter
 	 */
 	protected $adapter;
 
 	/**
+	 * Class handling the onboarding wizard endpoint.
+	 *
 	 * @var WPSEO_Configuration_Translations
 	 */
 	protected $translations;
@@ -49,7 +61,7 @@ class WPSEO_Configuration_Service {
 	}
 
 	/**
-	 * Set default handlers
+	 * Set default handlers.
 	 */
 	public function set_default_providers() {
 		$this->set_storage( new WPSEO_Configuration_Storage() );
@@ -61,7 +73,7 @@ class WPSEO_Configuration_Service {
 	}
 
 	/**
-	 * Set storage handler
+	 * Set storage handler.
 	 *
 	 * @param WPSEO_Configuration_Storage $storage Storage handler to use.
 	 */
@@ -70,7 +82,7 @@ class WPSEO_Configuration_Service {
 	}
 
 	/**
-	 * Set endpoint handler
+	 * Set endpoint handler.
 	 *
 	 * @param WPSEO_Configuration_Endpoint $endpoint Endpoint implementation to use.
 	 */
@@ -80,7 +92,7 @@ class WPSEO_Configuration_Service {
 	}
 
 	/**
-	 * Set the options adapter
+	 * Set the options adapter.
 	 *
 	 * @param WPSEO_Configuration_Options_Adapter $adapter Adapter to use.
 	 */
@@ -89,7 +101,7 @@ class WPSEO_Configuration_Service {
 	}
 
 	/**
-	 * Set components provider
+	 * Set components provider.
 	 *
 	 * @param WPSEO_Configuration_Components $components Component provider to use.
 	 */
@@ -98,7 +110,7 @@ class WPSEO_Configuration_Service {
 	}
 
 	/**
-	 * Set structure provider
+	 * Set structure provider.
 	 *
 	 * @param WPSEO_Configuration_Structure $structure Structure provider to use.
 	 */
@@ -116,7 +128,7 @@ class WPSEO_Configuration_Service {
 	}
 
 	/**
-	 * Populate the configuration
+	 * Populate the configuration.
 	 */
 	protected function populate_configuration() {
 		// Switch to the user locale with fallback to the site locale.
@@ -140,7 +152,7 @@ class WPSEO_Configuration_Service {
 	}
 
 	/**
-	 * Used by endpoint to retrieve configuration
+	 * Used by endpoint to retrieve configuration.
 	 *
 	 * @return array List of settings.
 	 */
@@ -150,15 +162,15 @@ class WPSEO_Configuration_Service {
 		$steps        = $this->structure->retrieve();
 		$translations = $this->translations->retrieve();
 
-		return array(
+		return [
 			'fields'       => $fields,
 			'steps'        => $steps,
 			'translations' => $translations,
-		);
+		];
 	}
 
 	/**
-	 * Used by endpoint to store changes
+	 * Used by endpoint to store changes.
 	 *
 	 * @param WP_REST_Request $request Request from the REST API.
 	 *

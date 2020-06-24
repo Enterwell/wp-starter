@@ -19,8 +19,6 @@ final class ITSEC_File_Change_Settings extends ITSEC_Settings {
 				// Video
 				'.asf', '.avi', '.mkv', '.mov', '.mp4', '.mpe', '.mpeg', '.mpg', '.ogv', '.qt', '.rm', '.vob', '.webm', '.wm', '.wmv',
 			),
-			'notify_admin'    => true,
-			'show_warning'    => false,
 			'expected_hashes' => array(),
 			'last_scan'       => 0,
 		);

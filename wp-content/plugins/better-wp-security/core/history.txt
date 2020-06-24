@@ -798,3 +798,84 @@
 	Bug Fix: Resolve warning when a user is set to "No Role".
 5.1.4 - 2019-03-22 - Chris Jean & Timothy Jacobs
 	Bug Fix: Hide backend bypass.
+5.2.0 - 2019-05-30 - Chris Jean & Timothy Jacobs
+	New: iThemes Security Admin Notices are now conveniently located in the new Security Messages Menu. Check your notices in the Security menu on the WordPress Admin Bar.
+	Tweak: Remove 'DELETE' method from "System Tweaks -> Filter Request Methods"
+5.2.1 - 2019-06-06 - Chris Jean & Timothy Jacobs
+	Enhancement: Add Security Message when a Notification Center email fails to send.
+	Enhancement: Replace Trace IP with IP Tracker Online.
+5.2.2 - 2019-06-28 - Chris Jean & Timothy Jacobs
+	Enhancement: New iThemes Sync Verb support for File Change.
+	Tweak: Add additional information about the login attempt when calling the Network Brute Force API.
+5.2.3 - 2019-08-12 - Chris Jean & Timothy Jacobs
+	Bug Fix: Hide Backend Bypass.
+	Bug Fix: Strict Standards error during Sync request.
+	Bug Fix: wp_die() if a login interstitial session fails to be created instead of throwing a fatal error.
+5.3.0 - 2019-09-04 - Timothy Jacobs
+	Breaking Change: iThemes Security requires PHP 5.4 or later.
+	Enhancement: New Lockout Template screen.
+	Bug Fix: Brute Force module reporting invalid logins using an email address incorrectly.
+	Developer Note: There were significant changes to the internals of the iThemes Security Lockout API in this release. If you are using the ITSEC_Lockout class directly, all the API functions will continue to work, but will emit deprecation notices.
+5.3.1 - 2019-09-05 - Timothy Jacobs
+	Bug Fix: PHP Warning while logging interstitial updates.
+5.3.2 - 2019-09-09 - Timothy Jacobs
+	Enhancement: Add confirmation button to Login Interstitial Async Actions when on a different device.
+	Bug Fix: Fix admin notice not being dismissed due to a REST API route that was more narrowly defined than necessary.
+5.3.3 - 2019-10-01 - Timothy Jacobs
+	Bug Fix: Strong Passwords zxcvbn Library was not evaluating penalty strings correctly.
+5.4.0 - 2019-10-29 - Timothy Jacobs
+	Enhancement: Add filter to "Lookup IP" link.
+	Bug Fix: PHP warning when inserting lockouts.
+5.4.1 - 2019-11-12 - Timothy Jacobs
+	Bug Fix: Improve lockout compatibility with caching plugins.
+	Bug Fix: Admin Notices list did not refresh after dismissing a notice.
+	Bug Fix: Fix PHP warning if there are multiple detected proxy headers.
+5.4.2 - 2019-11-14 - Timothy Jacobs
+	Tweak: Add stub Passwordless Login settings page.
+	Bug Fix: PHP warning if lockout_active field is missing.
+5.4.3 - 2019-11-18 - Timothy Jacobs
+	Tweak: Introduce ITSEC_Lib method to retrieve WP branch version.
+5.5.0 - 2019-12-09 - Timothy Jacobs
+	New Feature: iThemes Security now includes Security Check Pro to automatically and correctly determine your visitors IP addresses. Enable this scan by running Security Check and opting in to Security Check Pro or activate the Security Check Pro module in Advanced Modules. H/t Jeremy Voisin
+	Enhancement: Run Security Check Pro IP Detection automatically once a day.
+	Enhancement: Manually re-run Security Check Pro IP Detection from the Global Settings page.
+5.5.1 - 2019-12-18 - Timothy Jacobs
+	Bug Fix: The "Mulisite Tweaks -> Hide Updates" setting prevented auto-updates from running with WP Cron.
+	Bug Fix: Remove "get_magic_quotes()" call that existed for backwards compatibility with PHP versions 5.3 and earlier. This function call was causing a warning on PHP 7.4.
+5.5.2 - 2020-01-07 - Timothy Jacobs
+	Bug Fix: Backup event was not added when the WP Cron Scheduler was reset manually.
+	Bug Fix: Admin Notices Popover was not being hidden when clicking outside the Popover on WP 5.3.
+5.6.0 - 2020-02-12 - Timothy Jacobs, Josh Oakes
+	Important: iThemes Security requires PHP 5.6 or greater and WordPress 5.2 or greater.
+	New Feature: Save Time Securing WordPress With User Groups!
+	New Feature: Simplified connection flow when setting up iThemes Sync.
+	Bug Fix: Warning when loading the settings page on PHP 7.4.
+	Bug Fix: Warning when loading the debug page on PHP 7.4.
+5.6.1 - 2020-02-13 - Timothy Jacobs
+	Bug Fix: A fatal error could occur when upgrading to User Groups if a custom role had been selected for Two-Factor or Passwordless Login that has since been deleted but the module's settings had not been updated.
+5.6.2 - 2020-02-17 - Timothy Jacobs, Josh Oakes
+	Tweak: Harden iThemes Sync connection flow by adding a second verification check.
+	Bug Fix: Prevent UnknownIdentifierException errors when modules are loaded before expected.
+	Bug Fix: Add additional type checks.
+5.7.0 - 2020-03-10 - Timothy Jacobs
+	Enhancement: Allow selecting users across all sites in a network for User Groups.
+	Enhancement: Add super admins as a selectable role for User Groups.
+	Enhancement: Add a warning if a WordPress Salt is set to an invalid value.
+	Enhancement: Include child log items in the logs list table. These are helpful for debugging issues.
+	Enhancement: Improve performance of the logs page on sites with large number of log items.
+	Tweak: When logging $_SERVER, only log a snapshot of available properties.
+	Bug Fix: New Password Requirements for already created accounts were not enforced until the second login.
+	Bug Fix: Prevent fatal error if invalid user IDs are encountered by User Groups.
+5.7.1 - 2020-03-11 - Timothy Jacobs
+	Enhancement: Further improve logs performance.
+5.7.2 - 2020-03-31 - Timothy Jacobs
+	Bug Fix: Update admin notices styling to be compatible with WordPress 5.4.
+	Bug Fix: Periodically clear expired opaque tokens.
+	Bug Fix: Exclude "Process Update" and "Process Stop" logs when other process logs are hidden.
+5.7.3 - 2020-04-08 - Timothy Jacobs
+	Bug Fix: Don't block registration page when "wp-signup.php" is the Hide Backend register slug.
+5.7.4 - 2020-04-15 - Timothy Jacobs
+	Bug Fix: Users with weak passwords would not be forced to change their password if the strong password requirement had been enabled after their password strength was checked.
+	Bug Fix: PHP warning if downgrading from Pro to Free.
+5.7.5 - 2020-04-20 - Timothy Jacobs
+	Bug Fix: PHP warning when evaluating password requirements.

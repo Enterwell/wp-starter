@@ -1,0 +1,129 @@
+@import "colors.scss";
+@import "breakpoints.scss";
+
+@mixin sticky-table($spacing: 1em) {
+    & thead th {
+        position: sticky;
+        top: 0;
+        padding-top: $spacing;
+        padding-bottom: $spacing;
+        background: white;
+        color: $dark-gray-500;
+        text-transform: uppercase;
+        font-weight: normal;
+        border-bottom: 1px solid $light-gray-500;
+        border-top: 1px solid $light-gray-500;
+    }
+
+    & th,
+    & td {
+        text-align: left;
+        padding: $spacing;
+
+        &:first-child {
+        }
+
+        &:last-child {
+            text-align: right;
+        }
+    }
+
+    & tbody th {
+        font-weight: normal;
+    }
+}
+
+@mixin bordered-button($style: 'blue') {
+    $primary: $main-blue;
+    $alternate: #E1f2fc;
+
+    @if ($style == 'green') {
+        $primary: $alert-green;
+        $alternate: #e4f4e8;
+    }
+
+    @if ($style == 'red') {
+        $primary: $alert-red;
+        $alternate: #fcefef;
+    }
+
+    @if ($style == 'orange') {
+        $primary: $alert-orange;
+        $alternate: #fef1ea;
+    }
+
+
+    padding: .5em 1em;
+    background: $alternate;
+    color: $primary;
+    border: 1px solid $primary;
+    transition: background-color 300ms, color 150ms;
+
+    &:hover {
+        background: $primary;
+        color: white;
+    }
+
+    &.is-busy {
+        animation: components-button__busy-animation 2500ms infinite linear;
+        background-size: 100px 100%;
+        background-image: repeating-linear-gradient(-45deg, $alternate, #fff 11px, #fff 10px, $alternate 20px);
+        opacity: 1;
+
+        &:hover {
+            color: $primary;
+        }
+    }
+}
+
+/**
+ * Breakpoint mixins
+ */
+
+@mixin break-huge() {
+    @media (min-width: #{ ($break-huge) }) {
+        @content;
+    }
+}
+
+@mixin break-wide() {
+    @media (min-width: #{ ($break-wide) }) {
+        @content;
+    }
+}
+
+@mixin break-xlarge() {
+    @media (min-width: #{ ($break-xlarge) }) {
+        @content;
+    }
+}
+
+@mixin break-large() {
+    @media (min-width: #{ ($break-large) }) {
+        @content;
+    }
+}
+
+@mixin break-medium() {
+    @media (min-width: #{ ($break-medium) }) {
+        @content;
+    }
+}
+
+@mixin break-small() {
+    @media (min-width: #{ ($break-small) }) {
+        @content;
+    }
+}
+
+@mixin break-mobile() {
+    @media (min-width: #{ ($break-mobile) }) {
+        @content;
+    }
+}
+
+@mixin break-zoomed-in() {
+    @media (min-width: #{ ($break-zoomed-in) }) {
+        @content;
+    }
+}

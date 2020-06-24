@@ -564,6 +564,7 @@ final class ITSEC_Notification_Center {
 	public function run() {
 		add_action( 'itsec_change_admin_user_id', array( $this, 'update_notification_user_id_on_admin_change' ) );
 		add_action( 'itsec_module_settings_after_title', array( $this, 'display_notification_center_link_for_module' ) );
+		add_action( 'itsec_register_highlighted_logs', array( $this, 'register_highlighted_log' ) );
 		$this->setup_scheduling();
 	}
 
@@ -647,6 +648,16 @@ final class ITSEC_Notification_Center {
 	}
 
 	/**
+	 * Register a highlighted log for mail send errors.
+	 */
+	public function register_highlighted_log() {
+		ITSEC_Lib_Highlighted_Logs::register_dynamic_highlight( 'notification-center-send-failed', array(
+			'module' => 'notification_center',
+			'code'   => 'send_failed::%'
+		) );
+	}
+
+	/**
 	 * Setup scheduling actions.
 	 */
 	private function setup_scheduling() {
@@ -716,6 +727,14 @@ final class ITSEC_Notification_Center {
 				$to_send[] = $slug;
 			}
 		}
+
+		/**
+		 * Filters the list of scheduled notifications to send on this request.
+		 *
+		 * @param string[] $to_send       Notification slugs to send.
+		 * @param array    $notifications List of available notifications that could be sent.
+		 */
+		$to_send = apply_filters( 'itsec_notification_center_send_scheduled_notifications', $to_send, $notifications );
 
 		$ret = array();
 

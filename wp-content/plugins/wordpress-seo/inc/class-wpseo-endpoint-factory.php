@@ -6,48 +6,62 @@
  */
 
 /**
- * Class WPSEO_Endpoint_Factory
+ * Class WPSEO_Endpoint_Factory.
  */
 class WPSEO_Endpoint_Factory {
 
 	/**
-	 * @var array The valid HTTP methods.
+	 * The valid HTTP methods.
+	 *
+	 * @var array
 	 */
-	private $valid_http_methods = array(
+	private $valid_http_methods = [
 		'GET',
 		'PATCH',
 		'POST',
 		'PUT',
 		'DELETE',
-	);
+	];
 
 	/**
-	 * @var array The arguments.
+	 * The arguments.
+	 *
+	 * @var array
 	 */
-	protected $args = array();
+	protected $args = [];
 
 	/**
-	 * @var string The namespace.
+	 * The namespace.
+	 *
+	 * @var string
 	 */
 	private $namespace;
 
 	/**
-	 * @var string The endpoint URL.
+	 * The endpoint URL.
+	 *
+	 * @var string
 	 */
 	private $endpoint;
 
 	/**
-	 * @var callable The callback to execute if the endpoint is called.
+	 * The callback to execute if the endpoint is called.
+	 *
+	 * @var callable
 	 */
 	private $callback;
 
 	/**
-	 * @var callable The permission callback to execute to determine permissions.
+	 * The permission callback to execute to determine permissions.
+	 *
+	 * @var callable
 	 */
 	private $permission_callback;
 
 	/**
-	 * @var string The HTTP method to use.
+	 * The HTTP method to use.
+	 *
+	 * @var string
 	 */
 	private $method;
 
@@ -114,11 +128,11 @@ class WPSEO_Endpoint_Factory {
 	 * @return void
 	 */
 	public function register() {
-		$config = array(
+		$config = [
 			'methods'             => $this->method,
 			'callback'            => $this->callback,
 			'permission_callback' => $this->permission_callback,
-		);
+		];
 
 		if ( $this->has_arguments() ) {
 			$config['args'] = $this->args;
@@ -164,10 +178,10 @@ class WPSEO_Endpoint_Factory {
 			return;
 		}
 
-		$this->args[ $name ] = array(
+		$this->args[ $name ] = [
 			'description' => $description,
 			'type'        => $type,
 			'required'    => $required,
-		);
+		];
 	}
 }

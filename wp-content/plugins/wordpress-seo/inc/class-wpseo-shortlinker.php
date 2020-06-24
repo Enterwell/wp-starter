@@ -6,7 +6,7 @@
  */
 
 /**
- * Helps with creating shortlinks in the plugin
+ * Helps with creating shortlinks in the plugin.
  */
 class WPSEO_Shortlinker {
 
@@ -16,15 +16,15 @@ class WPSEO_Shortlinker {
 	 * @return array The shortlink data.
 	 */
 	protected function collect_additional_shortlink_data() {
-		return array(
+		return [
 			'php_version'      => $this->get_php_version(),
 			'platform'         => 'wordpress',
 			'platform_version' => $GLOBALS['wp_version'],
 			'software'         => $this->get_software(),
 			'software_version' => WPSEO_VERSION,
-			'role'             => $this->get_filtered_user_role(),
 			'days_active'      => $this->get_days_active(),
-		);
+			'user_language'    => $this->get_user_language(),
+		];
 	}
 
 	/**
@@ -79,7 +79,7 @@ class WPSEO_Shortlinker {
 	private function get_php_version() {
 		$version = explode( '.', PHP_VERSION );
 
-		return (int) $version[0] . '.' . (int) $version[1] . '.' . (int) $version[2];
+		return (int) $version[0] . '.' . (int) $version[1];
 	}
 
 	/**
@@ -96,31 +96,6 @@ class WPSEO_Shortlinker {
 	}
 
 	/**
-	 * Gets the current user's role without leaking roles that shouldn't be public.
-	 *
-	 * @return string The filtered user role.
-	 */
-	private function get_filtered_user_role() {
-		$user           = wp_get_current_user();
-		$built_in_roles = array(
-			'administrator',
-			'wpseo_manager',
-			'wpseo_editor',
-			'editor',
-			'author',
-			'contributor',
-			'subscriber',
-		);
-		$filtered_roles = array_intersect( $built_in_roles, $user->roles );
-
-		$role = current( $filtered_roles );
-		if ( ! $role ) {
-			$role = 'unknown';
-		}
-		return $role;
-	}
-
-	/**
 	 * Gets the number of days the plugin has been active.
 	 *
 	 * @return int The number of days the plugin is active.
@@ -128,7 +103,34 @@ class WPSEO_Shortlinker {
 	private function get_days_active() {
 		$date_activated = WPSEO_Options::get( 'first_activated_on' );
 		$datediff       = ( time() - $date_activated );
+		$days           = (int) round( $datediff / DAY_IN_SECONDS );
+		switch ( $days ) {
+			case 0:
+			case 1:
+				$cohort = '0-1';
+				break;
+			case ( $days < 5 ):
+				$cohort = '2-5';
+				break;
+			case ( $days < 30 ):
+				$cohort = '6-30';
+				break;
+			default:
+				$cohort = '30plus';
+		}
+		return $cohort;
+	}
 
-		return (int) round( $datediff / DAY_IN_SECONDS );
+	/**
+	 * Gets the user's language.
+	 *
+	 * @return string The user's language.
+	 */
+	private function get_user_language() {
+		if ( function_exists( 'get_user_locale' ) ) {
+			return get_user_locale();
+		}
+
+		return false;
 	}
 }

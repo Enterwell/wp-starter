@@ -1,0 +1,8 @@
+node_modules/*
+webpack/*
+gulp/*
+assets/dist/*
+assets/vendors/*
+.babelrc
+theme-config.json
+gulpfile.js

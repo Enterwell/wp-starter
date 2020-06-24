@@ -223,7 +223,7 @@ final class ITSEC_Logs_List_Table extends ITSEC_WP_List_Table {
 		$filters = $this->get_raw_filters();
 
 		if ( 'process' === $filters['type'] ) {
-			$filters['type'] = 'process-start';
+			$filters['type'] = [ 'process-start', 'process-update', 'process-stop' ];
 		}
 
 		if ( 'all' === $filters['type'] ) {
@@ -234,11 +234,13 @@ final class ITSEC_Logs_List_Table extends ITSEC_WP_List_Table {
 			}
 			if ( ! $options['show_process'] ) {
 				$type_not[] = 'process-start';
+				$type_not[] = 'process-update';
+				$type_not[] = 'process-stop';
 			}
 
 			unset( $filters['type'] );
 		} else if ( 'important' === $filters['type'] ) {
-			$type_not = array( 'action', 'notice', 'debug', 'process-start' );
+			$type_not = array( 'action', 'notice', 'debug', 'process-start', 'process-update', 'process-stop' );
 
 			unset( $filters['type'] );
 		}
@@ -424,7 +426,7 @@ final class ITSEC_Logs_List_Table extends ITSEC_WP_List_Table {
 				<label for="itsec-module-filter" class="screen-reader-text"><?php esc_html_e( 'Filter by Module', 'better-wp-security' ) ?></label>
 				<select name="filters[]" id="itsec-module-filter">
 					<option value=""><?php esc_html_e( 'All Modules', 'better-wp-security' ); ?></option>
-					<?php foreach ( $this->get_modules() as $module => $label ): ?>
+					<?php foreach ( ITSEC_Log_Util::get_modules() as $module => $label ): ?>
 						<option value="module|<?php echo esc_attr( $module ) ?>" <?php selected( $module, $current ); ?>>
 							<?php echo $label; // Expected to be escaped by modules. ?>
 						</option>
@@ -443,50 +445,5 @@ final class ITSEC_Logs_List_Table extends ITSEC_WP_List_Table {
 
 	public function no_items() {
 		esc_html_e( 'No events.', 'better-wp-security' );
-	}
-
-	private function get_modules() {
-		$columns = implode(', ', array(
-			'id',
-			'parent_id',
-			'module',
-			'type',
-			'code',
-			'timestamp',
-			'init_timestamp',
-			'remote_ip',
-			'user_id',
-			'url',
-			'memory_current',
-			'memory_peak',
-		) );
-
-		global $wpdb;
-
-		$items = $wpdb->get_results( "SELECT {$columns} FROM {$wpdb->prefix}itsec_logs GROUP BY `module`", ARRAY_A );
-
-		if ( ! is_array( $items ) ) {
-			return array();
-		}
-
-		$modules = array();
-
-		foreach ( $items as $item ) {
-			if ( false === strpos( $item['code'], '::' ) ) {
-				$code = $item['code'];
-				$data = array();
-			} else {
-				list( $code, $data ) = explode( '::', $item['code'], 2 );
-				$data = explode( ',', $data );
-			}
-
-			$item['description'] = $item['code'];
-			$item['module_display'] = $item['module'];
-			$item = apply_filters( "itsec_logs_prepare_{$item['module']}_entry_for_list_display", $item, $code, $data );
-
-			$modules[ $item['module'] ] = $item['module_display'];
-		}
-
-		return $modules;
 	}
 }

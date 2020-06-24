@@ -6,22 +6,28 @@
  */
 
 /**
- * This class provides data for the term metabox by return its values for localization
+ * This class provides data for the term metabox by return its values for localization.
  */
 class WPSEO_Term_Metabox_Formatter implements WPSEO_Metabox_Formatter_Interface {
 
 	/**
+	 * The term the metabox formatter is for.
+	 *
 	 * @var WP_Term|stdClass
 	 */
 	private $term;
 
 	/**
+	 * The term's taxonomy.
+	 *
 	 * @var stdClass
 	 */
 	private $taxonomy;
 
 	/**
-	 * @var array Array with the WPSEO_Titles options.
+	 * Array with the WPSEO_Titles options.
+	 *
+	 * @var array
 	 */
 	protected $options;
 
@@ -32,8 +38,8 @@ class WPSEO_Term_Metabox_Formatter implements WPSEO_Metabox_Formatter_Interface 
 	 * @param WP_Term|stdClass $term     Term.
 	 */
 	public function __construct( $taxonomy, $term ) {
-		$this->term     = $term;
 		$this->taxonomy = $taxonomy;
+		$this->term     = $term;
 	}
 
 	/**
@@ -42,26 +48,36 @@ class WPSEO_Term_Metabox_Formatter implements WPSEO_Metabox_Formatter_Interface 
 	 * @return array
 	 */
 	public function get_values() {
-		$values = array();
+		$values = [];
 
 		// Todo: a column needs to be added on the termpages to add a filter for the keyword, so this can be used in the focus keyphrase doubles.
 		if ( is_object( $this->term ) && property_exists( $this->term, 'taxonomy' ) ) {
-			$values = array(
-				'search_url'        => $this->search_url(),
-				'post_edit_url'     => $this->edit_url(),
-				'base_url'          => $this->base_url_for_js(),
-				'taxonomy'          => $this->term->taxonomy,
-				'keyword_usage'     => $this->get_focus_keyword_usage(),
-				'title_template'    => $this->get_title_template(),
-				'metadesc_template' => $this->get_metadesc_template(),
-			);
+			$values = [
+				'search_url'               => $this->search_url(),
+				'post_edit_url'            => $this->edit_url(),
+				'base_url'                 => $this->base_url_for_js(),
+				'taxonomy'                 => $this->term->taxonomy,
+				'keyword_usage'            => $this->get_focus_keyword_usage(),
+				'title_template'           => $this->get_title_template(),
+				'metadesc_template'        => $this->get_metadesc_template(),
+				'social_preview_image_url' => $this->get_image_url(),
+			];
 		}
 
 		return $values;
 	}
 
 	/**
-	 * Returns the url to search for keyword for the taxonomy
+	 * Gets the image URL for the term's social preview.
+	 *
+	 * @return string|null The image URL for the social preview.
+	 */
+	protected function get_image_url() {
+		return WPSEO_Image_Utils::get_first_content_image_for_term( $this->term->term_id );
+	}
+
+	/**
+	 * Returns the url to search for keyword for the taxonomy.
 	 *
 	 * @return string
 	 */
@@ -70,7 +86,7 @@ class WPSEO_Term_Metabox_Formatter implements WPSEO_Metabox_Formatter_Interface 
 	}
 
 	/**
-	 * Returns the url to edit the taxonomy
+	 * Returns the url to edit the taxonomy.
 	 *
 	 * @return string
 	 */
@@ -81,7 +97,7 @@ class WPSEO_Term_Metabox_Formatter implements WPSEO_Metabox_Formatter_Interface 
 	}
 
 	/**
-	 * Returns a base URL for use in the JS, takes permalink structure into account
+	 * Returns a base URL for use in the JS, takes permalink structure into account.
 	 *
 	 * @return string
 	 */
@@ -96,7 +112,7 @@ class WPSEO_Term_Metabox_Formatter implements WPSEO_Metabox_Formatter_Interface 
 	}
 
 	/**
-	 * Counting the number of given keyword used for other term than given term_id
+	 * Counting the number of given keyword used for other term than given term_id.
 	 *
 	 * @return array
 	 */

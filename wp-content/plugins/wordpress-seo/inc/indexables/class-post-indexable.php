@@ -6,14 +6,16 @@
  */
 
 /**
- * Class WPSEO_Post_Indexable
+ * Class WPSEO_Post_Indexable.
  */
 class WPSEO_Post_Indexable extends WPSEO_Indexable {
 
 	/**
-	 * @var array The updateable fields.
+	 * The updateable fields.
+	 *
+	 * @var array
 	 */
-	protected $updateable_fields = array(
+	protected $updateable_fields = [
 		'canonical',
 		'title',
 		'description',
@@ -34,12 +36,12 @@ class WPSEO_Post_Indexable extends WPSEO_Indexable {
 		'primary_focus_keyword_score',
 		'readability_score',
 		'is_cornerstone',
-	);
+	];
 
 	/**
 	 * Creates a new Indexable from a passed object.
 	 *
-	 * @param int $object_id The object id to create the object for.
+	 * @param int $object_id The object ID to create the object for.
 	 *
 	 * @return WPSEO_Indexable The indexable.
 	 *
@@ -49,12 +51,12 @@ class WPSEO_Post_Indexable extends WPSEO_Indexable {
 		$post = WPSEO_Post_Object_Type::from_object( $object_id );
 
 		$link_count = new WPSEO_Link_Column_Count();
-		$link_count->set( array( $object_id ) );
+		$link_count->set( [ $object_id ] );
 
 		$post_object_id = $post->get_id();
 
 		return new self(
-			array(
+			[
 				'object_id'                   => $post_object_id,
 				'object_type'                 => $post->get_type(),
 				'object_subtype'              => $post->get_subtype(),
@@ -82,7 +84,7 @@ class WPSEO_Post_Indexable extends WPSEO_Indexable {
 				'incoming_link_count'         => (int) $link_count->get( $post_object_id, 'incoming_link_count' ),
 				'created_at'                  => null,
 				'updated_at'                  => null,
-			)
+			]
 		);
 	}
 

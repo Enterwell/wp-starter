@@ -4,7 +4,7 @@ final class ITSEC_Backup_Settings extends ITSEC_Settings {
 	public function get_id() {
 		return 'backup';
 	}
-	
+
 	public function get_defaults() {
 		return array(
 			'all_sites' => false,
@@ -24,6 +24,7 @@ final class ITSEC_Backup_Settings extends ITSEC_Settings {
 	}
 
 	protected function handle_settings_changes( $old_settings ) {
+		parent::handle_settings_changes( $old_settings );
 
 		if ( $old_settings['enabled'] !== $this->settings['enabled'] ) {
 			if ( $this->settings['enabled'] ) {
