@@ -66,7 +66,7 @@ replace({
 replace({
     regex: 'ewplugin',
     replacement: config.pluginNameForFileNames,
-    paths: ['build.sh']
+    paths: ['build.sh', 'wp-content/plugins/ewplugin/tests/bootstrap.php']
 });
 
 // Replace webAppServerAddress in theme-config.json
