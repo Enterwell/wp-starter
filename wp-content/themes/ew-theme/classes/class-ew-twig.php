@@ -13,7 +13,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 require_once( THEME_DIR . '/classes/twig-extensions/class-ew-twig-extension-svg.php' );
 require_once( THEME_DIR . '/classes/twig-extensions/class-ew-twig-extension-image.php' );
-require_once( THEME_DIR . '/classes/twig-extensions/class-ew-twig-extension-menu.php' );
 require_once( THEME_DIR . '/classes/twig-extensions/class-ew-twig-extension-utils.php' );
 require_once( THEME_DIR . '/classes/twig-extensions/class-ew-twig-extension-localization.php' );
 
@@ -69,6 +68,10 @@ class Ew_Twig {
 	 *
 	 * @param string $path
 	 * @param array $context
+	 *
+	 * @throws \Twig_Error_Loader
+	 * @throws \Twig_Error_Runtime
+	 * @throws \Twig_Error_Syntax
 	 */
 	public function render( $path, $context ) {
 
@@ -91,8 +94,6 @@ class Ew_Twig {
 	function add_twig_extensions() {
 		// Add dump extension
 		$this->twig->addExtension( new Twig_Extension_Debug() );
-		// Add menu extension
-		$this->twig->addExtension( new Ew_Twig_Extension_Menu() );
 		// Add svg extension
 		$this->twig->addExtension( new Ew_Twig_Extension_Svg() );
 		// Add image extension

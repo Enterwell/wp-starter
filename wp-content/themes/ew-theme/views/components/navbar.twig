@@ -1,19 +1,7 @@
-{# Get menu items. #}
-{% set navbarItems = ew_get_nav_menu_items('main-navigation-menu') %}
-
-<header class="c-navbar js-modal-add-padding {{ is_admin_logged_in() ? 'admin-logged-in' : '' }}">
+<nav class="c-navbar js-modal-padding {{ is_admin_logged_in() ? 'admin-logged-in' : '' }}">
     <div class="c-container">
         <div class="navbar-logo-container">
             <span>LOGO HERE</span>
         </div>
-        {% if navbarItems|length > 0 %}
-            <div class="navbar-items-container">
-                {% for navbarItem in navbarItems %}
-                    <a href="{{ navbarItem['link'] }}" class="navbar-item">
-                        {{ navbarItem['label'] }}
-                    </a>
-                {% endfor %}
-            </div>
-        {% endif %}
     </div>
-</header>
+</nav>
