@@ -1,4 +1,5 @@
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const MinifyPlugin = require('babel-minify-webpack-plugin');
 const webpack = require('webpack');
 const autoprefixer = require('autoprefixer');
 
@@ -149,6 +150,7 @@ module.exports = {
         NODE_ENV: JSON.stringify('production')
       }
     }),
-    new webpack.optimize.UglifyJsPlugin()
+    new webpack.optimize.UglifyJsPlugin(),
+    new MinifyPlugin()
   ]
 };

@@ -52,6 +52,14 @@ class Ew_Theme {
 			$wp_admin_bar->remove_menu( 'comments' );
 		} );
 		#endregion
+
+		#region Security settings
+		// Disable XMLRPC
+		add_filter( 'xmlrpc_enabled', '__return_false' );
+
+		// Remove WP version
+		add_filter( 'the_generator', '__return_false' );
+		#endregion
 	}
 
 	/**
