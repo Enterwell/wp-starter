@@ -61,6 +61,17 @@ class Locations_Repository extends ARepository {
 	}
 
 	/**
+	 * Gets location by id.
+	 *
+	 * @param int $id
+	 *
+	 * @return Location
+	 */
+	public function get( int $id ): Location {
+		return $this->_get_single_by_field( 'id', intval( $id ), '%d' );
+	}
+
+	/**
 	 * Constructs object instance from table row and additional object data.
 	 * Additional data could be WP_Post object or any other data related
 	 * to object that is not stored in object table.

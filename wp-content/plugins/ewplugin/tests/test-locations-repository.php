@@ -53,15 +53,21 @@ class Locations_Repository_Test extends EWPlugin_Test_Case {
 	 * @throws Exception
 	 */
 	public function test_location_update() {
+		// Create new location
 		$location       = new Location();
 		$location->name = 'test';
 		$location       = $this->locations_repository->save_location( $location );
 
+		// Check if name was saved
+		$updated_location = $this->locations_repository->get( $location->id );
+		$this->assertEquals( 'test', $updated_location->name, '$location->name != "test"' );
+
+		// Update name and check if it was updated
 		$location->name = 'test2';
-		$location       = $this->locations_repository->save_location( $location );
+		$this->locations_repository->save_location( $location );
+		$updated_location = $this->locations_repository->get( $location->id );
 
 		// Test if the location was updated
-		$this->assertNotEquals( 'test', $location->name, '$location->name != "test"' );
-		$this->assertEquals( 'test2', $location->name, '$location->name == "test2"' );
+		$this->assertEquals( 'test2', $updated_location->name, '$location->name == "test2"' );
 	}
 }
