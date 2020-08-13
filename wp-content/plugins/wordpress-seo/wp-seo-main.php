@@ -15,7 +15,7 @@ if ( ! function_exists( 'add_filter' ) ) {
  * {@internal Nobody should be able to overrule the real version number as this can cause
  *            serious issues with the options, so no if ( ! defined() ).}}
  */
-define( 'WPSEO_VERSION', '14.4.1' );
+define( 'WPSEO_VERSION', '14.7' );
 
 
 if ( ! defined( 'WPSEO_PATH' ) ) {
@@ -182,6 +182,11 @@ function _wpseo_activate() {
 		$wpseo_rewrite->schedule_flush();
 	}
 
+	// Reset tracking to be disabled by default.
+	if ( ! WPSEO_Utils::is_yoast_seo_premium() ) {
+		WPSEO_Options::set( 'tracking', false );
+	}
+
 	do_action( 'wpseo_register_roles' );
 	WPSEO_Role_Manager_Factory::get()->add();
 
@@ -323,7 +328,6 @@ function wpseo_init() {
 
 	$integrations   = [];
 	$integrations[] = new WPSEO_Slug_Change_Watcher();
-	$integrations[] = new WPSEO_Structured_Data_Blocks();
 
 	foreach ( $integrations as $integration ) {
 		$integration->register_hooks();
