@@ -26,11 +26,11 @@ final class ITSEC_Ban_Users_Settings_Page extends ITSEC_Module_Settings_Page {
 ?>
 	<table class="form-table itsec-settings-section">
 		<tr>
-			<th scope="row"><label for="itsec-ban-users-default"><?php _e( 'Default Blacklist', 'better-wp-security' ); ?></label></th>
+			<th scope="row"><label for="itsec-ban-users-default"><?php _e( 'Default Ban List', 'better-wp-security' ); ?></label></th>
 			<td>
 				<?php $form->add_checkbox( 'default' ); ?>
-				<label for="itsec-ban-users-default"><?php _e( 'Enable HackRepair.com\'s blacklist feature', 'better-wp-security' ); ?></label>
-				<p class="description"><?php esc_html_e( 'As a getting-started point you can include the blacklist developed by Jim Walker.', 'better-wp-security' ); ?></p>
+				<label for="itsec-ban-users-default"><?php _e( 'Enable HackRepair.com\'s ban list feature', 'better-wp-security' ); ?></label>
+				<p class="description"><?php esc_html_e( 'As a getting-started point you can include the ban list developed by Jim Walker.', 'better-wp-security' ); ?></p>
 			</td>
 		</tr>
 		<tr>

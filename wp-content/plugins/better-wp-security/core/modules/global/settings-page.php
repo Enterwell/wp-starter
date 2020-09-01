@@ -169,15 +169,15 @@ final class ITSEC_Global_Settings_Page extends ITSEC_Module_Settings_Page {
 				</td>
 			</tr>
 			<tr>
-				<th scope="row"><label for="itsec-global-blacklist"><?php _e( 'Blacklist Repeat Offender', 'better-wp-security' ); ?></label></th>
+				<th scope="row"><label for="itsec-global-blacklist"><?php _e( 'Ban Repeat Offender', 'better-wp-security' ); ?></label></th>
 				<td>
 					<?php $form->add_checkbox( 'blacklist' ); ?>
-					<label for="itsec-global-blacklist"><?php _e( 'Enable Blacklist Repeat Offender', 'better-wp-security' ); ?></label>
-					<p class="description"><?php _e( 'If this box is checked the IP address of the offending computer will be added to the "Ban Users" blacklist after reaching the number of lockouts listed below.', 'better-wp-security' ); ?></p>
+					<label for="itsec-global-blacklist"><?php _e( 'Enable Ban Repeat Offender', 'better-wp-security' ); ?></label>
+					<p class="description"><?php _e( 'If this box is checked the IP address of the offending computer will be added to the "Ban Users" list after reaching the number of lockouts listed below.', 'better-wp-security' ); ?></p>
 				</td>
 			</tr>
 			<tr>
-				<th scope="row"><label for="itsec-global-blacklist_count"><?php _e( 'Blacklist Threshold', 'better-wp-security' ); ?></label></th>
+				<th scope="row"><label for="itsec-global-blacklist_count"><?php _e( 'Ban Threshold', 'better-wp-security' ); ?></label></th>
 				<td>
 					<?php $form->add_text( 'blacklist_count', array( 'class' => 'small-text' ) ); ?>
 					<label for="itsec-global-blacklist_count"><?php _e( 'Lockouts', 'better-wp-security' ); ?></label>
@@ -185,11 +185,11 @@ final class ITSEC_Global_Settings_Page extends ITSEC_Module_Settings_Page {
 				</td>
 			</tr>
 			<tr>
-				<th scope="row"><label for="itsec-global-blacklist_period"><?php _e( 'Blacklist Lookback Period', 'better-wp-security' ); ?></label></th>
+				<th scope="row"><label for="itsec-global-blacklist_period"><?php _e( 'Ban Lookback Period', 'better-wp-security' ); ?></label></th>
 				<td>
 					<?php $form->add_text( 'blacklist_period', array( 'class' => 'small-text' ) ); ?>
 					<label for="itsec-global-blacklist_period"><?php _e( 'Days', 'better-wp-security' ); ?></label>
-					<p class="description"><?php _e( 'How many days should a lockout be remembered to meet the blacklist count above.', 'better-wp-security' ); ?></p>
+					<p class="description"><?php _e( 'How many days should a lockout be remembered to meet the ban threshold above.', 'better-wp-security' ); ?></p>
 				</td>
 			</tr>
 			<tr>
@@ -197,18 +197,18 @@ final class ITSEC_Global_Settings_Page extends ITSEC_Module_Settings_Page {
 				<td>
 					<?php $form->add_text( 'lockout_period', array( 'class' => 'small-text' ) ); ?>
 					<label for="itsec-global-lockout_period"><?php _e( 'Minutes', 'better-wp-security' ); ?></label>
-					<p class="description"><?php _e( 'The length of time a host or user will be banned from this site after hitting the limit of bad logins. The default setting of 15 minutes is recommended as increasing it could prevent attacking IP addresses from being added to the blacklist.', 'better-wp-security' ); ?></p>
+					<p class="description"><?php _e( 'The length of time a host or user will be banned from this site after hitting the limit of bad logins. The default setting of 15 minutes is recommended as increasing it could prevent attacking IP addresses from being banned.', 'better-wp-security' ); ?></p>
 				</td>
 			</tr>
 			<tr>
-				<th scope="row"><label for="itsec-global-lockout_white_list"><?php _e( 'Lockout White List', 'better-wp-security' ); ?></label></th>
+				<th scope="row"><label for="itsec-global-lockout_white_list"><?php _e( 'Authorized Hosts List', 'better-wp-security' ); ?></label></th>
 				<td>
 					<?php $form->add_textarea( 'lockout_white_list' ); ?>
-					<p><?php $form->add_button( 'add-to-whitelist', array( 'value' => __( 'Add my current IP to the White List', 'better-wp-security' ), 'class' => 'button-primary' ) ); ?></p>
-					<p class="description"><?php _e( 'Use the guidelines below to enter hosts that will not be locked out from your site. This will keep you from locking yourself out of any features if you should trigger a lockout. Please note this does not override away mode and will only prevent a temporary ban. Should a permanent ban be triggered you will still be added to the "Ban Users" list unless the IP address is also white listed in that section.', 'better-wp-security' ); ?></p>
+					<p><?php $form->add_button( 'add-to-whitelist', array( 'value' => __( 'Add my current IP to the Authorized Hosts List', 'better-wp-security' ), 'class' => 'button-primary' ) ); ?></p>
+					<p class="description"><?php _e( 'Use the guidelines below to enter hosts that will not be locked out from your site. This will keep you from locking yourself out of any features if you should trigger a lockout. Please note this does not override away mode.', 'better-wp-security' ); ?></p>
 					<ul>
 						<li>
-							<?php _e( 'You may white list users by individual IP address or IP address range using wildcards or CIDR notation.', 'better-wp-security' ); ?>
+							<?php _e( 'You can add authorized users by individual IP address or IP address range using wildcards or CIDR notation.', 'better-wp-security' ); ?>
 							<ul>
 								<li><?php _e( 'Individual IP addresses must be in IPv4 or IPv6 standard format (###.###.###.### or ####:####:####:####:####:####:####:####).', 'better-wp-security' ); ?></li>
 								<li><?php _e( 'CIDR notation is allowed to specify a range of IP addresses (###.###.###.###/## or ####:####:####:####:####:####:####:####/###).', 'better-wp-security' ); ?></li>
@@ -218,9 +218,6 @@ final class ITSEC_Global_Settings_Page extends ITSEC_Module_Settings_Page {
 						<li><?php _e( 'Enter only 1 IP address or 1 IP address range per line.', 'better-wp-security' ); ?></li>
 					</ul>
 					<p><a href="<?php echo esc_url( ITSEC_Lib::get_trace_ip_link() ); ?>" target="_blank" rel="noopener noreferrer"><?php _e( 'Lookup IP Address.', 'better-wp-security' ); ?></a></p>
-					<p class="description">
-						<strong><?php _e( 'This white list will prevent any IP listed from triggering an automatic lockout. You can still block the IP address manually in the banned users settings.', 'better-wp-security' ); ?></strong>
-					</p>
 				</td>
 			</tr>
 			<tr>

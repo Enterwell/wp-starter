@@ -220,6 +220,24 @@ abstract class ITSEC_Scheduler {
 		 * @param ITSEC_Scheduler $this
 		 */
 		do_action( 'itsec_scheduler_register_events', $this );
+		$this->register_events_for_module( ':active' );
+	}
+
+	/**
+	 * Registers events for a given module using the "scheduling.php" module file.
+	 *
+	 * @param string $module
+	 */
+	public function register_events_for_module( $module ) {
+		ITSEC_Modules::load_module_file( 'scheduling.php', $module, function ( $fn ) {
+			if ( ! is_callable( $fn ) ) {
+				_doing_it_wrong( 'scheduling.php', __( 'An iThemes Security module\'s scheduling.php file must return a callable.', 'better-wp-security' ), '5.8.0' );
+
+				return;
+			}
+
+			$fn( $this );
+		} );
 	}
 
 	/**

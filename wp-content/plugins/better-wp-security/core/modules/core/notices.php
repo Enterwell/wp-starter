@@ -3,7 +3,7 @@
 class ITSEC_Admin_Notice_New_Feature_Core implements ITSEC_Admin_Notice {
 
 	public function get_id() {
-		return 'release-user-groups';
+		return 'release-site-scanner';
 	}
 
 	public function get_title() {
@@ -11,9 +11,16 @@ class ITSEC_Admin_Notice_New_Feature_Core implements ITSEC_Admin_Notice {
 	}
 
 	public function get_message() {
+		if ( ITSEC_Core::is_pro() ) {
+			return sprintf(
+				esc_html__( 'The new, improved %1$sWordPress Security Site Scan%2$s powered by iThemes performs automatic checks for known website vulnerabilities and, if a patch is available, iThemes Security Pro will now automatically apply the fix for you.', 'better-wp-security' ),
+				'<a href="{{ $blog }}">',
+				'</a>'
+			);
+		}
+
 		return sprintf(
-			esc_html__( 'New in iThemes Security version %1$s, %2$sSave Time Securing WordPress With User Groups%3$s!', 'better-wp-security' ),
-			ITSEC_Core::is_pro() ? '6.4.0' : '7.7.0',
+			esc_html__( 'The new, improved %1$sWordPress Security Site Scan powered by iThemes checks if Google has detected malware and added your site to their threat list', 'better-wp-security' ),
 			'<a href="{{ $blog }}">',
 			'</a>'
 		);
@@ -40,7 +47,7 @@ class ITSEC_Admin_Notice_New_Feature_Core implements ITSEC_Admin_Notice {
 				function () {
 					$this->handle_dismiss();
 
-					wp_redirect( 'https://ithemes.com/new-save-time-securing-wordpress-with-user-groups' );
+					wp_redirect( 'https://ithemes.com/new-protect-your-wordpress-website-with-the-ithemes-security-site-scan/' );
 					die;
 				}
 			)

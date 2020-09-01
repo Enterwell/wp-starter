@@ -98,9 +98,11 @@ class ITSEC_Lib_Remote_Messages {
 			return new WP_Error( 'invalid_json', __( 'Invalid json response.', 'better-wp-security' ) );
 		}
 
+		$sanitized = self::sanitize_response( $json );
+
 		update_site_option( self::OPTION, array(
-			'response'  => self::sanitize_response( $json ),
-			'ttl'       => $json['ttl'],
+			'response'  => $sanitized,
+			'ttl'       => $sanitized['ttl'],
 			'requested' => ITSEC_Core::get_current_time_gmt(),
 		) );
 
@@ -123,6 +125,7 @@ class ITSEC_Lib_Remote_Messages {
 		) );
 
 		$sanitized = array(
+			'ttl'      => absint( $json['ttl'] ),
 			'messages' => array(),
 			'features' => array(),
 			'actions'  => wp_parse_slug_list( $json['actions'] ),
@@ -138,8 +141,9 @@ class ITSEC_Lib_Remote_Messages {
 
 		foreach ( $json['features'] as $feature => $f_config ) {
 			$sanitized['features'][ $feature ] = [
-				'rate'     => isset( $f_config['rate'] ) ? (int) $f_config['rate'] : false,
-				'disabled' => ! empty( $f_config['disabled'] ),
+				'rate'         => isset( $f_config['rate'] ) ? (int) $f_config['rate'] : false,
+				'disabled'     => ! empty( $f_config['disabled'] ),
+				'requirements' => isset( $f_config['requirements'] ) && is_array( $f_config['requirements'] ) ? $f_config['requirements'] : [],
 			];
 		}
 

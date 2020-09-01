@@ -25,7 +25,8 @@
       "lib"
     ],
     "exclude-from-classmap": [
-      "lib/itsec-zxcvbn-php"
+      "lib/itsec-zxcvbn-php",
+      "modules/pro"
     ]
   }
 }

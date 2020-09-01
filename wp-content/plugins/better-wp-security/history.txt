@@ -886,3 +886,15 @@
 	Bug Fix: Warning when loading the debug page on PHP 7.4.
 7.7.1 - 2020-04-20 - Timothy Jacobs
 	Bug Fix: PHP warning when evaluating password requirements.
+7.8.0 - 2020-08-13 - Timothy Jacobs
+	New Feature: The new, improved WordPress Security Site Scan powered by iThemes checks if Google has detected malware and added your site to their threat list.
+	Enhancement: Remove quick bans. Persist banned hosts to .htaccess or nginx.conf on an hourly schedule.
+	Tweak: Cap banned hosts persisted to .htaccess or nginx.conf to the most recent 100. This number can be adjusted with the "itsec_ban_users_max_hosts_for_server_config" filter. Older banned hosts will be locked out after WordPress loads.
+	Tweak: Ensure randomly generated passwords are considered strong by the Strong Passwords library.
+	Tweak: Suggest a 32 character password when forcing a password change.
+	Tweak: Change insensitive language to be more inclusive.
+	Bug Fix: PHP warning when a user's email address is updated outside of the user edit admin page.
+	Bug Fix: Fix login interstitials on WP Engine when using a front-end login form.
+	Bug Fix: PHP warning when checking opaque tokens.
+	Bug Fix: PHP warning after successfully connecting a site to iThemes Sync via the login connection flow.
+	Bug Fix: File Change Security Message would not appear for new installs.

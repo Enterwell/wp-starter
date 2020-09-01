@@ -7,6 +7,9 @@ class ITSEC_REST {
 		add_filter( 'rest_namespace_index', array( $this, 'modify_index' ) );
 		add_filter( 'rest_user_collection_params', [ $this, 'register_global_users_query' ] );
 		add_filter( 'rest_user_query', [ $this, 'apply_global_users_query' ], 10, 2 );
+		add_filter( 'rest_request_from_url', [ $this, 'retain_auth_header_from_embeds' ] );
+		add_filter( 'itsec_filter_apache_server_config_modification', [ $this, 'add_htaccess_authorization_header' ] );
+		add_filter( 'itsec_filter_litespeed_server_config_modification', [ $this, 'add_htaccess_authorization_header' ] );
 	}
 
 	/**
@@ -99,5 +102,37 @@ class ITSEC_REST {
 		}
 
 		return $prepared_args;
+	}
+
+	/**
+	 * Retain the authorization header when doing internal embed requests.
+	 *
+	 * @param WP_REST_Request $request
+	 *
+	 * @return WP_REST_Request
+	 */
+	public function retain_auth_header_from_embeds( $request ) {
+		$headers = rest_get_server()->get_headers( $_SERVER );
+
+		if ( isset( $headers['AUTHORIZATION'] ) && 0 === strpos( $request->get_route(), '/ithemes-security/v1/' ) ) {
+			$request->add_header( 'Authorization', $headers['AUTHORIZATION'] );
+		}
+
+		return $request;
+	}
+
+	public function add_htaccess_authorization_header( $rules ) {
+		$rules .= "\n";
+		$rules .= "\t# " . __( 'Pass through Authorization header.', 'better-wp-security' ) . "\n";
+		$rules .= <<<'APACHE'
+	<IfModule mod_rewrite.c>
+		RewriteEngine On
+		RewriteCond %{HTTP:Authorization} ^(.*)
+		RewriteRule .* - [e=HTTP_AUTHORIZATION:%1]
+	</IfModule>
+APACHE;
+		$rules .= "\n";
+
+		return $rules;
 	}
 }

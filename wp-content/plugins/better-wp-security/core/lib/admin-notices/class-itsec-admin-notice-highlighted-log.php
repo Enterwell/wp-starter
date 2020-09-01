@@ -104,7 +104,7 @@ class ITSEC_Admin_Notice_Highlighted_Log implements ITSEC_Admin_Notice {
 			);
 		}
 
-		return $actions;
+		return apply_filters( "itsec_highlighted_log_{$this->highlight_id}_actions", $actions, $this->log );
 	}
 
 	public function _handle_mute( WP_User $user, array $data ) {

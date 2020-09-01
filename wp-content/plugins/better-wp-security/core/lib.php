@@ -2055,4 +2055,61 @@ final class ITSEC_Lib {
 
 		return $wp_error;
 	}
+
+	/**
+	 * Evaluate whether this site passes the given requirements.
+	 *
+	 * @param array $requirements
+	 *
+	 * @return WP_Error
+	 */
+	public static function evaluate_requirements( array $requirements ) {
+		$schema = [
+			'type'                 => 'object',
+			'additionalProperties' => false,
+			'properties'           => [
+				'version' => [
+					'type'                 => 'object',
+					'additionalProperties' => false,
+					'properties'           => [
+						'pro'  => [
+							'type'     => 'string',
+							'required' => true,
+						],
+						'free' => [
+							'type'     => 'string',
+							'required' => true,
+						],
+					],
+				],
+			],
+		];
+
+		$valid_requirements = rest_validate_value_from_schema( $requirements, $schema );
+
+		if ( is_wp_error( $valid_requirements ) ) {
+			return $valid_requirements;
+		}
+
+		$error = new WP_Error();
+
+		foreach ( $requirements as $kind => $requirement ) {
+			switch ( $kind ) {
+				case 'version':
+					$key     = ITSEC_Core::is_pro() ? 'pro' : 'free';
+					$version = $requirement[ $key ];
+
+					if ( version_compare( ITSEC_Core::get_plugin_version(), $version, '<' ) ) {
+						$error->add(
+							'version',
+							sprintf( __( 'Must be running at least version %s of iThemes Security.', 'better-wp-security' ), $version )
+						);
+					}
+
+					break;
+			}
+		}
+
+		return $error;
+	}
 }

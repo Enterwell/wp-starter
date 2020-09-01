@@ -110,7 +110,10 @@ class ITSEC_Sync_Connect_Interstitial extends ITSEC_Login_Interstitial {
 		require_once( WP_PLUGIN_DIR . '/ithemes-sync/settings.php' );
 		$GLOBALS['ithemes-sync-settings']->add_authentication( $response['site_id'], $response['username'], $response['key'], $user->user_login );
 
-		ITSEC_Log::add_notice( 'sync_connect', 'successful_authentication::' . $user->ID, compact( 'post_data' ), compact( 'site_id' ) );
+		ITSEC_Log::add_notice( 'sync_connect', 'successful_authentication::' . $user->ID, [
+			'post_data' => $post_data,
+			'site_id'   => $response['site_id'],
+		] );
 
 		wp_redirect( $this->sync_dashboard . $response['site_id'] );
 		exit;

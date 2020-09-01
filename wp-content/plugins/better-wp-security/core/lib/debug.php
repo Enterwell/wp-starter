@@ -1,11 +1,17 @@
 <?php
 
 final class ITSEC_Debug {
-	public static function print_r( $data, $args = array() ) {
-		echo "<style>.wp-admin .it-debug-print-r { margin-left: 170px; } .wp-admin #wpcontent .it-debug-print-r { margin-left: 0; }</style>\n";
-		echo "<pre style='color:black;background:white;padding:15px;font-family:\"Courier New\",Courier,monospace;font-size:12px;white-space:pre-wrap;text-align:left;max-width:100%;' class='it-debug-print-r'>";
-		echo self::get_print_r( $data, $args );
-		echo "</pre>\n";
+	public static function print_r( $data, $args = array(), $echo = true ) {
+		$html = "<style>.wp-admin .it-debug-print-r { margin-left: 170px; } .wp-admin #wpcontent .it-debug-print-r { margin-left: 0; }</style>\n";
+		$html .= "<pre style='color:black;background:white;padding:15px;font-family:\"Courier New\",Courier,monospace;font-size:12px;white-space:pre-wrap;text-align:left;max-width:100%;' class='it-debug-print-r'>";
+		$html .= self::get_print_r( $data, $args );
+		$html .= "</pre>\n";
+
+		if ( $echo ) {
+			echo $html;
+		}
+
+		return $html;
 	}
 
 	public static function get_print_r( $data, $args = array() ) {

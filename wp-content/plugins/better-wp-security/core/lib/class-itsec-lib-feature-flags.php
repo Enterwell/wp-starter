@@ -42,9 +42,31 @@ class ITSEC_Lib_Feature_Flags {
 			'title'         => '',
 			'description'   => '',
 			'documentation' => '',
+			'requirements'  => [],
 		) );
 
 		return true;
+	}
+
+	/**
+	 * Is the given flag available to be enabled.
+	 *
+	 * @param string $flag
+	 *
+	 * @return bool
+	 */
+	public static function is_available( $flag ) {
+		if ( ! $config = self::get_flag_config( $flag ) ) {
+			return false;
+		}
+
+		if ( ! $config['requirements'] ) {
+			return true;
+		}
+
+		$error = ITSEC_Lib::evaluate_requirements( $config['requirements'] );
+
+		return ! $error->has_errors();
 	}
 
 	/**
@@ -53,6 +75,17 @@ class ITSEC_Lib_Feature_Flags {
 	 * @return array
 	 */
 	public static function get_available_flags() {
+		$flags = self::get_registered_flags();
+
+		return array_filter( $flags, [ __CLASS__, 'is_available' ], ARRAY_FILTER_USE_KEY );
+	}
+
+	/**
+	 * Get a list of all registered flags.
+	 *
+	 * @return array
+	 */
+	public static function get_registered_flags() {
 		self::load();
 
 		$flags = array();
@@ -90,6 +123,10 @@ class ITSEC_Lib_Feature_Flags {
 	 */
 	public static function is_enabled( $flag ) {
 		if ( ! $config = self::get_flag_config( $flag ) ) {
+			return false;
+		}
+
+		if ( ! self::is_available( $flag ) ) {
 			return false;
 		}
 
@@ -147,6 +184,12 @@ class ITSEC_Lib_Feature_Flags {
 	public static function get_reason( $flag ) {
 		if ( ! $config = self::get_flag_config( $flag ) ) {
 			return [ 'unknown', __( 'Unknown flag' ) ];
+		}
+
+		if ( ! self::is_available( $flag ) ) {
+			$evaluation = ITSEC_Lib::evaluate_requirements( $config['requirements'] );
+
+			return [ 'requirements', $evaluation->get_error_message() ];
 		}
 
 		if ( defined( 'ITSEC_FF_' . $flag ) ) {
