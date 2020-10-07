@@ -13,7 +13,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Async dependencies
  */
-const Select = lazy( () => import( 'react-select/lib/Async' ) );
+const Select = lazy( () => import( 'react-select/Async' ) );
 
 function LoadError() {
 	return ( <span>{ __( 'Error when loading. Please refresh.', 'better-wp-security' ) }</span> );

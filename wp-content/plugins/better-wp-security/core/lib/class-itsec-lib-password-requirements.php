@@ -50,24 +50,32 @@ class ITSEC_Lib_Password_Requirements {
 			( array_key_exists( 'validate', $opts ) || array_key_exists( 'evaluate', $opts ) ) &&
 			( ! is_callable( $merged['validate'] ) || ! is_callable( $merged['evaluate'] ) )
 		) {
+			_doing_it_wrong( __METHOD__, 'Validate and evaluate must be callable if defined.', '5.8.0' );
 			return;
 		}
 
 		if ( array_key_exists( 'flag_check', $opts ) && ! is_callable( $merged['flag_check'] ) ) {
+			_doing_it_wrong( __METHOD__, 'Flag check must be callable if defined.', '5.8.0' );
+
 			return;
 		}
 
 		if ( array_key_exists( 'defaults', $opts ) ) {
 			if ( ! is_array( $merged['defaults'] ) ) {
+				_doing_it_wrong( __METHOD__, 'Defaults must be an array if defined.', '5.8.0' );
 				return;
 			}
 
 			if ( ! array_key_exists( 'settings_config', $opts ) ) {
+				_doing_it_wrong( __METHOD__, 'Settings config must be defined if defaults are provided.', '5.8.0' );
+
 				return;
 			}
 		}
 
 		if ( array_key_exists( 'settings_config', $opts ) && ! is_callable( $merged['settings_config'] ) ) {
+			_doing_it_wrong( __METHOD__, 'Settings config must be a callable if defined.', '5.8.0' );
+
 			return;
 		}
 

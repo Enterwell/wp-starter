@@ -41,6 +41,7 @@ final class ITSEC_Global_Settings_New extends ITSEC_Settings {
 			'server_ips'                => array(),
 			'feature_flags'             => array(),
 			'manage_group'              => array(),
+			'licensed_hostname_prompt'  => false,
 		);
 	}
 

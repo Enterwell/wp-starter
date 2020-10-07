@@ -38,10 +38,7 @@ class ITSEC_File_Change {
 		add_action( 'itsec_scheduled_file-change-fast', array( $this, 'run_scan' ) );
 		ITSEC_Core::get_scheduler()->register_loop( 'file-change', ITSEC_Scheduler::S_DAILY, 60 );
 		ITSEC_Core::get_scheduler()->register_loop( 'file-change-fast', ITSEC_Scheduler::S_DAILY, 0 );
-
-		if ( ITSEC_Modules::get_setting( 'file-change', 'notify_admin' ) ) {
-			add_action( 'itsec_register_highlighted_logs', array( $this, 'register_highlight' ) );
-		}
+		add_action( 'itsec_register_highlighted_logs', array( $this, 'register_highlight' ) );
 	}
 
 	public function run_scan( $job ) {

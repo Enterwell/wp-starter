@@ -34,6 +34,7 @@ class ITSEC_Email_Confirmation {
 		$change = get_user_meta( $user->ID, '_new_email', true );
 
 		if (
+			defined( 'IS_PROFILE_PAGE' ) &&
 			IS_PROFILE_PAGE &&
 			! empty( $_GET['newuseremail'] ) &&
 			is_array( $change ) &&

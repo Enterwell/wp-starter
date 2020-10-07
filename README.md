@@ -69,3 +69,28 @@ U rootu projekta imamo bash skriptu `build.sh` koja:
     - buildati javascript i css teme `yarn build`
     - očistiti build folder
     - u folder kopirati sve fileove koji su potrebni na serveru
+
+# Plugin testovi
+Prije korištenja testova pročitajmo [ovo o WP testovima](https://make.wordpress.org/cli/handbook/misc/plugin-unit-tests/)
+
+Plugin testovi se pišu u folderu `/wp-content/plugins/ewplugin/tests`. Postoji primjer testova
+za `Locations_Repository`. Bitno je da testiramo:
+- **Repozitorije** - da provjerimo spremaju li se stvari na način koji očekujemo. Potrebno je testirati
+sve metode repozitorija koje imamo.
+- **Servise** - da provjerimo radi li nam validacija i pozivanje repozitorija kako treba. Potrebno je
+testirati sve metode servisa.
+
+Testovi se pokreću naredbom (prethodno se pozicioniramo u folder plugina):
+```
+php phpunit.phar
+```
+
+Testovi extendaju `EWPlugin_Test_Case`, to je helper klasa koja extenda WordPressov `WP_UnitTestCase` i samo
+prije svake klase testova poziva naš aktivator (koji onda pravi naše tablice u bazi), a nakon svake test
+klase poziva deaktivatora.
+Testovi su standardni WordPress-ovi a konfiguracija za testnu bazu se nalazi u fileu 
+`tests/tmp/wp-tests-config.php`.
+
+**Testovi moraju imati svoju bazu i nikad se ne smije konfigurirati da testovi koriste istu bazu kao naša stranica
+(zbog brisanja baze)**
+

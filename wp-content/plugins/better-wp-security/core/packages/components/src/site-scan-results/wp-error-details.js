@@ -8,10 +8,9 @@ import { Fragment } from '@wordpress/element';
  * Internal dependencies
  */
 import WrappedSection from './wrapped-section';
-import { castWPError } from '@ithemes/security-utils';
 
 function WPErrorDetails( { results, showErrorDetails = false } ) {
-	const wpError = castWPError( results );
+	const wpError = results;
 
 	return (
 		<WrappedSection status="error" description={ __( 'The scan failed to properly scan the site.', 'better-wp-security' ) }>

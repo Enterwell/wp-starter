@@ -58,22 +58,22 @@ class EWPlugin_Activator {
 		$charset_collate = $wpdb->get_charset_collate();
 
 		// Get table names.
-		$events_table    = "{$wp_prefix}ew_events";
-		$locations_table = "{$wp_prefix}ew_locations";
+		$user_applications_table = "{$wp_prefix}user_applications";
 
 		return [
-			"CREATE TABLE {$events_table} (
-				id BIGINT UNSIGNED NOT NULL,				
-				start_date VARCHAR(64),
-				end_date VARCHAR(64),
+			"CREATE TABLE {$user_applications_table} (
+				id BIGINT UNSIGNED NOT NULL auto_increment,	
+				date_created VARCHAR(128) NOT NULL,			
+				first_name VARCHAR(256),
+				last_name VARCHAR(256),
+				email VARCHAR(256),
+				phone VARCHAR(256),
+				street_and_number VARCHAR(256),
+				city VARCHAR(256),
+				postal_code VARCHAR(64),
+				invoice_file TEXT,
 			    PRIMARY KEY  id (id)
-			) {$charset_collate};",
-
-			"CREATE TABLE {$locations_table} (
-				id BIGINT UNSIGNED NOT NULL auto_increment,
-				location_name VARCHAR(128),
-			    PRIMARY KEY  id (id)
-			) {$charset_collate};",
+			) {$charset_collate};"
 		];
 	}
 }

@@ -117,21 +117,25 @@ class EWPlugin {
 		 */
 		require_once PLUGIN_DIR . '/vendor/autoload.php';
 
+		// Load exceptions
+		require_once PLUGIN_DIR . 'exceptions/class-validation-exception.php';
+
+		// Load helpers
+		require_once PLUGIN_DIR . 'helpers/class-random-values-helper.php';
+
 		// Load classes
-		require_once PLUGIN_DIR . 'classes/class-event.php';
-		require_once PLUGIN_DIR . 'classes/class-location.php';
+		require_once PLUGIN_DIR . 'classes/class-user-application.php';
+
+		// Load repositories
+		require_once PLUGIN_DIR . 'repositories/class-user-applications-repository.php';
+
+		// Load services
+		require_once PLUGIN_DIR . 'services/class-files-service.php';
+		require_once PLUGIN_DIR . 'services/class-user-applications-service.php';
 
 		// Load controllers
 		require_once PLUGIN_DIR . 'controllers/class-aewplugin-controller.php';
-		require_once PLUGIN_DIR . 'controllers/class-locations-controller.php';
-
-		// Load repositories
-		require_once PLUGIN_DIR . 'repositories/class-events-repository.php';
-		require_once PLUGIN_DIR . 'repositories/class-locations-repository.php';
-
-		// Load services
-		require_once PLUGIN_DIR . 'services/class-events-service.php';
-		require_once PLUGIN_DIR . 'services/class-locations-service.php';
+		require_once PLUGIN_DIR . 'controllers/class-user-applications-controller.php';
 
 		$this->loader = new EWPlugin_Loader();
 
@@ -184,17 +188,18 @@ class EWPlugin {
 	 * @since 1.0.0
 	 */
 	private function initialize_post_types() {
-		Event::load_class( $this->loader );
+		// Init all custom post types.
 	}
 
 	/**
 	 * Initializes all custom REST API controllers.
 	 *
 	 * @since 1.0.0
+	 * @throws \Exception
 	 */
 	private function init_controllers() {
 		$controllers = [
-			new Locations_Controller()
+			new User_Applications_Controller()
 		];
 
 		foreach ( $controllers as $controller ) {

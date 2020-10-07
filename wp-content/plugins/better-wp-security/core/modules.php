@@ -21,6 +21,7 @@ final class ITSEC_Modules {
 	private $_settings_files_loaded = false;
 	private $loaded_containers = [];
 	private $labels = array();
+	private $returned_files = array();
 
 	/** @var Container */
 	private $pimple;
@@ -484,6 +485,8 @@ final class ITSEC_Modules {
 		$self->_active_modules[ $module_id ] = true;
 		self::set_active_modules( $self->_active_modules );
 
+		ITSEC_Core::get_scheduler()->register_events_for_module( $module_id );
+
 		return $was_active;
 	}
 
@@ -606,7 +609,12 @@ final class ITSEC_Modules {
 					continue;
 				}
 
-				$returned = include_once( $path );
+				if ( array_key_exists( $path, $self->returned_files ) ) {
+					$returned = $self->returned_files[ $path ];
+				} else {
+					$returned = include_once( $path );
+					$self->returned_files[ $path ] = $returned;
+				}
 			}
 
 			if ( $returned ) {
@@ -650,6 +658,12 @@ final class ITSEC_Modules {
 	 * Initialize the container.
 	 */
 	public static function initialize_container() {
+		$load = require __DIR__ . '/container.php';
+
+		if ( is_callable( $load ) ) {
+			$load( self::get_instance()->pimple );
+		}
+
 		foreach ( self::get_active_modules_to_run() as $module ) {
 			self::get_instance()->load_container_definitions( $module );
 		}

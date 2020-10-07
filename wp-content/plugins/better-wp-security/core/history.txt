@@ -879,3 +879,24 @@
 	Bug Fix: PHP warning if downgrading from Pro to Free.
 5.7.5 - 2020-04-20 - Timothy Jacobs
 	Bug Fix: PHP warning when evaluating password requirements.
+5.7.6 - 2020-05-18 - Timothy Jacobs
+	Tweak: Ensure randomly generated passwords are considered strong by the Strong Passwords library.
+	Tweak: Suggest a 32 character password when forcing a password change.
+	Bug Fix: PHP warning when a user's email address is updated outside of the user edit admin page.
+	Bug Fix: Fix login interstitials on WP Engine when using a front-end login form.
+	Bug Fix: PHP warning when checking opaque tokens.
+	Bug Fix: PHP warning after succesfully connecting a site to iThemes Sync via the login connection flow.
+5.8.0 - 2020-06-10 - Timothy Jacobs
+	New Feature: The new, improved WordPress Security Site Scan powered by iThemes checks if Google has detected malware and added your site to their blacklist
+	Enhancement: Remove quick bans. Persist banned hosts to .htaccess or nginx.conf on an hourly schedule.
+	Tweak: Cap banned hosts persisted to .htaccess or nginx.conf to the most recent 100. This number can be adjusted with the "itsec_ban_users_max_hosts_for_server_config" filter. Older banned hosts will be locked out after WordPress loads.
+	Bug Fix: File Change Security Message would not appear for new installs.
+5.8.1 - 2020-07-08 - Timothy Jacobs
+	Tweak: Update site scanner notification language to be less alarming.
+	Tweak: Change insensitive language to be more inclusive.
+5.8.2 - 2020-08-06 - Timothy Jacobs
+	Enhancement: Make the Site Scanner Report a configurable admin notice.
+	Tweak: Add a security message if a user needs to update their license information.
+	Tweak: Check if a licensed user is defined when checking license status.
+	Tweak: Use an opaque token for site scan verification to reduce invalid secret errors.
+	Bug Fix: Error when trying to run Security Check on new installations.

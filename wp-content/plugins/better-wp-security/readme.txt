@@ -2,8 +2,8 @@
 Contributors: ithemes, chrisjean, mattdanner, timothyblynjacobs
 Tags: security, security plugin, malware, hack, secure, block, SSL, admin, htaccess, lockdown, login, protect, protection, anti virus, attack, injection, login security, maintenance, permissions, prevention, authentication, administration, password, brute force, ban, permissions, bots, user agents, xml rpc, security log
 Requires at least: 5.2
-Tested up to: 5.4
-Stable tag: 7.7.1
+Tested up to: 5.5
+Stable tag: 7.8.0
 Requires PHP: 5.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -43,9 +43,9 @@ Pro Features:
 * wp-cli Integration - Manage your site's security from the command line.
 
 
-= iThemes Sync Integration =
+= iThemes Sync Pro Integration =
 
-Manage more than one WordPress site? Manage Away Mode, release lockouts and keep your themes, plugins and WordPress core up to date from one dashboard with iThemes Sync. <a href="http://ithemes.com/sync/">Start managing 10 WordPress sites for free with iThemes Sync</a>.
+Manage more than one WordPress site? Manage Away Mode, release lockouts and keep your themes, plugins and WordPress core up to date from one dashboard with iThemes Sync Pro. <a href="https://ithemes.com/sync/">Start your free trial of Themes Sync Pro</a>.
 
 = iThemes Brute Force Attack Protection Network =
 
@@ -188,6 +188,19 @@ Free support may be available with the help of the community in the <a href="htt
 5. Free malware scan powered by Sucuri SiteCheck.
 
 == Changelog ==
+
+= 7.8.0 =
+* New Feature: The new, improved WordPress Security Site Scan powered by iThemes checks if Google has detected malware and added your site to their threat list.
+* Enhancement: Remove quick bans. Persist banned hosts to .htaccess or nginx.conf on an hourly schedule.
+* Tweak: Cap banned hosts persisted to .htaccess or nginx.conf to the most recent 100. This number can be adjusted with the "itsec_ban_users_max_hosts_for_server_config" filter. Older banned hosts will be locked out after WordPress loads.
+* Tweak: Ensure randomly generated passwords are considered strong by the Strong Passwords library.
+* Tweak: Suggest a 32 character password when forcing a password change.
+* Tweak: Change insensitive language to be more inclusive.
+* Bug Fix: PHP warning when a user's email address is updated outside of the user edit admin page.
+* Bug Fix: Fix login interstitials on WP Engine when using a front-end login form.
+* Bug Fix: PHP warning when checking opaque tokens.
+* Bug Fix: PHP warning after successfully connecting a site to iThemes Sync via the login connection flow.
+* Bug Fix: File Change Security Message would not appear for new installs.
 
 = 7.7.1 =
 * Bug Fix: PHP warning when evaluating password requirements.
@@ -593,5 +606,5 @@ Free support may be available with the help of the community in the <a href="htt
 
 == Upgrade Notice ==
 
-= 7.7.1 =
-Version 7.7.1 contains bug fixes. It is recommended for all users.
+= 7.8.0 =
+Version 7.8.0 contains new features and bug fixes. It is recommended for all users.

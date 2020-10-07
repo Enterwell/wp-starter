@@ -6,18 +6,18 @@ final class ITSEC_404_Detection_Settings_Page extends ITSEC_Module_Settings_Page
 		$this->title = __( '404 Detection', 'better-wp-security' );
 		$this->description = __( 'Automatically block users snooping around for pages to exploit.', 'better-wp-security' );
 		$this->type = 'recommended';
-		
+
 		parent::__construct();
 	}
-	
+
 	protected function render_description( $form ) {
-		
+
 ?>
 	<p><?php _e( '404 detection looks at a user who is hitting a large number of non-existent pages and getting a large number of 404 errors. 404 detection assumes that a user who hits a lot of 404 errors in a short period of time is scanning for something (presumably a vulnerability) and locks them out accordingly. This also gives the added benefit of helping you find hidden problems causing 404 errors on unseen parts of your site. All errors will be logged in the "View Logs" page. You can set thresholds for this feature below.', 'better-wp-security' ); ?></p>
 <?php
-		
+
 	}
-	
+
 	protected function render_settings( $form ) {
 
 		/** @var ITSEC_Lockout $itsec_lockout */
@@ -42,10 +42,10 @@ final class ITSEC_404_Detection_Settings_Page extends ITSEC_Module_Settings_Page
 			</td>
 		</tr>
 		<tr>
-			<th scope="row"><label for="itsec-404-detection-white_list"><?php _e( '404 File/Folder White List', 'better-wp-security' ); ?></label></th>
+			<th scope="row"><label for="itsec-404-detection-white_list"><?php _e( '404 File/Folder Ignore List', 'better-wp-security' ); ?></label></th>
 			<td>
 				<?php $form->add_textarea( 'white_list', array( 'wrap' => 'off' ) ); ?>
-				<p class="description"><?php _e( 'Use the white list above to prevent recording common 404 errors. If you know a common file on your site is missing and you do not want it to count towards a lockout record it here. You must list the full path beginning with the "/".', 'better-wp-security' ); ?></p>
+				<p class="description"><?php _e( 'Use the list above to prevent recording common 404 errors. If you know a common file on your site is missing and you do not want it to count towards a lockout record it here. You must list the full path beginning with the "/".', 'better-wp-security' ); ?></p>
 			</td>
 		</tr>
 		<tr>
@@ -57,7 +57,7 @@ final class ITSEC_404_Detection_Settings_Page extends ITSEC_Module_Settings_Page
 		</tr>
 	</table>
 <?php
-		
+
 	}
 }
 

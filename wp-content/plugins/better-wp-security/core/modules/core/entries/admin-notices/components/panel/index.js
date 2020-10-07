@@ -35,6 +35,10 @@ function getAvailableHighlights() {
 			slug: 'malware-scan-failed',
 			label: __( 'Malware Scan Failed', 'better-wp-security' ),
 		},
+		{
+			slug: 'site-scanner-report',
+			label: __( 'Site Scan Report', 'better-wp-security' ),
+		},
 	];
 }
 

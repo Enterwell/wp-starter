@@ -2,6 +2,7 @@
 
 class ITSEC_Lib_REST {
 	const LINK_REL = 'https://s.api.ithemes.com/l/ithemes-security/';
+	const DATE_FORMAT = 'Y-m-d\TH:i:sP';
 
 	/**
 	 * Get the URI for an iThemes Security link relation.
@@ -81,5 +82,37 @@ class ITSEC_Lib_REST {
 		}
 
 		return $prev;
+	}
+
+	/**
+	 * Gets a Bearer token from the Authorization header.
+	 *
+	 * @param string $header
+	 *
+	 * @return string
+	 */
+	public static function get_token_from_auth_header( $header ) {
+		$prefix = 'Bearer ';
+
+		if ( 0 !== strpos( $header, $prefix ) ) {
+			return '';
+		}
+
+		return trim( substr( $header, strlen( $prefix ) ) );
+	}
+
+	/**
+	 * Gets the authorization status code to use.
+	 *
+	 * @param WP_User|null $user
+	 *
+	 * @return int
+	 */
+	public static function auth_code_required( $user = null ) {
+		if ( func_num_args() === 0 ) {
+			return rest_authorization_required_code();
+		}
+
+		return $user instanceof WP_User && $user->exists() ? 403 : 401;
 	}
 }

@@ -82,9 +82,10 @@ class Indexable_Hierarchy_Repository {
 			->find_array();
 
 		if ( ! empty( $ancestors ) ) {
-			return \array_map( function ( $ancestor ) {
+			$callback = function ( $ancestor ) {
 				return $ancestor['ancestor_id'];
-			}, $ancestors );
+			};
+			return \array_map( $callback, $ancestors );
 		}
 
 		$indexable = $this->builder->build( $indexable );
@@ -92,6 +93,29 @@ class Indexable_Hierarchy_Repository {
 			return $indexable->id;
 		};
 		return \array_map( $callback, $indexable->ancestors );
+	}
+
+	/**
+	 * Finds the children for a given indexable.
+	 *
+	 * @param Indexable $indexable The indexable to find the children for.
+	 *
+	 * @return array Array with indexable ids for the children.
+	 */
+	public function find_children( Indexable $indexable ) {
+		$children = $this->query()
+			->select( 'indexable_id' )
+			->where( 'ancestor_id', $indexable->id )
+			->find_array();
+
+		if ( empty( $children ) ) {
+			return [];
+		}
+
+		$callback = function( $child ) {
+			return $child['indexable_id'];
+		};
+		return \array_map( $callback, $children );
 	}
 
 	/**

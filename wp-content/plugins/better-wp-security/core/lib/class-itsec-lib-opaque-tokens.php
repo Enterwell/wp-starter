@@ -45,7 +45,7 @@ class ITSEC_Lib_Opaque_Tokens {
 			return new WP_Error( self::E_MISSING, __( 'Token not found.', 'better-wp-security' ) );
 		}
 
-		if ( $data['token_created_at'] + $ttl > ITSEC_Core::get_current_time_gmt() ) {
+		if ( strtotime( $data['token_created_at'] ) + $ttl < ITSEC_Core::get_current_time_gmt() ) {
 			self::delete_token( $token );
 
 			return new WP_Error( self::E_EXPIRED, __( 'Token expired.', 'better-wp-security' ) );

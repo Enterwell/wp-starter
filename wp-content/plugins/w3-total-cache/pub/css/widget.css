@@ -15,6 +15,11 @@
     margin-bottom: 15px;
 }
 
+#w3tc-dashboard-widgets ul.w3tc-visible-ul li {
+	list-style-type: disc;
+	margin-bottom: 0;
+}
+
 #w3tc-dashboard-widgets #normal-sortables #w3tc_spreadtheword label{
     display: block;
     width: 70px;
@@ -57,6 +62,14 @@
     -webkit-box-shadow: none;
     -webkit-border-radius: 0;
     border-radius: 0;
+}
+
+#w3tc-dashboard-widgets .handle-actions {
+	display: none; /* WP 5.5 - Dashboard widget reordering not working, so disable. */
+}
+
+#w3tc-dashboard-widgets .hndle {
+	display: block; /* WP 5.5 */
 }
 
 #postbox-container-right {

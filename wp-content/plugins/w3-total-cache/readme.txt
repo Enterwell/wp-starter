@@ -2,8 +2,8 @@
 Contributors: boldgrid, fredericktownes, maxicusc, gidomanders, bwmarkle, harryjackson1221, joemoto
 Tags: seo, cache, optimize, pagespeed, performance, caching, compression, maxcdn, nginx, varnish, redis, new relic, aws, amazon web services, s3, cloudfront, rackspace, cloudflare, azure, apache
 Requires at least: 3.2
-Tested up to: 5.4
-Stable tag: 0.14.2
+Tested up to: 5.5
+Stable tag: 0.14.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -275,8 +275,23 @@ Please reach out to all of these people and support their projects if you're so 
 
 == Changelog ==
 
+= 0.14.4 =
+* Fix: Cleanup widget and postbox display for WordPress 5.5
+* Fix: Update to PageSpeed API v5, show webvitals metrics
+* Fix: Console error when adminbar is hidden and PageSpeed module is active
+* Fix: Stats view JS issue
+* Fix: Deprecated jQuery warnings
+* Fix: Require files for request_filesystem_credentials() call
+* Added option to disable jquery-migrate on the front-end. Fixed #172 master (#240)
+
+= 0.14.3 =
+* Fix: Take "Accepted Query Strings" into account when "Cache query strings" enabled
+* Fixed typo in variable for lazy loading
+* Update: Add lazy load Google Maps reference to the general settings page
+* Update: Support background-image: together with background: for lazy loading
+
 = 0.14.2 =
-* Fixed WP-CLI redirect issue in multisite
+* Fixed WP-CLI rediect issue in multisite
 * Fix: Avoid PREG_JIT_STACKLIMIT_ERROR in minify
 * Fix: Prevent empty needle PHP warning
 * Update: Allow to specify URIs with a query string in Additional Pages

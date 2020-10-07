@@ -7,10 +7,10 @@
 
 namespace Yoast\WP\SEO\Presentations;
 
+use Yoast\WP\SEO\Helpers\Date_Helper;
 use Yoast\WP\SEO\Helpers\Pagination_Helper;
 use Yoast\WP\SEO\Helpers\Post_Helper;
 use Yoast\WP\SEO\Helpers\Post_Type_Helper;
-use Yoast\WP\SEO\Helpers\Date_Helper;
 
 /**
  * Class Indexable_Post_Type_Presentation
@@ -292,6 +292,16 @@ class Indexable_Post_Type_Presentation extends Indexable_Presentation {
 				'nosnippet'    => ( $this->model->is_robots_nosnippet === true ) ? 'nosnippet' : null,
 			]
 		);
+
+		// No snippet means max snippet can be omitted.
+		if ( $this->model->is_robots_nosnippet === true ) {
+			$robots['max-snippet'] = null;
+		}
+
+		// No image index means max image preview can be omitted.
+		if ( $this->model->is_robots_noimageindex === true ) {
+			$robots['max-image-preview'] = null;
+		}
 
 		// When the post specific index is not set, look to the post status and default of the post type.
 		if ( $this->model->is_robots_noindex === null ) {

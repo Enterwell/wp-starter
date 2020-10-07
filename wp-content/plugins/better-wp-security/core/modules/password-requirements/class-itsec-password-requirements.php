@@ -409,7 +409,7 @@ class ITSEC_Password_Requirements {
 		<div class="wp-pwd">
 				<span class="password-input-wrapper">
 					<input type="password" data-reveal="1"
-						   data-pw="<?php echo esc_attr( wp_generate_password( 16 ) ); ?>" name="pass1" id="pass1"
+						   data-pw="<?php echo esc_attr( wp_generate_password( 32 ) ); ?>" name="pass1" id="pass1"
 						   class="input" size="20" value="" autocomplete="off" aria-describedby="pass-strength-result"/>
 				</span>
 			<div id="pass-strength-result" class="hide-if-no-js" aria-live="polite"><?php _e( 'Strength indicator', 'better-wp-security' ); ?></div>

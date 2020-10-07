@@ -43,6 +43,47 @@ class ITSEC_Admin_Notice_Network_Brute_Force_Promo implements ITSEC_Admin_Notice
 	}
 }
 
+class ITSEC_Admin_Notice_Licensed_Hostname_Prompt implements ITSEC_Admin_Notice {
+	public function get_id() {
+		return 'licensed-hostname-prompt';
+	}
+
+	public function get_title() {
+		return '';
+	}
+
+	public function get_message() {
+		return esc_html__( 'iThemes Security Pro couldn\'t verify the license for this site. An active license is required to authenticate the Site Scanner.', 'better-wp-security' );
+	}
+
+	public function get_meta() {
+		return [];
+	}
+
+	public function get_severity() {
+		return self::S_WARN;
+	}
+
+	public function show_for_context( ITSEC_Admin_Notice_Context $context ) {
+		return true;
+	}
+
+	public function get_actions() {
+		return [
+			'update' => new ITSEC_Admin_Notice_Action_Link(
+				ithemes_updater_get_change_licensed_site_url(
+					ITSEC_Core::get_settings_page_url()
+				),
+				esc_html__( 'Update License', 'better-wp-security' ),
+				ITSEC_Admin_Notice_Action::S_PRIMARY,
+				static function () {
+					ITSEC_Modules::set_setting( 'global', 'licensed_hostname_prompt', false );
+				}
+			)
+		];
+	}
+}
+
 if ( ITSEC_Core::is_temp_disable_modules_set() ) {
 	ITSEC_Lib_Admin_Notices::register(
 		new ITSEC_Admin_Notice_Managers_Only(
@@ -59,6 +100,18 @@ if ( ! ITSEC_Modules::is_active( 'network-brute-force' ) || ! ITSEC_Modules::get
 			new ITSEC_Admin_Notice_Managers_Only(
 				new ITSEC_Admin_Notice_Network_Brute_Force_Promo()
 			)
+		)
+	);
+}
+
+if (
+	ITSEC_Core::is_licensed() &&
+	ITSEC_Modules::get_setting( 'global', 'licensed_hostname_prompt' ) &&
+	function_exists( 'ithemes_updater_get_change_licensed_site_url' )
+) {
+	ITSEC_Lib_Admin_Notices::register(
+		new ITSEC_Admin_Notice_Managers_Only(
+			new ITSEC_Admin_Notice_Licensed_Hostname_Prompt()
 		)
 	);
 }

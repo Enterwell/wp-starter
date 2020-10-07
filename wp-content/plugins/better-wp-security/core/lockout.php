@@ -847,7 +847,7 @@ final class ITSEC_Lockout {
 		$description .= '</li><li>';
 		$description .= sprintf( __( '<strong>User lockout message:</strong> %s', 'better-wp-security' ), ITSEC_Modules::get_setting( 'global', 'user_lockout_message' ) );
 		$description .= '</li><li>';
-		$description .= sprintf( __( '<strong>Is this computer white-listed:</strong> %s', 'better-wp-security' ), ITSEC_Lib::is_ip_whitelisted( ITSEC_Lib::get_ip() ) === true ? __( 'yes', 'better-wp-security' ) : __( 'no', 'better-wp-security' ) );
+		$description .= sprintf( __( '<strong>Is this computer an authorized host:</strong> %s', 'better-wp-security' ), ITSEC_Lib::is_ip_whitelisted( ITSEC_Lib::get_ip() ) === true ? __( 'yes', 'better-wp-security' ) : __( 'no', 'better-wp-security' ) );
 		$description .= '</li></ul>';
 
 		return $description;
@@ -1374,11 +1374,11 @@ final class ITSEC_Lockout {
 		$entry['module_display'] = esc_html__( 'Lockout', 'better-wp-security' );
 
 		if ( 'whitelisted-host-triggered-blacklist' === $code ) {
-			$entry['description'] = esc_html__( 'Whitelisted Host Triggered Blacklist', 'better-wp-security' );
+			$entry['description'] = esc_html__( 'Authorized Host Triggered Ban Conditions', 'better-wp-security' );
 		} elseif ( 'host-triggered-blacklist' === $code ) {
-			$entry['description'] = esc_html__( 'Host Triggered Blacklist', 'better-wp-security' );
+			$entry['description'] = esc_html__( 'Host Triggered Ban Conditions', 'better-wp-security' );
 		} elseif ( 'whitelisted-host-triggered-host-lockout' === $code ) {
-			$entry['description'] = esc_html__( 'Whitelisted Host Triggered Host Lockout', 'better-wp-security' );
+			$entry['description'] = esc_html__( 'Authorized Host Triggered Host Lockout', 'better-wp-security' );
 		} elseif ( 'host-lockout' === $code ) {
 			if ( isset( $data[0] ) ) {
 				$entry['description'] = sprintf( wp_kses( __( 'Host Lockout: <code>%s</code>', 'better-wp-security' ), array( 'code' => array() ) ), $data[0] );
@@ -1386,7 +1386,7 @@ final class ITSEC_Lockout {
 				$entry['description'] = esc_html__( 'Host Lockout', 'better-wp-security' );
 			}
 		} elseif ( 'whitelisted-host-triggered-user-lockout' === $code ) {
-			$entry['description'] = esc_html__( 'Whitelisted Host Triggered User Lockout', 'better-wp-security' );
+			$entry['description'] = esc_html__( 'Authorized Host Triggered User Lockout', 'better-wp-security' );
 		} elseif ( 'user-lockout' === $code ) {
 			if ( isset( $data[0] ) ) {
 				$user = get_user_by( 'id', $data[0] );
@@ -1398,7 +1398,7 @@ final class ITSEC_Lockout {
 				$entry['description'] = esc_html__( 'User Lockout', 'better-wp-security' );
 			}
 		} elseif ( 'whitelisted-host-triggered-username-lockout' === $code ) {
-			$entry['description'] = esc_html__( 'Whitelisted Host Triggered Username Lockout', 'better-wp-security' );
+			$entry['description'] = esc_html__( 'Authorized Host Triggered Username Lockout', 'better-wp-security' );
 		} elseif ( 'username-lockout' === $code ) {
 			if ( isset( $data[0] ) ) {
 				$entry['description'] = sprintf( wp_kses( __( 'Username Lockout: <code>%s</code>', 'better-wp-security' ), array( 'code' => array() ) ), $data[0] );

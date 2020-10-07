@@ -7,27 +7,32 @@ import { Fragment } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { isWPError } from '@ithemes/security-utils';
+import { castWPError, isWPError } from '@ithemes/security-utils';
 import WPErrorDetails from './wp-error-details';
 import SystemErrorDetails from './system-error-details';
-import MalwareDetails from './malware-details';
-import BlacklistDetails from './blacklist-details';
-import KnownVulnerabilities from './known-vulnerabilities';
+import Entry from './entry';
 import './style.scss';
 
 function SiteScanResults( { results, showSiteUrl = true, showErrorDetails = true } ) {
 	const siteUrl = results.url;
+	let error;
+
+	if ( isWPError( results ) ) {
+		error = castWPError( results );
+	} else if ( results.code === 'error' ) {
+		error = castWPError( results.errors[ 0 ] );
+	}
 
 	return (
 		<div className="itsec-site-scan-results">
 			{ showSiteUrl && siteUrl && <h4>{ sprintf( __( 'Site: %s', 'better-wp-security' ), siteUrl ) }</h4> }
 
-			{ isWPError( results ) ? <WPErrorDetails results={ results } showErrorDetails={ showErrorDetails } /> : (
+			{ error ? <WPErrorDetails results={ error } showErrorDetails={ showErrorDetails } /> : (
 				<Fragment>
 					<SystemErrorDetails results={ results } />
-					<KnownVulnerabilities results={ results } />
-					<MalwareDetails results={ results } />
-					<BlacklistDetails results={ results } />
+					{ results.entries.map( ( entry, i ) => (
+						<Entry results={ results } entry={ entry } key={ i } />
+					) ) }
 				</Fragment>
 			) }
 		</div>
