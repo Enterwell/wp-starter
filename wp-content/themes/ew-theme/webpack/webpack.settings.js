@@ -1,4 +1,4 @@
-const ewThemeConfig = require('../theme-config');
+const themeConfig = require('../theme-config');
 
 const path = require('path');
 
@@ -18,9 +18,9 @@ const PATHS = {
  * @type {{port: number, address: string}}
  */
 const WebpackDevServerSettings = {
-  port: ewThemeConfig.webpackPort,
-  host: ewThemeConfig.webpackHost,
-  address: 'http://' + ewThemeConfig.webpackHost + ':' + ewThemeConfig.webpackPort + '/',
+  port: themeConfig.webpackPort,
+  host: themeConfig.webpackHost,
+  address: 'http://' + themeConfig.webpackHost + ':' + themeConfig.webpackPort + '/',
 };
 
 /**
@@ -30,10 +30,10 @@ const WebpackDevServerSettings = {
  * @type {{address: string}}
  */
 const WebAppServerSettings = {
-  address: ewThemeConfig.webAppServerAddress
+  address: themeConfig.webAppServerAddress
 };
 
-const BrowserSyncPort = ewThemeConfig.browserSyncPort;
+const BrowserSyncPort = themeConfig.browserSyncPort;
 
 module.exports = {
   PATHS,
