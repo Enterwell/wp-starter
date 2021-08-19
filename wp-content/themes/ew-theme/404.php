@@ -8,7 +8,7 @@
 
 // Create the view model
 $view_model = [
-	'jsRoute'   => '404Page',
+	'jsFile'   => '',
 	'bodyClass' => '404-page',
 	'vm'        => new \EwStarter\BaseViewModel()
 ];

@@ -30,14 +30,12 @@ const WebpackDevServerSettings = {
  * @type {{address: string}}
  */
 const WebAppServerSettings = {
-  address: themeConfig.webAppServerAddress
+  address: themeConfig.webAppServerAddress,
+  port: themeConfig.webAppServerPort
 };
-
-const BrowserSyncPort = themeConfig.browserSyncPort;
 
 module.exports = {
   PATHS,
   WebpackDevServerSettings,
-  WebAppServerSettings,
-  BrowserSyncPort,
+  WebAppServerSettings
 };

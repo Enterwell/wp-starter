@@ -11,7 +11,7 @@ $view_model_factory = new \EwStarter\SearchPageViewModelFactory();
 
 // Create view model
 $view_model = [
-	'jsRoute'   => 'searchPage',
+	'jsFile'   => '',
 	'bodyClass' => 'search-page',
 	'vm'        => $view_model_factory->build( $wp_query )
 ];

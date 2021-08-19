@@ -6,7 +6,7 @@
 
 // Create view model
 $view_model = [
-	'jsRoute' => 'frontPage',
+	'jsFile' => 'pages/front-page/front-page',
 	'bodyClass' => 'front-page',
 	'vm' => new \EwStarter\FrontPageViewModel()
 ];

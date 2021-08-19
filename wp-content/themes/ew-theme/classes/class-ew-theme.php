@@ -25,7 +25,7 @@ class Ew_Theme {
 		add_action( 'after_setup_theme', [ static::class, 'theme_setup' ] );
 
 		// Add action for enqueue scripts
-		add_action( 'wp_enqueue_scripts', [ static::class, 'import_styles_and_scripts' ] );
+		//add_action( 'wp_enqueue_scripts', [ static::class, 'import_styles_and_scripts' ] );
 
 		// Add action to wp head
 		add_action( 'wp_head', [ static::class, 'ew_setup_theme_js_vars' ], 100 );

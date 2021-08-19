@@ -6,7 +6,7 @@
 
 // Create view model
 $view_model = [
-	'jsRoute' => 'homePage',
+	'jsFile' => '',
 	'bodyClass' => 'home-page',
 	// TODO: If changed add new view model for home
 	'vm' => new \EwStarter\BaseViewModel()

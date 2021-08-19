@@ -5,7 +5,7 @@ import FrontPageViewModel from '../../react/views/front-page/front-page-view-mod
 
 import '../../components/modal-overlay';
 
-function FrontPage($) {
+(function FrontPage($) {
   // Constants declaration
   const COLOR_RED_CLASS = 'red';
 
@@ -54,17 +54,9 @@ function FrontPage($) {
     ReactHelper.renderComponent(<FrontPageView/>, $reactRoot[0], {frontPageVm: vm});
   }
 
-  function init() {
+  (function init() {
     initElements();
     initEvents();
     renderReact();
-  }
-
-  // Functions that are explicitly returned can be called from the rest of the application
-  // Specifically, we'll be able to call init function via HomePage.init() outside this file
-  return {
-    init
-  };
-}
-
-export default new FrontPage($);
+  })();
+})($);

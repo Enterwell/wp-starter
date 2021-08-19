@@ -1,5 +1,6 @@
 {
     "require": {
-        "twig/twig": "^2.0"
+        "twig/twig": "^2.0",
+        "rodrigoq/simple-webpack-encore-bundle": "v1.8.0.2"
     }
 }

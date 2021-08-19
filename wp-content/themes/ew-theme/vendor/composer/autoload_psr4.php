@@ -9,4 +9,7 @@ return array(
     'Twig\\' => array($vendorDir . '/twig/twig/src'),
     'Symfony\\Polyfill\\Mbstring\\' => array($vendorDir . '/symfony/polyfill-mbstring'),
     'Symfony\\Polyfill\\Ctype\\' => array($vendorDir . '/symfony/polyfill-ctype'),
+    'Symfony\\Contracts\\Service\\' => array($vendorDir . '/symfony/service-contracts'),
+    'Simple\\WebpackEncoreBundle\\' => array($vendorDir . '/rodrigoq/simple-webpack-encore-bundle/src'),
+    'Psr\\Container\\' => array($vendorDir . '/psr/container/src'),
 );
