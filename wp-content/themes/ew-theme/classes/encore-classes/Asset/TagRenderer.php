@@ -7,7 +7,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Simple\WebpackEncoreBundle\Asset;
+namespace EwStarter;
 
 use Symfony\Contracts\Service\ResetInterface;
 
@@ -31,16 +31,6 @@ class TagRenderer implements ResetInterface
         $this->defaultAttributes = $defaultAttributes;
 
         $this->reset();
-    }
-
-    public function renderWebpackScriptTagsWithBaseUrl(string $entryName, string $baseUrl = '', string $entrypointName = '_default'): string
-    {
-        return $this->renderWebpackScriptTags($entryName, null, $entrypointName, $baseUrl);
-    }
-
-    public function renderWebpackLinkTagsWithBaseUrl(string $entryName, string $baseUrl = null, string $entrypointName = '_default'): string
-    {
-        return $this->renderWebpackLinkTags($entryName, null, $entrypointName, $baseUrl);
     }
 
     public function renderWebpackScriptTags(string $entryName, string $packageName = null, string $entrypointName = '_default', string $baseUrl = ''): string
@@ -98,16 +88,6 @@ class TagRenderer implements ResetInterface
         }
 
         return implode('', $scriptTags);
-    }
-
-    public function getRenderedScripts(): array
-    {
-        return $this->renderedFiles['scripts'];
-    }
-
-    public function getRenderedStyles(): array
-    {
-        return $this->renderedFiles['styles'];
     }
 
     public function getDefaultAttributes(): array

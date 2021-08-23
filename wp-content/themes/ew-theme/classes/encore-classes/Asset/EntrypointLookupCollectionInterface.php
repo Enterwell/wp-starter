@@ -7,16 +7,15 @@
  * file that was distributed with this source code.
  */
 
-namespace Simple\WebpackEncoreBundle\Asset;
-
-use Simple\WebpackEncoreBundle\Exception\UndefinedBuildException;
+namespace EwStarter;
 
 interface EntrypointLookupCollectionInterface
 {
-    /**
-     * Retrieve the EntrypointLookupInterface for the given build.
-     *
-     * @throws UndefinedBuildException if the build does not exist
-     */
+	/**
+	 * Retrieve the EntrypointLookupInterface for the given build.
+	 *
+	 * @param string|null $buildName
+	 * @return EntrypointLookupInterface
+	 */
     public function getEntrypointLookup(string $buildName = null): EntrypointLookupInterface;
 }

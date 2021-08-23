@@ -59,4 +59,4 @@ import '../../components/modal-overlay';
     initEvents();
     renderReact();
   })();
-})($);
+})(jQuery);

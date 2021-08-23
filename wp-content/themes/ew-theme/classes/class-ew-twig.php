@@ -2,7 +2,6 @@
 
 namespace EwStarter;
 
-use Simple\WebpackEncoreBundle\Twig\EntryFilesTwigExtension;
 use Twig_Loader_Filesystem;
 use Twig_Environment;
 use Twig_SimpleFunction;

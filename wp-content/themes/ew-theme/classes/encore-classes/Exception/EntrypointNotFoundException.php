@@ -7,7 +7,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Simple\WebpackEncoreBundle\Exception;
+namespace EwStarter;
 
 class EntrypointNotFoundException extends \InvalidArgumentException
 {

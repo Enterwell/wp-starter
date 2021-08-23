@@ -7,21 +7,24 @@
  * file that was distributed with this source code.
  */
 
-namespace Simple\WebpackEncoreBundle\Asset;
+namespace EwStarter;
 
 use Symfony\Contracts\Service\ResetInterface;
-use Simple\WebpackEncoreBundle\Exception\EntrypointNotFoundException;
 
 interface EntrypointLookupInterface extends ResetInterface
 {
-    /**
-     * @throws EntrypointNotFoundException if an entry name is passed that does not exist in entrypoints.json
-     */
+	/**
+	 * @param string $entryName
+	 * @return array
+	 * @throws EntrypointNotFoundException if an entry name is passed that does not exist in entrypoints.json
+	 */
     public function getJavaScriptFiles(string $entryName): array;
 
-    /**
-     * @throws EntrypointNotFoundException if an entry name is passed that does not exist in entrypoints.json
-     */
+	/**
+	 * @param string $entryName
+	 * @return array
+	 * @throws EntrypointNotFoundException if an entry name is passed that does not exist in entrypoints.json
+	 */
     public function getCssFiles(string $entryName): array;
 
     /**

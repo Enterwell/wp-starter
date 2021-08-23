@@ -7,9 +7,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Simple\WebpackEncoreBundle\Asset;
-
-use Simple\WebpackEncoreBundle\Exception\UndefinedBuildException;
+namespace EwStarter;
 
 /**
  * Aggregate the different entry points configured in the container.

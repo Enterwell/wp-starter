@@ -1,6 +1,9 @@
+// Import app styles
 import '../styles/app.scss';
 
+// Import global components
 import LoadingHelper from './helpers/loading-helper';
+
 /**
  * Global script for whole website
  * Runs in every loaded page
@@ -26,4 +29,4 @@ import LoadingHelper from './helpers/loading-helper';
     initElements();
     initEvents();
   })();
-})($);
+})(jQuery);

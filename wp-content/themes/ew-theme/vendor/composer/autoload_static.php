@@ -21,7 +21,6 @@ class ComposerStaticInit9c92f8c56344768ea0921898a77410ff
             'Symfony\\Polyfill\\Mbstring\\' => 26,
             'Symfony\\Polyfill\\Ctype\\' => 23,
             'Symfony\\Contracts\\Service\\' => 26,
-            'Simple\\WebpackEncoreBundle\\' => 27,
         ),
         'P' => 
         array (
@@ -45,10 +44,6 @@ class ComposerStaticInit9c92f8c56344768ea0921898a77410ff
         'Symfony\\Contracts\\Service\\' => 
         array (
             0 => __DIR__ . '/..' . '/symfony/service-contracts',
-        ),
-        'Simple\\WebpackEncoreBundle\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/rodrigoq/simple-webpack-encore-bundle/src',
         ),
         'Psr\\Container\\' => 
         array (

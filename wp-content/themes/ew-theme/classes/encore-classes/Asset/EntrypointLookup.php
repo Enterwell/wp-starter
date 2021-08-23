@@ -7,9 +7,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Simple\WebpackEncoreBundle\Asset;
-
-use Simple\WebpackEncoreBundle\Exception\EntrypointNotFoundException;
+namespace EwStarter;
 
 /**
  * Returns the CSS or JavaScript files needed for a Webpack entry.

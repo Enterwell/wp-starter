@@ -151,7 +151,6 @@ function manifestAutoload({
     // Return the context for HMR initialization.
     return context;
   };
-  console.log('cache', cache);
 
   const context = loadModules();
 

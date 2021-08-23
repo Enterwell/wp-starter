@@ -21,9 +21,7 @@
 	{% endblock %}
 
 	{# Additional scripts can be added through child templates by overriding this block #}
-	{# Don't forget to call parent() while doing it #}
 	{% block scripts %}
-		{% include 'scripts.twig' with { jsFile } %}
 	{% endblock %}
 
     </body>

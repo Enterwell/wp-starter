@@ -52,64 +52,6 @@
             "install-path": "../psr/container"
         },
         {
-            "name": "rodrigoq/simple-webpack-encore-bundle",
-            "version": "v1.8.0.2",
-            "version_normalized": "1.8.0.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/rodrigoq/simple-webpack-encore-bundle.git",
-                "reference": "98a91ab7206f8976c42bd72be1373d65d1af6234"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/rodrigoq/simple-webpack-encore-bundle/zipball/98a91ab7206f8976c42bd72be1373d65d1af6234",
-                "reference": "98a91ab7206f8976c42bd72be1373d65d1af6234",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=7.1.3",
-                "symfony/service-contracts": "^1.0 || ^2.0"
-            },
-            "require-dev": {
-                "twig/twig": "^2.0 || ^3.0"
-            },
-            "time": "2020-11-16T16:06:54+00:00",
-            "type": "library",
-            "extra": {
-                "thanks": [
-                    {
-                        "name": "symfony/webpack-encore",
-                        "url": "https://github.com/symfony/webpack-encore"
-                    },
-                    {
-                        "name": "symfony/webpack-encore-bundle",
-                        "url": "https://github.com/symfony/webpack-encore-bundle"
-                    }
-                ]
-            },
-            "installation-source": "dist",
-            "autoload": {
-                "psr-4": {
-                    "Simple\\WebpackEncoreBundle\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Symfony Community",
-                    "homepage": "https://symfony.com/contributors"
-                }
-            ],
-            "description": "Integration with your php and twig application & Webpack Encore!",
-            "support": {
-                "source": "https://github.com/rodrigoq/simple-webpack-encore-bundle/tree/v1.8.0.2"
-            },
-            "install-path": "../rodrigoq/simple-webpack-encore-bundle"
-        },
-        {
             "name": "symfony/polyfill-ctype",
             "version": "v1.23.0",
             "version_normalized": "1.23.0.0",

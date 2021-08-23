@@ -7,16 +7,11 @@ const externals = require('./webpack.externals');
 // Include open plugin
 const { WebpackOpenBrowser } = require('webpack-open-browser');
 
-const path = require('path');
 const glob = require('glob');
-
-// Constants
-const ENV_DEVELOPMENT = 'dev';
-const ENV_PRODUCTION = 'prod';
 
 // Environment setup
 if (!Encore.isRuntimeEnvironmentConfigured()) {
-  Encore.configureRuntimeEnvironment(process.env.NODE_ENV || ENV_DEVELOPMENT);
+  Encore.configureRuntimeEnvironment(process.env.NODE_ENV || 'dev');
 }
 
 // Finds all scripts inside /js folder
@@ -31,7 +26,7 @@ scriptEntries.forEach((file) => {
   Encore.addEntry(name, filePath);
 });
 
-// Finds all gutenberg scripts
+// Finds all public gutenberg scripts
 const gutenbergScriptEntries = glob.sync('**/*.js', {
   'cwd': settings.PATHS.gutenberg,
   'ignore': [
@@ -65,8 +60,6 @@ Encore
   // Gutenberg public script entry
   .addEntry('gutenberg_public', gutenbergScripts)
 
-  .splitEntryChunks()
-
   .enableSingleRuntimeChunk()
 
   .enableBuildNotifications()
@@ -83,24 +76,6 @@ Encore
   .configureBabelPresetEnv((config) => {
    config.useBuiltIns = 'usage';
    config.corejs = 2;
-  })
-
-  .autoProvideVariables({
-    $: 'jquery',
-    jQuery: 'jquery',
-    gsap: 'gsap',
-    ScrollMagic: 'ScrollMagic',
-    debounce: ['lodash', 'debounce']
-  })
-
-  .addAliases({
-    TweenLite: path.resolve('node_modules', 'gsap/src/minified/TweenLite.min.js'),
-    TweenMax: path.resolve('node_modules', 'gsap/src/minified/TweenMax.min.js'),
-    TimelineLite: path.resolve('node_modules', 'gsap/src/minified/TimelineLite.min.js'),
-    TimelineMax: path.resolve('node_modules', 'gsap/src/minified/TimelineMax.min.js'),
-    ScrollMagic: path.resolve('node_modules', 'scrollmagic/scrollmagic/minified/ScrollMagic.min.js'),
-    "animation.gsap": path.resolve('node_modules', 'scrollmagic/scrollmagic/minified/plugins/animation.gsap.min.js'),
-    "debug.addIndicators": path.resolve('node_modules', 'scrollmagic/scrollmagic/minified/plugins/debug.addIndicators.min.js')
   })
 
   .addExternals(externals)
@@ -121,8 +96,6 @@ Encore
 ;
 
 const config = Encore.getWebpackConfig();
-
-console.log(config);
 
 // Manual override due to incompatibility of Webpack Encore with Webpack Dev server in latest version
 // TODO: check this later

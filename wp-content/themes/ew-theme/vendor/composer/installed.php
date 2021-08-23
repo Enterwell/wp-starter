@@ -6,7 +6,7 @@
     'aliases' => 
     array (
     ),
-    'reference' => 'd9576cd853a86b3d98659871424749317f3d5e11',
+    'reference' => 'ad2562be6798ca53ea10ee2f2d9ad9b6f7bd0954',
     'name' => '__root__',
   ),
   'versions' => 
@@ -18,7 +18,7 @@
       'aliases' => 
       array (
       ),
-      'reference' => 'd9576cd853a86b3d98659871424749317f3d5e11',
+      'reference' => 'ad2562be6798ca53ea10ee2f2d9ad9b6f7bd0954',
     ),
     'psr/container' => 
     array (
@@ -28,15 +28,6 @@
       array (
       ),
       'reference' => '8622567409010282b7aeebe4bb841fe98b58dcaf',
-    ),
-    'rodrigoq/simple-webpack-encore-bundle' => 
-    array (
-      'pretty_version' => 'v1.8.0.2',
-      'version' => '1.8.0.2',
-      'aliases' => 
-      array (
-      ),
-      'reference' => '98a91ab7206f8976c42bd72be1373d65d1af6234',
     ),
     'symfony/polyfill-ctype' => 
     array (
