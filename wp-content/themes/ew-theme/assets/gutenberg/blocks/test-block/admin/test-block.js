@@ -1,3 +1,5 @@
+import styles from './test-block.module.scss?module';
+
 export default function TestBlock({ attributes, className, setAttributes }) {
   return (
     <div className={className}>
@@ -5,4 +7,3 @@ export default function TestBlock({ attributes, className, setAttributes }) {
     </div>
   );
 }
-

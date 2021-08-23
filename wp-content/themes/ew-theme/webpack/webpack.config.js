@@ -59,9 +59,6 @@ Encore
 
   .cleanupOutputBeforeBuild()
 
-  // Styles entry
-  .addStyleEntry('app_styles', settings.PATHS.styles + '/app.scss')
-
   // Gutenberg admin script entry
   .addEntry('gutenberg_admin', settings.PATHS.gutenberg + '/index.js')
 
@@ -118,9 +115,8 @@ Encore
 
   .configureDevServerOptions(options => {
     options.allowedHosts = 'all';
-    options.hot = true;
     options.port = `${settings.WebpackDevServerSettings.port}`;
-    delete options.client.host;
+    delete options.client;
   })
 ;
 

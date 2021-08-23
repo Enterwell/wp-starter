@@ -1,3 +1,5 @@
+import '../styles/app.scss';
+
 import LoadingHelper from './helpers/loading-helper';
 /**
  * Global script for whole website
