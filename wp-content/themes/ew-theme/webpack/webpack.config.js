@@ -7,6 +7,7 @@ const externals = require('./webpack.externals');
 // Include open plugin
 const { WebpackOpenBrowser } = require('webpack-open-browser');
 
+const chokidar = require('chokidar');
 const glob = require('glob');
 
 // Environment setup
@@ -100,5 +101,17 @@ const config = Encore.getWebpackConfig();
 // Manual override due to incompatibility of Webpack Encore with Webpack Dev server in latest version
 // TODO: check this later
 config.output.publicPath = settings.WebpackDevServerSettings.address;
+
+// Watches for changes in twig and PHP files inside theme
+config.devServer.onBeforeSetupMiddleware = (server) => {
+  chokidar.watch([
+    '../**/*.twig',
+    '../**/*.php'
+  ]).on('all', () => {
+    for (const ws of server.webSocketServer.clients) {
+      ws.send('{"type": "static-changed"}')
+    }
+  })
+}
 
 module.exports = config;

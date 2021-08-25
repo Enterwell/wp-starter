@@ -33,7 +33,7 @@ class TagRenderer implements ResetInterface
         $this->reset();
     }
 
-    public function renderWebpackScriptTags(string $entryName, string $packageName = null, string $entrypointName = '_default', string $baseUrl = ''): string
+    public function renderWebpackScriptTags(string $entryName, string $packageName = null, string $entrypointName = '_default', array $extraAttributes = []): string
     {
         if($packageName !== null) {
             throw new \InvalidArgumentException('packageName not implemented');
@@ -45,6 +45,7 @@ class TagRenderer implements ResetInterface
         foreach ($entryPointLookup->getJavaScriptFiles($entryName) as $filename) {
             $attributes = $this->defaultAttributes;
             $attributes['src'] = $this->getAssetPath($filename, $packageName);
+            $attributes = array_merge($attributes, $extraAttributes);
 
             if (isset($integrityHashes[$filename])) {
                 $attributes['integrity'] = $integrityHashes[$filename];
@@ -52,7 +53,7 @@ class TagRenderer implements ResetInterface
 
             $scriptTags[] = sprintf(
                 '<script %s></script>',
-                $this->convertArrayToAttributes($attributes, $baseUrl)
+                $this->convertArrayToAttributes($attributes)
             );
 
             $this->renderedFiles['scripts'][] = $attributes['src'];
@@ -61,7 +62,7 @@ class TagRenderer implements ResetInterface
         return implode('', $scriptTags);
     }
 
-    public function renderWebpackLinkTags(string $entryName, string $packageName = null, string $entrypointName = '_default', string $baseUrl = ''): string
+    public function renderWebpackLinkTags(string $entryName, string $packageName = null, string $entrypointName = '_default', array $extraAttributes = []): string
     {
         if($packageName !== null) {
             throw new \InvalidArgumentException('packageName not implemented');
@@ -74,6 +75,7 @@ class TagRenderer implements ResetInterface
             $attributes = $this->defaultAttributes;
             $attributes['rel'] = 'stylesheet';
             $attributes['href'] = $this->getAssetPath($filename, $packageName);
+			$attributes = array_merge($attributes, $extraAttributes);
 
             if (isset($integrityHashes[$filename])) {
                 $attributes['integrity'] = $integrityHashes[$filename];
@@ -81,7 +83,7 @@ class TagRenderer implements ResetInterface
 
             $scriptTags[] = sprintf(
                 '<link %s>',
-                $this->convertArrayToAttributes($attributes, $baseUrl)
+                $this->convertArrayToAttributes($attributes)
             );
 
             $this->renderedFiles['styles'][] = $attributes['href'];
@@ -118,15 +120,25 @@ class TagRenderer implements ResetInterface
         return $this->entrypointLookupCollection->getEntrypointLookup($buildName);
     }
 
-    private function convertArrayToAttributes(array $attributesMap, string $baseUrl = ''): string
+    private function convertArrayToAttributes(array $attributesMap): string
     {
-        return implode(' ', array_map(
-            function ($key, $value) use ($baseUrl) {
-                return sprintf('%s="%s"', $key, $this->getValue($key, $baseUrl, $value));
-            },
-            array_keys($attributesMap),
-            $attributesMap
-        ));
+		// remove attributes set specifically to false
+		$attributesMap = array_filter($attributesMap, static function ($value) {
+			return false !== $value;
+		});
+
+		return implode(' ', array_map(
+			static function ($key, $value) {
+				// allows for things like defer: true to only render "defer"
+				if (true === $value || null === $value) {
+					return $key;
+				}
+
+				return sprintf('%s="%s"', $key, htmlentities($value));
+			},
+			array_keys($attributesMap),
+			$attributesMap
+		));
     }
 
     private function getValue($key, $baseUrl, $value) : string

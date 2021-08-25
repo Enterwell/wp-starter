@@ -34,22 +34,22 @@ final class EntryFilesTwigExtension extends AbstractExtension
         ];
     }
 
-    public function renderWebpackScriptTags(string $entryName, string $packageName = null, string $entrypointName = '_default'): string
+    public function renderWebpackScriptTags(string $entryName, array $attributes = [], string $packageName = null, string $entrypointName = '_default'): string
     {
         if($packageName !== null) {
             throw new \InvalidArgumentException('packageName not implemented');
         }
         return $this->getTagRenderer()
-            ->renderWebpackScriptTags($entryName, $packageName, $entrypointName);
+            ->renderWebpackScriptTags($entryName, $packageName, $entrypointName, $attributes);
     }
 
-    public function renderWebpackLinkTags(string $entryName, string $packageName = null, string $entrypointName = '_default'): string
+    public function renderWebpackLinkTags(string $entryName, array $attributes = [], string $packageName = null, string $entrypointName = '_default'): string
     {
         if($packageName !== null) {
             throw new \InvalidArgumentException('packageName not implemented');
         }
         return $this->getTagRenderer()
-            ->renderWebpackLinkTags($entryName, $packageName, $entrypointName);
+            ->renderWebpackLinkTags($entryName, $packageName, $entrypointName, $attributes);
     }
 
     private function getTagRenderer(): TagRenderer
