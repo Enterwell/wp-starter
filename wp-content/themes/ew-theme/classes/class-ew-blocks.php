@@ -2,7 +2,6 @@
 
 namespace EwStarter;
 
-
 /**
  * Class Ew_Blocks
  * @package Majstor
@@ -19,8 +18,8 @@ class Ew_Blocks {
 	 * Initializes blocks.
 	 */
 	public static function load() {
-		// Enqueue block editor assets (styles and js)
-		add_action( 'enqueue_block_editor_assets', [ static::class, 'enqueue_block_editor_assets' ] );
+		// Add block editor assets after WP scripts in admin footer
+		add_action('admin_print_footer_scripts', [static::class, 'add_block_editor_assets'], 20);
 
 		// Register dynamic blocks
 		add_action( 'init', [ static::class, 'load_blocks' ] );
@@ -189,6 +188,16 @@ class Ew_Blocks {
 			// Load built assets
 			static::enqueue_prod_assets( $build_dir, $build_url );
 		}
+	}
+
+	/**
+	 * Add gutenberg admin script to head if admin interface
+	 */
+	static function add_block_editor_assets() {
+		$encore_renderer = new EntryFilesTwigExtension(THEME_DIR . '/assets/dist/entrypoints.json');
+
+		echo $encore_renderer->renderWebpackScriptTags('gutenberg_admin');
+		echo $encore_renderer->renderWebpackLinkTags('gutenberg_admin');
 	}
 
 	/**

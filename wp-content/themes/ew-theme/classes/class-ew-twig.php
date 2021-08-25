@@ -102,6 +102,8 @@ class Ew_Twig {
 		$this->twig->addExtension( new Ew_Twig_Extension_Utils() );
 		// Add localization extension
 		$this->twig->addExtension( new Ew_Twig_Extension_Localization() );
+		// Add encore entries extension
+		$this->twig->addExtension( new EntryFilesTwigExtension(THEME_DIR . '/assets/dist/entrypoints.json') );
 	}
 
 	/**

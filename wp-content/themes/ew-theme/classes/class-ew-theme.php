@@ -82,70 +82,16 @@ class Ew_Theme {
 	}
 
 	/**
-	 * Imports all theme functions and styles.
+	 * Imports styles and scripts from CDN.
 	 */
 	public static function import_styles_and_scripts() {
+		// Load scripts from CDN here
 
-		// Get theme json config
-		$theme_config = static::get_theme_json_config();
+		// Import WP jQuery
+		self::add_script_to_page('__return_true', 'jquery', '', [], false, true );
 
-		// If development environment is defined load
-		// development styles and scripts
-		if ( defined( 'EW_DEV' ) ) {
-
-			// Include styles
-			wp_enqueue_style( 'ew_styles_main', THEME_URL . "/assets/dist/main.css", [], false, false );
-
-			// Include scripts
-			wp_enqueue_script( 'ew_scripts_main', "//localhost:" . $theme_config['webpackPort'] . "/bundle.min.js", [], false, true );
-
-			return;
-		}
-
-		$style_relative_path  = '/assets/dist/styles.min.css';
-		$script_relative_path = '/assets/dist/bundle.min.js';
-
-		$style_file  = THEME_DIR . $style_relative_path;
-		$script_file = THEME_DIR . $script_relative_path;
-
-		// Try to get style and script version as file modified time from file - fallback is version from theme config
-		$style_version  = file_exists( $style_file ) ? filemtime( $style_file ) : $theme_config['version'];
-		$script_version = file_exists( $script_file ) ? filemtime( $script_file ) : $theme_config['version'];
-
-		// If development environment is not defined, load production styles and scripts
-		wp_enqueue_style( 'ew_styles_main', THEME_URL . '/assets/dist/styles.min.css', [], $style_version );
-		wp_enqueue_script( 'ew_scripts_main', THEME_URL . '/assets/dist/bundle.min.js', [], $script_version, true );
-	}
-
-	/**
-	 * Get theme json config.
-	 *
-	 * @return array|mixed|object
-	 * @throws Exception
-	 */
-	public static function get_theme_json_config() {
-
-		// Config file path
-		$config_file_path = THEME_DIR . '/theme-config.json';
-
-		// If file not exists
-		if ( ! file_exists( $config_file_path ) ) {
-			throw new Exception( 'Configuration file does not exit!' );
-		}
-
-		// Get config file content
-		$config_file_content = file_get_contents( $config_file_path );
-
-		// Decode json file
-		$theme_config = json_decode( $config_file_content, true );
-
-		// Validate files
-		if ( empty( $theme_config ) ) {
-			throw new Exception( 'Configuration file not valid.' );
-		}
-
-		// Returns theme config
-		return $theme_config;
+		// Import gsap (everywhere because of loading)
+		self::add_script_to_page('__return_true', 'gsap', 'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.7.1/gsap.min.js', [], false, true);
 	}
 
 	/**
@@ -187,30 +133,32 @@ class Ew_Theme {
 	}
 
 	/**
-	 * Get the local IP address.
+	 * Enqueues script to specific pages based on callback method
+	 * Calls wp_enqueue_script WP method
 	 *
-	 * @return string
+	 * @param $callback callable Condition function
+	 * @param $handle string Script name
+	 * @param string $src
+	 * @param array $deps
+	 * @param false $ver
+	 * @param false $in_footer
 	 */
-	protected static function get_local_ip() {
-		$local_ip = null;
-		exec( "ipconfig /all", $output );
-		foreach ( $output as $line ) {
-			if ( preg_match( "/(.*)IPv4 Address(.*)/", $line ) ) {
-				$ip          = $line;
-				$ip          = str_replace( "IPv4 Address. . . . . . . . . . . :", "", $ip );
-				$ip          = str_replace( "(Preferred)", "", $ip );
-				$ip          = trim( $ip );
-				$startString = '192.168';
-				if ( substr_compare( $ip, $startString, 0, strlen( $startString ) ) === 0 ) {
-					$local_ip = trim( $ip );
-				}
-			}
-		}
-		if ( $local_ip === null ) {
-			$local_ip = trim( $ip );
-		}
-
-		return $local_ip;
+	public static function add_script_to_page($callback, $handle, $src = '', $deps = array(), $ver = false, $in_footer = false) {
+		!$callback() ?: wp_enqueue_script($handle, $src, $deps, $ver, $in_footer);
 	}
 
+	/**
+	 * Enqueues styles to specific pages based on callback method
+	 * Calls wp_enqueue_style method
+	 *
+	 * @param $callback callable Condition function
+	 * @param $handle string Style name
+	 * @param string $src
+	 * @param array $deps
+	 * @param false $ver
+	 * @param string $media
+	 */
+	public static function add_style_to_page($callback, $handle, $src = '', $deps = array(), $ver = false, $media = 'all' ) {
+		!$callback() ?: wp_enqueue_style($handle, $src, $deps, $ver, $media);
+	}
 }

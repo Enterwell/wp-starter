@@ -8,6 +8,6 @@
     "replace": "^1.1.0"
   },
   "scripts": {
-    "init": "node .scripts/init"
+    "init-project": "node .scripts/init"
   }
 }
