@@ -4,7 +4,7 @@
  */
 // Create view model
 $view_model = [
-	'jsRoute' => 'singlePage',
+	'jsFile' => '',
 	'bodyClass' => 'single-page',
 	'vm' => new \EwStarter\SinglePostViewModel(get_post())
 ];

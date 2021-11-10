@@ -22,7 +22,7 @@ $view_model_factory = new \EwStarter\ArchivePageViewModelFactory();
 
 // Create view model
 $view_model = [
-	'jsRoute'   => 'archivePage',
+	'jsFile'   => '',
 	'bodyClass' => 'archive-page',
 	'vm'        => $view_model_factory->build( $wp_query )
 ];

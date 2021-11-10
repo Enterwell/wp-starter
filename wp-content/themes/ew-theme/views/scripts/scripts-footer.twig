@@ -1,0 +1,8 @@
+{# Global app script #}
+{{ encore_entry_script_tags('app', {defer: 'defer'}) }}
+
+{# Gutenberg public script #}
+{{ encore_entry_script_tags('gutenberg_public', {defer: 'defer'}) }}
+
+{# Page specific script #}
+{{ jsFile ? encore_entry_script_tags(jsFile, {defer: 'defer'}) }}

@@ -11,13 +11,17 @@
     {% include 'components/head.twig' %}
     {% include 'components/page-loading.twig' %}
 
-    <body data-route="{{ jsRoute|default('') }}" class="{{ bodyClass|default('') }} ">
+    <body class="{{ bodyClass|default('') }} ">
 	{% include 'components/navbar.twig' %}
 
 	{% block content %} {% endblock %}
 
 	{% block footer %}
 		{% include 'components/footer.twig' %}
+	{% endblock %}
+
+	{# Additional scripts can be added through child templates by overriding this block #}
+	{% block scripts %}
 	{% endblock %}
 
     </body>

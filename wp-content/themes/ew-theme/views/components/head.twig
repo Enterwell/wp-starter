@@ -19,6 +19,9 @@
 
 	{{ function('wp_head') }}
 
+	{# Include global head scripts and styles #}
+	{% include 'scripts/scripts-head.twig' %}
+
 	{# Loading styles #}
 	<style>
 		.c-page-loading-container {

@@ -1,4 +1,4 @@
-import {TimelineLite} from 'gsap';
+//import {TimelineLite} from 'gsap';
 
 export const LOADING_FINISHED_EVENT = 'ew-ready';
 const LOADING_HIDE_TIMEOUT = 200;
@@ -39,4 +39,4 @@ function LoadingHelper($) {
   };
 }
 
-export default new LoadingHelper($);
+export default new LoadingHelper(jQuery);
