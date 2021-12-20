@@ -70,8 +70,14 @@ import('renamer').then(function (rnm) {
 
     // Replace webAppServerAddress in theme-config.json
     replace({
-        regex: 'http:   //ew-wp-starter.local/',
+        regex: 'http://ew-wp-starter.local/',
         replacement: config.webAppServerAddress,
+        paths: ['wp-content/themes/ew-theme/theme-config.json']
+    });
+
+    replace({
+        regex: 'ew-theme',
+        replacement: config.themeNameForFileNames,
         paths: ['wp-content/themes/ew-theme/theme-config.json']
     });
 
