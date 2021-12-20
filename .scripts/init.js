@@ -98,3 +98,17 @@ renamer.rename({
     find: 'ew-theme',
     replace: config.themeNameForFileNames
 });
+
+// Replace theme name in azure-pipelines.yml
+replace({
+    regex: 'ew-theme',
+    replacement: config.themeNameForFileNames,
+    paths: ['azure-pipelines.yml']
+});
+
+// Replace plugin name in azure-pipelines.yml
+replace({
+    regex: 'ewplugin',
+    replacement: config.pluginNameForFileNames,
+    paths: ['azure-pipelines.yml']
+});
