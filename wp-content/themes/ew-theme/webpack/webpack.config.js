@@ -5,7 +5,7 @@ const settings = require('./webpack.settings');
 // Include externals
 const externals = require('./webpack.externals');
 // Include open plugin
-const { WebpackOpenBrowser } = require('webpack-open-browser');
+const {WebpackOpenBrowser} = require('webpack-open-browser');
 
 const chokidar = require('chokidar');
 const glob = require('glob');
@@ -14,6 +14,9 @@ const glob = require('glob');
 if (!Encore.isRuntimeEnvironmentConfigured()) {
   Encore.configureRuntimeEnvironment(process.env.NODE_ENV || 'dev');
 }
+
+// Get theme name for publicPath
+const prodPublicPath = `/wp-content/themes/${settings.WebAppServerSettings.themeName}/assets/dist`;
 
 // Finds all scripts inside /js folder
 const scriptEntries = glob.sync('**/*.+(js|jsx)', {
@@ -51,7 +54,7 @@ gutenbergScriptEntries.forEach((file) => {
 Encore
   .setOutputPath(settings.PATHS.build)
 
-  .setPublicPath('/')
+  .setPublicPath(prodPublicPath)
 
   .cleanupOutputBeforeBuild()
 
@@ -75,8 +78,8 @@ Encore
   })
 
   .configureBabelPresetEnv((config) => {
-   config.useBuiltIns = 'usage';
-   config.corejs = 2;
+    config.useBuiltIns = 'usage';
+    config.corejs = 2;
   })
 
   .addExternals(externals)
@@ -100,18 +103,22 @@ const config = Encore.getWebpackConfig();
 
 // Manual override due to incompatibility of Webpack Encore with Webpack Dev server in latest version
 // TODO: check this later
-config.output.publicPath = settings.WebpackDevServerSettings.address;
+if (!Encore.isProduction()) {
+  config.output.publicPath = settings.WebpackDevServerSettings.address;
+}
 
 // Watches for changes in twig and PHP files inside theme
-config.devServer.onBeforeSetupMiddleware = (server) => {
-  chokidar.watch([
-    '../**/*.twig',
-    '../**/*.php'
-  ]).on('all', () => {
-    for (const ws of server.webSocketServer.clients) {
-      ws.send('{"type": "static-changed"}')
-    }
-  })
+if (!Encore.isProduction()) {
+  config.devServer.onBeforeSetupMiddleware = (server) => {
+    chokidar.watch([
+      '../**/*.twig',
+      '../**/*.php'
+    ]).on('all', () => {
+      for (const ws of server.webSocketServer.clients) {
+        ws.send('{"type": "static-changed"}')
+      }
+    })
+  }
 }
 
 module.exports = config;
