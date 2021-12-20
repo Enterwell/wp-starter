@@ -5,7 +5,7 @@ const settings = require('./webpack.settings');
 // Include externals
 const externals = require('./webpack.externals');
 // Include open plugin
-const { WebpackOpenBrowser } = require('webpack-open-browser');
+const {WebpackOpenBrowser} = require('webpack-open-browser');
 
 const chokidar = require('chokidar');
 const glob = require('glob');
@@ -16,8 +16,7 @@ if (!Encore.isRuntimeEnvironmentConfigured()) {
 }
 
 // Get theme name for publicPath
-const themeName = 'supervisor-theme';
-const prodPublicPath = `/wp-content/themes/${themeName}/assets/dist`;
+const prodPublicPath = `/wp-content/themes/${settings.WebAppServerSettings.themeName}/assets/dist`;
 
 // Finds all scripts inside /js folder
 const scriptEntries = glob.sync('**/*.+(js|jsx)', {
@@ -104,12 +103,12 @@ const config = Encore.getWebpackConfig();
 
 // Manual override due to incompatibility of Webpack Encore with Webpack Dev server in latest version
 // TODO: check this later
-if(!Encore.isProduction()) {
+if (!Encore.isProduction()) {
   config.output.publicPath = settings.WebpackDevServerSettings.address;
 }
 
 // Watches for changes in twig and PHP files inside theme
-if(!Encore.isProduction()) {
+if (!Encore.isProduction()) {
   config.devServer.onBeforeSetupMiddleware = (server) => {
     chokidar.watch([
       '../**/*.twig',

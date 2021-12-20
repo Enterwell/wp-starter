@@ -30,7 +30,8 @@ const WebpackDevServerSettings = {
  * @type {{address: string}}
  */
 const WebAppServerSettings = {
-  address: themeConfig.webAppServerAddress
+  address: themeConfig.webAppServerAddress,
+  themeName: themeConfig.themeName
 };
 
 module.exports = {
