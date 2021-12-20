@@ -75,14 +75,6 @@ import('renamer').then(function (rnm) {
         paths: ['wp-content/themes/ew-theme/theme-config.json']
     });
 
-    // Rename abstract controller
-    renamer.rename({
-        files: ['wp-content/plugins/ewplugin/**'],
-        find: 'class-aewplugin-controller.php',
-        replace: config.abstractControllerFileName,
-        recursive: true,
-    });
-
     // Rename plugin in folder and file names
     renamer.rename({
         files: ['wp-content/plugins/**'],
