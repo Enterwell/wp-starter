@@ -4,8 +4,8 @@
   "main": "index.js",
   "license": "MIT",
   "devDependencies": {
-    "renamer": "^1.1.1",
-    "replace": "^1.1.0"
+    "renamer": "^4.0.0",
+    "replace": "^1.2.1"
   },
   "scripts": {
     "init-project": "node .scripts/init"
