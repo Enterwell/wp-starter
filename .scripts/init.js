@@ -59,14 +59,14 @@ replace({
 replace({
     regex: 'ew-theme',
     replacement: config.themeNameForFileNames,
-    paths: ['.gitignore', 'build.sh']
+    paths: ['.gitignore', 'azure-pipelines.yml']
 });
 
 // Replace theme name in .gitignore
 replace({
     regex: 'ewplugin',
     replacement: config.pluginNameForFileNames,
-    paths: ['build.sh', 'wp-content/plugins/ewplugin/tests/bootstrap.php']
+    paths: ['azure-pipelines.yml', 'wp-content/plugins/ewplugin/tests/bootstrap.php']
 });
 
 // Replace webAppServerAddress in theme-config.json
@@ -97,18 +97,4 @@ renamer.rename({
     files: ['wp-content/themes/*'],
     find: 'ew-theme',
     replace: config.themeNameForFileNames
-});
-
-// Replace theme name in azure-pipelines.yml
-replace({
-    regex: 'ew-theme',
-    replacement: config.themeNameForFileNames,
-    paths: ['azure-pipelines.yml']
-});
-
-// Replace plugin name in azure-pipelines.yml
-replace({
-    regex: 'ewplugin',
-    replacement: config.pluginNameForFileNames,
-    paths: ['azure-pipelines.yml']
 });
