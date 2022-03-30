@@ -4,17 +4,20 @@
  *
  */
 
+
+use EwStarter\View_Models\Search_Page\Search_Page_View_Model_Factory;
+
 global $wp_query;
 
 // Create view model factory
-$view_model_factory = new \EwStarter\SearchPageViewModelFactory();
+$factory = new Search_Page_View_Model_Factory();
 
 // Create view model
-$view_model = [
-	'jsFile'   => '',
+$view_data = [
+	'jsFile'    => '',
 	'bodyClass' => 'search-page',
-	'vm'        => $view_model_factory->build( $wp_query )
+	'vm'        => $factory->build( $wp_query )
 ];
 
 // Render view
-$ew_twig->render( 'pages/search-page/search-page.twig', $view_model );
+ew_render_template( '@theme/pages/search-page/search-page.twig', $view_data );

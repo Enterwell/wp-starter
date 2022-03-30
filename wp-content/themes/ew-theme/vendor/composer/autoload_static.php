@@ -4,11 +4,13 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit9c92f8c56344768ea0921898a77410ff
+class ComposerStaticInit8141a1e1e1e16f4234c73a007dbda64e
 {
     public static $files = array (
-        '320cde22f66dd4f5d3fd621d3e88b98f' => __DIR__ . '/..' . '/symfony/polyfill-ctype/bootstrap.php',
+        '6e3fae29631ef280660b3cdad06f25a8' => __DIR__ . '/..' . '/symfony/deprecation-contracts/function.php',
+        '25072dd6e2470089de65ae7bf11d3109' => __DIR__ . '/..' . '/symfony/polyfill-php72/bootstrap.php',
         '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/bootstrap.php',
+        '320cde22f66dd4f5d3fd621d3e88b98f' => __DIR__ . '/..' . '/symfony/polyfill-ctype/bootstrap.php',
     );
 
     public static $prefixLengthsPsr4 = array (
@@ -18,6 +20,7 @@ class ComposerStaticInit9c92f8c56344768ea0921898a77410ff
         ),
         'S' => 
         array (
+            'Symfony\\Polyfill\\Php72\\' => 23,
             'Symfony\\Polyfill\\Mbstring\\' => 26,
             'Symfony\\Polyfill\\Ctype\\' => 23,
             'Symfony\\Contracts\\Service\\' => 26,
@@ -26,12 +29,20 @@ class ComposerStaticInit9c92f8c56344768ea0921898a77410ff
         array (
             'Psr\\Container\\' => 14,
         ),
+        'E' => 
+        array (
+            'EwStarter\\' => 10,
+        ),
     );
 
     public static $prefixDirsPsr4 = array (
         'Twig\\' => 
         array (
             0 => __DIR__ . '/..' . '/twig/twig/src',
+        ),
+        'Symfony\\Polyfill\\Php72\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/symfony/polyfill-php72',
         ),
         'Symfony\\Polyfill\\Mbstring\\' => 
         array (
@@ -48,6 +59,10 @@ class ComposerStaticInit9c92f8c56344768ea0921898a77410ff
         'Psr\\Container\\' => 
         array (
             0 => __DIR__ . '/..' . '/psr/container/src',
+        ),
+        'EwStarter\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/classes',
         ),
     );
 
@@ -68,10 +83,10 @@ class ComposerStaticInit9c92f8c56344768ea0921898a77410ff
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit9c92f8c56344768ea0921898a77410ff::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit9c92f8c56344768ea0921898a77410ff::$prefixDirsPsr4;
-            $loader->prefixesPsr0 = ComposerStaticInit9c92f8c56344768ea0921898a77410ff::$prefixesPsr0;
-            $loader->classMap = ComposerStaticInit9c92f8c56344768ea0921898a77410ff::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit8141a1e1e1e16f4234c73a007dbda64e::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit8141a1e1e1e16f4234c73a007dbda64e::$prefixDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInit8141a1e1e1e16f4234c73a007dbda64e::$prefixesPsr0;
+            $loader->classMap = ComposerStaticInit8141a1e1e1e16f4234c73a007dbda64e::$classMap;
 
         }, null, ClassLoader::class);
     }

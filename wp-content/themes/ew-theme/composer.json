@@ -1,6 +1,11 @@
 {
-    "require": {
-        "twig/twig": "^2.0",
-        "symfony/service-contracts": "^2.4"
+  "require": {
+    "twig/twig": "^2.0",
+    "symfony/service-contracts": "^2.4"
+  },
+  "autoload": {
+    "psr-4": {
+      "EwStarter\\": "classes"
     }
+  }
 }

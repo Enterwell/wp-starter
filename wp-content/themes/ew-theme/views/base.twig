@@ -6,7 +6,7 @@
 <html class="ie ie8" {{ function('language_attributes') }}>
 <![endif]-->
 <!--[if !(IE 7) & !(IE 8)]><!-->
-<html {{ function('language_attributes') }} class="{{ is_admin_logged_in() ? 'admin-logged-in' : '' }}">
+<html {{ function('language_attributes') }} class="{{ vm.is_admin_logged_in ? 'admin-logged-in' : '' }}">
 
     {% include 'components/head.twig' %}
     {% include 'components/page-loading.twig' %}

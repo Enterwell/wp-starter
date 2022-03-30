@@ -79,4 +79,12 @@
 
 	</style>
 
+	{% if vm.js_vars is defined and vm.js_vars is not empty %}
+		<script type="text/javascript">
+			{% for name, value in vm.js_vars %}
+			window['{{ name }}'] = {{ value|json_encode|raw }};
+			{% endfor %}
+		</script>
+	{% endif %}
+
 </head>

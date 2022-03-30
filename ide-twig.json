@@ -1,0 +1,8 @@
+{
+  "namespaces": [
+    {
+      "namespace": "theme",
+      "path": "wp-content/themes/ew-theme/views"
+    }
+  ]
+}

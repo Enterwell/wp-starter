@@ -5,12 +5,13 @@
 
 
 // Create view model
-$view_model = [
+use EwStarter\View_Models\Base_View_Model;
+
+$view_data = [
 	'jsFile' => '',
 	'bodyClass' => 'home-page',
-	// TODO: If changed add new view model for home
-	'vm' => new \EwStarter\BaseViewModel()
+	'vm' => new Base_View_Model()
 ];
 
 // Render view
-$ew_twig->render('pages/home-page/home-page.twig', $view_model);
+ew_render_template('@theme/pages/home-page/home-page.twig', $view_data);

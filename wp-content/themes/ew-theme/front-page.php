@@ -5,11 +5,13 @@
  */
 
 // Create view model
-$view_model = [
-	'jsFile' => 'pages/front-page/front-page',
+use EwStarter\View_Models\Front_Page\Front_Page_View_Model;
+
+$view_data = [
+	'jsFile'    => 'pages/front-page/front-page',
 	'bodyClass' => 'front-page',
-	'vm' => new \EwStarter\FrontPageViewModel()
+	'vm'        => new Front_Page_View_Model()
 ];
 
 // Render view
-$ew_twig->render('pages/front-page/front-page.twig', $view_model);
+ew_render_template( '@theme/pages/front-page/front-page.twig', $view_data );

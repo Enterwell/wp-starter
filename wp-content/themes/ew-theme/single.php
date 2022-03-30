@@ -2,12 +2,13 @@
 /**
  * The template for displaying all single posts and attachments
  */
-// Create view model
-$view_model = [
+use EwStarter\View_Models\Single_Post\Single_Post_View_Model;
+
+$view_data = [
 	'jsFile' => '',
 	'bodyClass' => 'single-page',
-	'vm' => new \EwStarter\SinglePostViewModel(get_post())
+	'vm' => new Single_Post_View_Model(get_post())
 ];
 
 // Render view
-$ew_twig->render('pages/single-post/single-post.twig', $view_model);
+ew_render_template('@theme/pages/single-post/single-post.twig', $view_data);

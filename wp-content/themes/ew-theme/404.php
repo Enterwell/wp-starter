@@ -6,12 +6,15 @@
  * @subpackage Starter_Theme
  */
 
-// Create the view model
-$view_model = [
-	'jsFile'   => '',
-	'bodyClass' => '404-page',
-	'vm'        => new \EwStarter\BaseViewModel()
-];
-
 // Render view
-$ew_twig->render( 'pages/404-page/404-page.twig', $view_model );
+use EwStarter\View_Models\Base_View_Model;
+
+$view_data = [
+	'jsFile'    => '',
+	'bodyClass' => '404-page',
+	'vm'        => new Base_View_Model()
+];
+ew_render_template(
+	'@theme/pages/404-page/404-page.twig',
+	$view_data
+);

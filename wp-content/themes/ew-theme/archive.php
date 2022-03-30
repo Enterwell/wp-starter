@@ -15,17 +15,22 @@
  * @subpackage Starter_Theme
  */
 
-global $wp_query;
+
+use EwStarter\View_Models\Archive_Page\Archive_Page_View_Model_Factory;
+
 
 // Create view model factory
-$view_model_factory = new \EwStarter\ArchivePageViewModelFactory();
+$view_model_factory = new Archive_Page_View_Model_Factory();
+global $wp_query;
 
-// Create view model
-$view_model = [
-	'jsFile'   => '',
+$view_data = [
+	'jsFile'    => '',
 	'bodyClass' => 'archive-page',
 	'vm'        => $view_model_factory->build( $wp_query )
 ];
 
-// Render view
-$ew_twig->render( 'pages/archive-page/archive-page.twig', $view_model );
+// Render page template
+ew_render_template(
+	'@theme/pages/archive-page/archive-page.twig',
+	$view_data
+);
