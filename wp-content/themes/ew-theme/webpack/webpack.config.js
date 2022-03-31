@@ -15,9 +15,10 @@ if (!Encore.isRuntimeEnvironmentConfigured()) {
   Encore.configureRuntimeEnvironment(process.env.NODE_ENV || 'dev');
 }
 
-// Get theme name for publicPath
+// Get production publicPath
 const prodPublicPath = `/wp-content/themes/${settings.WebAppServerSettings.themeName}/assets/dist`;
 
+////////////////////////////////////////////////////
 // Finds all scripts inside /js folder
 const scriptEntries = glob.sync('**/*.+(js|jsx)', {
   'cwd': settings.PATHS.scripts
@@ -29,26 +30,41 @@ scriptEntries.forEach((file) => {
   const name = file.replace(/(\.jsx)|(\.js)/, '');
   Encore.addEntry(name, filePath);
 });
+////////////////////////////////////////////////////
 
-// Finds all public gutenberg scripts
-const gutenbergScriptEntries = glob.sync('**/*.js', {
+////////////////////////////////////////////////////
+// Finds all gutenberg component scripts
+const gutenbergComponentScriptEntries = glob.sync('components/**/*.js', {
+	'cwd': settings.PATHS.gutenberg
+});
+
+// Combines gutenberg component scripts in one entry
+let gutenbergComponentScripts = [];
+gutenbergComponentScriptEntries.forEach((file) => {
+	const filePath = settings.PATHS.gutenberg + '/' + file;
+	gutenbergComponentScripts.push(filePath);
+});
+
+// Add gutenberg component scripts as one entry if any
+gutenbergComponentScripts.length && Encore.addEntry('gutenberg_admin_components', gutenbergComponentScripts);
+////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////
+// Finds all public gutenberg block scripts
+const gutenbergBlockScriptEntries = glob.sync('blocks/**/*.js', {
   'cwd': settings.PATHS.gutenberg,
   'ignore': [
-    'blocks/**/admin/*.js',
-    'index.js'
+    '**/admin/**/*.js',
   ]
 });
 
-// Combines gutenberg block scripts in one entry
-let gutenbergScripts = [];
-gutenbergScriptEntries.forEach((file) => {
+// Adds each public gutenberg block script as separate script entry
+gutenbergBlockScriptEntries.forEach((file) => {
   const filePath = settings.PATHS.gutenberg + '/' + file;
-  const name = file.replace(/\.js/, '');
-  gutenbergScripts.push(filePath);
+	const name = file.replace(/(\.jsx)|(\.js)/, '');
+	Encore.addEntry(name, filePath);
 });
-
-// Add gutenberg script as entry if any
-!gutenbergScripts.length && Encore.addEntry('gutenberg_public', gutenbergScripts);
+////////////////////////////////////////////////////
 
 // Encore settings setup
 Encore
@@ -59,10 +75,7 @@ Encore
   .cleanupOutputBeforeBuild()
 
   // Gutenberg admin script entry
-  .addEntry('gutenberg_admin', settings.PATHS.gutenberg + '/index.js')
-
-  // Gutenberg public script entry
-  .addEntry('gutenberg_public', gutenbergScripts)
+  .addEntry('gutenberg_admin_blocks', settings.PATHS.gutenberg + '/index.js')
 
   .enableSingleRuntimeChunk()
 

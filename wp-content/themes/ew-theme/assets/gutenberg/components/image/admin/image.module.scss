@@ -1,0 +1,32 @@
+// Image editor partial
+.imageComponent {
+  width: 100%;
+
+  .image {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+}
+
+// Image options partial
+.optionsImagePlaceholder {
+  margin-top: 12px !important;
+}
+
+.optionsImageContainer {
+  position: relative;
+  margin-top: 12px;
+
+  .optionsImage {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .optionsRemoveImageButton {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+  }
+}

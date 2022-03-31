@@ -14,7 +14,7 @@
     "@enterwell/enum-helper": "^1.0.0",
     "axios": "^0.18.0",
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
-    "classnames": "^2.2.5",
+    "clsx": "^1.1.1",
     "debounce": "^1.0.2",
     "exports-loader": "^0.7.0",
     "mobx": "^3.3.0",

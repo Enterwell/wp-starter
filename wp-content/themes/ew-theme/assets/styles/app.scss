@@ -50,8 +50,11 @@
 // Import modal styles
 @import "components/modal";
 
-// Gutenberg styles
-@import "../gutenberg/gutenberg";
+// Gutenberg component styles
+@import "../gutenberg/components/component-styles";
+
+// Gutenberg block styles
+@import "../gutenberg/blocks/block-styles";
 
 // All pages (home-page, blog index page, archive page...) styles
 // should be defined in their respective folders inside of pages folder.
