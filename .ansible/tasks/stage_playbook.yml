@@ -9,12 +9,14 @@
     # Create/Check for project directory
     - name: create project directory
       file:
-        path: { site_path }
+        path: {{site_path}
         state: directory
 
     # Install and start nginx
     - name: ensure nginx is at the latest version
-      apt: name=nginx
+      apt:
+        name: nginx
+        state: latest
     - name: start nginx
       service:
         name: nginx
@@ -26,28 +28,28 @@
       ansible.builtin.replace:
         path: ./files/stage.nginx.conf
         regexp: "VAR_SERVER_ROOT"
-        replace: { site_path }
+        replace: {{site_path}
     - name: replace VAR_SERVER_NAME in nginx config
       ansible.builtin.replace:
         path: ./files/stage.nginx.conf
         regexp: "VAR_SERVER_NAME"
-        replace: { site_url }
+        replace: {{site_url}}
     - name: replace VAR_FASTCGI_PASS in nginx config
       ansible.builtin.replace:
         path: ./files/stage.nginx.conf
         regexp: "VAR_FASTCGI_PASS"
-        replace: { fastcgi_pass }
+        replace: {{fastcgi_pass}}
 
     # Copy nginx and make symlink
     - name: copy the nginx config file
       copy:
         src: ./files/stage.nginx.conf
-        dest: /etc/nginx/sites-available/{ site_url }
+        dest: /etc/nginx/sites-available/{{site_url
       become: yes
     - name: create symlink
       file:
-        src: /etc/nginx/sites-available/{ site_url }
-        dest: /etc/nginx/sites-enabled/{ site_url }
+        src: /etc/nginx/sites-available/{{site_url
+        dest: /etc/nginx/sites-enabled/{{site_url
         state: link
       become: yes
 
