@@ -14,7 +14,7 @@
 
     # Install and start nginx
     - name: ensure nginx is at the latest version
-      apt: name=nginx state=latest
+      apt: name=nginx
     - name: start nginx
       service:
         name: nginx
