@@ -1,0 +1,61 @@
+---
+- hosts: localhost
+  connection: local
+  vars:
+    site_path: "/var/www/ew-starter.beta.enterwell.space"
+    site_url: "ew-starter.beta.enterwell.space"
+    fastcgi_pass: "unix:/run/php/php7.3-fpm.sock"
+  tasks:
+    # Create/Check for project directory
+    - name: create project directory
+      file:
+        path: { site_path }
+        state: directory
+
+    # Install and start nginx
+    - name: ensure nginx is at the latest version
+      apt: name=nginx state=latest
+    - name: start nginx
+      service:
+        name: nginx
+        state: started
+
+    # Configure nginx
+    # Configuration replacements based on variables
+    - name: replace VAR_SERVER_ROOT in nginx config
+      ansible.builtin.replace:
+        path: ./files/stage.nginx.conf
+        regexp: "VAR_SERVER_ROOT"
+        replace: { site_path }
+    - name: replace VAR_SERVER_NAME in nginx config
+      ansible.builtin.replace:
+        path: ./files/stage.nginx.conf
+        regexp: "VAR_SERVER_NAME"
+        replace: { site_url }
+    - name: replace VAR_FASTCGI_PASS in nginx config
+      ansible.builtin.replace:
+        path: ./files/stage.nginx.conf
+        regexp: "VAR_FASTCGI_PASS"
+        replace: { fastcgi_pass }
+
+    # Copy nginx and make symlink
+    - name: copy the nginx config file
+      copy:
+        src: ./files/stage.nginx.conf
+        dest: /etc/nginx/sites-available/{ site_url }
+      become: yes
+    - name: create symlink
+      file:
+        src: /etc/nginx/sites-available/{ site_url }
+        dest: /etc/nginx/sites-enabled/{ site_url }
+        state: link
+      become: yes
+
+    # Restart nginx
+    - name: restart nginx
+      service:
+        name: nginx
+        state: restarted
+      become: yes
+
+    # Set file/folder permissions owners
