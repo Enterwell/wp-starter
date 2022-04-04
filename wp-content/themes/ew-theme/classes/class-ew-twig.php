@@ -39,6 +39,12 @@ class Ew_Twig {
 	 */
 	protected $loader;
 
+    /**
+     * Script and link entry renderer
+     * @var EntryFilesTwigExtension
+     */
+	public $entry_renderer;
+
 	/**
 	 * Ew_Twig constructor.
 	 */
@@ -55,6 +61,9 @@ class Ew_Twig {
 			'cache' => false,
 			'debug' => true
 		) );
+
+		// Init script renderer
+        $this->entry_renderer = new EntryFilesTwigExtension(THEME_DIR . '/assets/dist/entrypoints.json');
 
 		// Add twig functions.
 		add_action( 'init', [ $this, 'add_twig_functions' ] );
@@ -103,7 +112,7 @@ class Ew_Twig {
 		// Add localization extension
 		$this->twig->addExtension( new Ew_Twig_Extension_Localization() );
 		// Add encore entries extension
-		$this->twig->addExtension( new EntryFilesTwigExtension(THEME_DIR . '/assets/dist/entrypoints.json') );
+		$this->twig->addExtension( $this->entry_renderer );
 	}
 
 	/**

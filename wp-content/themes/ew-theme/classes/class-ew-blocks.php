@@ -209,13 +209,13 @@ class Ew_Blocks {
      * @param $block_name
      */
     public static function add_block_assets($block_name) {
-        $encore_renderer = new EntryFilesTwigExtension(THEME_DIR . '/assets/dist/entrypoints.json');
+        global $ew_twig;
 
-        add_action('wp_print_footer_scripts', function() use ($encore_renderer, $block_name) {
+        add_action('wp_print_footer_scripts', function() use ($ew_twig, $block_name) {
             $blockEntryPath = "blocks/$block_name/public/$block_name";
 
             try {
-                echo $encore_renderer->renderWebpackScriptTags($blockEntryPath);
+                echo $ew_twig->entry_renderer->renderWebpackScriptTags($blockEntryPath, ['defer' => 'defer']);
             } catch (EntrypointNotFoundException $e) {
                 // Public JS file for block doesn't exist or file isn't named the same as block
             }
