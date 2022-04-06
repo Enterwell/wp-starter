@@ -1,0 +1,10 @@
+// File for definition of all core common gutenberg editor contents
+
+/* Main column block width */
+.wp-block {
+  max-width: none;
+
+  &[data-align='wide'], &[data-align='full'] {
+    max-width: none;
+  }
+}

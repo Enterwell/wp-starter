@@ -5,5 +5,11 @@
   "hasInnerBlocks": false,
   "keywords": [],
   "styles": [],
-  "description": "Example block for base development"
+  "description": "Example block for base development",
+  "attributes": {
+    "customAttribute": {
+      "type": "string",
+      "default": "Example value"
+    }
+  }
 }

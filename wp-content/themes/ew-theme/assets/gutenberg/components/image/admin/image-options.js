@@ -1,7 +1,7 @@
 import {MediaPlaceholder} from '@wordpress/block-editor';
 import {TextControl, BaseControl, Button, ToggleControl} from '@wordpress/components';
-import styles from "../image.module.scss?module";
-import {getAttr, getAttrKey} from "../../../../helpers/BlockAttributesHelper";
+import styles from "./image.module.scss?module";
+import {withAttr} from "../../../helpers/BlockAttributesHelper";
 
 /**
  * Image component options partial
@@ -11,11 +11,8 @@ import {getAttr, getAttrKey} from "../../../../helpers/BlockAttributesHelper";
  * @returns {*}
  * @constructor
  */
-export const ImageOptions = ({prefix, attributes, setAttributes}) => {
-	const imageUrl = getAttr(prefix, 'imageUrl', attributes);
-	const imageAlt = getAttr(prefix, 'imageAlt', attributes);
-	const isCover = getAttr(prefix, 'isCover', attributes);
-
+const ImageOptions = ({prefix, attributes, setAttributes}) => {
+	const {imageUrl, imageAlt, isCover} = attributes;
 	/**
 	 * Remove image button local component
 	 */
@@ -27,9 +24,7 @@ export const ImageOptions = ({prefix, attributes, setAttributes}) => {
 				isSmall
 				isDestructive
 				className={styles.optionsRemoveImageButton}
-				onClick={() => setAttributes({
-					[getAttrKey(prefix, 'imageUrl')]: undefined
-				})}
+				onClick={() => setAttributes({imageUrl: undefined})}
 				icon='trash'
 			/>
 			}
@@ -43,9 +38,7 @@ export const ImageOptions = ({prefix, attributes, setAttributes}) => {
 				<MediaPlaceholder
 					className={styles.optionsImagePlaceholder}
 					icon='format-image'
-					onSelect={({url, alt}) => setAttributes({
-						[getAttrKey(prefix, 'imageUrl')]: url
-					})}
+					onSelect={({url}) => setAttributes({imageUrl: url})}
 					accept='image/*'
 					allowedTypes={['image']}
 				/>
@@ -65,15 +58,17 @@ export const ImageOptions = ({prefix, attributes, setAttributes}) => {
 			<TextControl
 				label='Image alt text'
 				value={imageAlt}
-				onChange={(value) => setAttributes({[getAttrKey(prefix, 'imageAlt')]: value})}
+				onChange={(value) => setAttributes({imageAlt: value})}
 			/>
 
 			<ToggleControl
 				label='Cover image?'
 				help={'Has image as cover in its container.'}
 				checked={isCover}
-				onChange={(value) => setAttributes({[getAttrKey(prefix, 'isCover')]: value})}
+				onChange={(value) => setAttributes({isCover: value})}
 			/>
 		</>
 	);
 };
+
+export default withAttr(ImageOptions);

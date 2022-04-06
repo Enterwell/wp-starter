@@ -1,7 +1,7 @@
 import clsx from 'clsx';
-import styles from '../image.module.scss?module'
-import {getAttr, getAttrKey} from "../../../../helpers/BlockAttributesHelper";
+import styles from './image.module.scss?module'
 import {MediaPlaceholder} from '@wordpress/block-editor';
+import {withAttr} from "../../../helpers/BlockAttributesHelper";
 
 /**
  * Image component editor partial
@@ -13,19 +13,15 @@ import {MediaPlaceholder} from '@wordpress/block-editor';
  * @returns {*}
  * @constructor
  */
-export const ImageEditor = ({prefix, attributes, setAttributes, componentClassName, imageClassName}) => {
-	const imageUrl = getAttr(prefix, 'imageUrl', attributes);
-	const imageAlt = getAttr(prefix, 'imageAlt', attributes);
-	const isCover = getAttr(prefix, 'isCover', attributes);
+const Image = ({prefix, attributes, setAttributes, componentClassName, imageClassName}) => {
+	const {imageUrl, imageAlt, isCover} = attributes;
 
 	return (
 		<div className={clsx(styles.imageComponent, componentClassName)}>
 			{!imageUrl &&
 			<MediaPlaceholder
 				icon='format-image'
-				onSelect={({url, alt}) => setAttributes({
-					[getAttrKey(prefix, 'imageUrl')]: url
-				})}
+				onSelect={({url}) => setAttributes({imageUrl: url})}
 				accept='image/*'
 				allowedTypes={['image']}
 			/>
@@ -41,3 +37,5 @@ export const ImageEditor = ({prefix, attributes, setAttributes, componentClassNa
 		</div>
 	);
 };
+
+export default withAttr(Image);

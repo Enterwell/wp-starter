@@ -1,0 +1,7 @@
+@import "../../../../styles/common/variables";
+@import "../../../../styles/components/container";
+
+// Container editor partial
+.containerComponent {
+  @extend %container;
+}

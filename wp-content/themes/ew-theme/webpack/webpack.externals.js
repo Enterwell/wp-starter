@@ -16,7 +16,8 @@ const wplib = [
   'apiFetch',
   'plugins',
   'editPost',
-  'blockEditor'
+  'blockEditor',
+  'richText'
 ];
 
 /**

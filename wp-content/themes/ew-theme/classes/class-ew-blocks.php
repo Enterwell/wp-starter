@@ -10,6 +10,7 @@ class Ew_Blocks {
 
     // Constants
     const BLOCKS_FOLDER = THEME_DIR . '/assets/gutenberg/blocks';
+    const COMPONENTS_FOLDER = THEME_DIR . '/assets/gutenberg/components';
     const BLOCKS_MANIFEST_FILE = THEME_DIR . '/assets/gutenberg/manifest.json';
 
 	/**
@@ -89,11 +90,12 @@ class Ew_Blocks {
 		foreach ( $block_manifests as $block_manifest_file ) {
 			$block_manifest   = static::load_json_from_file( $block_manifest_file );
 			$block_attributes = static::get_block_attributes( $block_manifest );
+			$block_component_attributes = static::get_block_component_attributes($block_manifest, $block_attributes['blockFullName']['default']);
 
 			register_block_type(
 				$block_attributes['blockFullName']['default'],
 				[
-					'attributes'      => $block_attributes,
+					'attributes'      => array_merge($block_attributes, $block_component_attributes),
 					'render_callback' => [ static::class, 'render_block' ]
 				]
 			);
@@ -126,6 +128,53 @@ class Ew_Blocks {
 
 		return array_merge( $default_attributes, $block_attributes );
 	}
+
+    /**
+     * Gets attributes from components used in block
+     * Appends unique prefix to each component attribute based on block's manifest 'components' prop
+     *
+     * @param $block_manifest
+     * @param $block_name
+     * @return array
+     * @throws \Exception
+     */
+	private static function get_block_component_attributes($block_manifest, $block_name) {
+        // Return if no components prop in blocks manifest
+	    if(empty($block_manifest['components']))
+            return [];
+
+	    $attributes = [];
+
+	    // Foreach component in blocks manifest
+        foreach ($block_manifest['components'] as $prefix => $component_name) {
+            // Get component manifest file
+            $components_root = static::COMPONENTS_FOLDER;
+            $component_manifest_file = glob( "$components_root/$component_name/manifest.json" );
+
+            // If component manifest doesn't not exist, throw ex and continue
+            if(!$component_manifest_file) {
+                throw new \Exception( "Component '$component_name' manifest inside '$block_name' manifest file does not exist (theme/assets/gutenberg/components/$component_name/manifest.json)" );
+                continue;
+            }
+
+            // Get data from components manifest
+            $component_manifest = static::load_json_from_file( $component_manifest_file[0] );
+
+            // If no attributes for that component, just skip it
+            if(empty($component_manifest['attributes']))
+                continue;
+
+            foreach ($component_manifest['attributes'] as $attribute_key => $attribute_object) {
+                // Capitalise attribute key so it's in camelCase when appended to prefix
+                $attribute_name = ucfirst($attribute_key);
+
+                // Add components prefixed attribute to block attributes
+                $attributes["$prefix$attribute_name"] = $attribute_object;
+            }
+        }
+
+	    return $attributes;
+    }
 
     /**
      * Gets block name based on blocks manifest and global manifest for all blocks
@@ -226,14 +275,18 @@ class Ew_Blocks {
 	 * Add gutenberg admin script to head if admin interface
 	 */
 	public static function add_block_editor_assets() {
-		$encore_renderer = new EntryFilesTwigExtension(THEME_DIR . '/assets/dist/entrypoints.json');
+        global $ew_twig;
+
+        // Gutenberg format types
+        echo $ew_twig->entry_renderer->renderWebpackScriptTags('gutenberg_admin_format_types');
+        echo $ew_twig->entry_renderer->renderWebpackLinkTags('gutenberg_admin_format_types');
 
 		// Gutenberg components
-        echo $encore_renderer->renderWebpackScriptTags('gutenberg_admin_components');
-        echo $encore_renderer->renderWebpackLinkTags('gutenberg_admin_components');
+        echo $ew_twig->entry_renderer->renderWebpackScriptTags('gutenberg_admin_components');
+        echo $ew_twig->entry_renderer->renderWebpackLinkTags('gutenberg_admin_components');
 
 		// Gutenberg blocks
-		echo $encore_renderer->renderWebpackScriptTags('gutenberg_admin_blocks');
-		echo $encore_renderer->renderWebpackLinkTags('gutenberg_admin_blocks');
+		echo $ew_twig->entry_renderer->renderWebpackScriptTags('gutenberg_admin_blocks');
+		echo $ew_twig->entry_renderer->renderWebpackLinkTags('gutenberg_admin_blocks');
 	}
 }

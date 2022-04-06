@@ -33,6 +33,23 @@ scriptEntries.forEach((file) => {
 ////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////
+// Finds all gutenberg format type scripts
+const gutenbergFormatTypeScriptEntries = glob.sync('format-types/**/*.js', {
+	'cwd': settings.PATHS.gutenberg
+});
+
+// Combines gutenberg format type scripts in one entry
+let gutenbergFormatTypeScripts = [];
+gutenbergFormatTypeScriptEntries.forEach((file) => {
+	const filePath = settings.PATHS.gutenberg + '/' + file;
+	gutenbergFormatTypeScripts.push(filePath);
+});
+
+// Add gutenberg format type scripts as one entry if any
+gutenbergFormatTypeScripts.length && Encore.addEntry('gutenberg_admin_format_types', gutenbergFormatTypeScripts);
+////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////
 // Finds all gutenberg component scripts
 const gutenbergComponentScriptEntries = glob.sync('components/**/*.js', {
 	'cwd': settings.PATHS.gutenberg
@@ -76,6 +93,9 @@ Encore
 
   // Gutenberg admin script entry
   .addEntry('gutenberg_admin_blocks', settings.PATHS.gutenberg + '/index.js')
+
+  // Admin styles entry
+  .addStyleEntry('editor_styles', settings.PATHS.styles + '/common/editor.scss')
 
   .enableSingleRuntimeChunk()
 

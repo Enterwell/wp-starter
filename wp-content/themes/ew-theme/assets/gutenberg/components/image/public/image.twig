@@ -1,3 +1,7 @@
+{% set imageUrl = get_attr(prefix, 'imageUrl', attributes) %}
+{% set imageAlt = get_attr(prefix, 'imageAlt', attributes) %}
+{% set isCover = get_attr(prefix, 'isCover', attributes) %}
+
 {# Image gutenberg component #}
 <div class="gc-image {{ componentClass }}">
     {# Image #}

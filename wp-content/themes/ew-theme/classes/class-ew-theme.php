@@ -30,6 +30,9 @@ class Ew_Theme {
 		// Add action to wp head
 		add_action( 'wp_head', [ static::class, 'ew_setup_theme_js_vars' ], 100 );
 
+        // Add action to wp head
+        add_action( 'admin_head', [ static::class, 'add_editor_custom_styles' ], 20 );
+
 		// Load theme view models
 		$vm_loader = new EW_View_Models_Loader();
 		$vm_loader->load_theme_view_models();
@@ -131,6 +134,15 @@ class Ew_Theme {
 		// Echo vars
 		echo $js_vars_output;
 	}
+
+    /**
+     * Adds CSS styles to wp-admin
+     */
+	public static function add_editor_custom_styles() {
+        global $ew_twig;
+
+        echo $ew_twig->entry_renderer->renderWebpackLinkTags('editor_styles');
+    }
 
 	/**
 	 * Enqueues script to specific pages based on callback method
