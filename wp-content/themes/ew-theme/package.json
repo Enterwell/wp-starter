@@ -6,7 +6,9 @@
   "scripts": {
     "start": "encore dev-server --config ./webpack/webpack.config.js",
     "build": "encore production --config ./webpack/webpack.config.js",
-    "add-block": "node ./.scripts/create-block.js"
+    "add-block": "node ./.scripts/create-block.js",
+    "add-component": "node ./.scripts/create-component.js",
+    "add-format": "node ./.scripts/create-format.js"
   },
   "author": "Enterwell",
   "license": "ISC",

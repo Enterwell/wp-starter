@@ -11,8 +11,8 @@ console.log(`
 | |__| | | | ||  __/ |   \\ V  V /  __/ | |
 \\____/_| |_|\\__\\___|_|    \\_/\\_/ \\___|_|_|
 `);
-console.log('Enterwell\'s gutenberg block generator');
-console.log('v2.0');
+console.log('Enterwell\'s Gutenberg block generator');
+console.log('Version: v2.0');
 console.log('///////////////////////////////////////////////');
 
 const TEMPLATES = {
