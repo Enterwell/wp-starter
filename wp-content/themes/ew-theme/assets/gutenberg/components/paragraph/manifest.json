@@ -1,0 +1,10 @@
+{
+  "componentName": "paragraph",
+  "title": "Paragraph",
+  "description": "Used for writing paragraph text",
+  "attributes": {
+    "paragraphText": {
+      "type": "string"
+    }
+  }
+}

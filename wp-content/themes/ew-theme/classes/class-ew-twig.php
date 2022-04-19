@@ -15,6 +15,7 @@ require_once( THEME_DIR . '/classes/twig-extensions/class-ew-twig-extension-svg.
 require_once( THEME_DIR . '/classes/twig-extensions/class-ew-twig-extension-image.php' );
 require_once( THEME_DIR . '/classes/twig-extensions/class-ew-twig-extension-utils.php' );
 require_once( THEME_DIR . '/classes/twig-extensions/class-ew-twig-extension-localization.php' );
+require_once( THEME_DIR . '/classes/twig-extensions/class-ew-twig-extension-block-attributes.php' );
 
 /**
  * Class Ew_Twig
@@ -39,6 +40,12 @@ class Ew_Twig {
 	 */
 	protected $loader;
 
+    /**
+     * Script and link entry renderer
+     * @var EntryFilesTwigExtension
+     */
+	public $entry_renderer;
+
 	/**
 	 * Ew_Twig constructor.
 	 */
@@ -47,7 +54,7 @@ class Ew_Twig {
 		// Init loader
 		$this->loader = new Twig_Loader_Filesystem( [
 			THEME_DIR . static::TEMPLATES_DIR,
-			THEME_DIR . '/assets/gutenberg/blocks'
+			THEME_DIR . '/assets'
 		] );
 
 		// Init twig.
@@ -56,6 +63,9 @@ class Ew_Twig {
 			'debug' => true
 		) );
 
+		// Init script renderer
+        $this->entry_renderer = new EntryFilesTwigExtension(THEME_DIR . '/assets/dist/entrypoints.json');
+
 		// Add twig functions.
 		add_action( 'init', [ $this, 'add_twig_functions' ] );
 
@@ -63,16 +73,16 @@ class Ew_Twig {
 		add_action( 'init', [ $this, 'add_twig_extensions' ] );
 	}
 
-	/**
-	 * Render template.
-	 *
-	 * @param string $path
-	 * @param array $context
-	 *
-	 * @throws \Twig_Error_Loader
-	 * @throws \Twig_Error_Runtime
-	 * @throws \Twig_Error_Syntax
-	 */
+    /**
+     * Render template.
+     *
+     * @param string $path
+     * @param array $context
+     *
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
+     */
 	public function render( $path, $context ) {
 
 		// Display template
@@ -102,8 +112,10 @@ class Ew_Twig {
 		$this->twig->addExtension( new Ew_Twig_Extension_Utils() );
 		// Add localization extension
 		$this->twig->addExtension( new Ew_Twig_Extension_Localization() );
+		// Add gutenberg component attributes extension
+        $this->twig->addExtension( new Ew_Twig_Extension_Block_Attributes() );
 		// Add encore entries extension
-		$this->twig->addExtension( new EntryFilesTwigExtension(THEME_DIR . '/assets/dist/entrypoints.json') );
+		$this->twig->addExtension( $this->entry_renderer );
 	}
 
 	/**

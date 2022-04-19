@@ -6,7 +6,9 @@
   "scripts": {
     "start": "encore dev-server --config ./webpack/webpack.config.js",
     "build": "encore production --config ./webpack/webpack.config.js",
-    "add-block": "node ./.scripts/createNewBlock.js"
+    "add-block": "node ./.scripts/create-block.js",
+    "add-component": "node ./.scripts/create-component.js",
+    "add-format": "node ./.scripts/create-format.js"
   },
   "author": "Enterwell",
   "license": "ISC",
@@ -14,7 +16,7 @@
     "@enterwell/enum-helper": "^1.0.0",
     "axios": "^0.18.0",
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
-    "classnames": "^2.2.5",
+    "clsx": "^1.1.1",
     "debounce": "^1.0.2",
     "exports-loader": "^0.7.0",
     "mobx": "^3.3.0",

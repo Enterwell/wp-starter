@@ -1,0 +1,6 @@
+{% set paragraphText = get_attr(prefix, 'paragraphText', attributes) %}
+
+{# Paragraph gutenberg component #}
+<p class="gc-paragraph {{ componentClass }}">
+    {{ paragraphText | raw }}
+</p>

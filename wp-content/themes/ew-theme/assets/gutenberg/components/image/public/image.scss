@@ -1,0 +1,15 @@
+// Image gutenberg component styles
+.gc-image {
+  width: 100%;
+
+  // Image
+  &__image {
+    width: 100%;
+    height: auto;
+
+    // Is cover
+    &--cover {
+      object-fit: cover;
+    }
+  }
+}

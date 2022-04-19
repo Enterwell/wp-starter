@@ -1,0 +1,17 @@
+{
+  "componentName": "image",
+  "title": "Image",
+  "description": "Used for displaying images in <img/> tag",
+  "attributes": {
+    "imageUrl": {
+      "type": "string"
+    },
+    "imageAlt": {
+      "type": "string"
+    },
+    "isCover": {
+      "type": "boolean",
+      "default": false
+    }
+  }
+}

@@ -4,15 +4,14 @@ namespace EwStarter;
 
 /**
  * Class Ew_Blocks
- * @package Majstor
+ * @package EwStarter
  */
 class Ew_Blocks {
-	const BLOCKS_PROD_JS_FILENAME = 'blocks.min.js';
-	const BLOCKS_PROD_CSS_FILENAME = 'blocks.min.css';
-	const BLOCKS_DEV_JS_FILENAME = 'blocks.js';
 
-	const BLOCKS_SCRIPT_HANDLE = 'ew_blocks_script';
-	const BLOCKS_STYLE_HANDLE = 'ew_blocks_style';
+    // Constants
+    const BLOCKS_FOLDER = THEME_DIR . '/assets/gutenberg/blocks';
+    const COMPONENTS_FOLDER = THEME_DIR . '/assets/gutenberg/components';
+    const BLOCKS_MANIFEST_FILE = THEME_DIR . '/assets/gutenberg/manifest.json';
 
 	/**
 	 * Initializes blocks.
@@ -25,17 +24,18 @@ class Ew_Blocks {
 		add_action( 'init', [ static::class, 'load_blocks' ] );
 
 		// Register block category for project
-		add_filter( 'block_categories', [ static::class, 'add_blocks_category' ] );
+		add_filter( 'block_categories_all', [ static::class, 'add_blocks_category' ] );
 	}
 
-	/**
-	 * @param $categories
-	 *
-	 * @return array
-	 */
-	static function add_blocks_category( $categories ) {
-		$blocks_manifest_file = THEME_DIR . '/assets/gutenberg/manifest.json';
-		$blocks_manifest      = static::load_json_from_file( $blocks_manifest_file );
+    /**
+     * Appends block category for our custom blocks
+     * Gets its name from global manifest file for all blocks
+     *
+     * @param $categories
+     * @return array
+     */
+	public static function add_blocks_category( $categories ) {
+		$blocks_manifest      = static::load_json_from_file( static::BLOCKS_MANIFEST_FILE );
 
 		if ( empty( $blocks_manifest ) || empty( $blocks_manifest['blocksCategory'] ) ) {
 			return $categories;
@@ -49,31 +49,39 @@ class Ew_Blocks {
 		return $categories;
 	}
 
-	/**
-	 * @param $file_path
-	 *
-	 * @return array|mixed|null|object
-	 */
+    /**
+     * Load JSON from file
+     *
+     * @param $file_path
+     * @return mixed|null
+     */
 	private static function load_json_from_file( $file_path ) {
 		if ( ! file_exists( $file_path ) ) {
 			return null;
 		}
+
+		// Get file contents
 		$contents = file_get_contents( $file_path );
+
 		if ( empty( $contents ) ) {
 			return null;
 		}
 
+		// Decode in appropriate format
 		$data = json_decode( $contents, true );
 
 		return $data;
 	}
 
-	/**
-	 * @throws \Exception
-	 */
+    /**
+     * Load all blocks in gutenberg block folders and register them
+     *
+     * @throws \Exception
+     */
 	static function load_blocks() {
-		$blocks_root     = THEME_DIR . '/assets/gutenberg/blocks';
+		$blocks_root     = static::BLOCKS_FOLDER;
 		$block_manifests = glob( "$blocks_root/**/manifest.json" );
+
 		if ( ! $block_manifests ) {
 			return;
 		}
@@ -82,24 +90,28 @@ class Ew_Blocks {
 		foreach ( $block_manifests as $block_manifest_file ) {
 			$block_manifest   = static::load_json_from_file( $block_manifest_file );
 			$block_attributes = static::get_block_attributes( $block_manifest );
+			$block_component_attributes = static::get_block_component_attributes($block_manifest, $block_attributes['blockFullName']['default']);
 
 			register_block_type(
 				$block_attributes['blockFullName']['default'],
 				[
-					'attributes'      => $block_attributes,
+					'attributes'      => array_merge($block_attributes, $block_component_attributes),
 					'render_callback' => [ static::class, 'render_block' ]
 				]
 			);
 		}
 	}
 
-	/**
-	 * @param $manifest
-	 *
-	 * @return array
-	 * @throws \Exception
-	 */
+    /**
+     * Gets block attributes from blocks manifest file
+     * Adds default attributes in case some of them are not provided
+     *
+     * @param $manifest
+     * @return array
+     * @throws \Exception
+     */
 	private static function get_block_attributes( $manifest ) {
+	    // Default attributes
 		$default_attributes = [
 			'blockFullName' => [
 				'type'    => 'string',
@@ -111,27 +123,76 @@ class Ew_Blocks {
 			]
 		];
 
+		// Attributes from blocks manifest file
 		$block_attributes = ! empty( $manifest['attributes'] ) ? $manifest['attributes'] : [];
 
 		return array_merge( $default_attributes, $block_attributes );
 	}
 
-	/**
-	 * @param $manifest
-	 *
-	 * @return string
-	 * @throws \Exception
-	 */
+    /**
+     * Gets attributes from components used in block
+     * Appends unique prefix to each component attribute based on block's manifest 'components' prop
+     *
+     * @param $block_manifest
+     * @param $block_name
+     * @return array
+     * @throws \Exception
+     */
+	private static function get_block_component_attributes($block_manifest, $block_name) {
+        // Return if no components prop in blocks manifest
+	    if(empty($block_manifest['components']))
+            return [];
+
+	    $attributes = [];
+
+	    // Foreach component in blocks manifest
+        foreach ($block_manifest['components'] as $prefix => $component_name) {
+            // Get component manifest file
+            $components_root = static::COMPONENTS_FOLDER;
+            $component_manifest_file = glob( "$components_root/$component_name/manifest.json" );
+
+            // If component manifest doesn't not exist, throw ex and continue
+            if(!$component_manifest_file) {
+                throw new \Exception( "Component '$component_name' manifest inside '$block_name' manifest file does not exist (theme/assets/gutenberg/components/$component_name/manifest.json)" );
+                continue;
+            }
+
+            // Get data from components manifest
+            $component_manifest = static::load_json_from_file( $component_manifest_file[0] );
+
+            // If no attributes for that component, just skip it
+            if(empty($component_manifest['attributes']))
+                continue;
+
+            foreach ($component_manifest['attributes'] as $attribute_key => $attribute_object) {
+                // Capitalise attribute key so it's in camelCase when appended to prefix
+                $attribute_name = ucfirst($attribute_key);
+
+                // Add components prefixed attribute to block attributes
+                $attributes["$prefix$attribute_name"] = $attribute_object;
+            }
+        }
+
+	    return $attributes;
+    }
+
+    /**
+     * Gets block name based on blocks manifest and global manifest for all blocks
+     * Appends projectNamespace from global manifest to block name
+     *
+     * @param $manifest
+     * @return string
+     * @throws \Exception
+     */
 	private static function get_block_name( $manifest ) {
-		$blocks_manifest_file = THEME_DIR . '/assets/gutenberg/manifest.json';
-		$blocks_manifest      = static::load_json_from_file( $blocks_manifest_file );
+		$blocks_manifest      = static::load_json_from_file( static::BLOCKS_MANIFEST_FILE );
 
 		if ( empty( $blocks_manifest ) ) {
 			throw new \Exception( "Blocks manifest file does not exist (theme/admin/gutenberg/manifest.json)" );
 		}
 
 		if ( empty( $blocks_manifest['projectNamespace'] ) ) {
-			throw new \Exception( "Required filed 'projectNamespace' is not defined in blocks manifest." );
+			throw new \Exception( "Required field 'projectNamespace' is not defined in blocks manifest." );
 		}
 
 		if ( empty( $manifest['blockName'] ) ) {
@@ -141,11 +202,25 @@ class Ew_Blocks {
 		return implode( "/", [ $blocks_manifest['projectNamespace'], $manifest['blockName'] ] );
 	}
 
+    /**
+     * Callback function for block rendering
+     * Gets block twig template and returns its content
+     *
+     * @param $attributes
+     * @param string $inner_content
+     * @return false|string
+     * @throws \Twig_Error_Loader
+     * @throws \Twig_Error_Runtime
+     * @throws \Twig_Error_Syntax
+     */
 	public static function render_block( $attributes, $inner_content = '' ) {
 		global $ew_twig;
 
 		$block_name    = ! empty( $attributes['blockName'] ) ? $attributes['blockName'] : '';
 		$twig_template = static::get_theme_template_for_block( $block_name );
+
+		// Add block public script
+		self::add_block_assets($block_name);
 
 		ob_start();
 		$ew_twig->render( $twig_template, [
@@ -159,152 +234,59 @@ class Ew_Blocks {
 		return ob_get_clean();
 	}
 
+    /**
+     * Returns blocks twig template route from root of blocks folder
+     *
+     * @param $block_name
+     * @return string
+     * @throws \Exception
+     */
 	private static function get_theme_template_for_block( $block_name ) {
-		$blocks_root_dir = THEME_DIR . '/assets/gutenberg/blocks';
+		$blocks_root_dir = THEME_DIR . '/assets';
 
-		$block_twig_template = "$block_name/public/$block_name.twig";
+		$block_twig_template = "gutenberg/blocks/$block_name/public/$block_name.twig";
 		$block_twig_file     = "$blocks_root_dir/" . $block_twig_template;
 		if ( ! file_exists( $block_twig_file ) ) {
-			throw new \Exception( "Block view file not found for block '$block_name' ($block_twig_file)" );
+			throw new \Exception( "Block view (twig) file not found for block '$block_name' ($block_twig_file)" );
 		}
 
 		return $block_twig_template;
 	}
 
-	/**
-	 * If development env this function loads assets from asset-manifest.json and injects
-	 * them as scripts (or styles).
-	 */
-	static function enqueue_block_editor_assets() {
-		$build_dir     = THEME_DIR . '/assets/dist';
-		$build_url     = THEME_URL . '/assets/dist';
-		$manifest_file = $build_dir . '/asset-manifest.json';
+    /**
+     * Add gutenberg block public script to footer
+     * @param $block_name
+     */
+    public static function add_block_assets($block_name) {
+        global $ew_twig;
 
-		$is_dev = defined( 'EW_DEV' ) && EW_DEV;
-		if ( $is_dev ) {
-			// Load dev assets
-			static::enqueue_dev_assets( $manifest_file, $build_dir, $build_url );
-		} else {
-			// Load built assets
-			static::enqueue_prod_assets( $build_dir, $build_url );
-		}
-	}
+        add_action('wp_print_footer_scripts', function() use ($ew_twig, $block_name) {
+            $blockEntryPath = "blocks/$block_name/public/$block_name";
+
+            try {
+                echo $ew_twig->entry_renderer->renderWebpackScriptTags($blockEntryPath, ['defer' => 'defer']);
+            } catch (EntrypointNotFoundException $e) {
+                // Public JS file for block doesn't exist or file isn't named the same as block
+            }
+        }, 20);
+    }
 
 	/**
 	 * Add gutenberg admin script to head if admin interface
 	 */
-	static function add_block_editor_assets() {
-		$encore_renderer = new EntryFilesTwigExtension(THEME_DIR . '/assets/dist/entrypoints.json');
+	public static function add_block_editor_assets() {
+        global $ew_twig;
 
-		echo $encore_renderer->renderWebpackScriptTags('gutenberg_admin');
-		echo $encore_renderer->renderWebpackLinkTags('gutenberg_admin');
-	}
+        // Gutenberg format types
+        echo $ew_twig->entry_renderer->renderWebpackScriptTags('gutenberg_admin_format_types');
+        echo $ew_twig->entry_renderer->renderWebpackLinkTags('gutenberg_admin_format_types');
 
-	/**
-	 * Enqueue dev assets for blocks.
-	 *
-	 * @param $manifest
-	 */
-	private static function enqueue_dev_assets( $manifest ) {
-		$dev_script_url = static::get_dev_script_url_from_manifest( $manifest );
+		// Gutenberg components
+        echo $ew_twig->entry_renderer->renderWebpackScriptTags('gutenberg_admin_components');
+        echo $ew_twig->entry_renderer->renderWebpackLinkTags('gutenberg_admin_components');
 
-		if ( ! $dev_script_url ) {
-			// TODO: Warning no dev script in manifest
-			return;
-		}
-
-		wp_register_script(
-			static::BLOCKS_SCRIPT_HANDLE,
-			$dev_script_url,
-			static::get_blocks_script_dependencies(),
-			filemtime( $manifest ),
-			true
-		);
-
-		wp_enqueue_script( static::BLOCKS_SCRIPT_HANDLE );
-	}
-
-	/**
-	 * @param $manifest
-	 *
-	 * @return null
-	 */
-	private static function get_dev_script_url_from_manifest( $manifest ) {
-		$manifest_data = static::load_json_from_file( $manifest );
-		if ( empty( $manifest_data ) ) {
-			return null;
-		}
-
-		return $manifest_data[ static::BLOCKS_DEV_JS_FILENAME ] ? $manifest_data[ static::BLOCKS_DEV_JS_FILENAME ] : null;
-	}
-
-	/**
-	 * Gets all WordPress scripts that needs to be loaded
-	 * before our blocks script.
-	 *
-	 * @return array
-	 */
-	private static function get_blocks_script_dependencies() {
-		return [
-			'wp-blocks',
-			'wp-data',
-			'wp-edit-post',
-			'wp-element',
-			'wp-i18n',
-			'wp-plugins',
-			'jquery',
-			'wp-components',
-			'wp-editor',
-			'wp-date',
-			'wp-viewport',
-			'wp-blob',
-			'wp-url',
-		];
-	}
-
-	/**
-	 * Load blocks script for PROD environment.
-	 *
-	 * @param $build_dir
-	 * @param $build_url
-	 */
-	private static function enqueue_prod_assets( $build_dir, $build_url ) {
-		$blocks_js_out_file  = $build_dir . '/' . static::BLOCKS_PROD_JS_FILENAME;
-		$blocks_css_out_file = $build_dir . '/' . static::BLOCKS_PROD_CSS_FILENAME;
-		$blocks_js_out_url   = $build_url . '/' . static::BLOCKS_PROD_JS_FILENAME;
-		$blocks_css_out_url  = $build_url . '/' . static::BLOCKS_PROD_CSS_FILENAME;
-		if ( file_exists( $blocks_js_out_file ) ) {
-
-			// Register blocks script
-			wp_register_script(
-				static::BLOCKS_SCRIPT_HANDLE,
-				$blocks_js_out_url,
-				static::get_blocks_script_dependencies(),
-				filemtime( $blocks_js_out_file ),
-				true
-			);
-
-			// Enqueue blocks script
-			wp_enqueue_script( static::BLOCKS_SCRIPT_HANDLE );
-		} else {
-			// TODO: Add notification - PROD is on and there's no blocks file
-		}
-
-		if ( file_exists( $blocks_css_out_file ) ) {
-
-			// Register blocks script
-			wp_register_style(
-				static::BLOCKS_STYLE_HANDLE,
-				$blocks_css_out_url,
-				[],
-				filemtime( $blocks_css_out_file )
-			);
-
-			// Enqueue blocks script
-			wp_enqueue_style( static::BLOCKS_STYLE_HANDLE );
-		} else {
-			// TODO: Add notification - PROD is on and there's no blocks file
-		}
-
+		// Gutenberg blocks
+		echo $ew_twig->entry_renderer->renderWebpackScriptTags('gutenberg_admin_blocks');
+		echo $ew_twig->entry_renderer->renderWebpackLinkTags('gutenberg_admin_blocks');
 	}
 }
