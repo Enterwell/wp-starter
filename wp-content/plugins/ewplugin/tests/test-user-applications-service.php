@@ -5,7 +5,7 @@
  *
  * Class Test_User_Applications_Service
  */
-class Test_User_Applications_Service extends EWPlugin_Test_Case {
+class Test_User_Applications_Service extends Plugin_Test_Case {
 	/**
 	 * @var \EwStarter\User_Applications_Service
 	 */

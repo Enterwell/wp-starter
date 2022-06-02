@@ -1,6 +1,6 @@
 <?php
 
-namespace EWStarter;
+namespace EwStarter;
 
 /**
  * The admin-specific functionality of the plugin.
@@ -8,11 +8,11 @@ namespace EWStarter;
  * Defines the plugin name, version, and two examples hooks for how to
  * enqueue the admin-specific stylesheet and JavaScript.
  *
- * @package    EnterwellPlugin
- * @subpackage EnterwellPlugin/admin
+ * @package    EWPlugin
+ * @subpackage EWPlugin/admin
  * @author     Enterwell <info@enterwell.net>
  */
-class EWPlugin_Admin {
+class Plugin_Admin {
 
 	/**
 	 * The ID of this plugin.

@@ -1,16 +1,16 @@
 <?php
 
 /**
- * Class EWPlugin_Test_Case
+ * Class Plugin_Test_Case
  */
-class EWPlugin_Test_Case extends WP_UnitTestCase {
+class Plugin_Test_Case extends WP_UnitTestCase {
 	/**
 	 * Activates plugin on test set up.
 	 */
 	public static function setUpBeforeClass() {
 		parent::setUpBeforeClass();
 
-		\EWStarter\EWPlugin_Activator::activate();
+		\EwStarter\Plugin_Activator::activate();
 	}
 
 	/**
@@ -19,6 +19,6 @@ class EWPlugin_Test_Case extends WP_UnitTestCase {
 	public static function tearDownAfterClass() {
 		parent::tearDownAfterClass();
 
-		\EWStarter\EWPlugin_Deactivator::deactivate();
+		\EwStarter\Plugin_Deactivator::deactivate();
 	}
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace EWStarter;
+namespace EwStarter;
 
 /**
  * The public-facing functionality of the plugin.
@@ -12,7 +12,7 @@ namespace EWStarter;
  * @subpackage EWPlugin/public
  * @author     Enterwell <info@enterwell.net>
  */
-class EWPlugin_Public {
+class Plugin_Public {
 
 	/**
 	 * The ID of this plugin.

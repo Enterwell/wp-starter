@@ -1,6 +1,6 @@
 <?php
 
-namespace EWStarter;
+namespace EwStarter;
 
 /**
  * Register all actions and filters for the plugin.
@@ -13,7 +13,7 @@ namespace EWStarter;
  * @subpackage EWPlugin/includes
  * @author     Enterwell <info@enterwell.net>
  */
-class EWPlugin_Loader {
+class Plugin_Loader {
 
 	/**
 	 * The array of actions registered with WordPress.

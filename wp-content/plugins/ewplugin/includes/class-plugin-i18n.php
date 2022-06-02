@@ -1,6 +1,6 @@
 <?php
 
-namespace EWStarter;
+namespace EwStarter;
 
 /**
  * Define the internationalization functionality.
@@ -9,11 +9,11 @@ namespace EWStarter;
  * so that it is ready for translation.
  *
  * @since      1.0.0
- * @package    EnterwellPlugin
- * @subpackage EnterwellPlugin/includes
+ * @package    EWPlugin
+ * @subpackage EWPlugin/includes
  * @author     Enterwell <info@enterwell.net>
  */
-class EWPlugin_i18n {
+class Plugin_i18n {
 
 	/**
 	 * The domain specified for this plugin.

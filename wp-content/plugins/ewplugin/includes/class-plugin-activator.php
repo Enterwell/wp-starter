@@ -1,6 +1,6 @@
 <?php
 
-namespace EWStarter;
+namespace EwStarter;
 
 /**
  * Fired during plugin activation.
@@ -12,7 +12,7 @@ namespace EWStarter;
  * @subpackage EWPlugin/includes
  * @author     Enterwell <info@enterwell.net>
  */
-class EWPlugin_Activator {
+class Plugin_Activator {
 	/**
 	 * Database version
 	 * Should be updated every time we modify the database
@@ -22,7 +22,7 @@ class EWPlugin_Activator {
 	/**
 	 * Database version option name
 	 */
-	const DB_VERSION_OPTION_NAME = '_ewplugin_db_version';
+	const DB_VERSION_OPTION_NAME = '_ew_plugin_db_version';
 
 
 	/**
@@ -62,8 +62,8 @@ class EWPlugin_Activator {
 
 		return [
 			"CREATE TABLE {$user_applications_table} (
-				id BIGINT UNSIGNED NOT NULL auto_increment,	
-				date_created VARCHAR(128) NOT NULL,			
+				id BIGINT UNSIGNED NOT NULL auto_increment,
+				date_created VARCHAR(128) NOT NULL,
 				first_name VARCHAR(256),
 				last_name VARCHAR(256),
 				email VARCHAR(256),
