@@ -1,6 +1,6 @@
 <?php
 
-namespace EWStarter;
+namespace EwStarter;
 
 use Ew\WpHelpers\Controllers\AController;
 
@@ -8,7 +8,7 @@ use Ew\WpHelpers\Controllers\AController;
  * Class AEWPlugin_Controller
  * @package EWPlugin
  */
-abstract class AEWPlugin_Controller extends AController {
+abstract class APlugin_Controller extends AController {
 	protected $base_route = 'wp-ew';
 	protected $version = 'v1';
 

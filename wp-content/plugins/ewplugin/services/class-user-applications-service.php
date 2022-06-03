@@ -17,7 +17,7 @@ class User_Applications_Service extends Validation_Service {
 	/**
 	 * Invoice files folder name.
 	 */
-	const INVOICE_FILES_FOLDER = 'ewstarter-invoice-files';
+	const INVOICE_FILES_FOLDER = 'EwStarter-invoice-files';
 
 	/**
 	 * @var User_Applications_Repository

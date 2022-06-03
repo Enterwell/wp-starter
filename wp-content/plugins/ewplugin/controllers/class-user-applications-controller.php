@@ -12,7 +12,7 @@ namespace EwStarter;
  * Class User_Applications_Controller
  * @package EwStarter
  */
-class User_Applications_Controller extends AEWPlugin_Controller {
+class User_Applications_Controller extends APlugin_Controller {
 	/**
 	 * @var User_Applications_Service
 	 */

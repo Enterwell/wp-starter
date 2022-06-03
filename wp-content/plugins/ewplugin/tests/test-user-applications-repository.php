@@ -12,9 +12,9 @@
  * User application EDIT is not tested since usually we don't edit once
  * created user applications.
  */
-class User_Applications_Repository_Test extends EWPlugin_Test_Case {
+class User_Applications_Repository_Test extends Plugin_Test_Case {
 	/**
-	 * @var \EWStarter\User_Applications_Repository
+	 * @var \EwStarter\User_Applications_Repository
 	 */
 	private $user_applications_repository;
 
@@ -29,10 +29,10 @@ class User_Applications_Repository_Test extends EWPlugin_Test_Case {
 
 	/**
 	 * Returns user application for testing.
-	 * @return \EWStarter\User_Application
+	 * @return \EwStarter\User_Application
 	 */
 	private function get_test_user_application() {
-		$user_application                    = new \EWStarter\User_Application();
+		$user_application                    = new \EwStarter\User_Application();
 		$user_application->first_name        = 'John';
 		$user_application->last_name         = 'Doe';
 		$user_application->email             = 'john@doe.com';

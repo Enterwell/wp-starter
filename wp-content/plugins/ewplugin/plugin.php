@@ -20,7 +20,7 @@
  * Author URI:        http://enterwell.net/
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
- * Text Domain:       ewplugin
+ * Text Domain:       ew-plugin
  * Domain Path:       /languages
  */
 
@@ -31,30 +31,30 @@ if ( ! defined( 'WPINC' ) ) {
 
 /**
  * The code that runs during plugin activation.
- * This action is documented in includes/class-enterwell-plugin-activator.php
+ * This action is documented in includes/class-plugin-activator.php
  */
-function activate_ewplugin() {
-	require_once plugin_dir_path( __FILE__ ) . 'includes/class-ewplugin-activator.php';
-	\EWStarter\EWPlugin_Activator::activate();
+function activate_ew_plugin() {
+	require_once plugin_dir_path( __FILE__ ) . 'includes/class-plugin-activator.php';
+	\EwStarter\Plugin_Activator::activate();
 }
 
 /**
  * The code that runs during plugin deactivation.
- * This action is documented in includes/class-ewplugin-deactivator.php
+ * This action is documented in includes/class-plugin-deactivator.php
  */
-function deactivate_ewplugin() {
-	require_once plugin_dir_path( __FILE__ ) . 'includes/class-ewplugin-deactivator.php';
-	\EWStarter\EWPlugin_Deactivator::deactivate();
+function deactivate_ew_plugin() {
+	require_once plugin_dir_path( __FILE__ ) . 'includes/class-plugin-deactivator.php';
+	\EwStarter\Plugin_Deactivator::deactivate();
 }
 
-register_activation_hook( __FILE__, 'activate_ewplugin' );
-register_deactivation_hook( __FILE__, 'deactivate_ewplugin' );
+register_activation_hook( __FILE__, 'activate_ew_plugin' );
+register_deactivation_hook( __FILE__, 'deactivate_ew_plugin' );
 
 /**
  * The core plugin class that is used to define internationalization,
  * admin-specific hooks, and public-facing site hooks.
  */
-require plugin_dir_path( __FILE__ ) . 'includes/class-ewplugin.php';
+require plugin_dir_path( __FILE__ ) . 'includes/class-plugin.php';
 
 /**
  * Begins execution of the plugin.
@@ -65,11 +65,11 @@ require plugin_dir_path( __FILE__ ) . 'includes/class-ewplugin.php';
  *
  * @since    1.0.0
  */
-function run_ewplugin() {
+function run_ew_plugin() {
 
-	$plugin = new \EWStarter\EWPlugin();
+	$plugin = new \EwStarter\Plugin();
 	$plugin->run();
 
 }
 
-run_ewplugin();
+run_ew_plugin();

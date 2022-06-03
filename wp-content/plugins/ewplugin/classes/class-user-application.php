@@ -1,6 +1,6 @@
 <?php
 
-namespace EWStarter;
+namespace EwStarter;
 
 /**
  * Class User_Application
@@ -8,7 +8,7 @@ namespace EWStarter;
  * Class that models one application
  * for the prize game.
  *
- * @package EWStarter1
+ * @package EwStarter
  * @since 1.0.0
  */
 class User_Application {

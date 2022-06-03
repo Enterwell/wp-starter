@@ -87,7 +87,7 @@ steps:
   - task: PublishPipelineArtifact@1
     inputs:
       targetPath: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).tar.gz'
-      artifact: 'supervisor.hr'
+      artifact: 'ewStarter'
       publishLocation: 'pipeline'
 
 

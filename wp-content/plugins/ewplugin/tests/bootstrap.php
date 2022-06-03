@@ -25,13 +25,13 @@ require_once $_tests_dir . '/includes/functions.php';
  * Manually load the plugin being tested.
  */
 function _manually_load_plugin() {
-	require dirname( dirname( __FILE__ ) ) . '/ewplugin.php';
+	require dirname( dirname( __FILE__ ) ) . '/plugin.php';
 }
 
 tests_add_filter( 'muplugins_loaded', '_manually_load_plugin' );
 
-require dirname( dirname( __FILE__ ) ) . '/includes/class-ewplugin-activator.php';
-require dirname( dirname( __FILE__ ) ) . '/includes/class-ewplugin-deactivator.php';
+require dirname( dirname( __FILE__ ) ) . '/includes/class-plugin-activator.php';
+require dirname( dirname( __FILE__ ) ) . '/includes/class-plugin-deactivator.php';
 
 // Start up the WP testing environment.
 require $_tests_dir . '/includes/bootstrap.php';

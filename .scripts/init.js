@@ -5,42 +5,25 @@ import('renamer').then(function (rnm) {
 
     // Replace namespaces
     replace({
-        regex: 'EWStarter',
+        regex: 'EwStarter',
         replacement: config.namespace,
         paths: ['wp-content/plugins/ewplugin', 'wp-content/themes/ew-theme'],
         exclude: 'wp-content/plugins/ewplugin/vendor, wp-content/themes/ew-theme/vendor, wp-content/themes/ew-theme/node_modules',
         recursive: true
     });
 
-    // Replace class names
+    // Replace @package name in plugin files
     replace({
         regex: 'EWPlugin',
-        replacement: config.pluginNameForClassNames,
+        replacement: config.namespace,
         paths: ['wp-content/plugins/ewplugin'],
         recursive: true
-
     });
 
-    // Replace file names
+    // Replace plugin function names
     replace({
-        regex: '-ewplugin',
-        replacement: '-' + config.pluginNameForFileNames,
-        paths: ['wp-content/plugins/ewplugin'],
-        recursive: true,
-    });
-
-    // Replace function names
-    replace({
-        regex: '_ewplugin',
+        regex: '_ew_plugin',
         replacement: '_' + config.pluginNameForFunctions,
-        paths: ['wp-content/plugins/ewplugin'],
-        recursive: true
-    });
-
-    // Replace abstract controller file name
-    replace({
-        regex: 'class-aewplugin-controller.php',
-        replacement: config.abstractControllerFileName,
         paths: ['wp-content/plugins/ewplugin'],
         recursive: true
     });
@@ -54,23 +37,37 @@ import('renamer').then(function (rnm) {
         recursive: true
     });
 
-    // Replace theme name in .gitignore
+    // Replace theme name in .gitignore and azure-pipelines.yml
     replace({
         regex: 'ew-theme',
         replacement: config.themeNameForFileNames,
         paths: ['.gitignore', 'azure-pipelines.yml']
     });
 
-    // Replace theme name in .gitignore
+    // Replace artifact name in azure-pipelines.yml
+    replace({
+        regex: 'ewStarter',
+        replacement: config.artifactName,
+        paths: ['azure-pipelines.yml']
+    });
+
+    // Replace plugin name in azure-pipelines.yml
     replace({
         regex: 'ewplugin',
         replacement: config.pluginNameForFileNames,
-        paths: ['azure-pipelines.yml', 'wp-content/plugins/ewplugin/tests/bootstrap.php']
+        paths: ['azure-pipelines.yml']
+    });
+
+    // Replace plugin name in includes/class-plugin.php
+    replace({
+        regex: 'ew-plugin',
+        replacement: config.pluginNameForFileNames,
+        paths: ['wp-content/plugins/ewplugin/includes/class-plugin.php']
     });
 
     // Replace webAppServerAddress in theme-config.json
     replace({
-        regex: 'http://ew-wp-starter.local/',
+        regex: 'http://starter.local/',
         replacement: config.webAppServerAddress,
         paths: ['wp-content/themes/ew-theme/theme-config.json']
     });
