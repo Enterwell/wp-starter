@@ -72,11 +72,7 @@ Testovi se pokreću naredbom (prethodno se pozicioniramo u folder plugina):
 php phpunit.phar
 ```
 
-<<<<<<< HEAD
 Testovi extendaju `Plugin_Test_Case`, to je helper klasa koja extenda WordPressov `WP_UnitTestCase` i samo
-=======
-Testovi extendaju `EWPlugin_Test_Case`, to je helper klasa koja extenda WordPressov `WP_UnitTestCase` i samo
->>>>>>> master
 prije svake klase testova poziva naš aktivator (koji onda pravi naše tablice u bazi), a nakon svake test
 klase poziva deaktivatora.
 Testovi su standardni WordPress-ovi a konfiguracija za testnu bazu se nalazi u fileu 
