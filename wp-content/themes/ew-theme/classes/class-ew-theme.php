@@ -63,6 +63,9 @@ class Ew_Theme {
 		// Remove WP version
 		add_filter( 'the_generator', '__return_false' );
 		#endregion
+
+		// Disable all automatic WP updates
+		add_filter( 'automatic_updater_disabled', '__return_true' );
 	}
 
 	/**
