@@ -9,7 +9,7 @@
 // Create the view model
 $view_model = [
 	'jsFile'   => '',
-	'bodyClass' => '404-page',
+	'bodyClass' => 'page-404',
 	'vm'        => new \EwStarter\BaseViewModel()
 ];
 
