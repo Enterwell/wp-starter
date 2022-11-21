@@ -86,6 +86,7 @@ class MenuViewModel {
 	 * @return  array
 	 */
 	protected function get_nav_menu_items( $menu ) {
+		global $wp;
 
 		// Initialize empty list of menu items
 		$nav_menu_items = [];
