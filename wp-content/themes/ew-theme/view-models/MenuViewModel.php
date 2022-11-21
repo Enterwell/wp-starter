@@ -93,14 +93,8 @@ class MenuViewModel {
 		// Get nav menu items
 		$items = wp_get_nav_menu_items( $menu->term_id );
 
-		// Get current page permalink
-		$current_page_permalink = get_permalink();
-
-		if ( empty( $current_page_permalink ) ) {
-			if ( is_front_page() ) {
-				$current_page_permalink = home_url();
-			}
-		}
+		// Get current page link
+		$current_page_permalink = home_url( $wp->request ) . '/';
 
 		// Create nav menu items
 		foreach ( $items as $item ) {
@@ -109,6 +103,8 @@ class MenuViewModel {
 				'id'        => $item->ID,
 				'label'     => $item->title,
 				'link'      => $item->url,
+				'class'		=> implode(' ', $item->classes),
+				'target'    => $item->target,
 				'is_active' => $item->url == $current_page_permalink
 			];
 
