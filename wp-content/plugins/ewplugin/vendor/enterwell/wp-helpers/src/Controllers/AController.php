@@ -65,39 +65,6 @@ abstract class AController {
 	#region Permission callback helpers
 
 	/**
-	 * Check if request nonce is valid.
-	 * Mostly used in register_routes function as
-	 * permissions callback.
-	 * @since   1.0.0
-	 *
-	 * @param   \WP_REST_Request $request
-	 *
-	 * @return  bool
-	 */
-	public function is_nonce_valid( $request ) {
-		// Logged in users does not have to send nonces
-		if ( $this->is_user_logged_in() ) {
-			return true;
-		}
-
-		// Get nonce from headera
-		$nonce = $request->get_header( 'X-WP-Nonce' );
-
-		// If there is no nonce in headers
-		// look for it in request body
-		if ( empty( $nonce ) ) {
-			// Get request params
-			$params = $request->get_params();
-
-			if ( ! empty( $params['_wpnonce'] ) ) {
-				$nonce = $params['_wpnonce'];
-			}
-		}
-
-		return wp_verify_nonce( $nonce, 'wp_rest' );
-	}
-
-	/**
 	 * Checks if user is logged in.
 	 * Mostly used in register_routes function as
 	 * permissions callback.
