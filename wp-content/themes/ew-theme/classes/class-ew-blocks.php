@@ -277,20 +277,20 @@ class Ew_Blocks {
 	public static function add_block_editor_assets() {
         global $ew_twig;
 
-		// Render admin scripts only when we have block editor loaded on our admin page
 		$screen = get_current_screen();
-		if ( ! empty( $screen ) && $screen->is_block_editor() ) {
-			// Gutenberg format types
-			echo $ew_twig->entry_renderer->renderWebpackScriptTags('gutenberg_admin_format_types');
-			echo $ew_twig->entry_renderer->renderWebpackLinkTags('gutenberg_admin_format_types');
+		// Render admin scripts only when we have block editor loaded on our admin page
+		if (empty( $screen ) || !$screen->is_block_editor()) return;
 
-			// Gutenberg components
-			echo $ew_twig->entry_renderer->renderWebpackScriptTags('gutenberg_admin_components');
-			echo $ew_twig->entry_renderer->renderWebpackLinkTags('gutenberg_admin_components');
+		// Gutenberg format types
+		echo $ew_twig->entry_renderer->renderWebpackScriptTags('gutenberg_admin_format_types');
+		echo $ew_twig->entry_renderer->renderWebpackLinkTags('gutenberg_admin_format_types');
 
-			// Gutenberg blocks
-			echo $ew_twig->entry_renderer->renderWebpackScriptTags('gutenberg_admin_blocks');
-			echo $ew_twig->entry_renderer->renderWebpackLinkTags('gutenberg_admin_blocks');
-		}
+		// Gutenberg components
+		echo $ew_twig->entry_renderer->renderWebpackScriptTags('gutenberg_admin_components');
+		echo $ew_twig->entry_renderer->renderWebpackLinkTags('gutenberg_admin_components');
+
+		// Gutenberg blocks
+		echo $ew_twig->entry_renderer->renderWebpackScriptTags('gutenberg_admin_blocks');
+		echo $ew_twig->entry_renderer->renderWebpackLinkTags('gutenberg_admin_blocks');
 	}
 }
