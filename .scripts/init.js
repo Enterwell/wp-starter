@@ -65,7 +65,7 @@ import('renamer').then(function (rnm) {
         paths: ['wp-content/plugins/ewplugin/includes/class-plugin.php']
     });
 
-    // Replace webAppServerAdress in theme-config.json
+    // Replace webAppServerAddress in theme-config.json
     replace({
         regex: 'starter.local',
         replacement: config.webAppServerDomain,
