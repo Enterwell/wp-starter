@@ -5,7 +5,7 @@
   "description": "README",
   "scripts": {
     "start": "encore dev-server --config ./webpack/webpack.config.js",
-    "start-mobile": "browser-sync start --proxy http://starter.local/ --port 8080",
+    "start-mobile": "browser-sync start --proxy \"starter.local\"",
     "build": "encore production --config ./webpack/webpack.config.js",
     "add-block": "node ./.scripts/create-block.js",
     "add-component": "node ./.scripts/create-component.js",

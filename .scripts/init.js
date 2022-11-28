@@ -65,17 +65,17 @@ import('renamer').then(function (rnm) {
         paths: ['wp-content/plugins/ewplugin/includes/class-plugin.php']
     });
 
-    // Replace webAppServerAddress in theme-config.json
+    // Replace webAppServerAdress in theme-config.json
     replace({
-        regex: 'http://starter.local/',
-        replacement: config.webAppServerAddress,
+        regex: 'starter.local',
+        replacement: config.webAppServerDomain,
         paths: ['wp-content/themes/ew-theme/theme-config.json']
     });
 
-    // Replace webAppServerAddress in package.json
+    // Replace domain in package.json
     replace({
-        regex: 'http://starter.local/',
-        replacement: config.webAppServerAddress,
+        regex: 'starter.local',
+        replacement: config.webAppServerDomain,
         paths: ['wp-content/themes/ew-theme/package.json']
     });
 

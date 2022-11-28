@@ -29,7 +29,7 @@
         - pluginNameForFunctions - postoje i php funkcije koje u svom nazivu sadrže ime plugina (npr. *activate_enterwell_plugin*), a kako php funkcijama u nazivu riječi odvajamo underscoreom, ovdje treba zapisati varijantu imena u obliku *enterwell_plugin*
         - baseRoute - (objašnjenje uz primjer projekta s host nameom *new-project.local*) osnovna ruta za API za naš primjer je *new-project.local/wp-json/wp-np/v1/*. U ovoj varijabli uređujemo *wp-np* dio stringa. On treba biti kratak, tako da je dobar izbor za ovu vrijednost ‘wp-’ + neki akronim imena projekta (primjerice, New project - *wp-np*). Dio ‘wp-’ ne mijenjamo.
         - themeNameForFileNames - odabir imena teme u obliku u kojemu su riječi odvojene minusom (inicijalno *enterwell-theme*)
-        - webAppServerAddress - URL na kojem će se posluživati naša aplikacija (odgovara host nameu koji smo unijeli u hosts i vhosts u 4. koraku)
+        - webAppServerDomain - domena na kojoj će se posluživati naša aplikacija (odgovara host nameu koji smo unijeli u hosts i vhosts u 4. koraku)
         - artifactName - naziv artifacta unutar azure-pipelines.yml, ukoliko naziv ima više riječi postaviti ime u camelCase obliku (npr. *ewStarter*)
     2. Pokrenuti `yarn install` u root folderu da se instaliraju dependency-i potrebni za starter
     3. Pokrenuti starter skriptu koja će iz startera i konfiguracije napraviti strukturu projekta `yarn init-project`

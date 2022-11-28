@@ -5,7 +5,7 @@ var os = require('os');
 
 /**
  * Gets the local IP address or 127.0.0.1
- * It returns the first address that starts with 192.168.0. or 192.168.1.
+ * It returns the first address that starts with 192.168.
  * @returns string
  */
 function getLocalIp() {
@@ -22,10 +22,7 @@ function getLocalIp() {
 
   // Iterates over the addreses
   for (const address of addresses) {
-    if (
-      address.startsWith('192.168.0.') ||
-      address.startsWith('192.168.1.')
-    ) {
+    if (address.startsWith('192.168.')) {
       return address;
     }
   }
