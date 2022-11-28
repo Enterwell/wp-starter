@@ -81,3 +81,8 @@ Testovi su standardni WordPress-ovi a konfiguracija za testnu bazu se nalazi u f
 **Testovi moraju imati svoju bazu i nikad se ne smije konfigurirati da testovi koriste istu bazu kao naša stranica
 (zbog brisanja baze)**
 
+# Mobile testiranje za vrijeme developmenta
+- Provjeriti je li webpack server pokrenut (pokrenuti ga naredbom `yarn start`)
+- Istovremeno (u drugom terminalu) pokrenuti skriptu za mobilno testiranje naredbom `yarn start-mobile`
+- Na mobitelu otići na **External** link koji nam prikaže Browsersync
+
