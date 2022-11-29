@@ -5,6 +5,7 @@
   "description": "README",
   "scripts": {
     "start": "encore dev-server --config ./webpack/webpack.config.js",
+    "start-mobile": "browser-sync start --proxy \"starter.local\"",
     "build": "encore production --config ./webpack/webpack.config.js",
     "add-block": "node ./.scripts/create-block.js",
     "add-component": "node ./.scripts/create-component.js",
@@ -32,6 +33,7 @@
     "@babel/plugin-proposal-decorators": "^7.14.5",
     "@babel/preset-react": "^7.14.5",
     "@symfony/webpack-encore": "^1.5.0",
+    "browser-sync": "^2.27.10",
     "chokidar": "^3.5.2",
     "react-hot-loader": "^4.13.0",
     "sass": "^1.38.0",

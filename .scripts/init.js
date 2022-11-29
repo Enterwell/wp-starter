@@ -67,9 +67,16 @@ import('renamer').then(function (rnm) {
 
     // Replace webAppServerAddress in theme-config.json
     replace({
-        regex: 'http://starter.local/',
-        replacement: config.webAppServerAddress,
+        regex: 'starter.local',
+        replacement: config.webAppServerDomain,
         paths: ['wp-content/themes/ew-theme/theme-config.json']
+    });
+
+    // Replace domain in package.json
+    replace({
+        regex: 'starter.local',
+        replacement: config.webAppServerDomain,
+        paths: ['wp-content/themes/ew-theme/package.json']
     });
 
     replace({

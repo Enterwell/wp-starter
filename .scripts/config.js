@@ -4,6 +4,6 @@ module.exports = {
     pluginNameForFunctions: 'ew_plugin',
     baseRoute: 'wp-ew',
     themeNameForFileNames: 'ew-theme',
-    webAppServerAddress: 'http://ew-wp-starter.local/',
+    webAppServerDomain: 'ew-wp-starter.local',
     artifactName: 'ewStarter'
 };

@@ -1,6 +1,5 @@
 {
   "webpackPort": 10001,
-  "webpackHost": "localhost",
   "webAppServerAddress": "http://starter.local/",
   "themeName": "ew-theme"
 }
