@@ -18,7 +18,7 @@ class Ew_Blocks {
 	 */
 	public static function load() {
 		// Add block editor assets after WP scripts in admin footer
-		add_action('admin_print_footer_scripts', [static::class, 'add_block_editor_assets'], 20);
+		add_action('admin_print_footer_scripts', [static::class, 'add_block_editor_assets'], 99);
 
 		// Register dynamic blocks
 		add_action( 'init', [ static::class, 'load_blocks' ] );
@@ -277,13 +277,17 @@ class Ew_Blocks {
 	public static function add_block_editor_assets() {
         global $ew_twig;
 
-        // Gutenberg format types
-        echo $ew_twig->entry_renderer->renderWebpackScriptTags('gutenberg_admin_format_types');
-        echo $ew_twig->entry_renderer->renderWebpackLinkTags('gutenberg_admin_format_types');
+		$screen = get_current_screen();
+		// Render admin scripts only when we have block editor loaded on our admin page
+		if (empty( $screen ) || !$screen->is_block_editor()) return;
+
+		// Gutenberg format types
+		echo $ew_twig->entry_renderer->renderWebpackScriptTags('gutenberg_admin_format_types');
+		echo $ew_twig->entry_renderer->renderWebpackLinkTags('gutenberg_admin_format_types');
 
 		// Gutenberg components
-        echo $ew_twig->entry_renderer->renderWebpackScriptTags('gutenberg_admin_components');
-        echo $ew_twig->entry_renderer->renderWebpackLinkTags('gutenberg_admin_components');
+		echo $ew_twig->entry_renderer->renderWebpackScriptTags('gutenberg_admin_components');
+		echo $ew_twig->entry_renderer->renderWebpackLinkTags('gutenberg_admin_components');
 
 		// Gutenberg blocks
 		echo $ew_twig->entry_renderer->renderWebpackScriptTags('gutenberg_admin_blocks');
