@@ -1,0 +1,5 @@
+# Default settings for all host machines
+
+#System Settings
+php_version: "8.1"
+php_modules: [ "fpm", "common", "mysql", "mbstring", "xml", "gd", "curl", "imagick", "zip", "memcached", "redis", "opcache" ]

@@ -1,10 +1,8 @@
----
-- hosts: localhost
-  connection: local
-  vars:
-    site_path: "/var/www/ew-starter.beta.enterwell.space"
-    site_url: "ew-starter.beta.enterwell.space"
-    fastcgi_pass: "unix:/run/php/php7.3-fpm.sock"
+- hosts: local
+  become: true
+  vars_files:
+    - "../vars/default.yml"
+    - "../vars/local.yml"
   tasks:
     # Create/Check for project directory
     - name: create project directory

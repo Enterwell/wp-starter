@@ -1,0 +1,15 @@
+### Settings for local host machine
+
+# MySQL Settings
+mysql_host: "localhost"
+mysql_root_password: ""
+mysql_db: "wp_wp-starter"
+mysql_user: "wp-starter_user"
+mysql_password: "wp-starter_user_password"
+
+# HTTP Settings
+http_host: "wp-starter.local"
+http_port: "80"
+
+# Location Settings
+location_path: "wp-starter"
