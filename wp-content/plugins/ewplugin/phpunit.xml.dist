@@ -8,8 +8,9 @@
 	convertWarningsToExceptions="true"
 	>
 	<testsuites>
-		<testsuite name="ew-starter-tests">
+		<testsuite>
 			<directory prefix="test-" suffix=".php">./tests/</directory>
+			<exclude>./tests/test-sample.php</exclude>
 		</testsuite>
 	</testsuites>
 </phpunit>
