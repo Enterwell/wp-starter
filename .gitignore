@@ -13,9 +13,14 @@ wp-config.php
 /readme.html
 /license.txt
 
+# Plugin files
+#wp-content/plugins/ewplugin/vendor
+wp-content/plugins/ewplugin/tests/tmp
+
 # Theme files
 node_modules
 wp-content/themes/ew-theme/assets/dist/*
+#wp-content/themes/ew-theme/vendor
 
 # Cache and wp-content files
 wp-content/advanced-cache.php

@@ -1,3 +1,48 @@
+<h1 align="center">
+  <p>Enterwell WP starter</p>
+  <div>
+    <a style="display: inline-block;" href="https://www.php.net/" target="_blank">
+      <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/php/php-plain.svg" alt="php" width="30" />
+    </a>
+    <a style="display: inline-block;" href="https://wordpress.org/" target="_blank">
+      <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/wordpress/wordpress-original.svg" alt="wordpress" width="30" />
+    </a>
+    <a style="display: inline-block;" href="https://jquery.com/" target="_blank">
+      <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/jquery/jquery-plain-wordmark.svg" alt="jquery" width="30" />
+    </a>
+    <a style="display: inline-block;" href="https://reactjs.org/" target="_blank">
+      <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original-wordmark.svg" alt="react" width="30" />
+    </a>
+    <a style="display: inline-block;" href="https://sass-lang.com/" target="_blank">
+      <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/sass/sass-original.svg" alt="sass" width="30" />
+    </a>
+    <a style="display: inline-block;" href="https://symfony.com/doc/current/frontend.html" target="_blank">
+      <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/webpack/webpack-original.svg" alt="webpack" width="30" />
+    </a>
+    <a style="display: inline-block;" href="https://www.mysql.com/" target="_blank">
+      <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mysql/mysql-original-wordmark.svg" alt="mysql" width="30" />
+    </a>
+    <a style="display: inline-block;" href="https://getcomposer.org/" target="_blank">
+      <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/composer/composer-original.svg" alt="composer" width="30" />
+    </a>
+    <a style="display: inline-block;" href="https://yarnpkg.com/" target="_blank">
+      <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/yarn/yarn-original-wordmark.svg" alt="yarn" width="30" />
+    </a>
+    <a style="display: inline-block;" href="https://www.ansible.com/" target="_blank">
+      <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/ansible/ansible-original-wordmark.svg" alt="ansible" width="30" />
+    </a>
+  </div>
+</h1>
+
+<div align="center">
+
+![GitHub last commit](https://img.shields.io/github/last-commit/Enterwell/wp-starter?label=Last%20commit)
+[![GitHub issues](https://img.shields.io/github/issues/Enterwell/wp-starter?color=0088ff)](https://github.com/Enterwell/wp-starter/issues)
+[![GitHub contributors](https://img.shields.io/github/contributors/Enterwell/wp-starter)](https://github.com/Enterwell/wp-starter/graphs/contributors)
+[![GitHub pull requests](https://img.shields.io/github/issues-pr/Enterwell/wp-starter?color=0088ff)](https://github.com/Enterwell/wp-starter/pulls)
+
+</div>
+
 # POKRETANJE NOVOG PROJEKTA
 
 - U *xampp/htdocs* folderu klonirati prazan repozitorij projekta koji pokrećete.
@@ -57,32 +102,60 @@ Ako nema errora, unutar root foldera pokrenuti naredbu `bash cleanup.sh` koja ć
 - Proći kroz [fileove koji se trebaju obrisati](https://enterwell.visualstudio.com/WordPress%20starter/_git/ew-wp-starter?path=%2Ffiles-to-delete.txt&version=GBdev.readme). Ako niste sigurni hoće li vam određeni file trebati u razvoju, slobodno ga ostavite pa na kraju projekta još jednom prođite kroz fileove i izbrišite viškove tad kad znate da vam nisu od koristi.
 - Početi s programiranjem :)
 
-# Plugin testovi
-Prije korištenja testova pročitajmo [ovo o WP testovima](https://make.wordpress.org/cli/handbook/misc/plugin-unit-tests/)
+## Testing
+Due to using a couple of technologies together in this starter project, they are tested in somewhat different ways. 
+We'll explain each one of them: which technologies are tests ran on, how are they written and how to run them.
 
-Plugin testovi se pišu u folderu `/wp-content/plugins/ewplugin/tests`. Postoji primjer testova
-za `Locations_Repository`. Bitno je da testiramo:
-- **Repozitorije** - da provjerimo spremaju li se stvari na način koji očekujemo. Potrebno je testirati
-sve metode repozitorija koje imamo.
-- **Servise** - da provjerimo radi li nam validacija i pozivanje repozitorija kako treba. Potrebno je
-testirati sve metode servisa.
+### PHP
+All server-based programming logic is usually written in PHP in a custom plugin developed for each project. That's why 
+the testing for this is prepared on a plugin basis in plugin folder. There is some logic written in PHP in theme as well 
+but theme typically calls plugin methods and functions, so we don't often test these (which we should).
 
-Testovi se pokreću naredbom (prethodno se pozicioniramo u folder plugina):
-```
-php phpunit.phar
-```
+PHP code is tested with [PHPUnit](https://phpunit.de/) and based on practises pushed by WordPress. It is based on the 
+same thing but WordPress added its bits and pieces to make it "better".
 
-Testovi extendaju `Plugin_Test_Case`, to je helper klasa koja extenda WordPressov `WP_UnitTestCase` i samo
-prije svake klase testova poziva naš aktivator (koji onda pravi naše tablice u bazi), a nakon svake test
-klase poziva deaktivatora.
-Testovi su standardni WordPress-ovi a konfiguracija za testnu bazu se nalazi u fileu 
-`tests/tmp/wp-tests-config.php`.
+**Useful links**
+- [PHPUnit documentation](https://phpunit.readthedocs.io/en/9.6/index.html)
+- [Wordpress PHPUnit overview](https://make.wordpress.org/core/handbook/testing/automated-testing/writing-phpunit-tests/)
+- [Premise on which PHPUnit is set up in this starter](https://make.wordpress.org/cli/handbook/misc/plugin-unit-tests/)
 
-**Testovi moraju imati svoju bazu i nikad se ne smije konfigurirati da testovi koriste istu bazu kao naša stranica
-(zbog brisanja baze)**
+#### Setup
+To start testing your code with PHPUnit, we need an empty WordPress installation and an empty database. Here are some 
+steps to get you to that point:
+- [Requirements](https://make.wordpress.org/cli/handbook/misc/plugin-unit-tests/#running-tests-locally): Linux environment, svn package, git package (and php of course)
+- navigate to `PROJECT_DIR/wp-content/plugins/ewplugin` and run `composer install` to install PHPUnit
+- in the same folder run `bash bin/install-wp-tests.sh wp_wp-starter-test root '' localhost latest`
+  - this will install you a fresh WordPress installation to `PLUGIN_DIR/tests/tmp` and WordPress testing tools. It also 
+    creates a database based on parameter sent to the command above
+    - wp_wp-starter-test is the name of the test database (all data will be deleted!)
+    - root is the MySQL username
+    - '' is the MySQL user password
+    - localhost is the MySQL server host
+    - latest is the WordPress version; could also be 3.7, 3.6.2 etc.
+- run tests with `./vendor/bin/phpunit` in PLUGIN_DIR
 
-# Mobile testiranje za vrijeme developmenta
-- Provjeriti je li webpack server pokrenut (pokrenuti ga naredbom `yarn start`)
-- Istovremeno (u drugom terminalu) pokrenuti skriptu za mobilno testiranje naredbom `yarn start-mobile`
-- Na mobitelu otići na **External** link koji nam prikaže Browsersync
+When environment is set up once for a project, every next test run is triggered by calling `./vendor/bin/phpunit`.  
+Tests need to be named as `test-` and have to be saved as a `.php` file.
 
+#### Unit
+Unit tests are written in the `PLUGIN_DIR/tests/unit` folder. Unit tests are typically used to test isolated parts of 
+the code that are not integrated with other services, repositories etc. These are usually some helper classes, functions etc. 
+They extend the `WP_UnitTestCase` class that gives the access to assertion functions, fixtures etc. (more in Useful Links above)
+
+#### Integration
+Integration tests in this context are tests that test the operability of features as a whole, placed in `PLUGIN_DIR/tests/integration`. 
+In plugin, this would be all tests with programming logic that talks to databases and other third-party services, API 
+endpoint tests, creation of permanent objects etc. Everything that will confirm us that our bigger feature is working even 
+when smaller parts of the feature are refactored (not always the case). They extend the `Plugin_Test_Case` class that wraps 
+`WP_UnitTestCase` with common logic (like activating the plugin and creating database tables).
+
+### Manual
+Testing manually while developing and before production is also a must-do because we still can't cover 100% of project 
+with tests, and it's not possible to test every case.
+
+#### Mobile
+Project can be run so that everything is proxied to one port that we can then access from our mobile devices to test it 
+in real environment.
+- navigate to `PROJECT_DIR/wp-content/themes/ew-theme` and start webpack server with `yarn start`
+- in the same folder run `yarn start-mobile` that starts Browsersync package
+- command will show you the **External** address that you can access from your mobile phone

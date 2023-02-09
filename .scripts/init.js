@@ -55,7 +55,7 @@ import('renamer').then(function (rnm) {
     replace({
         regex: 'ewplugin',
         replacement: config.pluginNameForFileNames,
-        paths: ['azure-pipelines.yml']
+        paths: ['azure-pipelines.yml', '.gitignore']
     });
 
     // Replace plugin name in includes/class-plugin.php

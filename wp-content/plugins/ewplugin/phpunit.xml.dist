@@ -3,14 +3,18 @@
 	bootstrap="tests/bootstrap.php"
 	backupGlobals="false"
 	colors="true"
+	testdox="true"
+	cacheResult="false"
 	convertErrorsToExceptions="true"
 	convertNoticesToExceptions="true"
 	convertWarningsToExceptions="true"
 	>
 	<testsuites>
-		<testsuite>
-			<directory prefix="test-" suffix=".php">./tests/</directory>
-			<exclude>./tests/test-sample.php</exclude>
+		<testsuite name="plugin-unit-tests">
+			<directory prefix="test-" suffix=".php">./tests/unit/</directory>
+		</testsuite>
+		<testsuite name="plugin-integration-tests">
+			<directory prefix="test-" suffix=".php">./tests/integration/</directory>
 		</testsuite>
 	</testsuites>
 </phpunit>
