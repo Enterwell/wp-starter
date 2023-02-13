@@ -16,7 +16,7 @@ on:
 
 env:
   phpVersion: '8.1'
-  nodeVersion: 16
+  nodeVersion: '16.x'
   rootFolder: ${{ github.workspace }}
   pluginFolder: $rootFolder/wp-content/plugins/ewplugin
   themeFolder: $rootFolder/wp-content/themes/ew-theme
@@ -45,7 +45,7 @@ jobs:
       - name: Set Node version to $nodeVersion
         uses: actions/setup-node@v3
         with:
-          node-version: '16.x'
+          node-version: $nodeVersion
           cache: 'yarn'
 
       - name: Install composer packages in plugin
