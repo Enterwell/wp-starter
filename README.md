@@ -1,8 +1,8 @@
 <h1 align="center">
   <a style="display: inline-block;" href="https://enterwell.net/" target="_blank">
     <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://user-images.githubusercontent.com/37176707/218507291-524cc19b-af0c-4fb0-83d3-657f5ac76c1a.png">
-      <img width="128" height="128" alt="logo" src="https://user-images.githubusercontent.com/37176707/218507170-2b848a5a-ea52-48cc-9dcd-a61823a1f210.png">
+      <source media="(prefers-color-scheme: dark)" srcset="http://dev.enterwell.space/EW_logo_white.svg">
+      <img width="128" height="128" alt="logo" src="http://dev.enterwell.space/EW_logo_black.svg">
     </picture>
   </a>
   <p>Enterwell WP starter</p>
@@ -48,8 +48,6 @@
 [![GitHub issues](https://img.shields.io/github/issues/Enterwell/wp-starter?color=0088ff)](https://github.com/Enterwell/wp-starter/issues)
 [![GitHub contributors](https://img.shields.io/github/contributors/Enterwell/wp-starter)](https://github.com/Enterwell/wp-starter/graphs/contributors)
 [![GitHub pull requests](https://img.shields.io/github/issues-pr/Enterwell/wp-starter?color=0088ff)](https://github.com/Enterwell/wp-starter/pulls)
-
-</div>
 
 ## ⚡ Run project
 
