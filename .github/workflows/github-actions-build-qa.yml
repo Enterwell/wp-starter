@@ -15,8 +15,8 @@ on:
   workflow_dispatch:
 
 env:
-  phpVersion: 8.0
-  nodeVersion: 16.13.1
+  phpVersion: '8.0'
+  nodeVersion: '16.13.1'
   rootFolder: ${{ github.workspace }}
   pluginFolder: $rootFolder/wp-content/plugins/ewplugin
   themeFolder: $rootFolder/wp-content/themes/ew-theme
