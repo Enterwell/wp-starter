@@ -151,6 +151,8 @@ Good luck developing! 🖥️
 
 - [⚡ Run project](#-run-project)
 - [🔨 Requirements](#-requirements)
+- [🪄 Purpose and capabilities](#-purpose-and-capabilities)
+- [🏛 Project structure](#-project-structure)
 - [🏗 Build project](#-build-project)
 - [🚀 Deploy project](#-deploy-project)
 - [🧪 Testing](#-testing)
