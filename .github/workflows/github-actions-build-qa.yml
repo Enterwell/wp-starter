@@ -18,8 +18,8 @@ env:
   phpVersion: 8.0
   nodeVersion: 16.13.1
   rootFolder: ${{ github.workspace }}
-  pluginFolder: ${{ env.rootFolder }}/wp-content/plugins/ewplugin
-  themeFolder: ${{ env.rootFolder }}/wp-content/themes/ew-theme
+  pluginFolder: $rootFolder/wp-content/plugins/ewplugin
+  themeFolder: $rootFolder/wp-content/themes/ew-theme
 
 jobs:
 
@@ -32,20 +32,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Set PHP version to ${{ env.phpVersion }}
+      - name: Set PHP version to $phpVersion
         run: |
-          sudo update-alternatives --set php /usr/bin/php${{ env.phpVersion }}
-          sudo update-alternatives --set phar /usr/bin/phar${{ env.phpVersion }}
-          sudo update-alternatives --set phpdbg /usr/bin/phpdbg${{ env.phpVersion }}
-          sudo update-alternatives --set php-cgi /usr/bin/php-cgi${{ env.phpVersion }}
-          sudo update-alternatives --set phar.phar /usr/bin/phar.phar${{ env.phpVersion }}
+          sudo update-alternatives --set php /usr/bin/php$phpVersion
+          sudo update-alternatives --set phar /usr/bin/phar$phpVersion
+          sudo update-alternatives --set phpdbg /usr/bin/phpdbg$phpVersion
+          sudo update-alternatives --set php-cgi /usr/bin/php-cgi$phpVersion
+          sudo update-alternatives --set phar.phar /usr/bin/phar.phar$phpVersion
           php -version
         shell: bash
 
-      - name: Set Node version to ${{ env.nodeVersion }}
+      - name: Set Node version to $nodeVersion
         uses: actions/setup-node@v1
         with:
-          node-version: ${{ env.nodeVersion }}
+          node-version: $nodeVersion
 
       - name: Install composer packages in plugin
         run: composer install --no-interaction --prefer-dist
