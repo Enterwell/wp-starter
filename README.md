@@ -62,7 +62,7 @@ Add your wanted project local URL to hosts file (`/etc/hosts`):
 ```
 127.0.0.1 starter.local
 ```
-Add new virtual host configuration file to your webserver (`/etc/nginx/sites-available`)
+Add new virtual host configuration file to your webserver (`/etc/nginx/sites-available`):
 ```nginx
 server {
         listen 80;
@@ -156,7 +156,7 @@ Good luck developing! 🖥️
 - [🏗 Build project](#-build-project)
 - [🚀 Deploy project](#-deploy-project)
 - [🧪 Testing](#-testing)
-- [⚠ License](#-license)
+- [🪪 License](#-license)
 
 ## 🔨 Requirements
 
@@ -270,6 +270,6 @@ This is usually done while developing. It is often them case that developers ope
 if everything looks the same based on different browser engines.
 > 🔔 You can check which features work on which browsers (and their versions) on [CanIUse website](https://caniuse.com/).
 
-## ⚠ License
+## 🪪 License
 Project is licensed under [GNU Public License, **GPL v2 (or later)**](license.txt). This is a [requirement by WordPress](https://wordpress.org/about/license/) 
 because all plugins and themes are considered a derivative work.
