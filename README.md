@@ -63,7 +63,7 @@ Add your wanted project local URL to hosts file (`/etc/hosts`):
 127.0.0.1 starter.local
 ```
 Add new virtual host configuration file to your webserver (`/etc/nginx/sites-available`)
-```apacheconf
+```nginx
 server {
         listen 80;
         listen [::]:80;
@@ -148,8 +148,11 @@ That's it! 🎉 Login to WordPress dashboard and turn on your plugin and your th
 Good luck developing! 🖥️
 
 ## 📖 Table of contents
+
 - [⚡ Run project](#-run-project)
 - [🔨 Requirements](#-requirements)
+- [🏗 Build project](#-build-project)
+- [🚀 Deploy project](#-deploy-project)
 - [🧪 Testing](#-testing)
 - [⚠ License](#-license)
 
@@ -166,7 +169,46 @@ List of recommended (and tested) environment requirements:
 > 🔔 It is possible to run this on XAMPP, Laragon (and on Apache) or other environments with other versions, but this is 
 > the tested and most used stack (LEMP)
 
+## 🪄 Purpose and capabilities
+
+> ⛏ TODO: explain purpose of this starter, what can you do with it, short summary of its architecture and what does each part of it do, 
+> link to [Gutenberg documentation](wp-content/themes/ew-theme/assets/gutenberg/README.md) (and translate it to ENG)
+
+## 🏛 Project structure
+
+> ⛏ TODO: visualize project structure, where are files meant to be created and worked on
+
+## 🏗 Build project
+
+> 🔔 There is an [Azure Pipelines YAML file](azure-pipelines-build.yml) prepared for building the project that you can use 
+> instead of doing the next steps manually
+
+Due to being an interpreted language, PHP does not need to be built. On the other hand, we need Composer dependencies installed 
+for production purposes. To remove dev packages used in development, run the command in plugin and theme folders (`$PLUGIN_DIR` and `$THEME_DIR`):
+```
+composer update --no-dev
+```
+
+We do use Javascript that's wrapped with Webpack. 
+Webpack files are built and served in `$THEME_DIR/assets/dist` folder by running the command in theme folder (`$THEME_DIR`):
+```
+yarn build
+```
+
+There are also some files in the project that we don't need on the server. To see which ones those are, please check the
+[Removed unused files for artifact build](azure-pipelines-build.yml) script in the pipeline file.
+> ⚠ That script is meant to be run on the build agent environment. Cherry-pick which commands you want to run because the 
+> script deletes all git files, documentation etc. that you need in your repository.
+
+That's it 🥳
+
+## 🚀 Deploy project
+After [🏗 building the project](#-build-project), your files are ready to be transferred to your public environment.
+
+> ⛏ TODO: prepare ansible script for setting up environments.
+
 ## 🧪 Testing
+
 Due to using a couple of technologies together in this starter project, they are tested in somewhat different ways. 
 We'll explain each one of them: which technologies are tests ran on, how are they written and how to run them.
 
