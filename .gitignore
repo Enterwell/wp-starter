@@ -16,6 +16,7 @@ wp-config.php
 # Plugin files
 wp-content/plugins/ewplugin/vendor
 wp-content/plugins/ewplugin/tests/tmp
+wp-content/plugins/ewplugin/test-*.xml
 
 # Theme files
 node_modules
