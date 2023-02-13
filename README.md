@@ -1,6 +1,9 @@
 <h1 align="center">
   <a style="display: inline-block;" href="https://enterwell.net/" target="_blank">
-    <img src="https://enterwell.net/wp-content/uploads/2022/12/android-chrome-256x256-1.png" alt="php" width="96" />
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://user-images.githubusercontent.com/37176707/218507291-524cc19b-af0c-4fb0-83d3-657f5ac76c1a.png">
+      <img width="128" height="128" alt="logo" src="https://user-images.githubusercontent.com/37176707/218507170-2b848a5a-ea52-48cc-9dcd-a61823a1f210.png">
+    </picture>
   </a>
   <p>Enterwell WP starter</p>
 </h1>
