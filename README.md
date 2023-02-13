@@ -49,6 +49,8 @@
 [![GitHub contributors](https://img.shields.io/github/contributors/Enterwell/wp-starter)](https://github.com/Enterwell/wp-starter/graphs/contributors)
 [![GitHub pull requests](https://img.shields.io/github/issues-pr/Enterwell/wp-starter?color=0088ff)](https://github.com/Enterwell/wp-starter/pulls)
 
+</div>
+
 ## ⚡ Run project
 
 First, go ahead and see if your environment meets the recommended [requirements 🔨](#-requirements).
