@@ -1,11 +1,11 @@
 <?php
 /**
  * PHPUnit bootstrap file
+ * This is custom written to adapt to our default plugin
  *
+ * @author Filip
  * @package Ewplugin
  */
-
-define( 'WP_TESTS_CONFIG_FILE_PATH', dirname( __FILE__ ) . '/tmp/wp-tests-config.php' );
 
 $_tests_dir = dirname( __FILE__ ) . '/tmp/wordpress-tests-lib';
 
@@ -25,13 +25,16 @@ require_once $_tests_dir . '/includes/functions.php';
  * Manually load the plugin being tested.
  */
 function _manually_load_plugin() {
-	require dirname( dirname( __FILE__ ) ) . '/plugin.php';
+	require dirname(__FILE__, 2) . '/plugin.php';
 }
-
 tests_add_filter( 'muplugins_loaded', '_manually_load_plugin' );
 
-require dirname( dirname( __FILE__ ) ) . '/includes/class-plugin-activator.php';
-require dirname( dirname( __FILE__ ) ) . '/includes/class-plugin-deactivator.php';
+// Load our plugins activator and deactivator classes
+require dirname(__FILE__, 2) . '/includes/class-plugin-activator.php';
+require dirname(__FILE__, 2) . '/includes/class-plugin-deactivator.php';
 
 // Start up the WP testing environment.
 require $_tests_dir . '/includes/bootstrap.php';
+
+// Load helpers
+require dirname( __FILE__ ) . '/helpers/class-plugin-test-case.php';
