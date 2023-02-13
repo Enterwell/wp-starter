@@ -121,11 +121,13 @@ steps:
         # Clear root files
         rm -rf ./wp-config.php
         rm -rf ./.git
+        rm -rf ./.github
         rm -rf ./documentation
         rm -rf ./.gitignore
         rm -rf ./.gitattributes
         rm -rf ./azure-pipelines-build.yml
         rm -rf ./azure-pipelines-qa.yml
+        rm -rf ./github-actions-qa.yml
         rm -rf ./*.bat
         rm -rf ./*.sh
         rm -rf ./*.md
