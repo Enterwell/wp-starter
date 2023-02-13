@@ -40,6 +40,7 @@
 
 <div align="center">
 
+[![Build and test](https://github.com/Enterwell/wp-starter/actions/workflows/github-actions-build-qa.yml/badge.svg)](https://github.com/Enterwell/wp-starter/actions/workflows/github-actions-build-qa.yml)
 ![GitHub last commit](https://img.shields.io/github/last-commit/Enterwell/wp-starter?label=Last%20commit)
 [![GitHub issues](https://img.shields.io/github/issues/Enterwell/wp-starter?color=0088ff)](https://github.com/Enterwell/wp-starter/issues)
 [![GitHub contributors](https://img.shields.io/github/contributors/Enterwell/wp-starter)](https://github.com/Enterwell/wp-starter/graphs/contributors)
