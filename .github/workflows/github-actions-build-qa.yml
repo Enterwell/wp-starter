@@ -45,7 +45,7 @@ jobs:
       - name: Set Node version to $nodeVersion
         uses: actions/setup-node@v3
         with:
-          node-version: $nodeVersion
+          node-version: '16.x'
           cache: 'yarn'
 
       - name: Install composer packages in plugin
