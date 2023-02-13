@@ -15,8 +15,8 @@ on:
   workflow_dispatch:
 
 env:
-  phpVersion: '8.0'
-  nodeVersion: 16
+  phpVersion: '8.1'
+  nodeVersion: '16.13.1'
   rootFolder: ${{ github.workspace }}
   pluginFolder: $rootFolder/wp-content/plugins/ewplugin
   themeFolder: $rootFolder/wp-content/themes/ew-theme
@@ -26,7 +26,7 @@ jobs:
   build-and-test:
     name: Build and test
 
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
@@ -43,9 +43,10 @@ jobs:
         shell: bash
 
       - name: Set Node version to $nodeVersion
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: $nodeVersion
+          cache: 'yarn'
 
       - name: Install composer packages in plugin
         run: composer install --no-interaction --prefer-dist
