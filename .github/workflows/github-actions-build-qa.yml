@@ -6,11 +6,11 @@ name: Build and test
 on:
   pull_request:
     branches:
-      - main
+      - master
       - stage
   push:
     branches:
-      - main
+      - master
       - stage
   workflow_dispatch:
 
