@@ -1,0 +1,106 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+  - stage
+  - main
+
+pool:
+  # ubuntu-latest for PHP8.1, ubuntu-20.04 for PHP7.4 or 8.0
+  vmImage: ubuntu-20.04
+
+variables:
+  phpVersion: '8.0'
+  nodeVersion: '16.13.1'
+  rootFolder: $(System.DefaultWorkingDirectory)
+  pluginFolder: $(rootFolder)/wp-content/plugins/ewplugin
+  themeFolder: $(rootFolder)/wp-content/themes/ew-theme
+
+steps:
+  - checkout: self
+    persistCredentials: true
+
+  - task: Bash@3
+    displayName: Set PHP version to $(phpVersion)
+    inputs:
+      targetType: inline
+      script: |
+        sudo update-alternatives --set php /usr/bin/php$(phpVersion)
+        sudo update-alternatives --set phar /usr/bin/phar$(phpVersion)
+        sudo update-alternatives --set phpdbg /usr/bin/phpdbg$(phpVersion)
+        sudo update-alternatives --set php-cgi /usr/bin/php-cgi$(phpVersion)
+        sudo update-alternatives --set phar.phar /usr/bin/phar.phar$(phpVersion)
+        php -version
+
+  - task: NodeTool@0
+    displayName: Set Node version to $(nodeVersion)
+    inputs:
+      versionSpec: $(nodeVersion)
+
+  - task: Bash@3
+    displayName: Install composer packages in plugin
+    inputs:
+      targetType: inline
+      workingDirectory: $(pluginFolder)
+      script: composer install --no-interaction --prefer-dist
+
+  - task: Bash@3
+    displayName: Install composer packages in theme
+    inputs:
+      targetType: inline
+      workingDirectory: $(themeFolder)
+      script: composer install --no-interaction --prefer-dist
+
+  - task: Bash@3
+    displayName: Install yarn packages in theme
+    inputs:
+      targetType: inline
+      workingDirectory: $(themeFolder)
+      script: yarn install
+
+  - task: Bash@3
+    displayName: Build theme assets
+    inputs:
+      targetType: inline
+      workingDirectory: $(themeFolder)
+      script: yarn build
+
+  - task: Bash@3
+    displayName: Install PHP testing environment
+    inputs:
+      targetType: inline
+      workingDirectory: $(pluginFolder)
+      script: |
+        # Run MySQL server
+        sudo systemctl start mysql.service
+        
+        # Download empty Wordpress installation and setup testing database
+        bash bin/install-wp-tests.sh wp_wp-starter-test root root localhost latest
+
+        # Add permissions to this folder so that tests can create their files
+        sudo chmod 777 -R ./tests/tmp
+
+  - task: Bash@3
+    displayName: Run plugin PHP tests
+    inputs:
+      targetType: inline
+      workingDirectory: $(pluginFolder)
+      script: sudo php ./vendor/bin/phpunit --log-junit test-php-results.xml
+
+  - task: Bash@3
+    displayName: Fix file permissions after tests
+    inputs:
+      targetType: inline
+      workingDirectory: $(pluginFolder)
+      script: sudo chmod 777 -R ./tests/tmp
+    condition: succeededOrFailed() # Run even when tests fail
+
+  - task: PublishTestResults@2
+    displayName: Publish test results
+    inputs:
+      testRunner: 'JUnit'
+      testResultsFiles: 'test-*.xml'
+      searchFolder: $(pluginFolder)
+    condition: succeededOrFailed() # Run even when tests fail
