@@ -1,61 +1,113 @@
+### Ansible playbook for local environment
+### Local playbook skips installing apt modules and other general requirements. It only installs specific project-based
+### dependencies and requirements needed to run the project
+### TODO: probably extend this in the future
+
 - hosts: local
-  become: true
   vars_files:
     - "../vars/default.yml"
     - "../vars/local.yml"
   tasks:
-    # Create/Check for project directory
-    - name: create project directory
+    - name: Open permissions to project folder
       file:
-        path: {{site_path}
+        path: "{{ project_path }}"
         state: directory
+        recurse: yes
+        mode: u=rwX,g=rwX,o=rwX
+      become: true
+      tags: [ system ]
 
-    # Install and start nginx
-    - name: ensure nginx is at the latest version
-      apt:
-        name: nginx
-        state: latest
-    - name: start nginx
-      service:
-        name: nginx
-        state: started
+    - name: Add entry to hosts file
+      ansible.builtin.lineinfile:
+        path: /etc/hosts
+        regexp: '^127.0.0.1 {{ http_host }}'
+        line: "127.0.0.1 {{ http_host }}"
+        state: present
+      become: true
+      tags: [ system ]
 
-    # Configure nginx
-    # Configuration replacements based on variables
-    - name: replace VAR_SERVER_ROOT in nginx config
-      ansible.builtin.replace:
-        path: ./files/stage.nginx.conf
-        regexp: "VAR_SERVER_ROOT"
-        replace: {{site_path}
-    - name: replace VAR_SERVER_NAME in nginx config
-      ansible.builtin.replace:
-        path: ./files/stage.nginx.conf
-        regexp: "VAR_SERVER_NAME"
-        replace: {{site_url}}
-    - name: replace VAR_FASTCGI_PASS in nginx config
-      ansible.builtin.replace:
-        path: ./files/stage.nginx.conf
-        regexp: "VAR_FASTCGI_PASS"
-        replace: {{fastcgi_pass}}
+    - name: Create nginx conf in sites-available
+      template:
+        src: ../files/local.nginx.conf.j2
+        dest: "/etc/nginx/sites-available/{{ http_host }}"
+        owner: root
+        group: root
+      become: true
+      tags: [ nginx ]
 
-    # Copy nginx and make symlink
-    - name: copy the nginx config file
-      copy:
-        src: ./files/stage.nginx.conf
-        dest: /etc/nginx/sites-available/{{site_url
-      become: yes
-    - name: create symlink
+    - name: Symlink nginx conf to sites-enabled
       file:
-        src: /etc/nginx/sites-available/{{site_url
-        dest: /etc/nginx/sites-enabled/{{site_url
+        src: "/etc/nginx/sites-available/{{ http_host }}"
+        dest: "/etc/nginx/sites-enabled/{{ http_host }}"
         state: link
-      become: yes
+      become: true
+      tags: [ nginx ]
 
-    # Restart nginx
-    - name: restart nginx
-      service:
-        name: nginx
-        state: restarted
-      become: yes
+    - name: (re)Start nginx
+      shell: service nginx restart
+      become: true
+      tags: [ system ]
 
-    # Set file/folder permissions owners
+    - name: Start mariadb server
+      shell: service mariadb start
+      become: true
+      tags: [ system ]
+
+    - name: Start PHP-FPM
+      shell: "service php{{ php_version }}-fpm start"
+      become: true
+      tags: [ system ]
+
+    - name: Create wp-config.php in project
+      template:
+        src: ../files/local.wp-config.php.j2
+        dest: "{{ project_path }}/wp-config.php"
+      become: true
+      tags: [ project ]
+
+    - name: Install (mysql_db) database requirement package
+      apt:
+        name: python3-pymysql
+      become: true
+      tags: [ system ]
+
+    - name: Create empty database
+      mysql_db:
+        name: "{{ mysql_db }}"
+        state: present
+        login_host: "{{ mysql_host }}"
+        login_user: "{{ mysql_user }}"
+        login_password: "{{ mysql_password }}"
+      become: true
+      tags: [ mysql ]
+
+    - name: Install plugin composer dependencies
+      shell: composer install
+      args:
+        chdir: "{{ plugin_path }}"
+      tags: [ project ]
+
+    - name: Install theme composer dependencies
+      shell: composer install
+      args:
+        chdir: "{{ theme_path }}"
+      tags: [ project ]
+
+    - name: Install correct node version
+      shell: ". /home/{{ ansible_user }}/.nvm/nvm.sh && nvm install {{ node_version }}"
+      args:
+        executable: /bin/bash
+      tags: [ node ]
+
+    - name: Install yarn for that node version
+      shell: ". /home/{{ ansible_user }}/.nvm/nvm.sh && nvm exec {{ node_version }} npm install --global yarn"
+      args:
+        executable: /bin/bash
+      tags: [ node ]
+
+    - name: Install theme yarn packages
+      shell: ". /home/{{ ansible_user }}/.nvm/nvm.sh && nvm exec {{ node_version }} /home/{{ ansible_user }}/.nvm/versions/node/v{{ node_version }}/bin/yarn install"
+      args:
+        executable: /bin/bash
+        chdir: "{{ theme_path }}"
+      tags: [ project ]
