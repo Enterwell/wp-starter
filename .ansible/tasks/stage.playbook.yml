@@ -47,7 +47,7 @@
       tags: [ system ]
 
     - name: Create empty database
-      mysql_db:
+      community.mysql.mysql_db:
         name: "{{ mysql_db }}"
         state: present
         login_host: "{{ mysql_host }}"
@@ -60,6 +60,8 @@
     - name: Create database user with privileges to previously created database
       community.mysql.mysql_user:
         state: present
+        host: "{{ mysql_host }}"
+        login_unix_socket: /var/run/mysqld/mysqld.sock
         name: "{{ mysql_user }}"
         password: "{{ mysql_password }}"
         priv: "{{ mysql_db }}.*: ALL,GRANT"
