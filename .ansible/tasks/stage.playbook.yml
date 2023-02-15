@@ -53,6 +53,7 @@
         login_host: "{{ mysql_host }}"
         login_user: root
         login_password: ""
+        config_file: ""
       become: true
       tags: [ mysql ]
 
