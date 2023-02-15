@@ -51,9 +51,9 @@
         name: "{{ mysql_db }}"
         state: present
         login_host: "{{ mysql_host }}"
-        login_user: root
-        login_password: ""
-        config_file: ""
+        login_user: "{{ mysql_root_user }}"
+        login_password: "{{ mysql_root_password }}"
+        login_unix_socket: /var/run/mysqld/mysqld.sock
       become: true
       tags: [ mysql ]
 
