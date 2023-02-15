@@ -2,7 +2,7 @@
 
 # MySQL Settings
 mysql_host: "localhost"
-mysql_db: "wp_wp-starter-ansible"
+mysql_db: "wp_wp-starter"
 mysql_user: "root"
 mysql_password: ""
 
