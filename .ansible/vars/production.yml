@@ -1,12 +1,20 @@
-# Settings for production host machine
+### Settings for production host machine
+### IMPORTANT! sensitive information should not be added here and committed to git repo, you should always override these
+### default variables through -e flag in ansible-playbook command
 
-#MySQL Settings
-mysql_root_password: "mysql_root_password"
-mysql_db: "wordpress"
-mysql_user: "sammy"
-mysql_password: "password"
+# MySQL Settings
+mysql_host: "localhost"
+mysql_root_user: "root"
+mysql_root_password: ""
+mysql_db: "wp_wp-starter"
+mysql_user: "wp_wp-starter_user" # Override this when calling ansible-playbook command
+mysql_password: "" # Override this when calling ansible-playbook command
 
-#HTTP Settings
-http_host: "your_domain"
-http_conf: "your_domain.conf"
+# HTTP Settings
+http_host: "wp-starter.com"
 http_port: "80"
+
+# Location Settings
+project_path: "/var/www/wp-starter.com"
+plugin_path: "{{ project_path }}/wp-content/plugins/ewplugin"
+theme_path: "{{ project_path }}/wp-content/themes/ew-theme"
