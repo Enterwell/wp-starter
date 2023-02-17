@@ -74,3 +74,33 @@
         dest: "{{ project_path }}/wp-config.php"
       become: true
       tags: [ project ]
+
+    - name: Create cache directory
+      ansible.builtin.file:
+        path: "{{ project_path }}/wp-content/cache"
+        state: directory
+        mode: '0755'
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+      become: true
+      tags: [ system ]
+
+    - name: Create cache config directory
+      ansible.builtin.file:
+        path: "{{ project_path }}/wp-content/w3tc-config"
+        state: directory
+        mode: '0755'
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+      become: true
+      tags: [ system ]
+
+    - name: Create cache file
+      ansible.builtin.file:
+        path: "{{ project_path }}/wp-content/advanced-cache.php"
+        state: touch
+        mode: '0644'
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+      become: true
+      tags: [ system ]
