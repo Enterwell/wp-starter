@@ -34,4 +34,7 @@ server {
                 expires max;
                 log_not_found off;
         }
+
+        // Include project specific configuration (usually updated by cache and security plugins)
+        include {{project_path}}/*.conf;
 }
