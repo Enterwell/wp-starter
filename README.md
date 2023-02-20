@@ -211,7 +211,7 @@ That's it 🥳
 ## 🚀 Deploy project
 After [🏗 building the project](#-build-project), your files are ready to be transferred to your public environment.
 
-> ⛏ TODO: prepare ansible script for setting up environments.
+> 🔔 [Read our docs](.ansible/README.md) on Ansible and how you can automate the preparation of the environment in couple of minutes.
 
 ## 🧪 Testing
 
