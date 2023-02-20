@@ -1,11 +1,10 @@
-<h1 style="display: flex; align-items: center;">
-  <a style="display: inline-block;" href="https://www.ansible.com/" target="_blank">
+<h1 align="center">
+  <a href="https://www.ansible.com/" target="_blank">
     <picture>
-      <img width="48" height="48" alt="logo" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/ansible/ansible-original-wordmark.svg">
+      <img width="64" height="64" alt="logo" src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/ansible/ansible-original-wordmark.svg">
     </picture>
   </a>
-  &nbsp;
-  <p style="display: inline-block;">Ansible</p>
+  <p style="display: inline-block">Ansible</p>
 </h1>
 
 > 🔔 Already created playbooks in this starter project are prepared for Enterwell's needs. Please adapt them to your hosts 
