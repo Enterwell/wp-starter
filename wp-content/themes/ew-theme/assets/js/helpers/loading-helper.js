@@ -16,7 +16,10 @@ function LoadingHelper($) {
 
   function initEvents() {
     $(window).on(LOADING_FINISHED_EVENT, () => {
-      $loadingContainer.addClass('c-page-loading-container--hidden');
+      $loadingContainer.addClass('c-page-loading-container--hide');
+      setTimeout(() => {
+        $loadingContainer.addClass('c-page-loading-container--remove');
+      }, LOADING_HIDE_TIMEOUT);
     });
   }
 
