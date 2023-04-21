@@ -95,9 +95,6 @@ class Ew_Theme {
 
 		// Import WP jQuery
 		self::add_script_to_page('__return_true', 'jquery', '', [], false, true );
-
-		// Import gsap (everywhere because of loading)
-		self::add_script_to_page('__return_true', 'gsap', 'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.7.1/gsap.min.js', [], false, true);
 	}
 
 	/**

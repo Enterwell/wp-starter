@@ -1,5 +1,3 @@
-//import {TimelineLite} from 'gsap';
-
 export const LOADING_FINISHED_EVENT = 'ew-ready';
 const LOADING_HIDE_TIMEOUT = 200;
 
@@ -11,18 +9,17 @@ const LOADING_HIDE_TIMEOUT = 200;
  */
 function LoadingHelper($) {
   let $loadingContainer;
-  let timeline;
 
   function initElements() {
     $loadingContainer = $('.c-page-loading-container');
-    timeline = new TimelineLite({paused: true});
-    timeline.to($loadingContainer, 1, {opacity: 0});
-    timeline.to($loadingContainer, 0, {scale: 0});
   }
 
   function initEvents() {
     $(window).on(LOADING_FINISHED_EVENT, () => {
-      timeline.play();
+      $loadingContainer.addClass('c-page-loading-container--hide');
+      setTimeout(() => {
+        $loadingContainer.addClass('c-page-loading-container--remove');
+      }, LOADING_HIDE_TIMEOUT);
     });
   }
 
