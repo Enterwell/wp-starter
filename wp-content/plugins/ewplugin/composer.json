@@ -1,10 +1,32 @@
 {
-    "require": {
-        "vlucas/phpdotenv": "^2.5",
-        "enterwell/wp-helpers": "^1.0"
+  "name": "enterwell/ew-plugin",
+  "description": "Wordpress plugin for adding custom features to Wordpress websites",
+  "version": "1.0.0",
+  "type": "library",
+  "keywords": ["plugin", "wordpress"],
+  "license": "GPL-2.0-or-later",
+  "authors": [
+    {
+      "name": "Matej Bošnjak",
+      "email": "matej.bosnjak@enterwell.net"
     },
-    "require-dev": {
-        "phpunit/phpunit": "^9",
-        "yoast/phpunit-polyfills": "^1.0"
+    {
+      "name": "Filip Marenčić",
+      "email": "filip.marencic@enterwell.net"
     }
+  ],
+  "scripts": {
+    "test-setup": "bash bin/install-wp-tests.sh",
+    "test": "php ./vendor/bin/phpunit",
+    "test:unit": "php ./vendor/bin/phpunit --testsuite plugin-unit-tests",
+    "test:integration": "php ./vendor/bin/phpunit --testsuite plugin-integration-tests"
+  },
+  "require": {
+    "vlucas/phpdotenv": "^2.5",
+    "enterwell/wp-helpers": "^1.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^9",
+    "yoast/phpunit-polyfills": "^1.0"
+  }
 }
