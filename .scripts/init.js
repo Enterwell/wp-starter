@@ -37,25 +37,32 @@ import('renamer').then(function (rnm) {
         recursive: true
     });
 
-    // Replace theme name in .gitignore and azure-pipelines.yml
+    // Replace theme name
     replace({
         regex: 'ew-theme',
         replacement: config.themeNameForFileNames,
-        paths: ['.gitignore', 'azure-pipelines.yml']
+        paths: ['.gitignore', 'azure-pipelines-build.yml', 'azure-pipelines-qa.yml', '.ansible/vars', 'wp-content/themes/ew-theme/theme-config.json']
     });
 
-    // Replace artifact name in azure-pipelines.yml
+    // Replace project name
+    replace({
+        regex: 'wp-starter',
+        replacement: config.themeNameForFileNames,
+        paths: ['.ansible/vars']
+    });
+
+    // Replace artifact name in azure-pipelines
     replace({
         regex: 'ewStarter',
         replacement: config.artifactName,
-        paths: ['azure-pipelines.yml']
+        paths: ['azure-pipelines-build.yml', 'azure-pipelines-qa.yml']
     });
 
-    // Replace plugin name in azure-pipelines.yml
+    // Replace plugin
     replace({
         regex: 'ewplugin',
         replacement: config.pluginNameForFileNames,
-        paths: ['azure-pipelines.yml', '.gitignore']
+        paths: ['azure-pipelines-build.yml', 'azure-pipelines-qa.yml', '.gitignore', '.ansible/vars']
     });
 
     // Replace plugin name in includes/class-plugin.php
@@ -65,24 +72,11 @@ import('renamer').then(function (rnm) {
         paths: ['wp-content/plugins/ewplugin/includes/class-plugin.php']
     });
 
-    // Replace webAppServerAddress in theme-config.json
+    // Replace domain
     replace({
         regex: 'starter.local',
         replacement: config.webAppServerDomain,
-        paths: ['wp-content/themes/ew-theme/theme-config.json']
-    });
-
-    // Replace domain in package.json
-    replace({
-        regex: 'starter.local',
-        replacement: config.webAppServerDomain,
-        paths: ['wp-content/themes/ew-theme/package.json']
-    });
-
-    replace({
-        regex: 'ew-theme',
-        replacement: config.themeNameForFileNames,
-        paths: ['wp-content/themes/ew-theme/theme-config.json']
+        paths: ['wp-content/themes/ew-theme/theme-config.json', 'wp-content/themes/ew-theme/package.json', '.ansible/vars']
     });
 
     // Rename plugin in folder and file names

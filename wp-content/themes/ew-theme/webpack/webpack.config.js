@@ -127,6 +127,7 @@ Encore
 
   .configureDevServerOptions(options => {
     options.allowedHosts = 'all';
+    options.host = `${settings.WebpackDevServerSettings.host}`;
     options.port = `${settings.WebpackDevServerSettings.port}`;
     delete options.client;
   })

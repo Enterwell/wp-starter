@@ -1,0 +1,18 @@
+### Settings for staging host machine
+
+# MySQL Settings
+mysql_host: "localhost"
+mysql_root_user: "root"
+mysql_root_password: ""
+mysql_db: "wp_wp-starter"
+mysql_user: "wp_wp-starter_user" # Override this when calling ansible-playbook command
+mysql_password: "" # Override this when calling ansible-playbook command
+
+# HTTP Settings
+http_host: "wp-starter.dev.enterwell.space"
+http_port: "80"
+
+# Location Settings
+project_path: "/var/www/wp-starter.dev.enterwell.space"
+plugin_path: "{{ project_path }}/wp-content/plugins/ewplugin"
+theme_path: "{{ project_path }}/wp-content/themes/ew-theme"

@@ -1,6 +1,9 @@
 <h1 align="center">
   <a style="display: inline-block;" href="https://enterwell.net/" target="_blank">
-    <img src="https://enterwell.net/wp-content/uploads/2022/12/android-chrome-256x256-1.png" alt="php" width="96" />
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="http://dev.enterwell.space/EW_logo_white.svg">
+      <img width="128" height="128" alt="logo" src="http://dev.enterwell.space/EW_logo_black.svg">
+    </picture>
   </a>
   <p>Enterwell WP starter</p>
 </h1>
@@ -40,6 +43,7 @@
 
 <div align="center">
 
+[![Build and test](https://github.com/Enterwell/wp-starter/actions/workflows/github-actions-build-qa.yml/badge.svg)](https://github.com/Enterwell/wp-starter/actions/workflows/github-actions-build-qa.yml)
 ![GitHub last commit](https://img.shields.io/github/last-commit/Enterwell/wp-starter?label=Last%20commit)
 [![GitHub issues](https://img.shields.io/github/issues/Enterwell/wp-starter?color=0088ff)](https://github.com/Enterwell/wp-starter/issues)
 [![GitHub contributors](https://img.shields.io/github/contributors/Enterwell/wp-starter)](https://github.com/Enterwell/wp-starter/graphs/contributors)
@@ -207,7 +211,7 @@ That's it 🥳
 ## 🚀 Deploy project
 After [🏗 building the project](#-build-project), your files are ready to be transferred to your public environment.
 
-> ⛏ TODO: prepare ansible script for setting up environments.
+> 🔔 [Read our docs](.ansible/README.md) on Ansible and how you can automate the preparation of the environment in couple of minutes.
 
 ## 🧪 Testing
 
