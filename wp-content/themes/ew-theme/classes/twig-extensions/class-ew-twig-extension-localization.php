@@ -2,23 +2,24 @@
 
 namespace EwStarter;
 
-use Twig_Extension;
-use Twig_SimpleFunction;
+use Twig\Extension\AbstractExtension;
+use Twig\TwigFunction;
 
 /**
  * Class Ew_Twig_Extension_Localization
  * @package EwStarter
  */
-class Ew_Twig_Extension_Localization extends Twig_Extension {
+class Ew_Twig_Extension_Localization extends AbstractExtension {
 
 	/**
 	 * Get functions
 	 *
-	 * @return array|Twig_SimpleFunction[]
+	 * @return array
 	 */
-	public function getFunctions() {
+	public function getFunctions(): array
+	{
 		return [
-			new Twig_SimpleFunction( 'translate', [ $this, 'localization' ] ),
+			new TwigFunction( 'translate', [ $this, 'localization' ] ),
 		];
 	}
 

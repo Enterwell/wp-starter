@@ -1,9 +1,4 @@
 <?php
-/**
- * Yoast extension of the Model class.
- *
- * @package Yoast\YoastSEO\Loggers
- */
 
 namespace Yoast\WP\SEO\Loggers;
 
@@ -15,6 +10,7 @@ use YoastSEO_Vendor\Psr\Log\NullLogger;
  * Our logger class.
  */
 class Logger implements LoggerInterface {
+
 	use LoggerTrait;
 
 	/**

@@ -1,12 +1,10 @@
-@import "colors.scss";
 
 .itsec-admin-notice-list-actions {
-    & .components-icon-button {
+    & .components-button.has-icon {
         padding: 2px !important;
 
-        &:hover {
-            background-color: darken(#E5EAEE, 10) !important;
-            box-shadow: none !important;
+        .dashicon {
+            margin: 0;
         }
     }
 }

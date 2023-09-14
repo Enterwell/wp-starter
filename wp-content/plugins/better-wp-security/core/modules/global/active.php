@@ -1,7 +1,5 @@
 <?php
 
-use \iThemesSecurity\User_Groups;
-
 function itsec_global_filter_whitelisted_ips( $whitelisted_ips ) {
 	return array_merge( $whitelisted_ips, ITSEC_Modules::get_setting( 'global', 'lockout_white_list', array() ) );
 }
@@ -119,13 +117,147 @@ function itsec_basename_attachment_thumbs( $data ) {
 
 add_filter( 'wp_update_attachment_metadata', 'itsec_basename_attachment_thumbs' );
 
-function itsec_register_global_user_group_settings( User_Groups\Settings_Registry $registry ) {
-	$registry->register( new User_Groups\Settings_Registration( 'global', 'manage_group', User_Groups\Settings_Registration::T_MULTIPLE, static function () {
-		return [
-			'title'       => __( 'Manage iThemes Security', 'better-wp-security' ),
-			'description' => __( 'Allow users in the group to manage iThemes Security.', 'better-wp-security' ),
-		];
-	} ) );
+/**
+ * Handle the loopback callback test.
+ */
+function itsec_security_check_loopback_callback() {
+	if ( ! isset( $_POST['hash'], $_POST['exp'] ) ) {
+		wp_die();
+	}
+
+	$hash = $_POST['hash'];
+	$exp  = $_POST['exp'];
+
+	$expected = hash_hmac( 'sha1', "itsec-check-loopback|{$exp}", wp_salt() );
+
+	if ( ! hash_equals( $hash, $expected ) ) {
+		wp_die();
+	}
+
+	if ( $exp < ITSEC_Core::get_current_time_gmt() ) {
+		wp_die();
+	}
+
+	echo ITSEC_Lib::get_ip();
+	die;
 }
 
-add_action( 'itsec_register_user_group_settings', 'itsec_register_global_user_group_settings', 0 );
+add_action( 'admin_post_nopriv_itsec-check-loopback', 'itsec_security_check_loopback_callback' );
+
+use iThemesSecurity\Lib\Tools\Config_Tool;
+use iThemesSecurity\Lib\Tools\Tools_Registry;
+use \iThemesSecurity\Lib\Result;
+
+add_action( 'itsec_register_tools', function ( Tools_Registry $registry ) {
+	$registry->register( new class( 'identify-server-ips', ITSEC_Modules::get_config( 'global' ) ) extends Config_Tool {
+		public function run( array $form = [] ): Result {
+			$dns      = $this->check_server_ips();
+			$loopback = $this->do_loopback();
+
+			if ( is_wp_error( $dns ) && is_wp_error( $loopback ) ) {
+				$error = new WP_Error(
+					'itsec.tool.identify-server-ips.failed',
+					__( 'Could not identify server IPs', 'better-wp-security' )
+				);
+				$error->merge_from( $dns );
+				$error->merge_from( $loopback );
+
+				return Result::error( $error );
+			}
+
+			$server_ips = ITSEC_Modules::get_setting( 'global', 'server_ips' );
+
+			if ( is_array( $dns ) ) {
+				$server_ips = array_merge( $server_ips, $dns );
+			}
+
+			if ( is_string( $loopback ) ) {
+				$server_ips[] = $loopback;
+			}
+
+			$server_ips = array_unique( $server_ips );
+
+			ITSEC_Modules::set_setting( 'global', 'server_ips', $server_ips );
+
+			if ( ! $server_ips ) {
+				return Result::error( new WP_Error(
+					'itsec.tool.identify-server-ips.no-ips',
+					__( 'No server IPs found.', 'better-wp-security' )
+				) );
+			}
+
+			$result = Result::success( $server_ips );
+			$result->add_success_message( wp_sprintf( __( 'Identified server IPs: %l.', 'better-wp-security' ), array_map( static function ( $ip ) {
+				return sprintf( '“%s”', $ip );
+			}, $server_ips ) ) );
+
+			if ( is_wp_error( $dns ) ) {
+				$result->add_warning_message( ...$dns->get_error_messages() );
+			}
+
+			if ( is_wp_error( $loopback ) ) {
+				$result->add_warning_message( ...$loopback->get_error_messages() );
+			}
+
+			return $result;
+		}
+
+		/**
+		 * Checks server IPs using DNS records.
+		 *
+		 * @return array|WP_Error
+		 */
+		private function check_server_ips() {
+			$response = dns_get_record( parse_url( site_url(), PHP_URL_HOST ), DNS_A + ( defined( 'DNS_AAAA' ) ? DNS_AAAA : 0 ) );
+
+			if ( ! $response ) {
+				return new WP_Error( 'itsec.tool.identify-server-ips.no-dns', __( 'No DNS records found.', 'better-wp-security' ) );
+			}
+
+			$ips = [];
+
+			foreach ( $response as $record ) {
+				if ( isset( $record['ipv6'] ) ) {
+					$ips[] = $record['ipv6'];
+				}
+
+				if ( isset( $record['ip'] ) ) {
+					$ips[] = $record['ip'];
+				}
+			}
+
+			return $ips;
+		}
+
+		/**
+		 * Checks server IPs by making a loopback request.
+		 *
+		 * @return string|WP_Error
+		 */
+		private function do_loopback() {
+			$exp    = ITSEC_Core::get_current_time_gmt() + 60;
+			$action = 'itsec-check-loopback';
+			$hash   = hash_hmac( 'sha1', "{$action}|{$exp}", wp_salt() );
+
+			$response = wp_remote_post( admin_url( 'admin-post.php' ), [
+				'sslverify' => apply_filters( 'https_local_ssl_verify', false ),
+				'body'      => compact( 'action', 'hash', 'exp' ),
+			] );
+
+			if ( is_wp_error( $response ) ) {
+				return $response;
+			}
+
+			$ip = trim( wp_remote_retrieve_body( $response ) );
+
+			if ( ! ITSEC_Lib_IP_Tools::validate( $ip ) ) {
+				return new WP_Error(
+					'itsec.tool.identify-server-ips.invalid-ip',
+					sprintf( __( 'Invalid IP returned: %s', 'better-wp-security' ), esc_attr( $ip ) )
+				);
+			}
+
+			return $ip;
+		}
+	} );
+} );

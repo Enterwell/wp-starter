@@ -1,4 +1,3 @@
-@import "colors.scss";
 
 .itsec-user-groups-list {
     display: grid;
@@ -43,4 +42,22 @@
     & .dashicon {
         margin-right: 10px;
     }
+}
+
+.components-button.itsec-add-new-user-group-link {
+    color: $main-blue;
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+
+    &:before {
+        @include dashicon("\f543", 10px);
+        margin-right: 2px;
+    }
+}
+
+.itsec-user-groups-intro {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min-content, 250px));
+    grid-gap: 1rem;
 }

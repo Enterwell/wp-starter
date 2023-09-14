@@ -78,9 +78,11 @@ class ITSEC_REST_Core_Admin_Notices_Controller extends WP_REST_Controller {
 			}
 
 			$notice['actions'][ $slug ] = array(
+				'id'    => $slug,
 				'title' => $action->get_title(),
 				'style' => $action->get_style(),
-				'uri'   => $uri,
+				'uri'   => $uri ?: null,
+				'route' => $action->get_route() ?: null,
 			);
 		}
 

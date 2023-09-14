@@ -1,9 +1,4 @@
 <?php
-/**
- * WPSEO plugin file.
- *
- * @package WPSEO\Frontend
- */
 
 namespace Yoast\WP\SEO\Initializers;
 
@@ -35,10 +30,10 @@ class Disable_Core_Sitemaps implements Initializer_Interface {
 	/**
 	 * Sitemaps_Enabled_Conditional constructor.
 	 *
+	 * @codeCoverageIgnore
+	 *
 	 * @param Options_Helper  $options  The options helper.
 	 * @param Redirect_Helper $redirect The redirect helper.
-	 *
-	 * @codeCoverageIgnore
 	 */
 	public function __construct( Options_Helper $options, Redirect_Helper $redirect ) {
 		$this->options  = $options;
@@ -49,9 +44,19 @@ class Disable_Core_Sitemaps implements Initializer_Interface {
 	 * Disable the WP core XML sitemaps.
 	 */
 	public function initialize() {
-		\add_filter( 'wp_sitemaps_enabled', '__return_false' );
+		// This needs to be on priority 15 as that is after our options initialize.
+		\add_action( 'plugins_loaded', [ $this, 'maybe_disable_core_sitemaps' ], 15 );
+	}
 
+	/**
+	 * Disables the core sitemaps if Yoast SEO sitemaps are enabled.
+	 *
+	 * @return void
+	 */
+	public function maybe_disable_core_sitemaps() {
 		if ( $this->options->get( 'enable_xml_sitemap' ) ) {
+			\add_filter( 'wp_sitemaps_enabled', '__return_false' );
+
 			\add_action( 'template_redirect', [ $this, 'template_redirect' ], 0 );
 		}
 	}

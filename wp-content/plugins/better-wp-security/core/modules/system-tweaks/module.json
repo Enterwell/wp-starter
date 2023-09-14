@@ -1,0 +1,71 @@
+{
+  "id": "system-tweaks",
+  "status": "always-active",
+  "type": "advanced",
+  "title": "System Tweaks",
+  "description": "Make changes to the server configuration for this site.",
+  "help": "Increase security by restricting file access and PHP execution on your server. This can help mitigate arbitrary file upload vulnerabilities from gaining complete control of your server.",
+  "settings": {
+    "type": "object",
+    "properties": {
+      "protect_files": {
+        "type": "boolean",
+        "default": true,
+        "title": "Protect System Files",
+        "description": "Prevent public access to readme.html, readme.txt, wp-config.php, install.php, wp-includes, and .htaccess. These files can give away important information on your site and serve no purpose to the public once WordPress has been successfully installed."
+      },
+      "directory_browsing": {
+        "type": "boolean",
+        "default": true,
+        "title": "Disable Directory Browsing",
+        "description": "Prevents users from seeing a list of files in a directory when no index file is present."
+      },
+      "uploads_php": {
+        "type": "boolean",
+        "default": true,
+        "title": "Disable PHP in Uploads",
+        "description": "Disable PHP execution in the uploads directory. This blocks requests to maliciously uploaded PHP files in the uploads directory."
+      },
+      "plugins_php": {
+        "type": "boolean",
+        "default": true,
+        "title": "Disable PHP in Plugins",
+        "description": "Disable PHP execution in the plugins directory. This blocks requests to PHP files inside plugin directories that can be exploited directly."
+      },
+      "themes_php": {
+        "type": "boolean",
+        "default": true,
+        "title": "Disable PHP in Themes",
+        "description": "Disable PHP execution in the themes directory. This blocks requests to PHP files inside theme directories that can be exploited directly."
+      }
+    },
+    "uiSchema": {
+      "ui:sections": [
+        {
+          "title": "File Access",
+          "fields": [
+            "protect_files",
+            "directory_browsing"
+          ]
+        },
+        {
+          "title": "PHP Execution",
+          "fields": [
+            "uploads_php",
+            "themes_php",
+            "plugins_php"
+          ]
+        }
+      ]
+    }
+  },
+  "removed-settings": [
+    "request_methods",
+    "suspicious_query_strings",
+    "non_english_characters",
+    "long_url_strings"
+  ],
+  "deprecated-settings": [
+    "write_permissions"
+  ]
+}

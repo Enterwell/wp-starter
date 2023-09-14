@@ -1,15 +1,38 @@
-.itsec-user-groups-group-tab--settings {
-    & .itsec-user-groups-group-tab__modules-list {
-        padding-left: 0;
+
+.itsec-user-groups-group-tab__modules-list {
+    margin: 0;
+    padding: 0;
+}
+
+.itsec-user-groups-group-tab_settings-list {
+    display: grid;
+    grid-template-columns: [label fields] minmax(0, 1fr);
+    grid-template-rows: auto;
+    grid-gap: 1rem .5rem;
+
+    @include break-small {
+        grid-template-columns: [label] 10rem [fields] minmax(0, 1fr);
     }
 
-    & ul {
-        list-style-type: none;
+    &:nth-child(n + 2) {
+        border-top: 1px solid $border-color;
+        margin-top: 1rem;
+        padding-top: 1rem;
     }
 
-    & legend {
-        font-weight: 600;
-        margin-bottom: 1em;
-        font-size: 1.2em;
+    h3 {
+        grid-column: label;
+        font-size: 1rem;
+        padding: 0;
+        margin: 0;
+    }
+
+    > *:not(h3) {
+        grid-column: fields;
+    }
+
+    .components-toggle-control.itsec-highlighted-search-result label {
+        border-bottom: 3px solid $main-blue;
+        padding-bottom: 6px;
     }
 }

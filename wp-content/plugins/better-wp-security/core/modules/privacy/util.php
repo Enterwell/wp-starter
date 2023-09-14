@@ -7,26 +7,26 @@ final class ITSEC_Privacy_Util {
 
 		$sections = array(
 			'collection'        => array(
-				'heading'     => __( 'What personal data we collect and why we collect it' ),
+				'heading'     => __( 'What personal data we collect and why we collect it', 'better-wp-security' ),
 				'subheadings' => array(
-					'comments'      => __( 'Comments' ),
-					'media'         => __( 'Media' ),
-					'contact_forms' => __( 'Contact Forms' ),
-					'cookies'       => __( 'Cookies' ),
-					'embeds'        => __( 'Embedded content from other websites' ),
-					'analytics'     => __( 'Analytics' ),
-					'security_logs' => __( 'Security Logs' ),
+					'comments'      => __( 'Comments', 'better-wp-security' ),
+					'media'         => __( 'Media', 'better-wp-security' ),
+					'contact_forms' => __( 'Contact Forms', 'better-wp-security' ),
+					'cookies'       => __( 'Cookies', 'better-wp-security' ),
+					'embeds'        => __( 'Embedded content from other websites', 'better-wp-security' ),
+					'analytics'     => __( 'Analytics', 'better-wp-security' ),
+					'security_logs' => __( 'Security Logs', 'better-wp-security' ),
 				),
 			),
-			'sharing'           => __( 'Who we share your data with' ),
-			'retention'         => __( 'How long we retain your data' ),
-			'rights'            => __( 'What rights you have over your data' ),
-			'sending'           => __( 'Where we send your data' ),
-			'additional'        => __( 'Additional information' ),
-			'protection'        => __( 'How we protect your data' ),
-			'breach_procedures' => __( 'What data breach procedures we have in place' ),
-			'third_parties'     => __( 'What third parties we receive data from' ),
-			'profiling'         => __( 'What automated decision making and/or profiling we do with user data' ),
+			'sharing'           => __( 'Who we share your data with', 'better-wp-security' ),
+			'retention'         => __( 'How long we retain your data', 'better-wp-security' ),
+			'rights'            => __( 'What rights you have over your data', 'better-wp-security' ),
+			'sending'           => __( 'Where we send your data', 'better-wp-security' ),
+			'additional'        => __( 'Additional information', 'better-wp-security' ),
+			'protection'        => __( 'How we protect your data', 'better-wp-security' ),
+			'breach_procedures' => __( 'What data breach procedures we have in place', 'better-wp-security' ),
+			'third_parties'     => __( 'What third parties we receive data from', 'better-wp-security' ),
+			'profiling'         => __( 'What automated decision making and/or profiling we do with user data', 'better-wp-security' ),
 		);
 
 		$sections = apply_filters( 'itsec_get_privacy_policy_sections', $sections );

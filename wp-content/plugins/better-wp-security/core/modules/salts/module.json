@@ -1,0 +1,24 @@
+{
+  "id": "wordpress-salts",
+  "type": "tool",
+  "status": "always-active",
+  "title": "WordPress Salts",
+  "tools": {
+    "change-salts": {
+      "title": "Change WordPress Salts",
+      "description": "Changes the WordPress salts used to secure cookies and security tokens.",
+      "help": "This shouldn’t be done periodically, but only if you suspect your site may have been compromised. This will force all users to login again."
+    }
+  },
+  "settings": {
+    "type": "object",
+    "properties": {
+      "last_generated": {
+        "type": "integer",
+        "default": 0,
+        "minimum": 0,
+        "readonly": true
+      }
+    }
+  }
+}

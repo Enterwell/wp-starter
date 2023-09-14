@@ -1,9 +1,4 @@
 <?php
-/**
- * Yoast SEO plugin file.
- *
- * @package Yoast\YoastSEO\Conditionals
- */
 
 namespace Yoast\WP\SEO\Conditionals;
 
@@ -15,7 +10,7 @@ abstract class Feature_Flag_Conditional implements Conditional {
 	/**
 	 * Returns whether or not this conditional is met.
 	 *
-	 * @return boolean Whether or not the conditional is met.
+	 * @return bool Whether or not the conditional is met.
 	 */
 	public function is_met() {
 		$feature_flag = \strtoupper( $this->get_feature_flag() );
@@ -30,4 +25,13 @@ abstract class Feature_Flag_Conditional implements Conditional {
 	 * @return string the name of the feature flag.
 	 */
 	abstract protected function get_feature_flag();
+
+	/**
+	 * Returns the feature name.
+	 *
+	 * @return string the name of the feature flag.
+	 */
+	public function get_feature_name() {
+		return $this->get_feature_flag();
+	}
 }

@@ -96,4 +96,12 @@ final class ITSEC_Storage {
 
 		$this->shutdown_done = true;
 	}
+
+	public static function reset() {
+		$data = self::get_instance();
+
+		delete_site_option( $data->option );
+		unset( $data->cache );
+		$data->changed = false;
+	}
 }

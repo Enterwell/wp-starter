@@ -1,16 +1,11 @@
 <?php
-/**
- * Yoast migrations adapter class.
- *
- * @package Yoast\WP\Lib\Migrations
- */
 
 namespace Yoast\WP\Lib\Migrations;
 
 use Exception;
 
 /**
- * Column class
+ * Yoast migrations column class.
  */
 class Column {
 
@@ -58,8 +53,6 @@ class Column {
 	 * @param array   $options The column options.
 	 *
 	 * @throws Exception If invalid arguments provided.
-	 *
-	 * @return Column
 	 */
 	public function __construct( $adapter, $name, $type, $options = [] ) {
 		if ( ! $adapter instanceof Adapter ) {

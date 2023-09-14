@@ -4,7 +4,7 @@
  *
  * @package icon-fonts
  * @author iThemes
- * @version 1.2.0
+ * @version 1.2.2
 */
 
 if ( ! function_exists( 'it_icon_font_admin_enueue_scripts' ) ) {
@@ -28,6 +28,9 @@ if ( ! function_exists( 'it_icon_font_admin_enueue_scripts' ) ) {
 					$url = WP_CONTENT_URL . str_replace( '\\', '/', preg_replace( '/^' . preg_quote( $content_dir, '/' ) . '/', '', $dir ) );
 				} else if ( empty( $abspath ) || ( 0 === strpos( $dir, $abspath ) ) ) {
 					$url = get_option( 'siteurl' ) . str_replace( '\\', '/', preg_replace( '/^' . preg_quote( $abspath, '/' ) . '/', '', $dir ) );
+				} else {
+					// If none of these cases match, just return -- it's an unusual setup
+					return;
 				}
 			}
 

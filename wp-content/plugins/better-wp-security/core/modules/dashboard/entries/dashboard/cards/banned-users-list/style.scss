@@ -1,0 +1,262 @@
+.itsec-card--type-banned-users {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+
+    & .itsec-card-header {
+        flex-shrink: 0;
+    }
+
+    & .itsec-card-footer__actions {
+        margin-top: auto;
+    }
+
+    & .itsec-card-banned-users__search {
+        display: flex;
+        padding: .5em 1em;
+        border-top: 1px solid $light-gray-500;
+        align-items: center;
+
+        & > * {
+            flex-grow: 1;
+            flex-basis: 0;
+            margin: 0 .25em;
+
+            &:first-child {
+                margin-left: 0;
+            }
+
+            &:last-child {
+                margin-right: 0;
+            }
+
+            & .components-base-control__field {
+                margin-bottom: 0;
+            }
+        }
+
+        & .components-select-control__input {
+            margin: 0;
+        }
+    }
+
+    & .itsec-card-banned-users__create {
+        background: $highlight-blue;
+        padding: 1em;
+    }
+
+    & .itsec-component-master-detail {
+        flex-shrink: 1;
+    }
+
+    & .itsec-component-master-detail__detail-container {
+        background: $highlight-blue;
+        padding: 1em;
+    }
+
+    & .itsec-card-banned-users__bans--column-comment {
+        width: 40%;
+    }
+
+    & tbody .itsec-card-banned-users__bans--column-label {
+        & span {
+            display: block;
+        }
+
+        & .itsec-card-banned-users__bans-label {
+            color: $main-blue;
+            border-left: solid 3px $dark-gray-150;
+            padding-left: 3px;
+        }
+
+        &.itsec-card-banned-users__ban--actor-type-lockout_module.itsec-card-banned-users__ban--actor-id-four_oh_four .itsec-card-banned-users__bans-label {
+            border-left-color: #e67e22;
+        }
+
+        &.itsec-card-banned-users__ban--actor-type-lockout_module.itsec-card-banned-users__ban--actor-id-brute_force .itsec-card-banned-users__bans-label {
+            border-left-color: #2ecc71;
+        }
+
+        &.itsec-card-banned-users__ban--actor-type-lockout_module.itsec-card-banned-users__ban--actor-id-brute_force_admin_user .itsec-card-banned-users__bans-label {
+            border-left-color: #3498db;
+        }
+
+        &.itsec-card-banned-users__ban--actor-type-lockout_module.itsec-card-banned-users__ban--actor-id-recaptcha .itsec-card-banned-users__bans-label {
+            border-left-color: #e74c3c;
+        }
+
+        &.itsec-card-banned-users__ban--actor-type-user .itsec-card-banned-users__bans-label {
+            border-left-color: #8e44ad;
+        }
+
+        & .itsec-card-banned-users__bans-date {
+            font-size: .8em;
+            padding-left: 6px;
+        }
+    }
+
+    & tbody .itsec-card-banned-users__bans--column-comment {
+        vertical-align: top;
+        font-size: .8em;
+    }
+
+    & .itsec-card-banned-users__bans {
+        border-spacing: 0;
+        width: 100%;
+
+        @include sticky-table();
+
+        th:last-child,
+        td:last-child {
+            text-align: right;
+        }
+    }
+
+    & .itsec-card-banned-users__ban {
+
+        & .itsec-card-banned-users__ban-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            margin-bottom: 1em;
+        }
+
+        & dl {
+            display: grid;
+            grid-template: min-content / min-content 1fr;
+            grid-gap: 1em 1.5em;
+            margin: 0 1em 1em 0;
+
+            & dt {
+                text-transform: uppercase;
+                font-weight: normal;
+                color: #6c7781;
+            }
+
+            & dd {
+                margin: 0;
+                display: inline;
+            }
+        }
+
+        & .itsec-card-banned-users__ban-actions {
+            margin: 0 0 1em 0;
+
+            & li:last-child {
+                margin-bottom: 0;
+            }
+
+            & a {
+                display: inline-flex;
+                padding: 6px;
+                min-width: 36px;
+                align-items: center;
+                justify-content: left;
+                text-decoration: none;
+
+                &:hover,
+                &:active {
+                    color: #00a0d2;
+                }
+
+                & .dashicon {
+                    margin-right: 8px;
+                    display: inline-block;
+                    flex: 0 0 auto;
+                }
+            }
+
+            .components-button.is-link {
+                text-decoration: none;
+            }
+        }
+
+        & .itsec-card-banned-users__ban-notes {
+            & .components-base-control__field {
+                margin-bottom: 0;
+            }
+
+            & label {
+                text-transform: uppercase;
+                font-weight: normal;
+                color: #6c7781;
+            }
+        }
+    }
+
+    &.itsec-card-banned-users--creating .itsec-card-footer__actions {
+        justify-content: flex-end;
+    }
+
+    & textarea[rows] {
+        resize: none;
+    }
+
+    // This ugly selector is to make sure we only style the first legend.
+    & .itsec-card-banned-users__create > .rjsf > .field-object > fieldset > legend {
+        color: $dark-gray-800;
+        display: block;
+        font-weight: 600;
+        margin-left: -2px;
+    }
+
+    & .itsec-rjsf-error-list {
+        background: #F7ABAB;
+        padding: .25em;
+        border-radius: 3px;
+        margin-bottom: 1em;
+
+        & h3 {
+            color: #551515;
+            font-size: 1em;
+            margin: 0;
+        }
+
+        & ul {
+            margin: 0;
+        }
+
+        & li {
+            margin: 0;
+            color: #551515;
+        }
+    }
+
+    .itsec-card-banned-users__create {
+        .itsec-rjsf-title-field {
+            display: block;
+            margin-bottom: .5em;
+            font-size: 1em;
+            color: $medium-text;
+        }
+
+        label {
+            text-transform: uppercase;
+            font-weight: normal;
+            color: $medium-text;
+        }
+
+        p {
+            margin: 0;
+        }
+    }
+}
+
+.itsec-card[max-height~="500px"] .itsec-card--type-banned-users {
+    &.itsec-card-banned-users--creating {
+        & .itsec-card-banned-users__search {
+            display: none;
+        }
+
+        & .itsec-component-master-detail {
+            display: none;
+        }
+
+        & .itsec-card-banned-users__create {
+            flex-grow: 1;
+            overflow: scroll;
+        }
+    }
+}

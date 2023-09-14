@@ -66,7 +66,7 @@ final class Entry implements \Countable {
 	 *
 	 * @return int
 	 */
-	public function count( $status = '' ) {
+	public function count( string $status = '' ): int {
 		$i = 0;
 
 		foreach ( $this->get_issues() as $issue ) {

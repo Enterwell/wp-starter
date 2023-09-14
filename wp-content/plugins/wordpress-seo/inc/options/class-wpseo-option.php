@@ -133,7 +133,7 @@ abstract class WPSEO_Option {
 	/**
 	 * Instance of this class.
 	 *
-	 * @var object
+	 * @var WPSEO_Option
 	 */
 	protected static $instance;
 
@@ -142,15 +142,12 @@ abstract class WPSEO_Option {
 
 	/**
 	 * Add all the actions and filters for the option.
-	 *
-	 * @return \WPSEO_Option
 	 */
 	protected function __construct() {
 
 		/* Add filters which get applied to the get_options() results. */
 		$this->add_default_filters(); // Return defaults if option not set.
 		$this->add_option_filters(); // Merge with defaults if option *is* set.
-
 
 		if ( $this->multisite_only !== true ) {
 			/**
@@ -183,7 +180,6 @@ abstract class WPSEO_Option {
 			add_action( 'update_site_option_' . $this->option_name, [ 'WPSEO_Options', 'clear_cache' ], 1, 0 );
 		}
 
-
 		/*
 		 * Make sure the option will always get validated, independently of register_setting()
 		 * (only available on back-end).
@@ -195,7 +191,6 @@ abstract class WPSEO_Option {
 
 		/* Register our option for the admin pages */
 		add_action( 'admin_init', [ $this, 'register_setting' ] );
-
 
 		/* Set option group name if not given */
 		if ( ! isset( $this->group_name ) || $this->group_name === '' ) {
@@ -219,26 +214,29 @@ abstract class WPSEO_Option {
 		}
 	}
 
-// @codingStandardsIgnoreStart
-	/**
+	/*
 	 * All concrete classes *must* contain the get_instance method.
 	 *
 	 * {@internal Unfortunately I can't define it as an abstract as it also *has* to be static...}}
-	 */
-	// abstract protected static function get_instance();
-
-
-	/**
+	 *
+	 * ```
+	 * abstract protected static function get_instance();
+	 * ```
+	 * ---------------
+	 *
 	 * Concrete classes *may* contain a translate_defaults method.
-	 */
-	// abstract public function translate_defaults();
-
-
-	/**
+	 * ```
+	 * abstract public function translate_defaults();
+	 * ```
+	 * ---------------
+	 *
 	 * Concrete classes *may* contain a enrich_defaults method to add additional defaults once
 	 * all post_types and taxonomies have been registered.
+	 *
+	 * ```
+	 * abstract public function enrich_defaults();
+	 * ```
 	 */
-	// abstract public function enrich_defaults();
 
 	/* *********** METHODS INFLUENCING get_option() *********** */
 
@@ -291,7 +289,6 @@ abstract class WPSEO_Option {
 		return $value;
 	}
 
-	// @codingStandardsIgnoreStart
 	/**
 	 * Validate webmaster tools & Pinterest verification strings.
 	 *
@@ -378,7 +375,7 @@ abstract class WPSEO_Option {
 	public function validate_url( $key, $dirty, $old, &$clean ) {
 		if ( isset( $dirty[ $key ] ) && $dirty[ $key ] !== '' ) {
 
-			$submitted_url = trim( htmlspecialchars( $dirty[ $key ], ENT_COMPAT, get_bloginfo( 'charset' ), true ) );
+			$submitted_url = trim( $dirty[ $key ] );
 			$validated_url = filter_var( WPSEO_Utils::sanitize_url( $submitted_url ), FILTER_VALIDATE_URL );
 
 			if ( $validated_url === false ) {
@@ -392,7 +389,7 @@ abstract class WPSEO_Option {
 						sprintf(
 							/* translators: %s expands to an invalid URL. */
 							__( '%s does not seem to be a valid url. Please correct.', 'wordpress-seo' ),
-							'<strong>' . esc_html( $submitted_url ) . '</strong>'
+							'<strong>' . esc_url( $submitted_url ) . '</strong>'
 						),
 						// Message type.
 						'error'
@@ -418,65 +415,6 @@ abstract class WPSEO_Option {
 			if ( $url !== '' ) {
 				$clean[ $key ] = $url;
 			}
-		}
-	}
-
-	/**
-	 * Validates a Facebook App ID.
-	 *
-	 * @param string $key   Key to check, in this case: the Facebook App ID field name.
-	 * @param array  $dirty Dirty data with the new values.
-	 * @param array  $old   Old data.
-	 * @param array  $clean Clean data by reference, normally the default values.
-	 */
-	public function validate_facebook_app_id( $key, $dirty, $old, &$clean ) {
-		if ( isset( $dirty[ $key ] ) && $dirty[ $key ] !== '' ) {
-			$url = 'https://graph.facebook.com/' . $dirty[ $key ];
-
-			$response = wp_remote_get( $url );
-			// These filters are used in the tests.
-			/**
-			 * Filter: 'validate_facebook_app_id_api_response_code' - Allows to filter the Faceboook API response code.
-			 *
-			 * @api int $response_code The Facebook API response header code.
-			 */
-			$response_code = apply_filters( 'validate_facebook_app_id_api_response_code', wp_remote_retrieve_response_code( $response ) );
-			/**
-			 * Filter: 'validate_facebook_app_id_api_response_body' - Allows to filter the Faceboook API response body.
-			 *
-			 * @api string $response_body The Facebook API JSON response body.
-			 */
-			$response_body   = apply_filters( 'validate_facebook_app_id_api_response_body', wp_remote_retrieve_body( $response ) );
-			$response_object = json_decode( $response_body );
-
-			/*
-			 * When the request is successful the response code will be 200 and
-			 * the response object will contain an `id` property.
-			 */
-			if ( $response_code === 200 && isset( $response_object->id ) ) {
-				$clean[ $key ] = $dirty[ $key ];
-				return;
-			}
-
-			// Restore the previous value, if any.
-			if ( isset( $old[ $key ] ) && $old[ $key ] !== '' ) {
-				$clean[ $key ] = $old[ $key ];
-			}
-
-			if ( function_exists( 'add_settings_error' ) ) {
-				add_settings_error(
-					$this->group_name, // Slug title of the setting.
-					$key, // Suffix-ID for the error message box. WordPress prepends `setting-error-`.
-					sprintf(
-						/* translators: %s expands to an invalid Facebook App ID. */
-						__( '%s does not seem to be a valid Facebook App ID. Please correct.', 'wordpress-seo' ),
-						'<strong>' . esc_html( $dirty[ $key ] ) . '</strong>'
-					), // The error message.
-					'error' // CSS class for the WP notice, either the legacy 'error' / 'updated' or the new `notice-*` ones.
-				);
-			}
-
-			Yoast_Input_Validation::add_dirty_value_to_settings_errors( $key, $dirty[ $key ] );
 		}
 	}
 
@@ -728,8 +666,8 @@ abstract class WPSEO_Option {
 	 * @uses WPSEO_Option::get_original_option()
 	 * @uses WPSEO_Option::import()
 	 *
-	 * @param string $current_version Optional. Version from which to upgrade, if not set,
-	 *                                version specific upgrades will be disregarded.
+	 * @param string|null $current_version Optional. Version from which to upgrade, if not set,
+	 *                                     version specific upgrades will be disregarded.
 	 *
 	 * @return void
 	 */
@@ -752,12 +690,12 @@ abstract class WPSEO_Option {
 	 *    once the admin has dismissed the message (add ajax function)
 	 * Important: all validation routines which add_settings_errors would need to be changed for this to work
 	 *
-	 * @param array  $option_value          Option value to be imported.
-	 * @param string $current_version       Optional. Version from which to upgrade, if not set,
-	 *                                      version specific upgrades will be disregarded.
-	 * @param array  $all_old_option_values Optional. Only used when importing old options to
-	 *                                      have access to the real old values, in contrast to
-	 *                                      the saved ones.
+	 * @param array       $option_value          Option value to be imported.
+	 * @param string|null $current_version       Optional. Version from which to upgrade, if not set,
+	 *                                           version specific upgrades will be disregarded.
+	 * @param array|null  $all_old_option_values Optional. Only used when importing old options to
+	 *                                           have access to the real old values, in contrast to
+	 *                                           the saved ones.
 	 *
 	 * @return void
 	 */
@@ -799,11 +737,15 @@ abstract class WPSEO_Option {
 		return $this->option_name;
 	}
 
-	/**
+	/*
 	 * Concrete classes *may* contain a clean_option method which will clean out old/renamed
 	 * values within the option.
+	 *
+	 * ```
+	 * abstract public function clean_option( $option_value, $current_version = null, $all_old_option_values = null );
+	 * ```
 	 */
-	// abstract public function clean_option( $option_value, $current_version = null, $all_old_option_values = null );
+
 	/* *********** HELPER METHODS for internal use. *********** */
 
 	/**
@@ -813,8 +755,8 @@ abstract class WPSEO_Option {
 	 * @todo [JRF] - shouldn't this be a straight array merge ? at the end of the day, the validation
 	 * removes any invalid keys on save.
 	 *
-	 * @param array $options Optional. Current options. If not set, the option defaults
-	 *                       for the $option_key will be returned.
+	 * @param array|null $options Optional. Current options. If not set, the option defaults
+	 *                            for the $option_key will be returned.
 	 *
 	 * @return array Combined and filtered options array.
 	 */

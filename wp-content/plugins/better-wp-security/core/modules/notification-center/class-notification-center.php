@@ -538,27 +538,6 @@ final class ITSEC_Notification_Center {
 	}
 
 	/**
-	 * Dismiss an error encountered while sending a notification with wp_mail().
-	 *
-	 * @param string $error_id
-	 */
-	public function dismiss_mail_error( $error_id ) {
-		_deprecated_function( __METHOD__, '4.7.1' );
-	}
-
-	/**
-	 * Get the loggged mail errors keyed by id.
-	 *
-	 * @return array
-	 */
-	public function get_mail_errors() {
-
-		_deprecated_function( __METHOD__, '4.7.1' );
-
-		return array();
-	}
-
-	/**
 	 * Initialize the module.
 	 */
 	public function run() {

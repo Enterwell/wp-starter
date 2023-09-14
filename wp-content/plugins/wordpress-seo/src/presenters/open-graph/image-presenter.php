@@ -1,9 +1,4 @@
 <?php
-/**
- * Presenter class for the Open Graph image.
- *
- * @package Yoast\YoastSEO\Presenters\Open_Graph
- */
 
 namespace Yoast\WP\SEO\Presenters\Open_Graph;
 
@@ -11,9 +6,16 @@ use Yoast\WP\SEO\Presentations\Indexable_Presentation;
 use Yoast\WP\SEO\Presenters\Abstract_Indexable_Presenter;
 
 /**
- * Class Image_Presenter
+ * Presenter class for the Open Graph image.
  */
 class Image_Presenter extends Abstract_Indexable_Presenter {
+
+	/**
+	 * The tag key name.
+	 *
+	 * @var string
+	 */
+	protected $key = 'og:image';
 
 	/**
 	 * Image tags that we output for each image.
@@ -23,7 +25,7 @@ class Image_Presenter extends Abstract_Indexable_Presenter {
 	protected static $image_tags = [
 		'width'     => 'width',
 		'height'    => 'height',
-		'mime-type' => 'type',
+		'type'      => 'type',
 	];
 
 	/**
@@ -39,17 +41,24 @@ class Image_Presenter extends Abstract_Indexable_Presenter {
 		}
 
 		$return = '';
-		foreach ( $images as $image_index => $image_meta ) {
+		foreach ( $images as $image_meta ) {
 			$image_url = $image_meta['url'];
 
-			$return .= '<meta property="og:image" content="' . \esc_url( $image_url ) . '" />';
+			if ( \is_attachment() ) {
+				global $wp;
+				$image_url = \home_url( $wp->request );
+			}
+
+			$class = \is_admin_bar_showing() ? ' class="yoast-seo-meta-tag"' : '';
+
+			$return .= '<meta property="og:image" content="' . \esc_url( $image_url, null, 'attribute' ) . '"' . $class . ' />';
 
 			foreach ( static::$image_tags as $key => $value ) {
 				if ( empty( $image_meta[ $key ] ) ) {
 					continue;
 				}
 
-				$return .= \PHP_EOL . "\t" . '<meta property="og:image:' . \esc_attr( $key ) . '" content="' . $image_meta[ $key ] . '" />';
+				$return .= \PHP_EOL . "\t" . '<meta property="og:image:' . \esc_attr( $key ) . '" content="' . \esc_attr( $image_meta[ $key ] ) . '"' . $class . ' />';
 			}
 		}
 
@@ -65,7 +74,12 @@ class Image_Presenter extends Abstract_Indexable_Presenter {
 		$images = [];
 
 		foreach ( $this->presentation->open_graph_images as $open_graph_image ) {
-			$images[] = $this->filter( $open_graph_image );
+			$images[] = \array_intersect_key(
+				// First filter the object.
+				$this->filter( $open_graph_image ),
+				// Then strip all keys that aren't in the image tags or the url.
+				\array_flip( \array_merge( static::$image_tags, [ 'url' ] ) )
+			);
 		}
 
 		return \array_filter( $images );

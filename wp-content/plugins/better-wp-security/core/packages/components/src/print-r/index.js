@@ -1,7 +1,18 @@
 /**
  * External dependencies
  */
-import { isString, isBoolean, isNumber, isArray, isPlainObject, keys, forEach, toString, cloneDeep, size } from 'lodash';
+import {
+	isString,
+	isBoolean,
+	isNumber,
+	isArray,
+	isPlainObject,
+	keys,
+	forEach,
+	toString,
+	cloneDeep,
+	size,
+} from 'lodash';
 
 /**
  * WordPress dependencies
@@ -78,8 +89,7 @@ function inspectDive( data, maxDepth = 10, depth = 0, showArrayHeader = true ) {
 					{ key }
 					{ pad( maxLength - toString( key ).length, ' ' ) }
 					{ '  ' }
-					<strong>=&gt;</strong>
-					{ ' ' }
+					<strong>=&gt;</strong>{ ' ' }
 					{ inspectDive( value, maxDepth, depth + 1 ) }
 				</Fragment>
 			);

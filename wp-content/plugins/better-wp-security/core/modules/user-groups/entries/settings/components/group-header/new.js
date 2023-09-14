@@ -8,22 +8,22 @@ import { withSelect } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import { GroupHeader } from './';
+import { PageHeader } from '@ithemes/security.pages.settings';
 
 function NewGroupHeader( { label } ) {
 	if ( ! label || ! label.length ) {
 		label = __( 'New Group', 'better-wp-security' );
 	}
 
-	return (
-		<GroupHeader label={ label } />
-	);
+	return <PageHeader label={ label } />;
 }
 
 export default compose( [
 	withSelect( ( select ) => {
-		return ( {
-			label: select( 'ithemes-security/user-groups-editor' ).getEditedGroupAttribute( 'new', 'label' ),
-		} );
+		return {
+			label: select(
+				'ithemes-security/user-groups-editor'
+			).getEditedGroupAttribute( 'new', 'label' ),
+		};
 	} ),
 ] )( NewGroupHeader );

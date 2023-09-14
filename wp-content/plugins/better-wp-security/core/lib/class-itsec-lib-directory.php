@@ -230,6 +230,27 @@ if ( ! class_exists( 'ITSEC_Lib_Directory' ) ) {
 		}
 
 		/**
+		 * Creates a temporary directory.
+		 *
+		 * @return string|WP_Error
+		 */
+		public static function create_temp_directory() {
+			$temp = get_temp_dir();
+
+			do {
+				$directory = $temp . wp_generate_password( 12, false );
+			} while ( self::is_dir( $directory ) );
+
+			$created = self::create( $directory );
+
+			if ( is_wp_error( $created ) ) {
+				return $created;
+			}
+
+			return trailingslashit( $directory );
+		}
+
+		/**
 		 * Test to see if the requested directory is writable.
 		 *
 		 * @since 2.3.0

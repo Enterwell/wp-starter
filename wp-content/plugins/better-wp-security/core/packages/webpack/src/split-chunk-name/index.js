@@ -1,4 +1,5 @@
 const crypto = require( 'crypto' );
+const { uniq } = require( 'lodash' );
 
 class SplitChunksName {
 	constructor() {
@@ -7,7 +8,7 @@ class SplitChunksName {
 
 	name( module, chunks, cacheGroup ) {
 		const automaticNamePrefix = cacheGroup === 'vendors' ? 'vendors' : '',
-			automaticNameDelimiter = '~';
+			automaticNameDelimiter = '--';
 
 		let cacheEntry = this.cache.get( chunks );
 		if ( cacheEntry === undefined ) {
@@ -16,13 +17,18 @@ class SplitChunksName {
 		} else if ( cacheGroup in cacheEntry ) {
 			return cacheEntry[ cacheGroup ];
 		}
-		const names = chunks.filter( ( c ) => !! c.name ).map( ( c ) => c.name.split( '/' ) );
+		const names = chunks
+			.filter( ( c ) => !! c.name )
+			.map( ( c ) => c.name.split( '/' ) );
 		if ( ! names.length || ! names.every( Boolean ) ) {
 			cacheEntry[ cacheGroup ] = undefined;
 			return;
 		}
 		names.sort( ( a, b ) => b.length - a.length );
-		const prefix = typeof automaticNamePrefix === 'string' ? automaticNamePrefix : cacheGroup;
+		const prefix =
+			typeof automaticNamePrefix === 'string'
+				? automaticNamePrefix
+				: cacheGroup;
 		const namePrefix = prefix ? prefix + '/' : '';
 
 		/*
@@ -48,7 +54,12 @@ class SplitChunksName {
 			} else {
 				name = '';
 				name += names[ 0 ].slice( 0, i ).join( '/' ) + '/';
-				name += names.map( ( parts ) => parts[ i ] ).filter( ( part ) => typeof part === 'string' ).join( automaticNameDelimiter ) + '/';
+				name +=
+					uniq(
+						names
+							.map( ( parts ) => parts[ i ] )
+							.filter( ( part ) => typeof part === 'string' )
+					).join( automaticNameDelimiter ) + '/';
 			}
 		}
 
@@ -58,8 +69,11 @@ class SplitChunksName {
 			name = name.substring( 0, name.length - 1 );
 		}
 
-		if ( name.length > 100 ) {
-			name = name.slice( 0, 100 ) + automaticNameDelimiter + this.hashFilename( name );
+		if ( name.length > 50 ) {
+			name =
+				name.slice( 0, 50 ) +
+				automaticNameDelimiter +
+				this.hashFilename( name );
 		}
 
 		cacheEntry[ cacheGroup ] = name;

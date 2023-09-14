@@ -1,0 +1,203 @@
+{
+  "id": "backup",
+  "status": "default-active",
+  "title": "Database Backups",
+  "description": "Manually create a database backup or schedule automatic database backups.",
+  "help": "Database backups can help you restore your database in the case of data corruption. However, it is not a complete backup and will not include your site files.",
+  "type": "utility",
+  "settings": {
+    "type": "object",
+    "properties": {
+      "enabled": {
+        "type": "boolean",
+        "default": false,
+        "title": "Schedule Database Backups"
+      },
+      "interval": {
+        "type": "integer",
+        "minimum": 0,
+        "default": 3,
+        "title": "Backup Interval",
+        "description": "The number of days between database backups."
+      },
+      "method": {
+        "type": "string",
+        "enum": [
+          "both",
+          "email",
+          "local"
+        ],
+        "enumNames": [
+          "Save Locally and Email",
+          "Email Only",
+          "Save Locally Only"
+        ],
+        "default": "email",
+        "title": "Backup Method",
+        "description": "Select what we should do with your backup file. You can have it emailed to you, saved locally or both."
+      },
+      "location": {
+        "type": "string",
+        "format": "directory",
+        "default": "",
+        "title": "Backup Location",
+        "description": "The path on your machine where backup files should be stored. For added security, it is recommended you do not include it in your website root folder."
+      },
+      "retain": {
+        "type": "integer",
+        "minimum": 0,
+        "default": 0,
+        "title": "Backups to Retain",
+        "description": "Limit the number of backups stored locally (on this server). Any older backups beyond this number will be removed. Enter “0” to retain all backups."
+      },
+      "zip": {
+        "type": "boolean",
+        "default": true,
+        "title": "Compress Backup Files",
+        "description": "By default, iThemes Security will zip backup files to reduce file size. You may need to turn this off if you are having problems with backups."
+      },
+      "exclude": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": []
+        },
+        "uniqueItems": true,
+        "default": [
+          "itsec_logs",
+          "itsec_temp",
+          "itsec_lockouts",
+          "itsec_distributed_storage",
+          "itsec_opaque_tokens",
+          "itsec_geolocation_cache"
+        ],
+        "title": "Backup Tables",
+        "description": "Specify which tables should be included or excluded from backups. WordPress Core tables are always included."
+      },
+      "last_run": {
+        "type": "integer",
+        "minimum": 0,
+        "default": 0,
+        "title": "Last Run",
+        "readonly": true
+      }
+    },
+    "uiSchema": {
+      "ui:sections": [
+        {
+          "title": "Scheduling",
+          "fields": [
+            "enabled",
+            "interval"
+          ]
+        },
+        {
+          "title": "Configuration",
+          "fields": [
+            "method",
+            "location",
+            "retain",
+            "zip"
+          ]
+        },
+        {
+          "title": "Backup Tables",
+          "fields": [
+            "exclude"
+          ]
+        }
+      ],
+      "location": {
+        "ui:resettable": true
+      },
+      "exclude": {
+        "ui:title": "",
+        "ui:widget": "IncludeExcludeWidget",
+        "ui:options": {
+          "includeList": {
+            "title": "Excluded Tables",
+            "description": "List of tables to exclude from each backup.",
+            "button": "Include Table"
+          },
+          "excludeList": {
+            "title": "Included Tables",
+            "description": "List of tables to include in each backup.",
+            "button": "Exclude Table"
+          }
+        }
+      }
+    }
+  },
+  "conditional-settings": {
+    "interval": {
+      "settings": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          }
+        }
+      }
+    },
+    "location": {
+      "settings": {
+        "type": "object",
+        "properties": {
+          "method": {
+            "type": "string",
+            "enum": [
+              "both",
+              "local"
+            ]
+          }
+        }
+      }
+    },
+    "retain": {
+      "settings": {
+        "type": "object",
+        "properties": {
+          "method": {
+            "type": "string",
+            "enum": [
+              "both",
+              "local"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "removed-settings": [
+    "all_sites"
+  ],
+  "scheduling": {
+    "backup": {
+      "schedule": "backup",
+      "type": "recurring",
+      "conditional": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "interval": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      }
+    }
+  },
+  "import-export": {
+    "exclude-settings": [
+      "last_run"
+    ]
+  }
+}

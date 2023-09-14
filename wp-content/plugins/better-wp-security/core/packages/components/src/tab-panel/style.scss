@@ -1,0 +1,61 @@
+.itsec-tab-panel--styled .components-tab-panel__tabs {
+    display: grid;
+    grid-gap: .5rem;
+    grid-template-columns: 1fr 1fr;
+    align-items: stretch;
+    justify-content: flex-start;
+    border-bottom: 1px solid rgb(226, 228, 231);
+    box-sizing: content-box;
+    padding: 16px 24px;
+
+    @include break-small {
+        display: flex;
+        padding-top: 0;
+        padding-bottom: 0;
+    }
+}
+
+.itsec-tab-panel__tab.components-button {
+    cursor: pointer;
+    font-weight: 600;
+    justify-content: center;
+    align-items: center;
+    outline-offset: -1px;
+    border-radius: 0;
+    color: $medium-text;
+    padding: 6px 12px;
+    height: auto;
+    margin: 0;
+
+    &:hover,
+    &:focus {
+        box-shadow: none !important;
+        outline: none;
+    }
+
+    &.is-active,
+    &:hover {
+        color: $white;
+        background: $main-blue;
+        border-radius: 2px;
+    }
+
+    @include break-small {
+        border-bottom: 2px solid transparent;
+        padding: 10px 0;
+        margin: 0 12px -1.5px;
+
+        text-transform: uppercase;
+
+        &:first-child {
+            margin-left: 0;
+        }
+
+        &.is-active,
+        &:hover {
+            color: $main-blue;
+            border-bottom-color: $main-blue;
+            background: none;
+        }
+    }
+}

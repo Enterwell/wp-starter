@@ -1,9 +1,8 @@
+/**
+ * Internal dependencies
+ */
 import { GroupNav } from '../';
 
 export default function Layout() {
-	return (
-		<div>
-			<GroupNav />
-		</div>
-	);
+	return <GroupNav />;
 }

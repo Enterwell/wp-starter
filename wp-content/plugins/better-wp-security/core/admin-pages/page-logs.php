@@ -3,14 +3,10 @@
 
 final class ITSEC_Logs_Page {
 	private $self_url = '';
-	private $modules = array();
 	private $widgets = array();
 	private $translations = array();
 
-
 	public function __construct() {
-		add_action( 'itsec-logs-page-register-widget', array( $this, 'register_widget' ) );
-
 		add_action( 'itsec-page-show', array( $this, 'handle_page_load' ) );
 		add_action( 'itsec-page-ajax', array( $this, 'handle_ajax_request' ) );
 		add_action( 'admin_print_scripts', array( $this, 'add_scripts' ) );
@@ -20,12 +16,8 @@ final class ITSEC_Logs_Page {
 
 		$this->set_translation_strings();
 
-
-		require( dirname( __FILE__ ) . '/module-settings.php' );
 		require( dirname( __FILE__ ) . '/sidebar-widget.php' );
-
 		require_once( ITSEC_Core::get_core_dir() . '/lib/form.php' );
-
 
 		do_action( 'itsec-logs-page-init' );
 		do_action( 'itsec-logs-page-register-widgets' );
@@ -38,14 +30,6 @@ final class ITSEC_Logs_Page {
 
 	public function add_scripts() {
 		ITSEC_Lib::enqueue_util();
-
-		foreach ( $this->modules as $id => $module ) {
-			$module->enqueue_scripts_and_styles();
-		}
-
-		foreach ( $this->widgets as $id => $widget ) {
-			$widget->enqueue_scripts_and_styles();
-		}
 
 		$vars = array(
 			'ajax_action'   => 'itsec_logs_page',
@@ -148,23 +132,6 @@ final class ITSEC_Logs_Page {
 					$widget->handle_form_post( $post_data[$id] );
 				}
 			} else {
-				if ( ! empty( $_POST['module'] ) ) {
-					if ( isset( $this->modules[$_POST['module']] ) ) {
-						$modules = array( $_POST['module'] => $this->modules[$_POST['module']] );
-					} else {
-						ITSEC_Response::add_error( new WP_Error( 'itsec-settings-save-unrecognized-module', sprintf( __( 'The supplied module (%s) is not recognized. The module settings could not be saved.', 'better-wp-security' ), $_POST['module'] ) ) );
-						$modules = array();
-					}
-				} else {
-					$modules = $this->modules;
-				}
-
-				foreach ( $modules as $id => $module ) {
-					if ( isset( $post_data[$id] ) ) {
-						$results = $module->handle_form_post( $post_data[$id] );
-					}
-				}
-
 				if ( ITSEC_Response::is_success() ) {
 					if ( ITSEC_Response::get_show_default_success_message() ) {
 						ITSEC_Response::add_message( __( 'The settings saved successfully.', 'better-wp-security' ) );
@@ -390,13 +357,13 @@ final class ITSEC_Logs_Page {
 
 ?>
 	<fieldset class="screen-options">
-		<legend><?php esc_html_e( 'Pagination' ); ?></legend>
-		<label for="itsec_logs_page_entries_per_page"><?php esc_html_e( 'Number of items per page:' ); ?></label>
+		<legend><?php esc_html_e( 'Pagination', 'better-wp-security' ); ?></legend>
+		<label for="itsec_logs_page_entries_per_page"><?php esc_html_e( 'Number of items per page:', 'better-wp-security' ); ?></label>
 		<?php $form->add_number( 'per_page', array( 'step' => 1, 'min' => 1, 'max' => 999, 'maxlength' => 3 ) ); ?>
 	</fieldset>
 
 	<fieldset>
-		<legend><?php esc_html_e( 'View Mode' ); ?></legend>
+		<legend><?php esc_html_e( 'View Mode', 'better-wp-security' ); ?></legend>
 
 		<label for="itsec-default_view-important">
 			<?php $form->add_radio( 'default_view', 'important' ); ?>
@@ -434,7 +401,7 @@ final class ITSEC_Logs_Page {
 	</fieldset>
 
 	<p class="submit">
-		<?php $form->add_submit( 'apply', __( 'Apply' ) ); ?>
+		<?php $form->add_submit( 'apply', __( 'Apply', 'better-wp-security' ) ); ?>
 	</p>
 
 	<p class="submit">
@@ -481,65 +448,39 @@ final class ITSEC_Logs_Page {
 			?>
 		</div>
 
-		<div id="poststuff">
-			<div id="post-body" class="metabox-holder columns-2 hide-if-no-js">
-				<div id="postbox-container-2" class="postbox-container">
-					<?php $this->show_old_logs_migration(); ?>
+		<div>
+			<?php $this->show_old_logs_migration(); ?>
 
-					<?php if ( 'file' === ITSEC_Modules::get_setting( 'global', 'log_type' ) ) : ?>
-						<p><?php _e( 'To view logs within the plugin you must enable database logging in the Global Settings. File logging is not available for access within the plugin itself.', 'better-wp-security' ); ?></p>
-						<p><?php printf( wp_kses( __( 'The log file can be found at: <code>%s</code>', 'better-wp-security' ), array( 'code' => array() ) ), ITSEC_Log::get_log_file_path() ); ?></p>
-					<?php else : ?>
-						<div class="itsec-module-cards-container list">
-							<?php
-								$list = new ITSEC_Logs_List_Table();
+			<?php if ( 'file' === ITSEC_Modules::get_setting( 'global', 'log_type' ) ) : ?>
+				<p><?php _e( 'To view logs within the plugin you must enable database logging in the Global Settings. File logging is not available for access within the plugin itself.', 'better-wp-security' ); ?></p>
+				<p><?php printf( wp_kses( __( 'The log file can be found at: <code>%s</code>', 'better-wp-security' ), array( 'code' => array() ) ), ITSEC_Log::get_log_file_path() ); ?></p>
+			<?php else : ?>
+				<div class="itsec-module-cards-container list">
+					<?php
+					$list = new ITSEC_Logs_List_Table();
 
-								$list->prepare_items();
-								$list->views();
-								$form->start_form( array( 'method' => 'GET' ) );
-								$form->add_hidden( 'page', 'itsec-logs' );
-								$list->display();
-								$form->end_form();
-							?>
-						</div>
-					<?php endif; ?>
+					$list->prepare_items();
+					$list->views();
+					$form->start_form( array( 'method' => 'GET' ) );
+					$form->add_hidden( 'page', 'itsec-logs' );
+					$list->display();
+					$form->end_form();
+					?>
 				</div>
-				<div class="itsec-modal-background"></div>
-				<div id="itsec-log-details-container" class="grid">
-					<div class="itsec-module-settings-container">
-						<div class="itsec-modal-navigation">
-							<button class="dashicons itsec-close-modal"></button>
-						</div>
-						<div class="itsec-module-settings-content-container">
-							<div class="itsec-module-settings-content">
-								<div class="itsec-module-messages-container"></div>
-								<div class="itsec-module-settings-content-main"></div>
-							</div>
-						</div>
+			<?php endif; ?>
+		</div>
+		<div class="itsec-modal-background"></div>
+		<div id="itsec-log-details-container" class="grid">
+			<div class="itsec-module-settings-container">
+				<div class="itsec-modal-navigation">
+					<button class="dashicons itsec-close-modal"></button>
+				</div>
+				<div class="itsec-module-settings-content-container">
+					<div class="itsec-module-settings-content">
+						<div class="itsec-module-messages-container"></div>
+						<div class="itsec-module-settings-content-main"></div>
 					</div>
 				</div>
-
-				<div id="postbox-container-1" class="postbox-container">
-					<?php foreach ( $this->widgets as $id => $widget ) : ?>
-						<?php $form->start_form( "itsec-sidebar-widget-form-$id" ); ?>
-							<?php $form->add_nonce( 'itsec-logs-page' ); ?>
-							<?php $form->add_hidden( 'widget-id', $id ); ?>
-							<div id="itsec-sidebar-widget-<?php echo $id; ?>" class="postbox itsec-sidebar-widget">
-								<h3 class="hndle ui-sortable-handle"><span><?php echo esc_html( $widget->title ); ?></span></h3>
-								<div class="inside">
-									<?php $this->get_widget_settings( $id, $form, true ); ?>
-								</div>
-							</div>
-						<?php $form->end_form(); ?>
-					<?php endforeach; ?>
-				</div>
-			</div>
-
-			<div class="hide-if-js">
-				<p class="itsec-warning-message"><?php _e( 'iThemes Security requires Javascript in order for the settings to be modified. Please enable Javascript to configure the settings.', 'better-wp-security' ); ?></p>
-			</div>
-
-			<div class="hidden" id="itsec-logs-cache">
 			</div>
 		</div>
 	</div>
@@ -548,56 +489,7 @@ final class ITSEC_Logs_Page {
 	}
 
 	public function register_widget( $widget ) {
-		if ( ! is_object( $widget ) || ! is_a( $widget, 'ITSEC_Settings_Page_Sidebar_Widget' ) ) {
-			trigger_error( 'An invalid widget was registered.', E_USER_ERROR );
-			return;
-		}
-
-		if ( isset( $this->modules[$widget->id] ) ) {
-			trigger_error( "A widget with the id of {$widget->id} is registered. Widget id's must be unique from any other module or widget." );
-			return;
-		}
-
-		if ( isset( $this->widgets[$widget->id] ) ) {
-			trigger_error( "A widget with the id of {$widget->id} is already registered. Widget id's must be unique from any other module or widget." );
-			return;
-		}
-
-
-		$this->widgets[$widget->id] = $widget;
-	}
-
-	private function get_widget_settings( $id, $form = false, $echo = false ) {
-		if ( ! isset( $this->widgets[$id] ) ) {
-			$error = new WP_Error( 'itsec-settings-page-get-widget-settings-invalid-id', sprintf( __( 'The requested widget (%s) does not exist. Logs for it cannot be rendered.', 'better-wp-security' ), $id ) );
-
-			if ( $echo ) {
-				ITSEC_Lib::show_error_message( $error );
-			} else {
-				return $error;
-			}
-		}
-
-		if ( false === $form ) {
-			$form = new ITSEC_Form();
-		}
-
-		$widget = $this->widgets[$id];
-
-		$form->add_input_group( $id );
-		$form->set_defaults( $widget->get_defaults() );
-
-		if ( ! $echo ) {
-			ob_start();
-		}
-
-		$widget->render( $form );
-
-		$form->remove_all_input_groups();
-
-		if ( ! $echo ) {
-			return ob_get_clean();
-		}
+		_deprecated_function( __METHOD__, '7.0.1' );
 	}
 
 	private function show_old_logs_migration() {

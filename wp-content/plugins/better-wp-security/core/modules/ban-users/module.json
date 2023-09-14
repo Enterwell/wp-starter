@@ -1,0 +1,90 @@
+{
+  "id": "ban-users",
+  "status": "default-active",
+  "type": "lockout",
+  "title": "Ban Users",
+  "description": "Block specific IP addresses and user agents from accessing the site.",
+  "help": "iThemes Security automatically adds an IP to the ban list once it meets the Ban Threshold requirements. The Ban Threshold setting can be adjusted in the [Global Settings](itsec://settings/configure/global). You can manually add IPs to the ban list from the Security Dashboard using the Banned Users card.",
+  "keywords": [
+    "blacklist"
+  ],
+  "settings": {
+    "type": "object",
+    "properties": {
+      "default": {
+        "type": "boolean",
+        "default": false,
+        "title": "Default Ban List",
+        "description": "As a getting-started point you can include the HackRepair.com ban list developed by Jim Walker."
+      },
+      "enable_ban_lists": {
+        "type": "boolean",
+        "default": true,
+        "title": "Enable Ban Lists"
+      },
+      "server_config_limit": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 9999,
+        "default": 100,
+        "title": "Limit Banned IPs in Server Configuration Files",
+        "description": "Limiting the number of IPs blocked by the Server Configuration Files (.htaccess and nginx.conf) will help reduce the risk of a server timeout when updating the configuration file. If the number of IPs in the banned list exceeds the Server Configuration File limit, the additional IPs will be blocked using PHP. Blocking IPs at the server level is more efficient than blocking IPs at the application level using PHP."
+      },
+      "agent_list": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "minLength": 1
+        },
+        "uniqueItems": true,
+        "default": [],
+        "title": "Ban User Agents",
+        "description": "Enter a list of user agents that will not be allowed access to your site. Add one user agent per-line."
+      }
+    },
+    "uiSchema": {
+      "ui:sections": [
+        {
+          "title": "Custom Bans",
+          "fields": [
+            "enable_ban_lists",
+            "server_config_limit",
+            "agent_list"
+          ]
+        }
+      ],
+      "agent_list": {
+        "ui:field": "TextareaListField",
+        "ui:rows": 10
+      }
+    }
+  },
+  "conditional-settings": {
+    "server_config_limit": {
+      "settings": {
+        "type": "object",
+        "properties": {
+          "enable_ban_lists": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          }
+        }
+      }
+    },
+    "agent_list": {
+      "settings": {
+        "type": "object",
+        "properties": {
+          "enable_ban_lists": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          }
+        }
+      }
+    }
+  }
+}

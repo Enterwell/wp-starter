@@ -1,15 +1,23 @@
 <?php
 /**
- * Class Minify_Source  
+ * File: Source.php
+ *
+ * NOTE: Fixes have been included in this file; look for "W3TC FIX".
+ */
+
+namespace W3TCL\Minify;
+
+/**
+ * Class Minify_Source
  * @package Minify
  */
 
-/** 
- * A content source to be minified by Minify. 
- * 
+/**
+ * A content source to be minified by Minify.
+ *
  * This allows per-source minification options and the mixing of files with
  * content from other sources.
- * 
+ *
  * @package Minify
  * @author Stephen Clay <steve@mrclay.org>
  */
@@ -19,12 +27,12 @@ class Minify_Source {
      * @var int time of last modification
      */
     public $lastModified = null;
-    
+
     /**
      * @var callback minifier function specifically for this source.
      */
     public $minifier = null;
-    
+
     /**
      * @var array minification options specific to this source.
      */
@@ -34,20 +42,20 @@ class Minify_Source {
      * @var string full path of file
      */
     public $filepath = null;
-    
+
     /**
      * @var string HTTP Content Type (Minify requires one of the constants Minify::TYPE_*)
      */
     public $contentType = null;
-    
+
     /**
      * Create a Minify_Source
-     * 
+     *
      * In the $spec array(), you can either provide a 'filepath' to an existing
-     * file (existence will not be checked!) or give 'id' (unique string for 
-     * the content), 'content' (the string content) and 'lastModified' 
+     * file (existence will not be checked!) or give 'id' (unique string for
+     * the content), 'content' (the string content) and 'lastModified'
      * (unixtime of last update).
-     * 
+     *
      * As a shortcut, the controller will replace "//" at the beginning
      * of a filepath with $_SERVER['DOCUMENT_ROOT'] . '/'.
      *
@@ -57,7 +65,10 @@ class Minify_Source {
     {
         if (isset($spec['filepath'])) {
             if (0 === strpos($spec['filepath'], '//')) {
-                $spec['filepath'] = $_SERVER['DOCUMENT_ROOT'] . substr($spec['filepath'], 1);
+                // W3TC FIX: Override $_SERVER['DOCUMENT_ROOT'] if enabled in settings.
+                $docroot = \W3TC\Util_Environment::document_root();
+
+                $spec['filepath'] = $docroot . substr($spec['filepath'], 1);
             }
             $segments = explode('.', $spec['filepath']);
             $ext = strtolower(array_pop($segments));
@@ -74,7 +85,7 @@ class Minify_Source {
             $this->_id = $spec['filepath'];
             $this->lastModified = filemtime($spec['filepath'])
                 // offset for Windows uploaders with out of sync clocks
-                + round(Minify0_Minify::$uploaderHoursBehind * 3600);
+                + round(Minify::$uploaderHoursBehind * 3600);
         } elseif (isset($spec['id'])) {
             $this->_id = 'id::' . $spec['id'];
             if (isset($spec['content'])) {
@@ -96,7 +107,7 @@ class Minify_Source {
             $this->minifyOptions = $spec['minifyOptions'];
         }
     }
-    
+
     /**
      * Get content
      *
@@ -114,13 +125,13 @@ class Minify_Source {
                     : call_user_func($this->_getContentFunc, $this->_id)
                 );
         }
-        
+
         // remove UTF-8 BOM if present
         return (pack("CCC",0xef,0xbb,0xbf) === substr($content, 0, 3))
             ? substr($content, 3)
             : $content;
     }
-    
+
     /**
      * Get id
      *
@@ -130,12 +141,12 @@ class Minify_Source {
     {
         return $this->_id;
     }
-    
+
     /**
      * Verifies a single minification call can handle all sources
      *
      * @param array $sources Minify_Source instances
-     * 
+     *
      * @return bool true iff there no sources with specific minifier preferences.
      */
     public static function haveNoMinifyPrefs($sources)
@@ -148,12 +159,12 @@ class Minify_Source {
         }
         return true;
     }
-    
+
     /**
      * Get unique string for a set of sources
      *
      * @param array $sources Minify_Source instances
-     * 
+     *
      * @return string
      */
     public static function getDigest($sources)
@@ -165,14 +176,14 @@ class Minify_Source {
         }
         return md5(serialize($info));
     }
-    
+
     /**
      * Get content type from a group of sources
-     * 
-     * This is called if the user doesn't pass in a 'contentType' options  
-     * 
+     *
+     * This is called if the user doesn't pass in a 'contentType' options
+     *
      * @param array $sources Minify_Source instances
-     * 
+     *
      * @return string content type. e.g. 'text/css'
      */
     public static function getContentType($sources)
@@ -184,9 +195,8 @@ class Minify_Source {
         }
         return 'text/plain';
     }
-    
+
     protected $_content = null;
     protected $_getContentFunc = null;
     protected $_id = null;
 }
-

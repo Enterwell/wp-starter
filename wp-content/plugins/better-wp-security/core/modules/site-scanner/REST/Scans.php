@@ -92,8 +92,14 @@ class Scans extends \WP_REST_Controller {
 			return $valid;
 		}
 
-		if ( ! $valid instanceof \WP_User || ! user_can( $valid, \ITSEC_Core::get_required_cap() ) ) {
-			return new \WP_Error( 'rest_cannot_view', __( 'Sorry, you cannot view site scans.', 'better-wp-security' ), [ 'status' => \ITSEC_Lib_REST::auth_code_required( $valid ) ] );
+		$error = new \WP_Error( 'rest_cannot_view', __( 'Sorry, you cannot view site scans.', 'better-wp-security' ), [ 'status' => \ITSEC_Lib_REST::auth_code_required( $valid ) ] );
+
+		if ( ! $valid instanceof \WP_User ) {
+			return $error;
+		}
+
+		if ( ! user_can( $valid, \ITSEC_Core::get_required_cap() ) && ! \ITSEC_Dashboard_Util::can_access_card( 'malware-scan', $valid ) ) {
+			return $error;
 		}
 
 		return true;
@@ -160,17 +166,7 @@ class Scans extends \WP_REST_Controller {
 	}
 
 	public function get_item_permissions_check( $request ) {
-		$valid = $this->has_permission( $request );
-
-		if ( is_wp_error( $valid ) ) {
-			return $valid;
-		}
-
-		if ( ! $valid instanceof \WP_User || ! user_can( $valid, \ITSEC_Core::get_required_cap() ) ) {
-			return new \WP_Error( 'rest_cannot_view', __( 'Sorry, you cannot view site scans.', 'better-wp-security' ), [ 'status' => \ITSEC_Lib_REST::auth_code_required( $valid ) ] );
-		}
-
-		return true;
+		return $this->get_items_permissions_check( $request );
 	}
 
 	public function get_item( $request ) {

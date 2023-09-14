@@ -1,0 +1,135 @@
+{
+  "id": "file-change",
+  "status": "default-inactive",
+  "type": "site-check",
+  "title": "File Change",
+  "description": "Monitor the site for unexpected file changes.",
+  "help": "Even the best security practices can fail. The key to quickly spotting a security breach is monitoring file changes on your website.<br>While the type of damage malware causes on your website varies greatly, what it does can be boiled down to adding, removing, or modifying files.<br>File Change Detection scans your website’s files and alerts you when changes occur on your website.",
+  "settings": {
+    "type": "object",
+    "properties": {
+      "file_list": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "format": "relative-file-path"
+        },
+        "uniqueItems": true,
+        "default": [],
+        "title": "Excluded Files and Folders",
+        "description": "Enter a list of file paths to exclude from each File Change scan."
+      },
+      "types": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "pattern": "^(\\.[^.]+)+$"
+        },
+        "default": [
+          ".log",
+          ".mo",
+          ".po",
+          ".bmp",
+          ".gif",
+          ".ico",
+          ".jpe",
+          ".jpeg",
+          ".jpg",
+          ".png",
+          ".psd",
+          ".raw",
+          ".svg",
+          ".tif",
+          ".tiff",
+          ".aif",
+          ".flac",
+          ".m4a",
+          ".mp3",
+          ".oga",
+          ".ogg",
+          ".ogg",
+          ".ra",
+          ".wav",
+          ".wma",
+          ".asf",
+          ".avi",
+          ".mkv",
+          ".mov",
+          ".mp4",
+          ".mpe",
+          ".mpeg",
+          ".mpg",
+          ".ogv",
+          ".qt",
+          ".rm",
+          ".vob",
+          ".webm",
+          ".wm",
+          ".wmv"
+        ],
+        "title": "Ignore File Types",
+        "description": "File types listed here will not be checked for changes. While it is possible to change files such as images it is quite rare and nearly all known WordPress attacks exploit php, js and other text files."
+      },
+      "compare_file_hashes": {
+        "type": "boolean",
+        "default": true,
+        "title": "Compare Files Online",
+        "description": "When any WordPress core file or file in an iThemes plugin or theme has been changed on your system, this feature will compare it with the version on WordPress.org or iThemes (as appropriate) to determine if the change was malicious. Currently this feature only works with WordPress core files, plugins on the WordPress.org directory and iThemes plugins and themes (plugins and themes from other sources will be added as available)."
+      },
+      "expected_hashes": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{32}$",
+          "format": "file-path"
+        },
+        "default": {},
+        "readonly": true
+      },
+      "last_scan": {
+        "type": "integer",
+        "minimum": 0,
+        "default": 0,
+        "readonly": true
+      }
+    },
+    "uiSchema": {
+      "file_list": {
+        "ui:field": "FileTreeField"
+      },
+      "types": {
+        "ui:field": "TextareaListField",
+        "ui:rows": 10
+      },
+      "ui:sections": [
+        {
+          "title": "Excluded Files",
+          "fields": [
+            "file_list",
+            "types"
+          ]
+        },
+        {
+          "title": "Online Files",
+          "fields": [
+            "compare_file_hashes"
+          ]
+        }
+      ]
+    }
+  },
+  "conditional-settings": {
+    "compare_file_hashes": {
+      "install-type": "pro"
+    }
+  },
+  "import-export": {
+    "exclude-settings": [
+      "expected_hashes",
+      "last_scan"
+    ]
+  },
+  "removed-settings": [
+    "notify_admin"
+  ]
+}

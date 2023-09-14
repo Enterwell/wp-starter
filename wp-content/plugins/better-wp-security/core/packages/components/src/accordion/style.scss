@@ -1,0 +1,141 @@
+.itsec-accordion {
+    $c: &;
+
+    .itsec-accordion__panel {
+        display: none;
+    }
+
+    .itsec-accordion__header--is-expanded + .itsec-accordion__panel {
+        display: block;
+    }
+
+    &.itsec-accordion--styled {
+        .itsec-accordion__header {
+            margin: 0;
+            padding: 0;
+
+            &:not(:last-child) {
+                border-bottom: 1px solid $border-color;
+            }
+
+            .components-button {
+                display: grid;
+                grid-template-areas: "toggle title graphic" "description description description";
+                grid-template-columns: min-content auto min-content;
+                justify-content: stretch;
+                grid-gap: 0 .25rem;
+                padding: .5rem;
+
+                @include break-small {
+                    display: flex;
+                    padding: 1rem 1rem 1rem .25rem;
+                }
+
+                background: white;
+                height: auto;
+                width: 100%;
+                color: $light-text;
+                border: 2px solid transparent;
+                transition: none;
+
+                &:focus {
+                    box-shadow: none;
+                    border-color: var(--wp-admin-theme-color);
+                }
+            }
+
+            .itsec-accordion__header-title {
+                grid-area: title;
+                font-size: 1rem;
+                line-height: 1.4;
+                font-weight: 700;
+                color: $medium-text;
+                width: auto;
+                text-align: left;
+                padding-right: .75rem;
+
+                @include break-small {
+                    @at-root {
+                        .itsec-accordion--has-description#{&} {
+                            width: 180px;
+                        }
+                    }
+                }
+            }
+
+            .itsec-accordion__header-description {
+                grid-area: description;
+                color: $medium-text;
+                text-align: left;
+                font-size: 1rem;
+                width: 100%;
+
+                @include break-small {
+                    width: min-content;
+                    flex-grow: 1;
+                }
+            }
+
+            &.itsec-accordion__header--has-graphic .itsec-accordion__header-description {
+                padding-right: .75rem;
+            }
+
+            .dashicon:first-child {
+                grid-area: toggle;
+            }
+
+            .components-spinner,
+            .itsec-spinner,
+            .itsec-accordion__header-icon {
+                grid-area: graphic;
+                margin: 0 0 0 auto;
+                flex-shrink: 0;
+            }
+
+            .itsec-accordion__header-icon {
+                font-size: 30px;
+                width: 30px;
+                height: 30px;
+            }
+
+            &.itsec-accordion__header--is-expanded,
+            &:hover {
+                .itsec-accordion__header-title {
+                    color: $dark-text;
+                }
+            }
+
+            &:hover:not(.itsec-accordion__header--is-expanded) {
+                .components-button {
+                    .dashicon:first-child {
+                        transform: rotate(-90deg);
+                    }
+                }
+            }
+
+            &.itsec-accordion__header--is-expanded {
+                .components-button,
+                .components-button:focus {
+                    z-index: 2;
+                    box-shadow: 0 2px 6px rgba($black, 0.25);
+                }
+            }
+        }
+
+        .itsec-accordion__panel--is-expanded + .itsec-accordion__header {
+            border-top: 1px solid $border-color;
+
+            .components-button,
+            .components-button:focus {
+                z-index: 2;
+                box-shadow: 0 2px 6px rgba($black, 0.25);
+                clip-path: inset(-6px 0 0 0);
+            }
+        }
+
+        .itsec-accordion__panel--is-expanded {
+            // Aligns to the header title: 32px for the icon, .25rem from the button.
+            padding: 1rem calc(32px + .25rem);
+        }
+    }
+}

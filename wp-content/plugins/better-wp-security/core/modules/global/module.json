@@ -1,0 +1,454 @@
+{
+  "id": "global",
+  "status": "always-active",
+  "title": "Global Settings",
+  "description": "Configure basic settings that control how iThemes Security functions.",
+  "help": "Changes made to the Global Settings are applied globally throughout the plugin settings. For example, the Lockout & Lockout messages settings are used by all of the iThemes Security Lockout features.",
+  "type": "recommended",
+  "tools": {
+    "identify-server-ips": {
+      "title": "Identify Server IPs",
+      "description": "Determines the list of IP addresses your server uses when making HTTP requests.",
+      "help": "The correct list of server IPs is important to prevent erroneous Lockouts and Trusted Devices errors.",
+      "schedule": "identify-server-ips"
+    }
+  },
+  "scheduling": {
+    "identify-server-ips": {
+      "type": "recurring",
+      "schedule": "daily"
+    }
+  },
+  "user-groups": {
+    "manage_group": {
+      "type": "multiple",
+      "title": "Manage iThemes Security",
+      "description": "Allow users to manage iThemes Security.",
+      "default": "administrator"
+    }
+  },
+  "settings": {
+    "type": "object",
+    "properties": {
+      "write_files": {
+        "type": "boolean",
+        "default": true,
+        "title": "Write to Files",
+        "description": "Allow iThemes Security to write to wp-config.php and .htaccess automatically. If disabled, you will need to place configuration options in those files manually."
+      },
+      "nginx_file": {
+        "type": "string",
+        "format": "file-path",
+        "title": "NGINX Conf File",
+        "description": "This path must be writable by your website. For added security, it is recommended you do not include it in your website root folder.",
+        "default": ""
+      },
+      "lockout_period": {
+        "type": "integer",
+        "minimum": 0,
+        "default": 15,
+        "title": "Minutes to Lockout",
+        "description": "The length of time a host or user will be locked out from this site after hitting the limit of bad logins. The default setting of 15 minutes is recommended as increasing it could prevent attackers from being banned."
+      },
+      "blacklist_period": {
+        "type": "integer",
+        "minimum": 0,
+        "default": 7,
+        "title": "Days to Remember Lockouts",
+        "description": "How many days should iThemes Security remember a lockout. This does not affect the logs generated when creating a lockout."
+      },
+      "blacklist": {
+        "type": "boolean",
+        "default": true,
+        "title": "Ban Repeat Offender",
+        "description": "Should iThemes Security permanently add a locked out IP address to the “Ban Users” list after reaching the configured “Ban Threshold”."
+      },
+      "blacklist_count": {
+        "type": "integer",
+        "minimum": 0,
+        "default": 3,
+        "title": "Ban Threshold",
+        "description": "The number of lockouts iThemes Security must remember before permanently banning the attacker."
+      },
+      "lockout_message": {
+        "type": "string",
+        "format": "html",
+        "default": "error",
+        "title": "Host Lockout Message",
+        "description": "The message to display when a computer (host) has been locked out."
+      },
+      "user_lockout_message": {
+        "type": "string",
+        "format": "html",
+        "default": "You have been locked out due to too many invalid login attempts.",
+        "title": "User Lockout Message",
+        "description": "The message to display to a user when their account has been locked out."
+      },
+      "community_lockout_message": {
+        "type": "string",
+        "format": "html",
+        "default": "Your IP address has been flagged as a threat by the iThemes Security network.",
+        "title": "Community Lockout Message",
+        "description": "The message to display to a user when their IP has been flagged as bad by the iThemes network."
+      },
+      "automatic_temp_auth": {
+        "type": "boolean",
+        "default": true,
+        "title": "Automatically Temporarily Authorize Hosts",
+        "description": "Whenever an administrator user accesses the website, iThemes Security will prevent locking out that computer for 24 hours."
+      },
+      "lockout_white_list": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "default": [],
+        "title": "Authorized Hosts",
+        "description": "Enter a list of hosts that should not be locked out by iThemes Security.",
+        "keywords": [
+          "whitelist"
+        ]
+      },
+      "log_type": {
+        "type": "string",
+        "enum": [
+          "database",
+          "file",
+          "both"
+        ],
+        "enumNames": [
+          "Database Only",
+          "File Only",
+          "Both"
+        ],
+        "default": "database",
+        "title": "How should event logs be kept",
+        "description": "iThemes Security can log events in multiple ways, each with advantages and disadvantages. Database Only puts all events in the database with your posts and other WordPress data. This makes it easy to retrieve and process but can be slower if the database table gets very large. File Only is very fast but the plugin does not process the logs itself as that would take far more resources. For most users or smaller sites Database Only should be fine. If you have a very large site or a log processing software then File Only might be a better option."
+      },
+      "log_rotation": {
+        "type": "integer",
+        "minimum": 0,
+        "default": 60,
+        "title": "Days to Keep Database Logs",
+        "description": "The number of days database logs should be kept."
+      },
+      "file_log_rotation": {
+        "type": "integer",
+        "minimum": 0,
+        "default": 180,
+        "title": "Days to Keep File Logs",
+        "description": "The number of days file logs should be kept. File logs will additionally be rotated once the file hits 10MB. Set to 0 to only use log rotation."
+      },
+      "log_location": {
+        "type": "string",
+        "format": "file-path",
+        "default": "",
+        "title": "Path to Log Files",
+        "description": "This path must be writable by your website. For added security, it is recommended you do not include it in your website root folder."
+      },
+      "proxy": {
+        "type": "string",
+        "default": "automatic",
+        "title": "Proxy Detection",
+        "description": "Determine how iThemes Security determines your visitor’s IP addresses. Choose the Security Check Scan to let iThemes Security identify malicious IPs attacking your website accurately."
+      },
+      "proxy_header": {
+        "type": "string",
+        "default": "HTTP_X_FORWARDED_FOR",
+        "title": "Proxy Header",
+        "description": "Select the header your Proxy Server uses to forward the client IP address. If you don’t know the header, you can contact your hosting provider or select the header that has your IP Address."
+      },
+      "allow_tracking": {
+        "type": "boolean",
+        "default": false,
+        "title": "Allow Data Tracking",
+        "description": "Allow iThemes to track plugin usage via anonymous data.",
+        "readonly": true
+      },
+      "hide_admin_bar": {
+        "type": "boolean",
+        "default": false,
+        "title": "Hide Security Menu in Admin Bar",
+        "description": "Remove the Security Messages Menu from the admin bar. Notifications will only appear on the iThemes Security dashboard and settings pages."
+      },
+      "show_error_codes": {
+        "type": "boolean",
+        "default": false,
+        "title": "Show Error Codes",
+        "description": "Each error message in iThemes Security has an associated error code that can help diagnose an issue. Changing this setting to “Yes” causes these codes to display. This setting should be left set to “No” unless iThemes Security support requests that you change it.",
+        "readonly": true
+      },
+      "build": {
+        "type": "integer",
+        "minimum": 0,
+        "default": 0,
+        "readonly": true
+      },
+      "initial_build": {
+        "type": "integer",
+        "minimum": 0,
+        "default": 0,
+        "readonly": true
+      },
+      "activation_timestamp": {
+        "type": "integer",
+        "minimum": 0,
+        "default": 0,
+        "readonly": true
+      },
+      "cron_status": {
+        "type": "integer",
+        "enum": [
+          -1,
+          0,
+          1
+        ],
+        "default": -1,
+        "readonly": true
+      },
+      "use_cron": {
+        "type": "boolean",
+        "default": true,
+        "readonly": true
+      },
+      "cron_test_time": {
+        "type": "integer",
+        "minimum": 0,
+        "default": 0,
+        "readonly": true
+      },
+      "server_ips": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "format": "ip"
+        },
+        "default": [],
+        "readonly": true
+      },
+      "licensed_hostname_prompt": {
+        "type": "boolean",
+        "default": false,
+        "readonly": true
+      },
+      "onboard_complete": {
+        "type": "boolean",
+        "default": false,
+        "readonly": true
+      },
+      "enabled_tools": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "default": [],
+        "uniqueItems": true,
+        "readonly": true
+      },
+      "enable_remote_help": {
+        "type": "boolean",
+        "default": false,
+        "readonly": true
+      },
+      "feature_flags": {
+        "type": "object",
+        "patternProperties": {
+          "^\\w+$": {
+            "type": "object",
+            "properties": {
+              "enabled": {
+                "type": "boolean"
+              },
+              "time": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "rate": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false,
+        "default": {},
+        "readonly": true
+      },
+      "log_info": {
+        "type": "string",
+        "default": "",
+        "readonly": true
+      }
+    },
+    "uiSchema": {
+      "nginx_file": {
+        "ui:resettable": true
+      },
+      "lockout_white_list": {
+        "ui:field": "TextareaListField",
+        "ui:rows": 10
+      },
+      "log_location": {
+        "ui:resettable": true
+      },
+      "ui:sections": [
+        {
+          "title": "Lockouts",
+          "fields": [
+            "lockout_period",
+            "blacklist_period",
+            "blacklist",
+            "blacklist_count"
+          ]
+        },
+        {
+          "title": "Lockout Messages",
+          "fields": [
+            "lockout_message",
+            "user_lockout_message",
+            "community_lockout_message"
+          ]
+        },
+        {
+          "title": "Authorized Hosts",
+          "fields": [
+            "automatic_temp_auth",
+            "lockout_white_list"
+          ]
+        },
+        {
+          "title": "Logging",
+          "fields": [
+            "log_type",
+            "log_rotation",
+            "log_file_rotation",
+            "log_location"
+          ]
+        },
+        {
+          "title": "IP Detection",
+          "fields": [
+            "proxy",
+            "proxy_header"
+          ]
+        },
+        {
+          "title": "UI Tweaks",
+          "fields": [
+            "hide_admin_bar",
+            "show_error_codes"
+          ]
+        }
+      ]
+    }
+  },
+  "conditional-settings": {
+    "blacklist_count": {
+      "settings": {
+        "type": "object",
+        "properties": {
+          "blacklist": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          }
+        }
+      }
+    },
+    "log_rotation": {
+      "settings": {
+        "type": "object",
+        "properties": {
+          "log_type": {
+            "type": "string",
+            "enum": [
+              "database",
+              "both"
+            ]
+          }
+        }
+      }
+    },
+    "log_location": {
+      "settings": {
+        "type": "object",
+        "properties": {
+          "log_type": {
+            "type": "string",
+            "enum": [
+              "file",
+              "both"
+            ]
+          }
+        }
+      }
+    },
+    "file_log_rotation": {
+      "settings": {
+        "type": "object",
+        "properties": {
+          "log_type": {
+            "type": "string",
+            "enum": [
+              "file",
+              "both"
+            ]
+          }
+        }
+      }
+    },
+    "proxy_header": {
+      "settings": {
+        "type": "object",
+        "properties": {
+          "proxy": {
+            "type": "string",
+            "enum": [
+              "manual"
+            ]
+          }
+        }
+      }
+    },
+    "nginx_file": {
+      "server-type": [
+        "nginx"
+      ]
+    }
+  },
+  "removed-settings": [
+    "did_upgrade",
+    "show_security_check",
+    "digest_email",
+    "email_notifications",
+    "notification_email",
+    "backup_email",
+    "proxy_override",
+    "lock_file",
+    "digest_last_sent",
+    "digest_messages",
+    "show_new_dashboard_notice",
+    "infinitewp_compatibility",
+    "enable_grade_report"
+  ],
+  "onboard-settings": [
+    "lockout_white_list",
+    "proxy",
+    "proxy_header"
+  ],
+  "import-export": {
+    "import-settings": [
+      "proxy",
+      "proxy_header",
+      "log_location",
+      "nginx_file"
+    ],
+    "exclude-settings": [
+      "server_ips",
+      "use_cron",
+      "cron_test_time"
+    ]
+  }
+}

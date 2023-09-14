@@ -1,9 +1,12 @@
 <?php
 /**
- * @license http://www.opensource.org/licenses/mit-license.php MIT (see the LICENSE file)
+ * @license MIT
+ *
+ * Modified using Strauss.
+ * @see https://github.com/BrianHenryIE/strauss
  */
 
-namespace Psr\Container;
+namespace iThemesSecurity\Strauss\Psr\Container;
 
 /**
  * No entry was found in the container.

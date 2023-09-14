@@ -149,12 +149,12 @@ const refreshAllBlocks = (changedNames = []) => {
 
 // Load all blocks
 manifestAutoload({
-	getContext: () => require.context('./blocks', true, /\.js$/),
-	getManifestContext: () => require.context('./blocks', true, /manifest\.json$/),
-	register: ({name, options}) => {
-		registerBlockType(name, options);
-	},
-	unregister: ({name}) => unregisterBlockType(name),
-	before: storeSelectedBlock,
-	after: refreshAllBlocks,
+  getContext: () => require.context('./blocks', true, /\.js$/),
+  getManifestContext: () => require.context('./blocks', true, /manifest\.json$/),
+  register: ({name, options}) => {
+    registerBlockType(name, options);
+  },
+  unregister: ({name}) => unregisterBlockType(name),
+  before: storeSelectedBlock,
+  after: refreshAllBlocks,
 });

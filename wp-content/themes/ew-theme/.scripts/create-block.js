@@ -4,7 +4,7 @@ const projectManifest = require('../assets/gutenberg/manifest.json');
 
 console.log('\n');
 console.log(`
- _____      _                         _ _ 
+ _____      _                         _ _
 |  ___|    | |                       | | |
 | |__ _ __ | |_ ___ _ ____      _____| | |
 |  __| '_ \\| __/ _ \\ '__\\ \\ /\\ / / _ \\ | |
@@ -118,6 +118,7 @@ function writeManifest() {
     hasInnerBlocks: false,
     keywords: [],
     styles: [],
+    supports: {},
     description: '',
     icon: 'block-default',
   };

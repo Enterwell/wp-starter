@@ -1,0 +1,73 @@
+.itsec-settings .itsec-onboard-welcome-page {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: $main-blue;
+    padding: 3rem 2rem 0;
+
+    @include break-small {
+        overflow: auto;
+    }
+
+    h1, h2, p, a {
+        color: $highlight-blue;
+    }
+
+    a:hover {
+        color: $highlight-blue;
+        text-decoration: none;
+    }
+
+    .itsec-onboard-welcome-page__logo {
+        max-width: 16rem;
+        flex-shrink: 0;
+    }
+
+    .itsec-page-header {
+        margin: 1rem 0;
+
+        @include break-small {
+            margin: 2rem 0;
+        }
+    }
+
+    .itsec-onboard-welcome-page__actions-container {
+        margin-top: auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .itsec-onboard-welcome-page__graphic {
+        flex-grow: 1;
+        max-width: 80vw;
+        margin-bottom: -5%;
+        margin-left: calc(-2rem - 10%); // 2rem for the padding.
+    }
+
+    .itsec-onboard-welcome-page__actions {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+
+        & > *:first-child {
+            margin-bottom: 1rem;
+
+            @include break-small {
+                margin-bottom: 2rem;
+            }
+        }
+
+        @supports (-webkit-touch-callout: none) {
+            padding-bottom: 3rem; // Try to account for safari action bar.
+        }
+    }
+
+    .components-button {
+        font-size: 1rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        color: $main-blue;
+        background: $white;
+    }
+}

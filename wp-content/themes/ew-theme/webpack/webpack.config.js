@@ -7,7 +7,6 @@ const externals = require('./webpack.externals');
 // Include open plugin
 const {WebpackOpenBrowser} = require('webpack-open-browser');
 
-const chokidar = require('chokidar');
 const glob = require('glob');
 
 // Environment setup
@@ -35,14 +34,14 @@ scriptEntries.forEach((file) => {
 ////////////////////////////////////////////////////
 // Finds all gutenberg format type scripts
 const gutenbergFormatTypeScriptEntries = glob.sync('format-types/**/*.js', {
-	'cwd': settings.PATHS.gutenberg
+  'cwd': settings.PATHS.gutenberg
 });
 
 // Combines gutenberg format type scripts in one entry
 let gutenbergFormatTypeScripts = [];
 gutenbergFormatTypeScriptEntries.forEach((file) => {
-	const filePath = settings.PATHS.gutenberg + '/' + file;
-	gutenbergFormatTypeScripts.push(filePath);
+  const filePath = settings.PATHS.gutenberg + '/' + file;
+  gutenbergFormatTypeScripts.push(filePath);
 });
 
 // Add gutenberg format type scripts as one entry if any
@@ -52,14 +51,14 @@ gutenbergFormatTypeScripts.length && Encore.addEntry('gutenberg_admin_format_typ
 ////////////////////////////////////////////////////
 // Finds all gutenberg component scripts
 const gutenbergComponentScriptEntries = glob.sync('components/**/*.js', {
-	'cwd': settings.PATHS.gutenberg
+  'cwd': settings.PATHS.gutenberg
 });
 
 // Combines gutenberg component scripts in one entry
 let gutenbergComponentScripts = [];
 gutenbergComponentScriptEntries.forEach((file) => {
-	const filePath = settings.PATHS.gutenberg + '/' + file;
-	gutenbergComponentScripts.push(filePath);
+  const filePath = settings.PATHS.gutenberg + '/' + file;
+  gutenbergComponentScripts.push(filePath);
 });
 
 // Add gutenberg component scripts as one entry if any
@@ -78,8 +77,8 @@ const gutenbergBlockScriptEntries = glob.sync('blocks/**/*.js', {
 // Adds each public gutenberg block script as separate script entry
 gutenbergBlockScriptEntries.forEach((file) => {
   const filePath = settings.PATHS.gutenberg + '/' + file;
-	const name = file.replace(/(\.jsx)|(\.js)/, '');
-	Encore.addEntry(name, filePath);
+  const name = file.replace(/(\.jsx)|(\.js)/, '');
+  Encore.addEntry(name, filePath);
 });
 ////////////////////////////////////////////////////
 
@@ -129,6 +128,16 @@ Encore
     options.allowedHosts = 'all';
     options.host = `${settings.WebpackDevServerSettings.host}`;
     options.port = `${settings.WebpackDevServerSettings.port}`;
+    options.liveReload = true;
+    options.static = {
+      watch: false
+    };
+    options.watchFiles = {
+      paths: [
+        '../**/*.twig',
+        '../**/*.php'
+      ],
+    };
     delete options.client;
   })
 ;
@@ -139,20 +148,6 @@ const config = Encore.getWebpackConfig();
 // TODO: check this later
 if (!Encore.isProduction()) {
   config.output.publicPath = settings.WebpackDevServerSettings.address;
-}
-
-// Watches for changes in twig and PHP files inside theme
-if (!Encore.isProduction()) {
-  config.devServer.onBeforeSetupMiddleware = (server) => {
-    chokidar.watch([
-      '../**/*.twig',
-      '../**/*.php'
-    ]).on('all', () => {
-      for (const ws of server.webSocketServer.clients) {
-        ws.send('{"type": "static-changed"}')
-      }
-    })
-  }
 }
 
 module.exports = config;

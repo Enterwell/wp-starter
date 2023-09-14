@@ -1,14 +1,19 @@
-@import "colors.scss";
-@import "animations.scss";
+.itsec-admin-bar-admin-notices__content.components-popover {
+    .components-popover__content {
+        border-color: 1px solid $border-color;
+        box-shadow: $popover-shadow;
+    }
 
-.itsec-admin-bar-admin-notices__content.components-popover::after {
-    border-color: #E5EAEE !important;
+    &::after {
+        border-color: #E5EAEE !important;
+    }
 }
 
 .itsec-admin-notice-panel {
     padding: 1em;
-    background: #E5EAEE;
+    background: $white;
     width: 420px;
+    max-width: 100%;
     box-sizing: border-box;
 
     & .itsec-admin-notice-panel__header {
@@ -18,11 +23,13 @@
         h3 {
             color: $main-blue;
             text-align: center;
+            margin: 1rem 0 !important;
         }
 
         p {
             text-align: center;
             font-style: oblique;
+            margin: 1rem 0 !important;
         }
     }
 
@@ -43,8 +50,10 @@
     }
 
     & .itsec-admin-notice-panel__configure-trigger.components-button {
-        padding: 5px;
-        height: 30px;
+        padding: 0;
+        height: auto;
+        width: auto;
+        min-width: 0;
         position: absolute;
         right: 1em;
         top: 1em;
@@ -53,6 +62,10 @@
         &:hover {
             opacity: .5;
             box-shadow: none !important;
+        }
+
+        .dashicon {
+            margin: 0;
         }
     }
 
@@ -85,7 +98,7 @@
             }
 
             & label {
-                margin-left: calc(24px + 1em);
+                margin-left: calc(36px + 1em);
                 font-size: 14px;
                 font-weight: bold;
             }

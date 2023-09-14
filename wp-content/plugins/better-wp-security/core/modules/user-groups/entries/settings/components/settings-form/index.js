@@ -1,25 +1,50 @@
 /**
  * External dependencies
  */
-import { map } from 'lodash';
+import { map, isEmpty } from 'lodash';
 
-export default function SettingsForm( { schema, settingComponent: SettingComponent, ...props } ) {
+export default function SettingsForm( {
+	highlight,
+	definitions,
+	settingComponent: SettingComponent,
+	...props
+} ) {
+	const [ highlightModule, highlightSetting ] = ( highlight || '' ).split(
+		'/'
+	);
+
 	return (
-		<ul className="itsec-user-groups-group-tab__modules-list">
-			{ map( schema.properties, ( moduleSchema, module ) => (
-				<li key={ module }>
-					<fieldset>
-						<legend>{ moduleSchema.title }</legend>
-						<ul>
-							{ map( moduleSchema.properties, ( settingSchema, setting ) => (
-								<li key={ setting }>
-									<SettingComponent schema={ settingSchema } module={ module } setting={ setting } { ...props } />
-								</li>
-							) ) }
-						</ul>
-					</fieldset>
-				</li>
-			) ) }
-		</ul>
+		<form>
+			<ul className="itsec-user-groups-group-tab__modules-list">
+				{ map(
+					definitions,
+					( module ) =>
+						! isEmpty( module.settings ) && (
+							<li
+								key={ module.id }
+								className="itsec-user-groups-group-tab_settings-list"
+							>
+								<h3>{ module.title }</h3>
+								{ map(
+									module.settings,
+									( definition, setting ) => (
+										<SettingComponent
+											key={ setting }
+											definition={ definition }
+											module={ module.id }
+											setting={ setting }
+											isHighlighted={
+												module.id === highlightModule &&
+												setting === highlightSetting
+											}
+											{ ...props }
+										/>
+									)
+								) }
+							</li>
+						)
+				) }
+			</ul>
+		</form>
 	);
 }

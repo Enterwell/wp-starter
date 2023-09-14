@@ -43,6 +43,9 @@ class User_Groups extends \WP_REST_Controller {
 						'type' => 'boolean',
 					],
 				] ),
+				'allow_batch'         => [
+					'v1' => true,
+				],
 			],
 			'schema' => [ $this, 'get_public_item_schema' ],
 		] );
@@ -67,11 +70,14 @@ class User_Groups extends \WP_REST_Controller {
 				'callback'            => [ $this, 'delete_item' ],
 				'permission_callback' => [ $this, 'delete_item_permissions_check' ],
 			],
-			'schema' => [ $this, 'get_public_item_schema' ],
-			'args'   => [
+			'schema'      => [ $this, 'get_public_item_schema' ],
+			'args'        => [
 				'id' => [
 					'type' => 'string',
 				],
+			],
+			'allow_batch' => [
+				'v1' => true,
 			],
 		] );
 	}
@@ -142,7 +148,7 @@ class User_Groups extends \WP_REST_Controller {
 				return $response;
 			}
 
-			$this->repository->persist( $user_group );
+			$this->repository->persist( $user_group, [] );
 			$request['context'] = 'edit';
 
 			$response = $this->prepare_item_for_response( $user_group, $request );
@@ -203,7 +209,7 @@ class User_Groups extends \WP_REST_Controller {
 				return $user_group;
 			}
 
-			$this->repository->persist( $user_group );
+			$this->repository->persist( $user_group, [] );
 			$request['context'] = 'edit';
 
 			return $this->prepare_item_for_response( $user_group, $request );
@@ -291,7 +297,7 @@ class User_Groups extends \WP_REST_Controller {
 		if ( ! $user_group->is_configured() ) {
 			return new \WP_Error(
 				'rest_user_group_not_configured',
-				__( 'A user group must have a minimum role, list of roles, or list of users to be created.' ),
+				__( 'A user group must have a minimum role, list of roles, or list of users to be created.', 'better-wp-security' ),
 				[ 'status' => \WP_Http::BAD_REQUEST ]
 			);
 		}

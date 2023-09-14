@@ -1,58 +1,112 @@
 /**
+ * External dependencies
+ */
+import { useLocation, useParams } from 'react-router-dom';
+import { identity } from 'lodash';
+
+/**
  * WordPress dependencies
  */
-import { compose } from '@wordpress/compose';
-import { withSelect, withDispatch } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
-import { GroupHeader } from './';
+import {
+	Breadcrumbs,
+	PageHeader,
+	useBreadcrumbTrail,
+	useNavigateTo,
+} from '@ithemes/security.pages.settings';
+import { useMemo } from '@wordpress/element';
+import { createPath } from 'history';
 
-function SingleGroupHeader( { type, label, isDeleting, deleteGroup } ) {
+export default function SingleGroupHeader( { groupId, moduleFilter } ) {
+	const { root } = useParams();
+	const location = useLocation();
+	const { type, isDeleting, label, navIds, help, module } = useSelect(
+		( select ) => ( {
+			type: select(
+				'ithemes-security/user-groups-editor'
+			).getMatchableType( groupId ),
+			isDeleting: select( 'ithemes-security/user-groups' ).isDeleting(
+				groupId
+			),
+			label: select(
+				'ithemes-security/user-groups-editor'
+			).getEditedMatchableLabel( groupId ),
+			navIds: select(
+				'ithemes-security/user-groups-editor'
+			).getMatchableNavIds(),
+			help: select( 'ithemes-security/modules' ).getModule(
+				'user-groups'
+			)?.help,
+			module: select( 'ithemes-security/modules' ).getModule(
+				moduleFilter
+			),
+		} ),
+		[ groupId, moduleFilter ]
+	);
+	const { deleteGroup } = useDispatch(
+		'ithemes-security/user-groups-editor'
+	);
+	const navigateTo = useNavigateTo();
+
+	const title = label || __( 'Untitled', 'better-wp-security' );
+	const trail = useBreadcrumbTrail( module?.label || title );
+
 	const canDelete = type === 'user-group';
+	const onDelete = async () => {
+		if ( ! ( ( await deleteGroup( groupId ) ) instanceof Error ) ) {
+			let redirect;
+			const i = navIds.findIndex( ( navId ) => navId === groupId );
 
-	if ( ! label || ! label.length ) {
-		label = __( 'Untitled', 'better-wp-security' );
-	}
+			if ( i !== -1 ) {
+				if ( i + 1 < navIds.length ) {
+					redirect = i + 1;
+				} else {
+					redirect = i - 1;
+				}
+			}
+
+			navigateTo(
+				`/${ root }/user-groups/${ navIds[ redirect ] || '' }`
+			);
+		}
+	};
 
 	return (
-		<GroupHeader label={ label }>
+		<PageHeader
+			title={ title }
+			help={ help }
+			breadcrumbs={
+				<Breadcrumbs
+					trail={ useMemo(
+						() =>
+							[
+								...trail,
+								module && {
+									to: createPath( location ),
+									title: module.title,
+								},
+							].filter( identity ),
+						[ trail, module ]
+					) }
+				/>
+			}
+		>
 			{ canDelete && (
-				<Button onClick={ deleteGroup } isBusy={ isDeleting } isLink isDestructive>
+				<Button
+					onClick={ onDelete }
+					isBusy={ isDeleting }
+					variant="link"
+					isDestructive
+				>
 					{ __( 'Delete Group', 'better-wp-security' ) }
 				</Button>
 			) }
-		</GroupHeader>
+		</PageHeader>
 	);
 }
-
-export default compose( [
-	withSelect( ( select, { groupId } ) => {
-		const type = select( 'ithemes-security/user-groups' ).getMatchableType( groupId );
-		const isDeleting = type === 'user-group' ? select( 'ithemes-security/user-groups' ).isDeleting( groupId ) : false;
-
-		let label;
-
-		if ( type === 'user-group' ) {
-			label = select( 'ithemes-security/user-groups-editor' ).getEditedGroupAttribute( groupId, 'label' );
-		}
-
-		if ( label === undefined ) {
-			label = select( 'ithemes-security/user-groups' ).getMatchableLabel( groupId );
-		}
-
-		return ( {
-			type,
-			label,
-			isDeleting,
-		} );
-	} ),
-	withDispatch( ( dispatch, { groupId } ) => ( {
-		deleteGroup() {
-			return dispatch( 'ithemes-security/user-groups' ).deleteGroup( groupId );
-		},
-	} ) ),
-] )( SingleGroupHeader );

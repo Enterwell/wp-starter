@@ -32,7 +32,7 @@ class SetCookie
         foreach ($pieces as $part) {
             $cookieParts = \explode('=', $part, 2);
             $key = \trim($cookieParts[0]);
-            $value = isset($cookieParts[1]) ? \trim($cookieParts[1], " \n\r\t\0\v") : \true;
+            $value = isset($cookieParts[1]) ? \trim($cookieParts[1], " \n\r\t\x00\v") : \true;
             // Only check for non-cookies when cookies have been found
             if (empty($data['Name'])) {
                 $data['Name'] = $key;
@@ -192,7 +192,7 @@ class SetCookie
     /**
      * Get whether or not this is a secure cookie
      *
-     * @return null|bool
+     * @return bool|null
      */
     public function getSecure()
     {
@@ -210,7 +210,7 @@ class SetCookie
     /**
      * Get whether or not this is a session cookie
      *
-     * @return null|bool
+     * @return bool|null
      */
     public function getDiscard()
     {
@@ -287,11 +287,16 @@ class SetCookie
      */
     public function matchesDomain($domain)
     {
+        $cookieDomain = $this->getDomain();
+        if (null === $cookieDomain) {
+            return \true;
+        }
         // Remove the leading '.' as per spec in RFC 6265.
         // http://tools.ietf.org/html/rfc6265#section-5.2.3
-        $cookieDomain = \ltrim($this->getDomain(), '.');
+        $cookieDomain = \ltrim(\strtolower($cookieDomain), '.');
+        $domain = \strtolower($domain);
         // Domain not set or exact match.
-        if (!$cookieDomain || !\strcasecmp($domain, $cookieDomain)) {
+        if ('' === $cookieDomain || $domain === $cookieDomain) {
             return \true;
         }
         // Matching the subdomain according to RFC 6265.

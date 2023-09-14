@@ -1,0 +1,22 @@
+{
+  "id": "user-groups",
+  "status": "always-active",
+  "type": "recommended",
+  "title": "User Groups",
+  "description": "User Groups allow you to enable security features for specific sets of users.",
+  "help": "User Groups allow you to view and manage the security settings that affect how people interact with your site. Enabling security features per group gives you the flexibility to apply the right level of security to the right people.</br>If a user belongs to multiple groups, all settings enabled in those groups will be applied to that user.",
+  "settings": {
+    "type": "object",
+    "properties": {
+      "default_groups": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "default": {},
+        "readonly": true
+      }
+    }
+  }
+}

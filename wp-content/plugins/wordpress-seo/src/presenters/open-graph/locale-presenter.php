@@ -1,9 +1,4 @@
 <?php
-/**
- * Final presenter class for the Open Graph locale.
- *
- * @package Yoast\YoastSEO\Presenters\Open_Graph
- */
 
 namespace Yoast\WP\SEO\Presenters\Open_Graph;
 
@@ -11,21 +6,28 @@ use Yoast\WP\SEO\Presentations\Indexable_Presentation;
 use Yoast\WP\SEO\Presenters\Abstract_Indexable_Tag_Presenter;
 
 /**
- * Class Site_Open_Graph_Locale_Presenter
+ * Final presenter class for the Open Graph locale.
  */
 final class Locale_Presenter extends Abstract_Indexable_Tag_Presenter {
+
+	/**
+	 * The tag key name.
+	 *
+	 * @var string
+	 */
+	protected $key = 'og:locale';
 
 	/**
 	 * The tag format including placeholders.
 	 *
 	 * @var string
 	 */
-	protected $tag_format = '<meta property="og:locale" content="%s" />';
+	protected $tag_format = self::META_PROPERTY_CONTENT;
 
 	/**
 	 * Run the locale through the `wpseo_og_locale` filter.
 	 *
-	 * @return string $locale The filtered locale.
+	 * @return string The filtered locale.
 	 */
 	public function get() {
 		/**

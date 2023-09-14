@@ -1,0 +1,20 @@
+
+.itsec-nc-user-role-list {
+    legend {
+        margin-bottom: 1rem;
+    }
+
+    .itsec-nc-user-role-list__group {
+        margin: 0;
+
+        & + .itsec-nc-user-role-list__group {
+            border-top: 1px solid $border-color;
+            margin-top: 1rem;
+            padding-top: 1rem;
+        }
+
+        & > li:last-of-type {
+            margin-bottom: 0;
+        }
+    }
+}

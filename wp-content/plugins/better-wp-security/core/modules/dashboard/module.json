@@ -1,0 +1,34 @@
+{
+  "id": "dashboard",
+  "status": "always-active",
+  "type": "recommended",
+  "title": "Security Dashboard",
+  "description": "See a real-time overview of the security activity on your website with this dynamic dashboard.",
+  "user-groups": {
+    "group": {
+      "type": "multiple",
+      "title": "Enable Dashboard Creation",
+      "description": "Allow users to create new iThemes Security Dashboards.",
+      "default": "administrator"
+    }
+  },
+  "settings": {
+    "type": "object",
+    "properties": {
+      "migrated": {
+        "type": "boolean",
+        "default": false,
+        "readonly": true
+      }
+    }
+  },
+  "removed-settings": [
+    "disabled_users"
+  ],
+  "scheduling": {
+    "dashboard-consolidate-events": {
+      "type": "recurring",
+      "schedule": "daily"
+    }
+  }
+}

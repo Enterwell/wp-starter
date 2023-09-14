@@ -109,7 +109,7 @@ class ITSEC_Lib_File {
 	 * @param string $file     Full path to config file to update.
 	 * @param string $contents Contents to write to the file.
 	 * @param bool   $append   Optional. Set to true to append contents to the file. Defaults to false.
-	 * @return bool|WP_Error Boolean true on success, WP_Error object otherwise.
+	 * @return true|WP_Error Boolean true on success, WP_Error object otherwise.
 	 */
 	public static function write( $file, $contents, $append = false ) {
 		$callable = array();
@@ -312,7 +312,7 @@ class ITSEC_Lib_File {
 	 * @since 1.15.0
 	 *
 	 * @param string $file Full path to test for existence.
-	 * @return bool|WP_Error Boolean true if it exists, false if it does not.
+	 * @return bool Boolean true if it exists, false if it does not.
 	 */
 	public static function exists( $file ) {
 		// phpcs:ignore -- Have Tide ignore the following line. We use arguments that don't exist in early versions, but these versions ignore the arguments.

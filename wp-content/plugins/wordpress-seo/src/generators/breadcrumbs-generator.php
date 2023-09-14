@@ -1,9 +1,4 @@
 <?php
-/**
- * Generator object for the breadcrumbs.
- *
- * @package Yoast\YoastSEO\Generators
- */
 
 namespace Yoast\WP\SEO\Generators;
 
@@ -17,7 +12,7 @@ use Yoast\WP\SEO\Models\Indexable;
 use Yoast\WP\SEO\Repositories\Indexable_Repository;
 
 /**
- * Represents the generator class for the Open Graph images.
+ * Represents the generator class for the breadcrumbs.
  */
 class Breadcrumbs_Generator implements Generator_Interface {
 
@@ -52,14 +47,14 @@ class Breadcrumbs_Generator implements Generator_Interface {
 	/**
 	 * The URL helper.
 	 *
-	 * @var Url_Helper;
+	 * @var Url_Helper
 	 */
 	private $url_helper;
 
 	/**
 	 * The pagination helper.
 	 *
-	 * @var Pagination_Helper;
+	 * @var Pagination_Helper
 	 */
 	private $pagination_helper;
 
@@ -102,11 +97,14 @@ class Breadcrumbs_Generator implements Generator_Interface {
 		if ( $breadcrumbs_home !== '' && ! \in_array( $this->current_page_helper->get_page_type(), [ 'Home_Page', 'Static_Home_Page' ], true ) ) {
 			$front_page_id = $this->current_page_helper->get_front_page_id();
 			if ( $front_page_id === 0 ) {
-				$static_ancestors[] = $this->repository->find_for_home_page();
+				$home_page_ancestor = $this->repository->find_for_home_page();
+				if ( \is_a( $home_page_ancestor, Indexable::class ) ) {
+					$static_ancestors[] = $home_page_ancestor;
+				}
 			}
 			else {
 				$static_ancestor = $this->repository->find_by_id_and_type( $front_page_id, 'post' );
-				if ( $static_ancestor->post_status !== 'unindexed' ) {
+				if ( \is_a( $static_ancestor, Indexable::class ) && $static_ancestor->post_status !== 'unindexed' ) {
 					$static_ancestors[] = $static_ancestor;
 				}
 			}
@@ -114,7 +112,7 @@ class Breadcrumbs_Generator implements Generator_Interface {
 		$page_for_posts = \get_option( 'page_for_posts' );
 		if ( $this->should_have_blog_crumb( $page_for_posts, $context ) ) {
 			$static_ancestor = $this->repository->find_by_id_and_type( $page_for_posts, 'post' );
-			if ( $static_ancestor->post_status !== 'unindexed' ) {
+			if ( \is_a( $static_ancestor, Indexable::class ) && $static_ancestor->post_status !== 'unindexed' ) {
 				$static_ancestors[] = $static_ancestor;
 			}
 		}
@@ -124,12 +122,18 @@ class Breadcrumbs_Generator implements Generator_Interface {
 			&& $context->indexable->object_sub_type !== 'page'
 			&& $this->post_type_helper->has_archive( $context->indexable->object_sub_type )
 		) {
-			$static_ancestors[] = $this->repository->find_for_post_type_archive( $context->indexable->object_sub_type );
+			$static_ancestor = $this->repository->find_for_post_type_archive( $context->indexable->object_sub_type );
+			if ( \is_a( $static_ancestor, Indexable::class ) ) {
+				$static_ancestors[] = $static_ancestor;
+			}
 		}
 		if ( $context->indexable->object_type === 'term' ) {
 			$parent = $this->get_taxonomy_post_type_parent( $context->indexable->object_sub_type );
 			if ( $parent && $parent !== 'post' && $this->post_type_helper->has_archive( $parent ) ) {
-				$static_ancestors[] = $this->repository->find_for_post_type_archive( $parent );
+				$static_ancestor = $this->repository->find_for_post_type_archive( $parent );
+				if ( \is_a( $static_ancestor, Indexable::class ) ) {
+					$static_ancestors[] = $static_ancestor;
+				}
 			}
 		}
 
@@ -142,6 +146,13 @@ class Breadcrumbs_Generator implements Generator_Interface {
 		}
 
 		$indexables = \apply_filters( 'wpseo_breadcrumb_indexables', $indexables, $context );
+		$indexables = \is_array( $indexables ) ? $indexables : [];
+		$indexables = \array_filter(
+			$indexables,
+			static function ( $indexable ) {
+				return \is_a( $indexable, Indexable::class );
+			}
+		);
 
 		$callback = function ( Indexable $ancestor ) {
 			$crumb = [
@@ -181,11 +192,23 @@ class Breadcrumbs_Generator implements Generator_Interface {
 		/**
 		 * Filter: 'wpseo_breadcrumb_links' - Allow the developer to filter the Yoast SEO breadcrumb links, add to them, change order, etc.
 		 *
-		 * @api array $crumbs The crumbs array.
+		 * @param array $crumbs The crumbs array.
 		 */
-		$crumbs = \apply_filters( 'wpseo_breadcrumb_links', $crumbs );
+		$filtered_crumbs = \apply_filters( 'wpseo_breadcrumb_links', $crumbs );
 
-		$filter_callback = function( $link_info, $index ) use ( $crumbs ) {
+		// Basic check to make sure the filtered crumbs are in an array.
+		if ( ! \is_array( $filtered_crumbs ) ) {
+			\_doing_it_wrong(
+				'Filter: \'wpseo_breadcrumb_links\'',
+				'The `wpseo_breadcrumb_links` filter should return a multi-dimensional array.',
+				'YoastSEO v20.0'
+			);
+		}
+		else {
+			$crumbs = $filtered_crumbs;
+		}
+
+		$filter_callback = static function( $link_info, $index ) use ( $crumbs ) {
 			/**
 			 * Filter: 'wpseo_breadcrumb_single_link_info' - Allow developers to filter the Yoast SEO Breadcrumb link information.
 			 *
@@ -236,7 +259,8 @@ class Breadcrumbs_Generator implements Generator_Interface {
 	 * @return array The crumb.
 	 */
 	private function get_term_crumb( $crumb, $ancestor ) {
-		$crumb['term_id'] = $ancestor->object_id;
+		$crumb['term_id']  = $ancestor->object_id;
+		$crumb['taxonomy'] = $ancestor->object_sub_type;
 
 		return $crumb;
 	}
@@ -360,7 +384,7 @@ class Breadcrumbs_Generator implements Generator_Interface {
 	 * @param array     $crumbs            The array of breadcrumbs.
 	 * @param Indexable $current_indexable The current indexable.
 	 *
-	 * @returns array The breadcrumbs.
+	 * @return array The breadcrumbs.
 	 */
 	protected function add_paged_crumb( array $crumbs, $current_indexable ) {
 		$is_simple_page = $this->current_page_helper->is_simple_page();
@@ -381,9 +405,9 @@ class Breadcrumbs_Generator implements Generator_Interface {
 		}
 
 		$crumbs[] = [
-			'text' => sprintf(
+			'text' => \sprintf(
 				/* translators: %s expands to the current page number */
-				__( 'Page %s', 'wordpress-seo' ),
+				\__( 'Page %s', 'wordpress-seo' ),
 				$current_page_number
 			),
 		];

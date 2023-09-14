@@ -22,11 +22,14 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ *
+ * Modified using Strauss.
+ * @see https://github.com/BrianHenryIE/strauss
  */
 
-namespace Pimple\Exception;
+namespace iThemesSecurity\Strauss\Pimple\Exception;
 
-use Psr\Container\NotFoundExceptionInterface;
+use iThemesSecurity\Strauss\Psr\Container\NotFoundExceptionInterface;
 
 /**
  * The identifier of a valid service or parameter was expected.

@@ -1,0 +1,26 @@
+.itsec-icon-popover__trigger.components-button.has-icon {
+    height: auto;
+    margin: 0 4px;
+    padding: 0 !important;
+    min-width: 0;
+
+    .dashicon {
+        margin: 0;
+    }
+}
+
+.itsec-icon-popover.components-popover {
+    &:not(.is-without-arrow)::after {
+        border-bottom-color: $main-blue;
+    }
+
+    .components-popover__content {
+        min-width: 300px;
+        border-top: 8px solid $main-blue;
+
+        p {
+            margin: 0;
+            padding: .5rem;
+        }
+    }
+}

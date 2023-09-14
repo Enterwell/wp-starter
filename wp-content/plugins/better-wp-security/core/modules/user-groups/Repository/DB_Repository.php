@@ -50,7 +50,7 @@ final class DB_Repository implements Repository {
 		) );
 	}
 
-	public function persist( User_Group $user_group ) {
+	public function persist( User_Group $user_group, array $args = [] ) {
 		$this->wpdb->query( $this->wpdb->prepare(
 			"INSERT INTO {$this->tn()} (group_id, group_label, group_roles, group_canonical, group_users, group_min_role, group_created_at) VALUES (%s, %s, %s, %s, %s, %s, %s)" .
 			'ON DUPLICATE KEY UPDATE group_label = VALUES(group_label), group_roles = VALUES(group_roles), group_canonical = VALUES(group_canonical), group_users = VALUES(group_users), group_min_role = VALUES(group_min_role)',
@@ -73,8 +73,9 @@ final class DB_Repository implements Repository {
 			 * @since 6.4.0
 			 *
 			 * @param User_Group $user_group
+			 * @param array      $args
 			 */
-			do_action( 'itsec_create_user_group', $user_group );
+			do_action( 'itsec_create_user_group', $user_group, $args );
 		} else {
 			/**
 			 * Fires when a user group is updated.
@@ -82,8 +83,9 @@ final class DB_Repository implements Repository {
 			 * @since 6.4.0
 			 *
 			 * @param User_Group $user_group
+			 * @param array      $args
 			 */
-			do_action( 'itsec_update_user_group', $user_group );
+			do_action( 'itsec_update_user_group', $user_group, $args );
 		}
 	}
 

@@ -8,13 +8,14 @@ import UriTemplate from 'uri-templates';
  * WordPress dependencies
  */
 import { addQueryArgs } from '@wordpress/url';
-import { select } from '@wordpress/data';
+import { controls } from '@wordpress/data';
 
 /**
  * Internal dependencies
  */
 import { getSchemaLink } from '@ithemes/security-utils';
-import { apiFetch, dispatch } from './controls';
+import { apiFetchBatch } from '@ithemes/security.packages.data';
+import { apiFetch } from './controls';
 
 export const path = '/ithemes-security/v1/user-groups';
 
@@ -49,11 +50,19 @@ export function receiveQuery( queryId, items ) {
 }
 
 export function* processItem( item ) {
-	const users = get( item, [ '_embedded', 'ithemes-security:user-group-member' ], [] );
-	const settings = get( item, [ '_embedded', 'ithemes-security:user-matchable-settings', 0 ] );
+	const users = get(
+		item,
+		[ '_embedded', 'ithemes-security:user-group-member' ],
+		[]
+	);
+	const settings = get( item, [
+		'_embedded',
+		'ithemes-security:user-matchable-settings',
+		0,
+	] );
 
 	for ( const user of users ) {
-		yield dispatch( 'ithemes-security/core', 'receiveUser', user );
+		yield controls.dispatch( 'ithemes-security/core', 'receiveUser', user );
 	}
 
 	if ( settings ) {
@@ -65,6 +74,13 @@ export function receiveGroup( group ) {
 	return {
 		type: RECEIVE_GROUP,
 		group,
+	};
+}
+
+export function groupNotFound( id ) {
+	return {
+		type: GROUP_NOT_FOUND,
+		id,
 	};
 }
 
@@ -163,7 +179,7 @@ export function* createGroup( group ) {
 /**
  * Updates a user group.
  *
- * @param {string} id Group id id to update.
+ * @param {string} id    Group id id to update.
  * @param {Object} group Group data.
  * @return {IterableIterator<*>} Iterator
  */
@@ -214,9 +230,105 @@ export function* deleteGroup( id ) {
 }
 
 /**
+ * Saves a set of groups in a batch.
+ *
+ * @param {{create: Array<Object>, update: Array<Object>, delete: Array<string>}} groups Groups to save.
+ * @return {Error|{responses: Array<Object>, byId: Object<Object>}} An error, or an object with the list of responses, and responses by id.
+ */
+export function* saveGroups( {
+	create = [],
+	update = [],
+	delete: toDelete = [],
+} ) {
+	const requests = [];
+
+	for ( const group of update ) {
+		requests.push( {
+			method: 'PUT',
+			path: `${ path }/${ group.id }`,
+			body: group,
+		} );
+		yield startUpdateGroup( group.id );
+	}
+
+	for ( const group of create ) {
+		requests.push( {
+			method: 'POST',
+			path,
+			body: group,
+		} );
+		yield startCreateGroup( group );
+	}
+
+	for ( const group of toDelete ) {
+		requests.push( {
+			method: 'DELETE',
+			path: `${ path }/${ group }`,
+		} );
+		yield startDeleteGroup( group );
+	}
+
+	let responses;
+	const byId = {};
+
+	try {
+		responses = yield apiFetchBatch( requests );
+	} catch ( error ) {
+		for ( const group of update ) {
+			yield failedUpdateGroup( group.id, error );
+		}
+
+		for ( const group of create ) {
+			yield failedCreateGroup( group, error );
+		}
+
+		for ( const group of toDelete ) {
+			yield failedDeleteGroup( group, error );
+		}
+
+		return error;
+	}
+
+	for ( let i = 0; i < requests.length; i++ ) {
+		const request = requests[ i ];
+		const group = request.body;
+		const response = responses[ i ];
+		const id =
+			group?.id ||
+			response.body?.id ||
+			request.path.replace( `${ path }/`, '' );
+
+		if ( id ) {
+			byId[ id ] = response;
+		}
+
+		if ( response.status >= 400 ) {
+			if ( request.method === 'PUT' ) {
+				yield failedUpdateGroup( id, response.body );
+			} else if ( request.method === 'DELETE' ) {
+				yield failedDeleteGroup( id, response.body );
+			} else {
+				yield failedCreateGroup( group, response.body );
+			}
+		} else {
+			if ( request.method === 'PUT' ) {
+				yield finishUpdateGroup( id, response.body );
+			} else if ( request.method === 'DELETE' ) {
+				yield finishDeleteGroup( id );
+			} else {
+				yield finishCreateGroup( group, response.body );
+			}
+			yield receiveGroup( group );
+		}
+	}
+
+	return { responses, byId };
+}
+
+/**
  * Updates a user group.
  *
- * @param {Object} id Id of group.
+ * @param {Object} id       Id of group.
  * @param {Object} settings New settings.
  * @return {IterableIterator<*>} Iterator
  */
@@ -240,6 +352,55 @@ export function* updateGroupSettings( id, settings ) {
 	yield receiveGroupSettings( id, response );
 
 	return response;
+}
+
+/**
+ * Saves a set of groups' settings in a batch.
+ *
+ * @param {Object} groupedSettings Map of group ids to settings.
+ * @return {Error|{responses: Array<Object>, byId: Object<Object>}} An error, or an object with the list of responses, and responses by id.
+ */
+export function* saveGroupSettingsAsBatch( groupedSettings ) {
+	const requests = [];
+	const ids = Object.keys( groupedSettings );
+
+	for ( const groupId of ids ) {
+		requests.push( {
+			method: 'PUT',
+			path: `/ithemes-security/v1/user-matchable-settings/${ groupId }`,
+			body: groupedSettings[ groupId ],
+		} );
+		yield startUpdateGroupSettings( groupId, groupedSettings[ groupId ] );
+	}
+
+	let responses;
+
+	try {
+		responses = yield apiFetchBatch( requests );
+	} catch ( error ) {
+		for ( const groupId of ids ) {
+			yield failedUpdateGroupSettings( groupId, error );
+		}
+
+		return error;
+	}
+
+	const byId = {};
+
+	for ( let i = 0; i < requests.length; i++ ) {
+		const groupId = ids[ i ];
+		const response = responses[ i ];
+		byId[ groupId ] = response.body;
+
+		if ( response.status >= 400 ) {
+			yield failedUpdateGroupSettings( groupId, response.body );
+		} else {
+			yield finishUpdateGroupSettings( groupId, response.body );
+			yield receiveGroupSettings( groupId, response.body );
+		}
+	}
+
+	return { responses, byId };
 }
 
 export function* fetchGroupsSettings( groupIds = [] ) {
@@ -306,7 +467,9 @@ export function* patchBulkGroupSettings( groupIds, patch ) {
 
 	try {
 		response = yield apiFetch( {
-			path: addQueryArgs( `ithemes-security/v1/user-matchable-settings`, { include: groupIds } ),
+			path: addQueryArgs( `ithemes-security/v1/user-matchable-settings`, {
+				include: groupIds,
+			} ),
 			method: 'PATCH',
 			data: patch,
 		} );
@@ -318,8 +481,12 @@ export function* patchBulkGroupSettings( groupIds, patch ) {
 
 	yield finishPatchBulkGroupSettings( groupIds, patch, response );
 
-	const schema = select( 'ithemes-security/core' ).getSchema( 'ithemes-security-user-group-settings' );
-	const selfLink = getSchemaLink( schema,	'self' );
+	const schema = yield controls.resolveSelect(
+		'ithemes-security/core',
+		'getSchema',
+		'ithemes-security-user-group-settings'
+	);
+	const selfLink = getSchemaLink( schema, 'self' );
 
 	if ( ! selfLink ) {
 		return response;
@@ -380,6 +547,7 @@ export const FINISH_CREATE_GROUP = 'FINISH_CREATE_GROUP';
 export const FAILED_CREATE_GROUP = 'FAILED_CREATE_GROUP';
 
 export const RECEIVE_GROUP = 'RECEIVE_GROUP';
+export const GROUP_NOT_FOUND = 'GROUP_NOT_FOUND';
 
 export const START_UPDATE_GROUP = 'START_UPDATE_GROUP';
 export const FINISH_UPDATE_GROUP = 'FINISH_UPDATE_GROUP';
@@ -399,6 +567,9 @@ export const START_FETCH_GROUPS_SETTINGS = 'START_FETCH_GROUPS_SETTINGS';
 export const FINISH_FETCH_GROUPS_SETTINGS = 'FINISH_FETCH_GROUPS_SETTINGS';
 export const FAILED_FETCH_GROUPS_SETTINGS = 'FAILED_FETCH_GROUPS_SETTINGS';
 
-export const START_PATCH_BULK_GROUP_SETTINGS = 'START_PATCH_BULK_GROUP_SETTINGS';
-export const FINISH_PATCH_BULK_GROUP_SETTINGS = 'FINISH_PATCH_BULK_GROUP_SETTINGS';
-export const FAILED_PATCH_BULK_GROUP_SETTINGS = 'FAILED_PATCH_BULK_GROUP_SETTINGS';
+export const START_PATCH_BULK_GROUP_SETTINGS =
+	'START_PATCH_BULK_GROUP_SETTINGS';
+export const FINISH_PATCH_BULK_GROUP_SETTINGS =
+	'FINISH_PATCH_BULK_GROUP_SETTINGS';
+export const FAILED_PATCH_BULK_GROUP_SETTINGS =
+	'FAILED_PATCH_BULK_GROUP_SETTINGS';

@@ -1,22 +1,25 @@
 /**
  * WordPress dependencies
  */
-import { compose } from '@wordpress/compose';
-import { withSelect } from '@wordpress/data';
+import { useSelect } from '@wordpress/data';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
-import { GroupHeader } from './';
+import { PageHeader } from '@ithemes/security.pages.settings';
 
-function MultiGroupHeader( { label } ) {
-	return (
-		<GroupHeader label={ label } />
+export default function MultiGroupHeader( { groupIds } ) {
+	const label = useSelect(
+		( select ) =>
+			groupIds
+				.map(
+					select( 'ithemes-security/user-groups-editor' )
+						.getEditedMatchableLabel
+				)
+				.join( ', ' ),
+		[ groupIds ]
 	);
-}
 
-export default compose( [
-	withSelect( ( select, { groupIds } ) => ( {
-		label: groupIds.map( select( 'ithemes-security/user-groups' ).getMatchableLabel ).join( ', ' ),
-	} ) ),
-] )( MultiGroupHeader );
+	return <PageHeader title={ label || __( 'Select Groups', 'better-wp-security' ) } />;
+}

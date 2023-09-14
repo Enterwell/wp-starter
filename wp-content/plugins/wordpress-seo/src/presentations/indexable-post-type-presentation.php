@@ -1,9 +1,4 @@
 <?php
-/**
- * Presentation object for indexables.
- *
- * @package Yoast\YoastSEO\Presentations
- */
 
 namespace Yoast\WP\SEO\Presentations;
 
@@ -13,7 +8,9 @@ use Yoast\WP\SEO\Helpers\Post_Helper;
 use Yoast\WP\SEO\Helpers\Post_Type_Helper;
 
 /**
- * Class Indexable_Post_Type_Presentation
+ * Class Indexable_Post_Type_Presentation.
+ *
+ * Presentation object for indexables.
  */
 class Indexable_Post_Type_Presentation extends Indexable_Presentation {
 
@@ -48,12 +45,12 @@ class Indexable_Post_Type_Presentation extends Indexable_Presentation {
 	/**
 	 * Indexable_Post_Type_Presentation constructor.
 	 *
+	 * @codeCoverageIgnore
+	 *
 	 * @param Post_Type_Helper  $post_type  The post type helper.
 	 * @param Date_Helper       $date       The date helper.
 	 * @param Pagination_Helper $pagination The pagination helper.
 	 * @param Post_Helper       $post       The post helper.
-	 *
-	 * @codeCoverageIgnore
 	 */
 	public function __construct(
 		Post_Type_Helper $post_type,
@@ -68,29 +65,33 @@ class Indexable_Post_Type_Presentation extends Indexable_Presentation {
 	}
 
 	/**
-	 * @inheritDoc
+	 * Generates the canonical.
+	 *
+	 * @return string The canonical.
 	 */
 	public function generate_canonical() {
 		if ( $this->model->canonical ) {
 			return $this->model->canonical;
 		}
 
-		$canonical = $this->model->permalink;
+		$permalink = $this->permalink;
 
 		// Fix paginated pages canonical, but only if the page is truly paginated.
 		$current_page = $this->pagination->get_current_post_page_number();
 		if ( $current_page > 1 ) {
 			$number_of_pages = $this->model->number_of_pages;
 			if ( $number_of_pages && $current_page <= $number_of_pages ) {
-				$canonical = $this->get_paginated_url( $canonical, $current_page );
+				$permalink = $this->get_paginated_url( $permalink, $current_page );
 			}
 		}
 
-		return $this->url->ensure_absolute_url( $canonical );
+		return $this->url->ensure_absolute_url( $permalink );
 	}
 
 	/**
-	 * @inheritDoc
+	 * Generates the rel prev.
+	 *
+	 * @return string The rel prev value.
 	 */
 	public function generate_rel_prev() {
 		if ( $this->model->number_of_pages === null ) {
@@ -117,7 +118,9 @@ class Indexable_Post_Type_Presentation extends Indexable_Presentation {
 	}
 
 	/**
-	 * @inheritDoc
+	 * Generates the rel next.
+	 *
+	 * @return string The rel prev next.
 	 */
 	public function generate_rel_next() {
 		if ( $this->model->number_of_pages === null ) {
@@ -137,7 +140,9 @@ class Indexable_Post_Type_Presentation extends Indexable_Presentation {
 	}
 
 	/**
-	 * @inheritDoc
+	 * Generates the open graph title.
+	 *
+	 * @return string The open graph title.
 	 */
 	public function generate_title() {
 		if ( $this->model->title ) {
@@ -156,7 +161,9 @@ class Indexable_Post_Type_Presentation extends Indexable_Presentation {
 	}
 
 	/**
-	 * @inheritDoc
+	 * Generates the meta description.
+	 *
+	 * @return string The meta description.
 	 */
 	public function generate_meta_description() {
 		if ( $this->model->description ) {
@@ -167,11 +174,18 @@ class Indexable_Post_Type_Presentation extends Indexable_Presentation {
 	}
 
 	/**
-	 * @inheritDoc
+	 * Generates the open graph description.
+	 *
+	 * @return string The open graph description.
 	 */
 	public function generate_open_graph_description() {
 		if ( $this->model->open_graph_description ) {
 			$open_graph_description = $this->model->open_graph_description;
+		}
+
+		if ( empty( $open_graph_description ) ) {
+			// The helper applies a filter, but we don't have a default value at this stage so we pass an empty string.
+			$open_graph_description = $this->values_helper->get_open_graph_description( '', $this->model->object_type, $this->model->object_sub_type );
 		}
 
 		if ( empty( $open_graph_description ) ) {
@@ -180,9 +194,10 @@ class Indexable_Post_Type_Presentation extends Indexable_Presentation {
 
 		if ( empty( $open_graph_description ) ) {
 			$open_graph_description = $this->post->get_the_excerpt( $this->model->object_id );
+			$open_graph_description = $this->post->strip_shortcodes( $open_graph_description );
 		}
 
-		return $this->post->strip_shortcodes( $open_graph_description );
+		return $open_graph_description;
 	}
 
 	/**
@@ -199,7 +214,9 @@ class Indexable_Post_Type_Presentation extends Indexable_Presentation {
 	}
 
 	/**
-	 * @inheritDoc
+	 * Generates the Open Graph type.
+	 *
+	 * @return string The Open Graph type.
 	 */
 	public function generate_open_graph_type() {
 		return 'article';
@@ -211,6 +228,10 @@ class Indexable_Post_Type_Presentation extends Indexable_Presentation {
 	 * @return string The open graph article author.
 	 */
 	public function generate_open_graph_article_author() {
+		if ( $this->model->object_sub_type !== 'post' ) {
+			return '';
+		}
+
 		$post = $this->source;
 
 		$open_graph_article_author = $this->user->get_the_author_meta( 'facebook', $post->post_author );
@@ -273,23 +294,27 @@ class Indexable_Post_Type_Presentation extends Indexable_Presentation {
 	}
 
 	/**
-	 * @inheritDoc
+	 * Generates the source.
+	 *
+	 * @return array The source.
 	 */
 	public function generate_source() {
 		return \get_post( $this->model->object_id );
 	}
 
 	/**
-	 * @inheritDoc
+	 * Generates the robots value.
+	 *
+	 * @return array The robots value.
 	 */
 	public function generate_robots() {
 		$robots = $this->get_base_robots();
 		$robots = \array_merge(
 			$robots,
 			[
-				'noimageindex' => ( $this->model->is_robots_noimageindex === true ) ? 'noimageindex' : null,
-				'noarchive'    => ( $this->model->is_robots_noarchive === true ) ? 'noarchive' : null,
-				'nosnippet'    => ( $this->model->is_robots_nosnippet === true ) ? 'nosnippet' : null,
+				'imageindex' => ( $this->model->is_robots_noimageindex === true ) ? 'noimageindex' : null,
+				'archive'    => ( $this->model->is_robots_noarchive === true ) ? 'noarchive' : null,
+				'snippet'    => ( $this->model->is_robots_nosnippet === true ) ? 'nosnippet' : null,
 			]
 		);
 
@@ -317,7 +342,9 @@ class Indexable_Post_Type_Presentation extends Indexable_Presentation {
 	}
 
 	/**
-	 * @inheritDoc
+	 * Generates the Twitter description.
+	 *
+	 * @return string The Twitter description.
 	 */
 	public function generate_twitter_description() {
 		$twitter_description = parent::generate_twitter_description();
@@ -334,7 +361,9 @@ class Indexable_Post_Type_Presentation extends Indexable_Presentation {
 	}
 
 	/**
-	 * @inheritDoc
+	 * Generates the Twitter image.
+	 *
+	 * @return string The Twitter image.
 	 */
 	public function generate_twitter_image() {
 		if ( \post_password_required() ) {
@@ -345,9 +374,15 @@ class Indexable_Post_Type_Presentation extends Indexable_Presentation {
 	}
 
 	/**
-	 * @inheritDoc
+	 * Generates the Twitter creator.
+	 *
+	 * @return string The Twitter creator.
 	 */
 	public function generate_twitter_creator() {
+		if ( $this->model->object_sub_type !== 'post' ) {
+			return '';
+		}
+
 		$twitter_creator = \ltrim( \trim( \get_the_author_meta( 'twitter', $this->source->post_author ) ), '@' );
 
 		/**
@@ -372,12 +407,12 @@ class Indexable_Post_Type_Presentation extends Indexable_Presentation {
 	/**
 	 * Wraps the get_paginated_url pagination helper method.
 	 *
+	 * @codeCoverageIgnore A wrapper method.
+	 *
 	 * @param string $url  The un-paginated URL of the current archive.
 	 * @param string $page The page number to add on to $url for the $link tag.
 	 *
 	 * @return string The paginated URL.
-	 *
-	 * @codeCoverageIgnore A wrapper method.
 	 */
 	protected function get_paginated_url( $url, $page ) {
 		return $this->pagination->get_paginated_url( $url, $page, false );

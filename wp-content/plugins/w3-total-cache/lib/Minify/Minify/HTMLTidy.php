@@ -1,4 +1,5 @@
 <?php
+namespace W3TCL\Minify;
 
 class Minify_HTMLTidy {
     public static function minify($content, $options = array()) {
@@ -13,10 +14,11 @@ class Minify_HTMLTidy {
             'show-errors' => 0,
             'show-warnings' => false,
             'force-output' => true,
-            'tidy-mark' => false
+            'tidy-mark' => false,
+            'output-xhtml' => false,
         ));
 
-        $tidy = new tidy();
+        $tidy = new \tidy();
         $tidy->parseString($content, $options);
         $tidy->cleanRepair();
 

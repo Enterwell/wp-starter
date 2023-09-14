@@ -900,3 +900,25 @@
 	Tweak: Check if a licensed user is defined when checking license status.
 	Tweak: Use an opaque token for site scan verification to reduce invalid secret errors.
 	Bug Fix: Error when trying to run Security Check on new installations.
+5.9.0 - 2020-09-16 - Timothy Jacobs
+	Important: iThemes Security requires WordPress 5.4 or later.
+	Enhancement: Add a setting for configuring the number of bans added to the server config files (.htaccess/nginx.conf).
+	Enhancement: Store the time a ban was added, and the lockout module responsible for the ban.
+	Bug Fix: PHP warnings when invalid entries are stored in the WordPress Cron storage.
+	Bug Fix: Update the list of tables added to wpdb.
+	Bug Fix: Remove default value for text columns. This caused an issue on MySQL 8 and is unnecessary.
+	Bug Fix: Missing borders in the sidebar widgets on WordPress 5.5.
+	Bug Fix: Notice actions didn't trigger when "Hide Admin Bar" is enabled.
+5.9.1 - 2020-09-24 - Timothy Jacobs
+	Tweak: Disable SSL verification when performing the Security Check Loopback test. Some hosts can't properly verify loopback requests. This verification is unnecessary in this circumstance, and disabling SSL verification aligns iThemes Security with default WordPress loopback behavior.
+	Bug Fix: Some users would be force to choose a strong password twice in a row.
+	Bug Fix: Warning when saving the Ban Users module outside of the Settings Page without passing the legacy host_list setting.
+6.0.0 - 2020-10-13 - Timothy Jacobs
+	Enhancement: Overwrite Restrict Content Pro's detected IP address with the IP detected by iThemes Security.
+	Bug Fix: Passwords Requirements compatibility with Restrict Content Pro.
+	Bug Fix: PHP warnings that may occur when initializing default user groups on a new installation.
+6.0.1 - 2020-11-05 - Timothy Jacobs
+	Bug Fix: Improved compatibility with WP Engine.
+6.0.2 - 2020-12-16 - Timothy Jacobs
+	Tweak: Remove non-SSL fallbacks for Security Check Pro.
+	Bug Fix: Tweak checkbox styles.

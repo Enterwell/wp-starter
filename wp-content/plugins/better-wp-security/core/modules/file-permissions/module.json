@@ -1,0 +1,12 @@
+{
+  "id": "file-permissions",
+  "type": "tool",
+  "status": "always-active",
+  "title": "File Permissions",
+  "description": "Lists file and directory permissions of key areas of the site.",
+  "tools": {
+    "check-file-permissions": {
+      "title": "Check File Permissions"
+    }
+  }
+}

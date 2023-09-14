@@ -1,0 +1,125 @@
+{
+  "id": "network-brute-force",
+  "status": "default-active",
+  "type": "lockout",
+  "onboard": true,
+  "title": "Network Brute Force",
+  "description": "Join a network of sites that reports and protects against bad actors on the internet.",
+  "help": "If one had unlimited time and wanted to try an unlimited number of password combinations to get into your site they eventually would, right? This method of attack, known as a brute force attack, is something that WordPress is acutely susceptible to as, by default, the system doesn’t care how many attempts a user makes to login. It will always let you try again. Enabling login limits will ban the host user from attempting to login again after the specified bad login threshold has been reached.",
+  "settings": {
+    "type": "object",
+    "properties": {
+      "enable_ban": {
+        "type": "boolean",
+        "default": true,
+        "title": "Ban Reported IPs",
+        "description": "Automatically ban IPs reported as a problem by the network."
+      },
+      "api_key": {
+        "type": "string",
+        "default": "",
+        "title": "API Key"
+      },
+      "api_secret": {
+        "type": "string",
+        "default": "",
+        "readonly": true
+      },
+      "email": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "format": "email",
+        "default": null,
+        "title": "Email Address"
+      },
+      "updates_optin": {
+        "type": "boolean",
+        "default": false,
+        "title": "Receive Email Updates",
+        "description": "Get the weekly WordPress Vulnerability Report and more WordPress security updates sent to your inbox."
+      }
+    },
+    "uiSchema": {
+      "ui:sections": [
+        {
+          "title": "API Configuration",
+          "fields": [
+            "api_key",
+            "api_secret",
+            "email",
+            "updates_optin"
+          ]
+        }
+      ],
+      "api_key": {
+        "ui:disabled": true
+      }
+    }
+  },
+  "conditional-settings": {
+    "enable_ban": {
+      "settings": {
+        "$ref": "#/definitions/configured"
+      }
+    },
+    "api_key": {
+      "settings": {
+        "$ref": "#/definitions/configured"
+      }
+    },
+    "email": {
+      "settings": {
+        "$ref": "#/definitions/not-configured"
+      }
+    },
+    "updates_optin": {
+      "settings": {
+        "$ref": "#/definitions/not-configured"
+      }
+    }
+  },
+  "onboard-settings": [
+    "email",
+    "updates_optin"
+  ],
+  "import-export": {
+    "import-settings": [
+      "email",
+      "updates_optin",
+      "api_key"
+    ]
+  },
+  "removed-settings": [
+    "api_nag"
+  ],
+  "definitions": {
+    "configured": {
+      "type": "object",
+      "properties": {
+        "api_key": {
+          "type": "string",
+          "minLength": 1
+        },
+        "api_secret": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "not-configured": {
+      "type": "object",
+      "properties": {
+        "api_key": {
+          "type": "string",
+          "maxLength": 0
+        },
+        "api_secret": {
+          "type": "string",
+          "maxLength": 0
+        }
+      }
+    }
+  }
+}

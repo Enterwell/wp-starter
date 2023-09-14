@@ -1,0 +1,63 @@
+@import "mixins";
+
+.itsec-rjsf-include-exclude-widget__sides {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-gap: 1rem;
+}
+
+.itsec-rjsf-include-exclude-widget__side {
+    display: flex;
+    flex-direction: column;
+}
+
+.itsec-rjsf-include-exclude-widget__listbox {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+
+    .components-base-control__field {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    [role="listbox"] {
+        flex: 1;
+        border: 1px solid #757575;
+        height: 300px;
+        min-height: 300px;
+        max-height: 300px;
+        overflow-y: scroll;
+
+        &:focus, &:focus-within {
+            border-color: var(--wp-admin-theme-color);
+            box-shadow: 0 0 0 1px var(--wp-admin-theme-color);
+            outline: 2px solid transparent;
+        }
+    }
+
+    & [role="option"], & [role="presentation"] {
+        padding: .5rem 1rem .5rem 1.5rem;
+    }
+
+    [role="option"][aria-selected="true"] {
+        background: $focused-blue;
+        position: relative;
+
+        &::before {
+            position: absolute;
+            left: .15rem;
+            @include dashicon("\f147");
+        }
+    }
+
+    [role="presentation"] {
+        opacity: .5;
+    }
+}
+
+.itsec-rjsf-include-exclude-widget__move {
+    margin-top: 8px;
+    margin-right: auto;
+}

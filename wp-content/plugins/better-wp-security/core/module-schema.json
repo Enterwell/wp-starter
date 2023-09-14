@@ -1,0 +1,624 @@
+{
+  "type": "object",
+  "required": [
+    "id",
+    "status",
+    "type"
+  ],
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "status": {
+      "oneOf": [
+        {
+          "type": "string",
+          "enum": [
+            "always-active",
+            "default-active",
+            "default-inactive",
+            "inherit"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "free",
+            "pro"
+          ],
+          "properties": {
+            "free": {
+              "type": "string",
+              "enum": [
+                "always-active",
+                "default-active",
+                "default-inactive"
+              ]
+            },
+            "pro": {
+              "type": "string",
+              "enum": [
+                "always-active",
+                "default-active",
+                "default-inactive"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "login",
+        "lockout",
+        "utility",
+        "site-check",
+        "recommended",
+        "advanced",
+        "tool",
+        "custom"
+      ]
+    },
+    "order": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "onboard": {
+      "type": "boolean"
+    },
+    "side-effects": {
+      "type": "boolean"
+    },
+    "deprecated": {
+      "title": "Version Deprecated",
+      "description": "Deprecated modules will issue a warning when a module file is loaded.",
+      "type": "string"
+    },
+    "keywords": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true
+    },
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "help": {
+      "type": "string"
+    },
+    "user-groups": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "type",
+          "title",
+          "description"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "multiple",
+              "single"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "keywords": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "uniqueItems": true
+          },
+          "default": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "all",
+                  "administrator",
+                  "editor",
+                  "author",
+                  "contributor",
+                  "subscriber"
+                ]
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "administrator",
+                    "editor",
+                    "author",
+                    "contributor",
+                    "subscriber"
+                  ]
+                }
+              }
+            ]
+          },
+          "conditional": {
+            "type": "object",
+            "properties": {
+              "settings": {
+                "description": "The entire settings object must validate against the given JSON Schema.",
+                "type": "object"
+              },
+              "active-modules": {
+                "description": "The given modules must be active.",
+                "type": "array",
+                "uniqueItems": true,
+                "minItems": 1,
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "password-requirements": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "user-group": {
+            "type": "boolean"
+          },
+          "settings": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "tools": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "help": {
+            "type": "string"
+          },
+          "keywords": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "uniqueItems": true
+          },
+          "schedule": {
+            "description": "If this tool should run automatically, this should contain the schedule id defined in the scheduling config.",
+            "type": "string"
+          },
+          "toggle": {
+            "description": "If this tool can be toggled on or off.",
+            "type": "boolean"
+          },
+          "form": {
+            "description": "Optionally, specify a JSON Schema used to collect data from the user before running the tool.",
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "object"
+                ]
+              }
+            },
+            "additionalProperties": true
+          },
+          "condition": {
+            "description": "Describe the conditions in which this tool can be run.",
+            "type": "object",
+            "properties": {
+              "description": {
+                "type": "string",
+                "description": "User-facing string describing the conditional requirements."
+              },
+              "settings": {
+                "description": "A map of module names, to a settings schema that the module's settings must validate against.",
+                "type": "object"
+              },
+              "active-modules": {
+                "description": "The given modules must be active.",
+                "type": "array",
+                "uniqueItems": true,
+                "minItems": 1,
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "scheduling": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "schedule",
+          "type"
+        ],
+        "properties": {
+          "schedule": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "recurring"
+            ]
+          },
+          "data": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "opts": {
+            "type": "object",
+            "properties": {
+              "fire_at": {
+                "title": "First Fire At",
+                "description": "The number of seconds from now that the first evetn should be fired.",
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "additionalProperties": true
+          },
+          "conditional": {
+            "description": "A JSON schema. The event will be registered if the entire settings object validates against the given schema.",
+            "type": "object"
+          }
+        }
+      }
+    },
+    "settings": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "object"
+          ]
+        },
+        "properties": {
+          "type": "object",
+          "properties": {
+          },
+          "additionalProperties": {
+            "type": "object",
+            "required": [
+              "default"
+            ]
+          }
+        },
+        "uiSchema": {
+          "type": "object",
+          "properties": {
+            "ui:sections": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "title": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "fields": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "conditional-settings": {
+      "description": "An object of setting names to conditional definitions.",
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "settings": {
+            "description": "The entire settings object must validate against the given JSON Schema.",
+            "type": "object"
+          },
+          "server-type": {
+            "description": "The server type must be one of the given values.",
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "apache",
+                "nginx",
+                "litespeed",
+                "thttpd",
+                "iis"
+              ]
+            }
+          },
+          "active-modules": {
+            "description": "The given modules must be active.",
+            "type": "array",
+            "uniqueItems": true,
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          },
+          "user-groups": {
+            "description": "List of user groups setting names that must contain at least one user group. Settings must be members of this module.",
+            "type": "array",
+            "uniqueItems": true,
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          },
+          "install-type": {
+            "description": "The installation type the setting is limited to.",
+            "type": "string",
+            "enum": [
+              "pro",
+              "free"
+            ]
+          },
+          "feature-flags": {
+            "description": "List of feature flags that must be enabled.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "uniqueItems": true
+          }
+        }
+      }
+    },
+    "removed-settings": {
+      "description": "List of settings that used to exist, but no longer do and should be removed.",
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string"
+      }
+    },
+    "deprecated-settings": {
+      "description": "List of settings that are no longer used, but if set should be preserved.",
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string"
+      }
+    },
+    "onboard-settings": {
+      "description": "List of settings to present in the onboard sequence.",
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string"
+      }
+    },
+    "import-export": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "import-settings": {
+          "description": "List of settings to present in the import sequence.",
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          }
+        },
+        "exclude-settings": {
+          "description": "List of settings to exclude from exports.",
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "encryption": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "user-meta": {
+          "description": "List of user meta keys that store encrypted values.",
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "requirements": {
+      "type": "object",
+      "properties": {
+        "ssl": {
+          "$ref": "#/definitions/requirement"
+        },
+        "feature-flags": {
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/requirement"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "flags": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "multisite": {
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/requirement"
+            },
+            {
+              "type": "object",
+              "required": [
+                "status"
+              ],
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "enabled",
+                    "disabled"
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "server": {
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/requirement"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "php": {
+                  "type": "string"
+                },
+                "extensions": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "OpenSSL"
+                    ]
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "feature-flags": {
+      "description": "List of feature flags the module provides.",
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^\\w+$": {
+          "type": "object",
+          "properties": {
+            "rate": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "remote": {
+              "type": "boolean"
+            },
+            "title": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "documentation": {
+              "type": "string",
+              "format": "uri"
+            },
+            "requirements": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "version": {
+                  "type": "object",
+                  "required": [
+                    "pro",
+                    "free"
+                  ],
+                  "properties": {
+                    "pro": {
+                      "type": "string"
+                    },
+                    "free": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "requirement": {
+      "type": "object",
+      "required": [
+        "validate"
+      ],
+      "properties": {
+        "validate": {
+          "type": "string",
+          "enum": [
+            "activate",
+            "run"
+          ]
+        },
+        "showMessageIfUnmet": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

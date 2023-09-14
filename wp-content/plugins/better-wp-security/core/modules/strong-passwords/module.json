@@ -1,0 +1,14 @@
+{
+  "id": "strong-passwords",
+  "status": "always-active",
+  "type": "recommended",
+  "title": "Strong Passwords",
+  "description": "Force users to use strong passwords as rated by the WordPress password meter.",
+  "password-requirements": {
+    "strength": {
+      "title": "Strong Passwords",
+      "description": "Force users to use strong passwords as rated by the WordPress password meter.",
+      "user-group": true
+    }
+  }
+}

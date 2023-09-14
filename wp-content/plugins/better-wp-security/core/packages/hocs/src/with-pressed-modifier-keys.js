@@ -42,6 +42,7 @@ export default createHigherOrderComponent( ( WrappedComponent ) => {
 
 		/**
 		 * Fires whenever a key is pressed down.
+		 *
 		 * @param {KeyboardEvent} e
 		 */
 		listener( e ) {
@@ -72,7 +73,12 @@ export default createHigherOrderComponent( ( WrappedComponent ) => {
 		}
 
 		render() {
-			return <WrappedComponent pressedModifierKeys={ this.state.pressed } { ...this.props } />;
+			return (
+				<WrappedComponent
+					pressedModifierKeys={ this.state.pressed }
+					{ ...this.props }
+				/>
+			);
 		}
 	};
 }, 'withPressedModifierKeys' );

@@ -1,0 +1,90 @@
+body.security_page_itsec-go-pro {
+    background-color: $white;
+}
+
+#wpcontent {
+    padding-left: 0;
+}
+
+.auto-fold #wpcontent {
+    padding-left: 0;
+}
+
+.wp-responsive-open #wpbody {
+    right: calc(-16em + 20px);
+}
+
+#wpbody-content {
+    padding-bottom: 0;
+}
+
+#wpfooter {
+    display: none;
+}
+
+#adminmenuback {
+    z-index: 5;
+}
+
+ul#adminmenu #toplevel_page_itsec-dashboard a.wp-has-current-submenu:after,
+ul#adminmenu > li.current#toplevel_page_itsec-dashboard > a.current:after {
+    border-right-color: #fff;
+}
+
+.itsec-go-pro *,
+.itsec-go-pro *::before,
+.itsec-go-pro *::after {
+    box-sizing: border-box;
+}
+
+.itsec-go-pro {
+    --wp-admin-theme-color: #{$main-blue};
+    --wp-admin-theme-color-darker-10: #{darken($main-blue, 10)};
+    --wp-admin-theme-color-darker-20: #{darken($main-blue, 20)};
+
+    margin-bottom: 6rem;
+
+    > header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-between;
+        gap: .5rem;
+        padding: 2rem 4rem .5rem;
+        max-width: calc(320px * 3 + 3rem * 2);
+        margin: 0 auto;
+
+        @include break-small {
+            align-items: flex-start;
+            flex-direction: row;
+        }
+
+        svg {
+            width: 120px;
+        }
+    }
+
+    // WordPress Core fixes
+    .components-elevation {
+        border-radius: inherit;
+    }
+}
+
+:where(.itsec-go-pro) a,
+:where(.itsec-go-pro) .components-button.is-link {
+    color: var(--wp-admin-theme-color);
+
+    &:hover {
+        color: var(--wp-admin-theme-color-darker-20);
+    }
+}
+
+.itsec-go-pro-tab-panel.itsec-tab-panel {
+    .components-tab-panel__tabs {
+        justify-content: center;
+    }
+
+    .components-tab-panel__tab-content {
+        margin: 1rem 3rem;
+    }
+}

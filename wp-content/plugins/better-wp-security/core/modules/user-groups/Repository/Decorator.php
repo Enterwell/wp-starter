@@ -21,8 +21,8 @@ trait Decorator {
 		return $this->decorates->has( $id );
 	}
 
-	public function persist( User_Group $user_group ) {
-		$this->decorates->persist( $user_group );
+	public function persist( User_Group $user_group, array $args = [] ) {
+		$this->decorates->persist( $user_group, $args );
 	}
 
 	public function delete( User_Group $user_group ) {

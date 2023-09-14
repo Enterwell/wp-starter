@@ -1,42 +1,22 @@
 <?php
-/**
- * Reindexation route for indexables.
- *
- * @package Yoast\WP\SEO\Routes\Routes
- */
 
 namespace Yoast\WP\SEO\Routes;
 
 use WP_REST_Response;
-use Yoast\WP\SEO\Actions\Indexation\Indexation_Action_Interface;
+use Yoast\WP\SEO\Actions\Indexing\Indexation_Action_Interface;
 
 /**
  * Abstract_Indexation_Route class.
+ *
+ * Reindexing route for indexables.
  */
-abstract class Abstract_Indexation_Route implements Route_Interface {
+abstract class Abstract_Indexation_Route extends Abstract_Action_Route {
 
 	/**
-	 * Responds to an indexation request.
+	 * Runs an indexing action and returns the response.
 	 *
-	 * @param array  $objects  The objects that have been indexed.
-	 * @param string $next_url The url that should be called to continue reindexing. False if done.
-	 *
-	 * @return WP_REST_Response The response.
-	 */
-	protected function respond_with( $objects, $next_url ) {
-		return new WP_REST_Response(
-			[
-				'objects'  => $objects,
-				'next_url' => $next_url,
-			]
-		);
-	}
-
-	/**
-	 * Runs an indexation action and returns the response.
-	 *
-	 * @param Indexation_Action_Interface $indexation_action The indexation action.
-	 * @param string                      $url               The url of the indexation route.
+	 * @param Indexation_Action_Interface $indexation_action The indexing action.
+	 * @param string                      $url               The url of the indexing route.
 	 *
 	 * @return WP_REST_Response The response.
 	 */

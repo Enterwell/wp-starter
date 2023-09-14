@@ -2,13 +2,19 @@ import { makeUrlRelative, shortenNumber } from '@ithemes/security-utils';
 
 describe( 'makeUrlRelative', () => {
 	it( 'should return the relative url', () => {
-		const relative = makeUrlRelative( 'https://security.test/', 'https://security.test/wp-json/' );
+		const relative = makeUrlRelative(
+			'https://security.test/',
+			'https://security.test/wp-json/'
+		);
 
 		expect( relative ).toEqual( '/wp-json/' );
 	} );
 
 	it( 'should return the relative url when base has a path', () => {
-		const relative = makeUrlRelative( 'https://security.test/wp-json/', 'https://security.test/wp-json/wp/v2/' );
+		const relative = makeUrlRelative(
+			'https://security.test/wp-json/',
+			'https://security.test/wp-json/wp/v2/'
+		);
 		expect( relative ).toEqual( '/wp/v2/' );
 	} );
 } );

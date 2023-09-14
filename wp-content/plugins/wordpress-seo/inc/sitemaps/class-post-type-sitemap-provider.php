@@ -37,12 +37,12 @@ class WPSEO_Post_Type_Sitemap_Provider implements WPSEO_Sitemap_Provider {
 	 * Set up object properties for data reuse.
 	 */
 	public function __construct() {
-		add_filter( 'save_post', [ $this, 'save_post' ] );
+		add_action( 'save_post', [ $this, 'save_post' ] );
 
 		/**
 		 * Filter - Allows excluding images from the XML sitemap.
 		 *
-		 * @param bool unsigned True to include, false to exclude.
+		 * @param bool $include True to include, false to exclude.
 		 */
 		$this->include_images = apply_filters( 'wpseo_xml_sitemap_include_images', true );
 	}
@@ -78,7 +78,7 @@ class WPSEO_Post_Type_Sitemap_Provider implements WPSEO_Sitemap_Provider {
 	 *
 	 * @param string $type Type string to check for.
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
 	public function handles_type( $type ) {
 
@@ -103,6 +103,10 @@ class WPSEO_Post_Type_Sitemap_Provider implements WPSEO_Sitemap_Provider {
 		foreach ( $post_types as $post_type ) {
 
 			$total_count = $this->get_post_type_count( $post_type );
+
+			if ( $total_count === 0 ) {
+				continue;
+			}
 
 			$max_pages = 1;
 			if ( $total_count > $max_entries ) {
@@ -129,7 +133,7 @@ class WPSEO_Post_Type_Sitemap_Provider implements WPSEO_Sitemap_Provider {
 
 			for ( $page_counter = 0; $page_counter < $max_pages; $page_counter++ ) {
 
-				$current_page = ( $max_pages > 1 ) ? ( $page_counter + 1 ) : '';
+				$current_page = ( $page_counter === 0 ) ? '' : ( $page_counter + 1 );
 				$date         = false;
 
 				if ( empty( $current_page ) || $current_page === $max_pages ) {
@@ -159,9 +163,9 @@ class WPSEO_Post_Type_Sitemap_Provider implements WPSEO_Sitemap_Provider {
 	 * @param int    $max_entries  Entries per sitemap.
 	 * @param int    $current_page Current page of the sitemap.
 	 *
-	 * @throws OutOfBoundsException When an invalid page is requested.
-	 *
 	 * @return array
+	 *
+	 * @throws OutOfBoundsException When an invalid page is requested.
 	 */
 	public function get_sitemap_links( $type, $max_entries, $current_page ) {
 
@@ -414,7 +418,13 @@ class WPSEO_Post_Type_Sitemap_Provider implements WPSEO_Sitemap_Provider {
 			];
 		}
 
-		return $links;
+		/**
+		 * Filters the first post type links.
+		 *
+		 * @param array $links      The first post type links.
+		 * @param string $post_type The post type this archive is for.
+		 */
+		return apply_filters( 'wpseo_sitemap_post_type_first_links', $links, $post_type );
 	}
 
 	/**
@@ -546,13 +556,12 @@ class WPSEO_Post_Type_Sitemap_Provider implements WPSEO_Sitemap_Provider {
 
 		$post_ids = [];
 
-		foreach ( $posts as $post ) {
-			$post->post_type   = $post_type;
-			$post->filter      = 'sample';
-			$post->ID          = (int) $post->ID;
-			$post->post_parent = (int) $post->post_parent;
-			$post->post_author = (int) $post->post_author;
-			$post_ids[]        = $post->ID;
+		foreach ( $posts as $post_index => $post ) {
+			$post->post_type      = $post_type;
+			$sanitized_post       = sanitize_post( $post, 'raw' );
+			$posts[ $post_index ] = new WP_Post( $sanitized_post );
+
+			$post_ids[] = $sanitized_post->ID;
 		}
 
 		update_meta_cache( 'post', $post_ids );
@@ -654,49 +663,5 @@ class WPSEO_Post_Type_Sitemap_Provider implements WPSEO_Sitemap_Provider {
 		}
 
 		return $url;
-	}
-
-	/* ********************* DEPRECATED METHODS ********************* */
-
-	/**
-	 * Get Home URL.
-	 *
-	 * @deprecated 11.5
-	 * @codeCoverageIgnore
-	 *
-	 * @return string
-	 */
-	protected function get_home_url() {
-		_deprecated_function( __METHOD__, 'WPSEO 11.5', 'WPSEO_Utils::home_url' );
-
-		return YoastSEO()->helpers->url->home();
-	}
-
-	/**
-	 * Get front page ID.
-	 *
-	 * @deprecated 11.5
-	 * @codeCoverageIgnore
-	 *
-	 * @return int
-	 */
-	protected function get_page_on_front_id() {
-		_deprecated_function( __METHOD__, 'WPSEO 11.5' );
-
-		return (int) get_option( 'page_on_front' );
-	}
-
-	/**
-	 * Get page for posts ID.
-	 *
-	 * @deprecated 11.5
-	 * @codeCoverageIgnore
-	 *
-	 * @return int
-	 */
-	protected function get_page_for_posts_id() {
-		_deprecated_function( __METHOD__, 'WPSEO 11.5' );
-
-		return (int) get_option( 'page_for_posts' );
 	}
 }

@@ -17,7 +17,7 @@ class WPSEO_Slug_Change_Watcher implements WPSEO_WordPress_Integration {
 	 */
 	public function register_hooks() {
 		// If the current plugin is Yoast SEO Premium, stop registering.
-		if ( WPSEO_Utils::is_yoast_seo_premium() ) {
+		if ( YoastSEO()->helpers->product->is_premium() ) {
 			return;
 		}
 
@@ -52,7 +52,7 @@ class WPSEO_Slug_Change_Watcher implements WPSEO_WordPress_Integration {
 	/**
 	 * Shows an message when a post is about to get trashed.
 	 *
-	 * @param integer $post_id The current post ID.
+	 * @param int $post_id The current post ID.
 	 *
 	 * @return void
 	 */
@@ -71,7 +71,7 @@ class WPSEO_Slug_Change_Watcher implements WPSEO_WordPress_Integration {
 	/**
 	 * Shows an message when a post is about to get trashed.
 	 *
-	 * @param integer $post_id The current post ID.
+	 * @param int $post_id The current post ID.
 	 *
 	 * @return void
 	 */
@@ -90,19 +90,20 @@ class WPSEO_Slug_Change_Watcher implements WPSEO_WordPress_Integration {
 	/**
 	 * Shows a message when a term is about to get deleted.
 	 *
-	 * @param integer $term_id The term ID that will be deleted.
+	 * @param int $term_taxonomy_id The term taxonomy ID that will be deleted.
 	 *
 	 * @return void
 	 */
-	public function detect_term_delete( $term_id ) {
-		if ( ! $this->is_term_viewable( $term_id ) ) {
+	public function detect_term_delete( $term_taxonomy_id ) {
+		if ( ! $this->is_term_viewable( $term_taxonomy_id ) ) {
 			return;
 		}
+		$term = \get_term_by( 'term_taxonomy_id', (int) $term_taxonomy_id );
 
 		$first_sentence = sprintf(
 			/* translators: 1: term label */
 			__( 'You just deleted a %1$s.', 'wordpress-seo' ),
-			$this->get_taxonomy_label_for_term( $term_id )
+			$this->get_taxonomy_label_for_term( $term->term_id )
 		);
 
 		$message = $this->get_message( $first_sentence );
@@ -134,12 +135,12 @@ class WPSEO_Slug_Change_Watcher implements WPSEO_WordPress_Integration {
 	/**
 	 * Checks if the term is viewable.
 	 *
-	 * @param string $term_id The term ID to check.
+	 * @param int $term_taxonomy_id The term taxonomy ID to check.
 	 *
 	 * @return bool Whether the term is viewable or not.
 	 */
-	protected function is_term_viewable( $term_id ) {
-		$term = get_term( $term_id );
+	protected function is_term_viewable( $term_taxonomy_id ) {
+		$term = \get_term_by( 'term_taxonomy_id', (int) $term_taxonomy_id );
 
 		if ( ! $term || is_wp_error( $term ) ) {
 			return false;

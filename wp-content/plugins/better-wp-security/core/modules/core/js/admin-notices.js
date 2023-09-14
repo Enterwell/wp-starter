@@ -4,7 +4,7 @@
 
 		$( document ).on( 'click', '.itsec-notice .notice-dismiss', function( e ) {
 			const $this = $( this ),
-				$notice = $this.parent( '.itsec-notice' );
+				$notice = $this.closest( '.itsec-notice' );
 
 			$notice.fadeTo( 100, 0, function() {
 				$notice.slideUp( 100 );
@@ -15,7 +15,8 @@
 
 		$( document ).on( 'click', '.itsec-notice [data-action]', function( e ) {
 			const $this = $( this ),
-				$notice = $this.parent( '.itsec-notice' );
+				$notice = $this.closest( '.itsec-notice' ),
+				action = $this.data( 'action' );
 
 			$this.prop( 'disabled', true );
 

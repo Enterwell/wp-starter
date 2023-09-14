@@ -1,0 +1,50 @@
+{
+  "id": "feature-flags",
+  "type": "advanced",
+  "status": "always-active",
+  "order": 20,
+  "title": "Feature Flags",
+  "description": "Feature Flags in iThemes Security allow you to try experimental features before they are released.",
+  "settings": {
+    "type": "object",
+    "properties": {
+      "enabled": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": [],
+          "enumNames": []
+        },
+        "uniqueItems": true,
+        "default": [],
+        "title": "Enabled Features",
+        "description": "Select which experimental features you’d like to enable."
+      },
+      "rates": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "default": {},
+        "readonly": true
+      },
+      "opt_outs": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "uniqueItems": true,
+        "readonly": true,
+        "default": []
+      }
+    },
+    "uiSchema": {
+      "enabled": {
+        "ui:widget": "checkboxes",
+        "ui:enumDisabled": [],
+        "ui:enumDescriptions": []
+      }
+    }
+  }
+}

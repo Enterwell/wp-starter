@@ -1,0 +1,53 @@
+{
+  "id": "password-requirements",
+  "status": "always-active",
+  "type": "login",
+  "title": "Password Requirements",
+  "description": "Requiring strong and refusing compromised passwords is the first step in securing your login page.",
+  "help": "Brute force attacks rely on people reusing weak passwords. Password Requirements allow you to force selected users to create a strong password that hasn’t already been compromised.",
+  "settings": {
+    "type": "object",
+    "properties": {
+      "enabled_requirements": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "boolean"
+        },
+        "default": {},
+        "readonly": true
+      },
+      "requirement_settings": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": {
+          "type": "object"
+        },
+        "default": {},
+        "title": "Requirement Settings"
+      }
+    },
+    "uiSchema": {
+      "requirement_settings": {
+        "classnames": "itsec-password-requirements-requirement-settings",
+        "ui:expandable": false,
+        "ui:removable": false,
+        "additionalProperties": {
+          "ui:removable": false
+        }
+      }
+    }
+  },
+  "conditional-settings": {
+    "requirement_settings": {
+      "settings": {
+        "type": "object",
+        "properties": {
+          "requirement_settings": {
+            "type": "object",
+            "minProperties": 1
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,9 +1,4 @@
 <?php
-/**
- * Presenter class for the Twitter title.
- *
- * @package Yoast\YoastSEO\Presenters\Twitter
- */
 
 namespace Yoast\WP\SEO\Presenters\Twitter;
 
@@ -11,16 +6,16 @@ use Yoast\WP\SEO\Presentations\Indexable_Presentation;
 use Yoast\WP\SEO\Presenters\Abstract_Indexable_Tag_Presenter;
 
 /**
- * Class Title_Presenter
+ * Presenter class for the Twitter title.
  */
 class Title_Presenter extends Abstract_Indexable_Tag_Presenter {
 
 	/**
-	 * The tag format including placeholders.
+	 * The tag key name.
 	 *
 	 * @var string
 	 */
-	protected $tag_format = '<meta name="twitter:title" content="%s" />';
+	protected $key = 'twitter:title';
 
 	/**
 	 * Run the Twitter title through replace vars and the `wpseo_twitter_title` filter.

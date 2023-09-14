@@ -6,6 +6,7 @@
  */
 
 use Yoast\WP\SEO\Context\Meta_Tags_Context;
+use Yoast\WP\SEO\Helpers\Score_Icon_Helper;
 use Yoast\WP\SEO\Integrations\Admin\Admin_Columns_Cache_Integration;
 use Yoast\WP\SEO\Surfaces\Values\Meta;
 
@@ -43,6 +44,13 @@ class WPSEO_Meta_Columns {
 	private $admin_columns_cache;
 
 	/**
+	 * Holds the Score_Icon_Helper.
+	 *
+	 * @var Score_Icon_Helper
+	 */
+	private $score_icon_helper;
+
+	/**
 	 * When page analysis is enabled, just initialize the hooks.
 	 */
 	public function __construct() {
@@ -53,6 +61,7 @@ class WPSEO_Meta_Columns {
 		$this->analysis_seo         = new WPSEO_Metabox_Analysis_SEO();
 		$this->analysis_readability = new WPSEO_Metabox_Analysis_Readability();
 		$this->admin_columns_cache  = YoastSEO()->classes->get( Admin_Columns_Cache_Integration::class );
+		$this->score_icon_helper    = YoastSEO()->helpers->score_icon;
 	}
 
 	/**
@@ -70,6 +79,7 @@ class WPSEO_Meta_Columns {
 		}
 
 		add_filter( 'request', [ $this, 'column_sort_orderby' ] );
+		add_filter( 'default_hidden_columns', [ $this, 'column_hidden' ], 10, 1 );
 	}
 
 	/**
@@ -87,11 +97,11 @@ class WPSEO_Meta_Columns {
 		$added_columns = [];
 
 		if ( $this->analysis_seo->is_enabled() ) {
-			$added_columns['wpseo-score'] = '<span class="yoast-tooltip yoast-tooltip-n yoast-tooltip-alt" data-label="' . esc_attr__( 'SEO score', 'wordpress-seo' ) . '"><span class="yoast-column-seo-score yoast-column-header-has-tooltip"><span class="screen-reader-text">' . __( 'SEO score', 'wordpress-seo' ) . '</span></span></span>';
+			$added_columns['wpseo-score'] = '<span class="yoast-column-seo-score yoast-column-header-has-tooltip" data-tooltip-text="' . esc_attr__( 'SEO score', 'wordpress-seo' ) . '"><span class="screen-reader-text">' . __( 'SEO score', 'wordpress-seo' ) . '</span></span></span>';
 		}
 
 		if ( $this->analysis_readability->is_enabled() ) {
-			$added_columns['wpseo-score-readability'] = '<span class="yoast-tooltip yoast-tooltip-n yoast-tooltip-alt" data-label="' . esc_attr__( 'Readability score', 'wordpress-seo' ) . '"><span class="yoast-column-readability yoast-column-header-has-tooltip"><span class="screen-reader-text">' . __( 'Readability score', 'wordpress-seo' ) . '</span></span></span>';
+			$added_columns['wpseo-score-readability'] = '<span class="yoast-column-readability yoast-column-header-has-tooltip" data-tooltip-text="' . esc_attr__( 'Readability score', 'wordpress-seo' ) . '"><span class="screen-reader-text">' . __( 'Readability score', 'wordpress-seo' ) . '</span></span></span>';
 		}
 
 		$added_columns['wpseo-title']    = __( 'SEO Title', 'wordpress-seo' );
@@ -117,30 +127,41 @@ class WPSEO_Meta_Columns {
 
 		switch ( $column_name ) {
 			case 'wpseo-score':
-				// @phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Correctly escaped in render_score_indicator() method.
+				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Correctly escaped in render_score_indicator() method.
 				echo $this->parse_column_score( $post_id );
+
 				return;
 
 			case 'wpseo-score-readability':
-				// @phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Correctly escaped in render_score_indicator() method.
+				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Correctly escaped in render_score_indicator() method.
 				echo $this->parse_column_score_readability( $post_id );
+
 				return;
 
 			case 'wpseo-title':
-				echo esc_html( $this->get_meta( $post_id )->title );
+				$meta = $this->get_meta( $post_id );
+				if ( $meta ) {
+					echo esc_html( $meta->title );
+				}
+
 				return;
 
 			case 'wpseo-metadesc':
-				$metadesc_val = $this->get_meta( $post_id )->meta_description;
-
+				$metadesc_val = '';
+				$meta         = $this->get_meta( $post_id );
+				if ( $meta ) {
+					$metadesc_val = $meta->meta_description;
+				}
 				if ( $metadesc_val === '' ) {
 					echo '<span aria-hidden="true">&#8212;</span><span class="screen-reader-text">',
-						esc_html__( 'Meta description not set.', 'wordpress-seo' ),
-						'</span>';
+					esc_html__( 'Meta description not set.', 'wordpress-seo' ),
+					'</span>';
+
 					return;
 				}
 
 				echo esc_html( $metadesc_val );
+
 				return;
 
 			case 'wpseo-focuskw':
@@ -148,12 +169,14 @@ class WPSEO_Meta_Columns {
 
 				if ( $focuskw_val === '' ) {
 					echo '<span aria-hidden="true">&#8212;</span><span class="screen-reader-text">',
-						esc_html__( 'Focus keyphrase not set.', 'wordpress-seo' ),
-						'</span>';
+					esc_html__( 'Focus keyphrase not set.', 'wordpress-seo' ),
+					'</span>';
+
 					return;
 				}
 
 				echo esc_html( $focuskw_val );
+
 				return;
 		}
 	}
@@ -174,6 +197,11 @@ class WPSEO_Meta_Columns {
 
 		if ( $this->analysis_seo->is_enabled() ) {
 			$columns['wpseo-focuskw'] = 'wpseo-focuskw';
+			$columns['wpseo-score']   = 'wpseo-score';
+		}
+
+		if ( $this->analysis_readability->is_enabled() ) {
+			$columns['wpseo-score-readability'] = 'wpseo-score-readability';
 		}
 
 		return $columns;
@@ -182,30 +210,22 @@ class WPSEO_Meta_Columns {
 	/**
 	 * Hides the SEO title, meta description and focus keyword columns if the user hasn't chosen which columns to hide.
 	 *
-	 * @param array|false $result The hidden columns.
-	 * @param string      $option The option name used to set which columns should be hidden.
-	 * @param WP_User     $user   The User.
+	 * @param array $hidden The hidden columns.
 	 *
-	 * @return array      $result Array containing the columns to hide.
+	 * @return array Array containing the columns to hide.
 	 */
-	public function column_hidden( $result, $option, $user ) {
-		global $wpdb;
-
-		if ( $user->has_prop( $wpdb->get_blog_prefix() . $option ) || $user->has_prop( $option ) ) {
-			return $result;
+	public function column_hidden( $hidden ) {
+		if ( ! is_array( $hidden ) ) {
+			$hidden = [];
 		}
 
-		if ( ! is_array( $result ) ) {
-			$result = [];
-		}
-
-		array_push( $result, 'wpseo-title', 'wpseo-metadesc' );
+		array_push( $hidden, 'wpseo-title', 'wpseo-metadesc' );
 
 		if ( $this->analysis_seo->is_enabled() ) {
-			array_push( $result, 'wpseo-focuskw' );
+			$hidden[] = 'wpseo-focuskw';
 		}
 
-		return $result;
+		return $hidden;
 	}
 
 	/**
@@ -221,11 +241,13 @@ class WPSEO_Meta_Columns {
 		echo '<label class="screen-reader-text" for="wpseo-filter">' . esc_html__( 'Filter by SEO Score', 'wordpress-seo' ) . '</label>';
 		echo '<select name="seo_filter" id="wpseo-filter">';
 
+		// phpcs:ignore WordPress.Security.EscapeOutput -- Output is correctly escaped in the generate_option() method.
 		echo $this->generate_option( '', __( 'All SEO Scores', 'wordpress-seo' ) );
 
 		foreach ( $ranks as $rank ) {
 			$selected = selected( $this->get_current_seo_filter(), $rank->get_rank(), false );
 
+			// phpcs:ignore WordPress.Security.EscapeOutput -- Output is correctly escaped in the generate_option() method.
 			echo $this->generate_option( $rank->get_rank(), $rank->get_drop_down_label(), $selected );
 		}
 
@@ -247,11 +269,13 @@ class WPSEO_Meta_Columns {
 		echo '<label class="screen-reader-text" for="wpseo-readability-filter">' . esc_html__( 'Filter by Readability Score', 'wordpress-seo' ) . '</label>';
 		echo '<select name="readability_filter" id="wpseo-readability-filter">';
 
+		// phpcs:ignore WordPress.Security.EscapeOutput -- Output is correctly escaped in the generate_option() method.
 		echo $this->generate_option( '', __( 'All Readability Scores', 'wordpress-seo' ) );
 
 		foreach ( $ranks as $rank ) {
 			$selected = selected( $this->get_current_readability_filter(), $rank->get_rank(), false );
 
+			// phpcs:ignore WordPress.Security.EscapeOutput -- Output is correctly escaped in the generate_option() method.
 			echo $this->generate_option( $rank->get_rank(), $rank->get_drop_down_readability_labels(), $selected );
 		}
 
@@ -338,7 +362,7 @@ class WPSEO_Meta_Columns {
 	 *
 	 * @param mixed $filter The filter to check against.
 	 *
-	 * @return bool Whether or not the filter is considered valid.
+	 * @return bool Whether the filter is considered valid.
 	 */
 	protected function is_valid_filter( $filter ) {
 		return ! empty( $filter ) && is_string( $filter );
@@ -371,13 +395,37 @@ class WPSEO_Meta_Columns {
 		}
 
 		if ( $this->is_valid_filter( $current_keyword_filter ) ) {
-			$active_filters = array_merge(
-				$active_filters,
-				$this->get_keyword_filter( $current_keyword_filter )
+			/**
+			 * Adapt the meta query used to filter the post overview on keyphrase.
+			 *
+			 * @internal
+			 *
+			 * @api array $keyword_filter The current keyword filter.
+			 *
+			 * @param array $keyphrase The keyphrase used in the filter.
+			 */
+			$keyphrase_filter = \apply_filters(
+				'wpseo_change_keyphrase_filter_in_request',
+				$this->get_keyword_filter( $current_keyword_filter ),
+				$current_keyword_filter
 			);
+
+			if ( \is_array( $keyphrase_filter ) ) {
+				$active_filters = array_merge(
+					$active_filters,
+					[ $keyphrase_filter ]
+				);
+			}
 		}
 
-		return $active_filters;
+		/**
+		 * Adapt the active applicable filters on the posts overview.
+		 *
+		 * @internal
+		 *
+		 * @param array $active_filters The current applicable filters.
+		 */
+		return \apply_filters( 'wpseo_change_applicable_filters', $active_filters );
 	}
 
 	/**
@@ -390,8 +438,22 @@ class WPSEO_Meta_Columns {
 	public function column_sort_orderby( $vars ) {
 		$collected_filters = $this->collect_filters();
 
-		if ( isset( $vars['orderby'] ) ) {
-			$vars = array_merge( $vars, $this->filter_order_by( $vars['orderby'] ) );
+		$order_by_column = $vars['orderby'];
+		if ( isset( $order_by_column ) ) {
+			// Based on the selected column, create a meta query.
+			$order_by = $this->filter_order_by( $order_by_column );
+
+			/**
+			 * Adapt the order by part of the query on the posts overview.
+			 *
+			 * @internal
+			 *
+			 * @param array  $order_by        The current order by.
+			 * @param string $order_by_column The current order by column.
+			 */
+			$order_by = \apply_filters( 'wpseo_change_order_by', $order_by, $order_by_column );
+
+			$vars = array_merge( $vars, $order_by );
 		}
 
 		return $this->build_filter_query( $vars, $collected_filters );
@@ -435,37 +497,57 @@ class WPSEO_Meta_Columns {
 	/**
 	 * Retrieves the post type from the $_GET variable.
 	 *
-	 * @return string The current post type.
+	 * @return string|null The sanitized current post type or null when the variable is not set in $_GET.
 	 */
 	public function get_current_post_type() {
-		return filter_input( INPUT_GET, 'post_type' );
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reason: We are not processing form information.
+		if ( isset( $_GET['post_type'] ) && is_string( $_GET['post_type'] ) ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reason: We are not processing form information.
+			return sanitize_text_field( wp_unslash( $_GET['post_type'] ) );
+		}
+		return null;
 	}
 
 	/**
 	 * Retrieves the SEO filter from the $_GET variable.
 	 *
-	 * @return string The current post type.
+	 * @return string|null The sanitized seo filter or null when the variable is not set in $_GET.
 	 */
 	public function get_current_seo_filter() {
-		return filter_input( INPUT_GET, 'seo_filter' );
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reason: We are not processing form information.
+		if ( isset( $_GET['seo_filter'] ) && is_string( $_GET['seo_filter'] ) ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reason: We are not processing form information.
+			return sanitize_text_field( wp_unslash( $_GET['seo_filter'] ) );
+		}
+		return null;
 	}
 
 	/**
 	 * Retrieves the Readability filter from the $_GET variable.
 	 *
-	 * @return string The current post type.
+	 * @return string|null The sanitized readability filter or null when the variable is not set in $_GET.
 	 */
 	public function get_current_readability_filter() {
-		return filter_input( INPUT_GET, 'readability_filter' );
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reason: We are not processing form information.
+		if ( isset( $_GET['readability_filter'] ) && is_string( $_GET['readability_filter'] ) ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reason: We are not processing form information.
+			return sanitize_text_field( wp_unslash( $_GET['readability_filter'] ) );
+		}
+		return null;
 	}
 
 	/**
 	 * Retrieves the keyword filter from the $_GET variable.
 	 *
-	 * @return string The current post type.
+	 * @return string|null The sanitized seo keyword filter or null when the variable is not set in $_GET.
 	 */
 	public function get_current_keyword_filter() {
-		return filter_input( INPUT_GET, 'seo_kw_filter' );
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reason: We are not processing form information.
+		if ( isset( $_GET['seo_kw_filter'] ) && is_string( $_GET['seo_kw_filter'] ) ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reason: We are not processing form information.
+			return sanitize_text_field( wp_unslash( $_GET['seo_kw_filter'] ) );
+		}
+		return null;
 	}
 
 	/**
@@ -593,7 +675,7 @@ class WPSEO_Meta_Columns {
 	/**
 	 * Determines whether the given post ID uses the default indexing settings.
 	 *
-	 * @param integer $post_id The post ID to check.
+	 * @param int $post_id The post ID to check.
 	 *
 	 * @return bool Whether or not the default indexing is being used for the post.
 	 */
@@ -612,14 +694,30 @@ class WPSEO_Meta_Columns {
 		switch ( $order_by ) {
 			case 'wpseo-metadesc':
 				return [
+					// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Reason: Only used when user requests sorting.
 					'meta_key' => WPSEO_Meta::$meta_prefix . 'metadesc',
 					'orderby'  => 'meta_value',
 				];
 
 			case 'wpseo-focuskw':
 				return [
+					// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Reason: Only used when user requests sorting.
 					'meta_key' => WPSEO_Meta::$meta_prefix . 'focuskw',
 					'orderby'  => 'meta_value',
+				];
+
+			case 'wpseo-score':
+				return [
+					// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Reason: Only used when user requests sorting.
+					'meta_key' => WPSEO_Meta::$meta_prefix . 'linkdex',
+					'orderby'  => 'meta_value_num',
+				];
+
+			case 'wpseo-score-readability':
+				return [
+					// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Reason: Only used when user requests sorting.
+					'meta_key' => WPSEO_Meta::$meta_prefix . 'content_score',
+					'orderby'  => 'meta_value_num',
 				];
 		}
 
@@ -629,32 +727,16 @@ class WPSEO_Meta_Columns {
 	/**
 	 * Parses the score column.
 	 *
-	 * @param integer $post_id The ID of the post for which to show the score.
+	 * @param int $post_id The ID of the post for which to show the score.
 	 *
 	 * @return string The HTML for the SEO score indicator.
 	 */
 	private function parse_column_score( $post_id ) {
-		if ( ! $this->is_indexable( $post_id ) ) {
-			$rank  = new WPSEO_Rank( WPSEO_Rank::NO_INDEX );
-			$title = __( 'Post is set to noindex.', 'wordpress-seo' );
+		$meta = $this->get_meta( $post_id );
 
-			WPSEO_Meta::set_value( 'linkdex', 0, $post_id );
-
-			return $this->render_score_indicator( $rank, $title );
+		if ( $meta ) {
+			return $this->score_icon_helper->for_seo( $meta->indexable, '', __( 'Post is set to noindex.', 'wordpress-seo' ) );
 		}
-
-		if ( WPSEO_Meta::get_value( 'focuskw', $post_id ) === '' ) {
-			$rank  = new WPSEO_Rank( WPSEO_Rank::NO_FOCUS );
-			$title = __( 'Focus keyphrase not set.', 'wordpress-seo' );
-
-			return $this->render_score_indicator( $rank, $title );
-		}
-
-		$score = (int) WPSEO_Meta::get_value( 'linkdex', $post_id );
-		$rank  = WPSEO_Rank::from_numeric_score( $score );
-		$title = $rank->get_label();
-
-		return $this->render_score_indicator( $rank, $title );
 	}
 
 	/**
@@ -665,10 +747,10 @@ class WPSEO_Meta_Columns {
 	 * @return string The HTML for the readability score indicator.
 	 */
 	private function parse_column_score_readability( $post_id ) {
-		$score = (int) WPSEO_Meta::get_value( 'content_score', $post_id );
-		$rank  = WPSEO_Rank::from_numeric_score( $score );
-
-		return $this->render_score_indicator( $rank );
+		$meta = $this->get_meta( $post_id );
+		if ( $meta ) {
+			return $this->score_icon_helper->for_readability( $meta->indexable->readability_score );
+		}
 	}
 
 	/**
@@ -689,15 +771,6 @@ class WPSEO_Meta_Columns {
 			add_filter( 'manage_' . $post_type . '_posts_columns', [ $this, 'column_heading' ], 10, 1 );
 			add_action( 'manage_' . $post_type . '_posts_custom_column', [ $this, 'column_content' ], 10, 2 );
 			add_action( 'manage_edit-' . $post_type . '_sortable_columns', [ $this, 'column_sort' ], 10, 2 );
-
-			/*
-			 * Use the `get_user_option_{$option}` filter to change the output of the get_user_option
-			 * function for the `manage{$screen}columnshidden` option, which is based on the current
-			 * admin screen. The admin screen we want to target is the `edit-{$post_type}` screen.
-			 */
-			$filter = sprintf( 'get_user_option_%s', sprintf( 'manage%scolumnshidden', 'edit-' . $post_type ) );
-
-			add_filter( $filter, [ $this, 'column_hidden' ], 10, 3 );
 		}
 
 		unset( $post_type );
@@ -709,34 +782,18 @@ class WPSEO_Meta_Columns {
 	 *
 	 * @since 7.0
 	 *
-	 * @param string $post_type Optional. The post type to test, defaults to the current post post_type.
+	 * @param string|null $post_type Optional. The post type to test, defaults to the current post post_type.
 	 *
 	 * @return bool Whether or not the meta box (and associated columns etc) should be hidden.
 	 */
 	private function display_metabox( $post_type = null ) {
-		$current_post_type = sanitize_text_field( $this->get_current_post_type() );
+		$current_post_type = $this->get_current_post_type();
 
 		if ( ! isset( $post_type ) && ! empty( $current_post_type ) ) {
 			$post_type = $current_post_type;
 		}
 
 		return WPSEO_Utils::is_metabox_active( $post_type, 'post_type' );
-	}
-
-	/**
-	 * Renders the score indicator.
-	 *
-	 * @param WPSEO_Rank $rank  The rank this indicator should have.
-	 * @param string     $title Optional. The title for this rank, defaults to the title of the rank.
-	 *
-	 * @return string The HTML for a score indicator.
-	 */
-	private function render_score_indicator( $rank, $title = '' ) {
-		if ( empty( $title ) ) {
-			$title = $rank->get_label();
-		}
-
-		return '<div aria-hidden="true" title="' . esc_attr( $title ) . '" class="' . esc_attr( 'wpseo-score-icon ' . $rank->get_css_class() ) . '"></div><span class="screen-reader-text wpseo-score-text">' . esc_html( $title ) . '</span>';
 	}
 
 	/**

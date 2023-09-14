@@ -1,4 +1,6 @@
 <?php
+namespace W3TCL\Minify;
+
 /**
  * Class Minify_ImportProcessor
  * @package Minify
@@ -114,7 +116,11 @@ class Minify_ImportProcessor {
         if ('/' === $url[0]) {
             // protocol-relative or root path
             $url = ltrim($url, '/');
-            $file = realpath($_SERVER['DOCUMENT_ROOT']) . DIRECTORY_SEPARATOR
+
+            // W3TC FIX: Override $_SERVER['DOCUMENT_ROOT'] if enabled in settings.
+            $docroot = \W3TC\Util_Environment::document_root();
+
+            $file = realpath($docroot) . DIRECTORY_SEPARATOR
                 . strtr($url, '/', DIRECTORY_SEPARATOR);
         } else {
             // relative to current path
@@ -188,7 +194,7 @@ class Minify_ImportProcessor {
     function truepath($path)
     {
         // whether $path is unix or not
-        $unipath = strlen($path) == 0 || $path{0} != '/';
+        $unipath = strlen($path) == 0 || substr($path, 0, 1) != '/';
         // attempts to detect if path is relative in which case, add cwd
         if (strpos($path, ':') === false && $unipath)
             $path = $this->_currentDir . DIRECTORY_SEPARATOR . $path;

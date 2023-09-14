@@ -37,5 +37,12 @@ interface ITSEC_Admin_Notice_Action {
 	 * @return string URI or empty string
 	 */
 	public function get_uri();
+
+	/**
+	 * Gets the JS route that should be navigated to when triggering this action.
+	 *
+	 * @return string
+	 */
+	public function get_route(): string;
 }
 

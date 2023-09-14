@@ -2,24 +2,25 @@
 
 namespace EwStarter;
 
-use Twig_Extension;
-use Twig_SimpleFunction;
+use Twig\Extension\AbstractExtension;
+use Twig\TwigFunction;
 use Exception;
 
 /**
  * Class Ew_Twig_Extension_Image
  * @package EwStarter
  */
-class Ew_Twig_Extension_Image extends Twig_Extension {
+class Ew_Twig_Extension_Image extends AbstractExtension {
 
 	/**
 	 * Get functions.
 	 *
-	 * @return array|Twig_SimpleFunction[]
+	 * @return array
 	 */
-	public function getFunctions() {
+	public function getFunctions(): array
+	{
 		return [
-			new Twig_SimpleFunction( 'image', [ $this, 'get_images_path' ] ),
+			new TwigFunction( 'image', [ $this, 'get_images_path' ] ),
 		];
 	}
 
@@ -31,21 +32,19 @@ class Ew_Twig_Extension_Image extends Twig_Extension {
 	 * @return string
 	 * @throws Exception
 	 */
-	public function get_images_path($path) {
+	public function get_images_path($path): string
+	{
 
 		// Image path
-		$image_path = THEME_DIR.'/assets/images/'.$path;
+		$image_path = THEME_DIR . '/assets/images/' . $path;
 
 		// If file not exists
 		if ( ! file_exists( $image_path ) ) {
 			throw new Exception( 'Image does not exit!' );
 		}
 
-		// Image url
-		$image_url = THEME_URL.'/assets/images/'.$path;
-
 		// Returns image url
-		return $image_url;
+		return THEME_URL . '/assets/images/' . $path;
 	}
 
 }

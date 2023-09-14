@@ -1,25 +1,20 @@
 <?php
-/**
- * Presenter class for the meta description.
- *
- * @package Yoast\YoastSEO\Presenters
- */
 
 namespace Yoast\WP\SEO\Presenters;
 
 use Yoast\WP\SEO\Presentations\Indexable_Presentation;
 
 /**
- * Class Abstract_Meta_Description_Presenter
+ * Presenter class for the meta description.
  */
 class Meta_Description_Presenter extends Abstract_Indexable_Tag_Presenter {
 
 	/**
-	 * The tag format including placeholders.
+	 * The tag key name.
 	 *
 	 * @var string
 	 */
-	protected $tag_format = '<meta name="description" content="%s" />';
+	protected $key = 'description';
 
 	/**
 	 * Returns the meta description for a post.
@@ -36,10 +31,10 @@ class Meta_Description_Presenter extends Abstract_Indexable_Tag_Presenter {
 		if ( \current_user_can( 'wpseo_manage_options' ) ) {
 			return '<!-- ' .
 				\sprintf(
-					/* Translators: %1$s resolves to the SEO menu item, %2$s resolves to the Search Appearance submenu item. */
+					/* translators: %1$s resolves to Yoast SEO, %2$s resolves to the Settings submenu item. */
 					\esc_html__( 'Admin only notice: this page does not show a meta description because it does not have one, either write it for this page specifically or go into the [%1$s - %2$s] menu and set up a template.', 'wordpress-seo' ),
-					\esc_html__( 'SEO', 'wordpress-seo' ),
-					\esc_html__( 'Search Appearance', 'wordpress-seo' )
+					\esc_html__( 'Yoast SEO', 'wordpress-seo' ),
+					\esc_html__( 'Settings', 'wordpress-seo' )
 				) .
 				' -->';
 		}
@@ -50,10 +45,11 @@ class Meta_Description_Presenter extends Abstract_Indexable_Tag_Presenter {
 	/**
 	 * Run the meta description content through replace vars, the `wpseo_metadesc` filter and sanitization.
 	 *
-	 * @return string $meta_description The filtered meta description.
+	 * @return string The filtered meta description.
 	 */
 	public function get() {
 		$meta_description = $this->replace_vars( $this->presentation->meta_description );
+
 		/**
 		 * Filter: 'wpseo_metadesc' - Allow changing the Yoast SEO meta description sentence.
 		 *

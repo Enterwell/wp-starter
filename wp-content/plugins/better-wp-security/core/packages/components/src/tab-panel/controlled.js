@@ -54,13 +54,18 @@ class ControlledTabPanel extends Component {
 			orientation = 'horizontal',
 			tabs,
 			selected,
+			isStyled,
 		} = this.props;
 
 		const selectedTab = find( tabs, { name: selected } ) || tabs[ 0 ];
 		const selectedId = instanceId + '-' + selectedTab.name;
 
 		return (
-			<div className={ className }>
+			<div
+				className={ classnames( 'itsec-tab-panel', className, {
+					'itsec-tab-panel--styled': isStyled,
+				} ) }
+			>
 				<NavigableMenu
 					role="tablist"
 					orientation={ orientation }
@@ -69,9 +74,19 @@ class ControlledTabPanel extends Component {
 					className="components-tab-panel__tabs"
 				>
 					{ tabs.map( ( tab ) => (
-						<TabButton className={ classnames( tab.className, { [ activeClass ]: tab.name === selectedTab.name } ) }
+						<TabButton
+							className={ classnames(
+								'itsec-tab-panel__tab',
+								tab.className,
+								{
+									[ activeClass ]:
+										tab.name === selectedTab.name,
+								}
+							) }
 							tabId={ instanceId + '-' + tab.name }
-							aria-controls={ instanceId + '-' + tab.name + '-view' }
+							aria-controls={
+								instanceId + '-' + tab.name + '-view'
+							}
 							selected={ tab.name === selectedTab.name }
 							key={ tab.name }
 							onClick={ partial( this.handleClick, tab.name ) }
@@ -81,7 +96,8 @@ class ControlledTabPanel extends Component {
 					) ) }
 				</NavigableMenu>
 				{ selectedTab && (
-					<div aria-labelledby={ selectedId }
+					<div
+						aria-labelledby={ selectedId }
 						role="tabpanel"
 						id={ selectedId + '-view' }
 						className="components-tab-panel__tab-content"

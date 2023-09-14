@@ -1,44 +1,90 @@
 /**
+ * External dependencies
+ */
+import classnames from 'classnames';
+
+/**
  * WordPress dependencies
  */
-import { withInstanceId } from '@wordpress/compose';
-import { BaseControl, Dashicon } from '@wordpress/components';
+import { useInstanceId } from '@wordpress/compose';
+import { Icon, check, reset } from '@wordpress/icons';
+import { BaseControl, VisuallyHidden } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
 import './style.scss';
 
-function CheckboxControl( { label, className, heading, checked, help, instanceId, onChange, indeterminate, ...props } ) {
-	const id = `inspector-checkbox-control-${ instanceId }`;
+export default function CheckboxControl( {
+	id,
+	label,
+	hideLabelFromVision,
+	className,
+	heading,
+	checked,
+	help,
+	onChange,
+	indeterminate,
+	...props
+} ) {
+	const instanceId = useInstanceId( CheckboxControl );
+	id = id || `itsec-inspector-checkbox-control-${ instanceId }`;
 	const onChangeValue = ( event ) => onChange( event.target.checked );
 
 	return (
-		<BaseControl label={ heading } id={ id } help={ help } className={ className }>
+		<BaseControl
+			label={ heading }
+			id={ id }
+			help={ help }
+			className={ className }
+		>
 			<span className="components-checkbox-control__input-container">
 				<input
 					id={ id }
-					className="components-checkbox-control__input"
+					className={ classnames(
+						'components-checkbox-control__input',
+						{
+							'components-checkbox-control__input--indeterminate': indeterminate,
+						}
+					) }
 					type="checkbox"
 					value="1"
 					onChange={ onChangeValue }
 					checked={ checked }
 					aria-describedby={ !! help ? id + '__help' : undefined }
-					ref={ ( ref ) => {
-						if ( ref ) {
-							ref.indeterminate = indeterminate;
-						}
-					} }
 					{ ...props }
+					ref={ ( ref ) =>
+						ref && ( ref.indeterminate = indeterminate )
+					}
 				/>
-				{ checked ? <Dashicon icon="yes" className="components-checkbox-control__checked" role="presentation" /> : null }
-				{ indeterminate ? <Dashicon icon="minus" className="components-checkbox-control__checked components-checkbox-control__checked--indeterminate" role="presentation" /> : null }
+				{ checked && (
+					<Icon
+						icon={ check }
+						className="components-checkbox-control__checked"
+						role="presentation"
+					/>
+				) }
+				{ indeterminate && (
+					<Icon
+						icon={ reset }
+						className="components-checkbox-control__checked"
+						role="presentation"
+					/>
+				) }
 			</span>
-			<label className="components-checkbox-control__label" htmlFor={ id }>
-				{ label }
-			</label>
+			{ label &&
+				( hideLabelFromVision ? (
+					<VisuallyHidden as="label" htmlFor={ id }>
+						{ label }
+					</VisuallyHidden>
+				) : (
+					<label
+						className="components-checkbox-control__label"
+						htmlFor={ id }
+					>
+						{ label }
+					</label>
+				) ) }
 		</BaseControl>
 	);
 }
-
-export default withInstanceId( CheckboxControl );

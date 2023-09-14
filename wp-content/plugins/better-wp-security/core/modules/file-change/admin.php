@@ -3,7 +3,7 @@
 final class ITSEC_File_Change_Admin {
 
 	public static function enqueue_scanner() {
-		$logs_page_url = ITSEC_Core::get_logs_page_url( 'file_change' );
+		$logs_page_url = ITSEC_Core::get_logs_page_url( array( 'module' => 'file_change' ) );
 
 		ITSEC_Lib::enqueue_util();
 		wp_enqueue_script( 'itsec-file-change-scanner', plugins_url( 'js/file-scanner.js', __FILE__ ), array( 'jquery', 'heartbeat', 'itsec-util' ), ITSEC_Core::get_plugin_build(), true );

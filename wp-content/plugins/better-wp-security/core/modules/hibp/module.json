@@ -1,0 +1,12 @@
+{
+  "id": "hibp",
+  "status": "always-active",
+  "type": "recommended",
+  "title": "Refuse Compromised Passwords",
+  "description": "Require users to use passwords which do not appear in any password breaches tracked by Have I Been Pwned. Plaintext passwords are never sent to Have I Been Pwned. Instead, 5 characters of the hashed password are sent over an encrypted connection to their API. ",
+  "password-requirements": {
+    "hibp": {
+      "user-group": true
+    }
+  }
+}

@@ -22,13 +22,16 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ *
+ * Modified using Strauss.
+ * @see https://github.com/BrianHenryIE/strauss
  */
 
-namespace Pimple\Psr11;
+namespace iThemesSecurity\Strauss\Pimple\Psr11;
 
-use Pimple\Container as PimpleContainer;
-use Pimple\Exception\UnknownIdentifierException;
-use Psr\Container\ContainerInterface;
+use iThemesSecurity\Strauss\Pimple\Container as PimpleContainer;
+use iThemesSecurity\Strauss\Pimple\Exception\UnknownIdentifierException;
+use iThemesSecurity\Strauss\Psr\Container\ContainerInterface;
 
 /**
  * Pimple PSR-11 service locator.
@@ -38,7 +41,7 @@ use Psr\Container\ContainerInterface;
 class ServiceLocator implements ContainerInterface
 {
     private $container;
-    private $aliases = array();
+    private $aliases = [];
 
     /**
      * @param PimpleContainer $container The Container instance used to locate services
@@ -56,7 +59,7 @@ class ServiceLocator implements ContainerInterface
     /**
      * {@inheritdoc}
      */
-    public function get($id)
+    public function get(string $id)
     {
         if (!isset($this->aliases[$id])) {
             throw new UnknownIdentifierException($id);
@@ -68,7 +71,7 @@ class ServiceLocator implements ContainerInterface
     /**
      * {@inheritdoc}
      */
-    public function has($id)
+    public function has(string $id): bool
     {
         return isset($this->aliases[$id]) && isset($this->container[$this->aliases[$id]]);
     }

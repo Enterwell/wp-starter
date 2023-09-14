@@ -1,0 +1,56 @@
+.itsec-page-header--align-center {
+    text-align: center;
+}
+
+.itsec-page-header--align-right {
+    text-align: right;
+}
+
+.itsec-page-header {
+    display: grid;
+    grid-template-areas: "breadcrumbs breadcrumbs" "text actions";
+    grid-template-columns: auto auto;
+    gap: .5rem 1rem;
+    align-items: center;
+}
+
+.itsec-page-header .itsec-breadcrumbs {
+    grid-area: breadcrumbs;
+}
+
+.itsec-page-header__text {
+    grid-row-start: text;
+    grid-row-end: text;
+    grid-column-start: text;
+    grid-column-end: actions-end;
+}
+
+.itsec-page-header--has-actions .itsec-page-header__text {
+    grid-area: text;
+}
+
+.itsec-page-header__actions {
+    grid-area: actions;
+    justify-self: end;
+}
+
+.itsec-page-header--has-help h1 {
+    display: flex;
+    align-items: center;
+
+    .components-button {
+        margin: 0 0 0 .5rem;
+        padding: 0;
+        min-width: auto;
+        color: $main-blue;
+
+        .dashicon {
+            margin: 0;
+            padding: 0;
+        }
+
+        &:hover {
+            color: $dark-text;
+        }
+    }
+}

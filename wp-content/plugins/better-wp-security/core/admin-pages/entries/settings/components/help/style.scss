@@ -1,0 +1,23 @@
+.itsec-help-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.itsec-help-header__title {
+    color: $main-blue;
+    display: block;
+    font-size: 1.6rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.itsec-help-header__back-link.components-button {
+    color: $main-blue;
+    height: auto;
+    margin: 0;
+
+    &:hover {
+        color: $dark-text;
+    }
+}

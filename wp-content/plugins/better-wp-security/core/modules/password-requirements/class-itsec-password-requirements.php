@@ -28,6 +28,7 @@ class ITSEC_Password_Requirements {
 		add_action( 'wp_login', array( $this, 'flag_check' ), - 2000, 2 );
 
 		add_action( 'itsec_login_interstitial_init', array( $this, 'register_interstitial' ) );
+		add_action( 'itsec_register_user_group_settings', [ $this, 'register_group_settings' ] );
 	}
 
 	/**
@@ -90,11 +91,11 @@ class ITSEC_Password_Requirements {
 
 		foreach ( ITSEC_Lib_Password_Requirements::get_registered() as $code => $requirement ) {
 
-			if ( ! $requirement['validate'] || ! ITSEC_Lib_Password_Requirements::is_requirement_enabled( $code ) ) {
+			if ( ! ITSEC_Lib_Password_Requirements::is_requirement_enabled( $code ) ) {
 				continue;
 			}
 
-			$evaluation = get_user_meta( $user->ID, $requirement['meta'], true );
+			$evaluation = get_user_meta( $user->ID, $requirement->get_meta_key(), true );
 
 			if ( '' === $evaluation ) {
 				continue;
@@ -108,13 +109,13 @@ class ITSEC_Password_Requirements {
 				'target'    => User_Groups\Match_Target::for_user( get_userdata( $user->ID ), $user->role )
 			);
 
-			$validated = call_user_func( $requirement['validate'], $evaluation, $user, $settings[ $code ], $args );
+			$validated = $requirement->validate( $evaluation, $user, $settings[ $code ], $args );
 
 			if ( true === $validated ) {
 				continue;
 			}
 
-			$message = $validated ? $validated : esc_html__( "The provided password does not meet this site's requirements.", 'better-wp-security' );
+			$message = $validated ?: esc_html__( "The provided password does not meet this site's requirements.", 'better-wp-security' );
 			$errors->add( 'pass', $message );
 		}
 	}
@@ -202,6 +203,10 @@ class ITSEC_Password_Requirements {
 	protected function handle_password_updated( $user ) {
 		delete_user_meta( $user->ID, 'itsec_password_change_required' );
 		update_user_meta( $user->ID, 'itsec_last_password_change', ITSEC_Core::get_current_time_gmt() );
+
+		foreach ( ITSEC_Lib_Password_Requirements::get_registered() as $requirement ) {
+			delete_user_meta( $user->ID, $requirement->get_meta_key() );
+		}
 	}
 
 	/**
@@ -221,33 +226,28 @@ class ITSEC_Password_Requirements {
 		$settings = ITSEC_Modules::get_setting( 'password-requirements', 'requirement_settings' );
 
 		foreach ( ITSEC_Lib_Password_Requirements::get_registered() as $code => $requirement ) {
-
-			if ( ! $requirement['evaluate'] ) {
+			if ( ! $requirement->should_evaluate_if_not_enabled() && ! ITSEC_Lib_Password_Requirements::is_requirement_enabled( $code ) ) {
 				continue;
 			}
 
-			if ( ! $requirement['evaluate_if_not_enabled'] && ! ITSEC_Lib_Password_Requirements::is_requirement_enabled( $code ) ) {
+			if ( isset( $config['evaluation_times'][ $code ] ) && $config['evaluation_times'][ $code ] > $last_updated ) {
 				continue;
 			}
 
-			if ( isset( $config['evaluation_times'][ $code ] ) && $config['evaluation_times'][ $code ] >= $last_updated ) {
-				continue;
-			}
-
-			$evaluation = call_user_func( $requirement['evaluate'], $password, $user );
+			$evaluation = $requirement->evaluate( $password, $user );
 
 			if ( is_wp_error( $evaluation ) ) {
 				continue;
 			}
 
 			$config['evaluation_times'][ $code ] = ITSEC_Core::get_current_time_gmt();
-			update_user_meta( $user->ID, $requirement['meta'], $evaluation );
+			update_user_meta( $user->ID, $requirement->get_meta_key(), $evaluation );
 
 			if ( ! ITSEC_Lib_Password_Requirements::is_requirement_enabled( $code ) ) {
 				continue;
 			}
 
-			$validated = call_user_func( $requirement['validate'], $evaluation, $user, $settings[ $code ], array(
+			$validated = $requirement->validate( $evaluation, $user, $settings[ $code ], array(
 				'target' => User_Groups\Match_Target::for_user( $user ),
 			) );
 
@@ -275,24 +275,24 @@ class ITSEC_Password_Requirements {
 
 		foreach ( ITSEC_Lib_Password_Requirements::get_registered() as $code => $requirement ) {
 
-			if ( ! $requirement['evaluate'] || ! ITSEC_Lib_Password_Requirements::is_requirement_enabled( $code ) ) {
+			if ( ! ITSEC_Lib_Password_Requirements::is_requirement_enabled( $code ) ) {
 				continue;
 			}
 
-			$evaluation = call_user_func( $requirement['evaluate'], $new_password, $user );
+			$evaluation = $requirement->evaluate( $new_password, $user );
 
 			if ( is_wp_error( $evaluation ) ) {
 				continue;
 			}
 
-			$validated = call_user_func( $requirement['validate'], $evaluation, $user, $settings[ $code ], $args );
+			$validated = $requirement->validate( $evaluation, $user, $settings[ $code ], $args );
 
 			if ( true === $validated ) {
 				continue;
 			}
 
 			// The default error message is a safeguard that should never occur.
-			$message = $validated ? $validated : esc_html__( "The provided password does not meet this site's requirements.", 'better-wp-security' );
+			$message = $validated ?: esc_html__( "The provided password does not meet this site's requirements.", 'better-wp-security' );
 
 			switch ( $args['context'] ) {
 				case 'admin-user-create':
@@ -336,25 +336,21 @@ class ITSEC_Password_Requirements {
 
 			$settings = ITSEC_Lib_Password_Requirements::get_requirement_settings( $code );
 
-			if ( $requirement['flag_check'] && call_user_func( $requirement['flag_check'], $user, $settings ) ) {
+			if ( $requirement->is_password_change_required( $user, $settings ) ) {
 				ITSEC_Lib_Password_Requirements::flag_password_change_required( $user, $code );
 
 				continue;
 			}
 
-			if ( $requirement['validate'] ) {
-				$evaluation = get_user_meta( $user->ID, $requirement['meta'], true );
+			$evaluation = get_user_meta( $user->ID, $requirement->get_meta_key(), true );
 
-				if ( '' !== $evaluation ) {
-					$validated = call_user_func( $requirement['validate'], $evaluation, $user, $settings, array(
-						'target' => User_Groups\Match_Target::for_user( $user ),
-					) );
+			if ( '' !== $evaluation ) {
+				$validated = $requirement->validate( $evaluation, $user, $settings, array(
+					'target' => User_Groups\Match_Target::for_user( $user ),
+				) );
 
-					if ( true !== $validated ) {
-						ITSEC_Lib_Password_Requirements::flag_password_change_required( $user, $code );
-
-						continue;
-					}
+				if ( true !== $validated ) {
+					ITSEC_Lib_Password_Requirements::flag_password_change_required( $user, $code );
 				}
 			}
 		}
@@ -392,6 +388,31 @@ class ITSEC_Password_Requirements {
 	}
 
 	/**
+	 * Registers the user group settings for each enabled Password Requirement.
+	 *
+	 * @param User_Groups\Settings_Registry $registry
+	 */
+	public function register_group_settings( User_Groups\Settings_Registry $registry ) {
+		foreach ( ITSEC_Lib_Password_Requirements::get_registered() as $code => $requirement ) {
+			if ( ! $requirement->has_user_group() ) {
+				continue;
+			}
+
+			$registry->register( new User_Groups\Settings_Registration(
+				'password-requirements',
+				"requirement_settings.{$code}.group",
+				User_Groups\Settings_Registration::T_MULTIPLE,
+				static function () use ( $requirement ) {
+					return [
+						'title'       => $requirement->get_title(),
+						'description' => $requirement->get_description(),
+					];
+				}
+			) );
+		}
+	}
+
+	/**
 	 * Render the interstitial.
 	 *
 	 * @param WP_User $user
@@ -416,13 +437,13 @@ class ITSEC_Password_Requirements {
 			<div class="pw-weak">
 				<label>
 					<input type="checkbox" name="pw_weak" class="pw-checkbox"/>
-					<?php _e( 'Confirm use of weak password' ); ?>
+					<?php _e( 'Confirm use of weak password', 'better-wp-security' ); ?>
 				</label>
 			</div>
 		</div>
 
 		<p class="user-pass2-wrap">
-			<label for="pass2"><?php _e( 'Confirm new password' ) ?></label><br/>
+			<label for="pass2"><?php _e( 'Confirm new password', 'better-wp-security' ) ?></label><br/>
 			<input type="password" name="pass2" id="pass2" class="input" size="20" value="" autocomplete="off"/>
 		</p>
 
@@ -469,6 +490,8 @@ class ITSEC_Password_Requirements {
 		if ( is_wp_error( $error ) ) {
 			return $error;
 		}
+
+		$this->handle_plain_text_password_available( $user, $data['pass1'] );
 
 		return null;
 	}

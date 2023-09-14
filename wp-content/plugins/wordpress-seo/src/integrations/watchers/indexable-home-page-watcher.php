@@ -1,9 +1,4 @@
 <?php
-/**
- * Home page watcher to save the meta data to an Indexable.
- *
- * @package Yoast\YoastSEO\Watchers
- */
 
 namespace Yoast\WP\SEO\Integrations\Watchers;
 
@@ -13,6 +8,8 @@ use Yoast\WP\SEO\Integrations\Integration_Interface;
 use Yoast\WP\SEO\Repositories\Indexable_Repository;
 
 /**
+ * Home page watcher to save the meta data to an Indexable.
+ *
  * Watches the home page options to save the meta information when updated.
  */
 class Indexable_Home_Page_Watcher implements Integration_Interface {
@@ -32,14 +29,16 @@ class Indexable_Home_Page_Watcher implements Integration_Interface {
 	protected $builder;
 
 	/**
-	 * @inheritDoc
+	 * Returns the conditionals based on which this loadable should be active.
+	 *
+	 * @return array
 	 */
 	public static function get_conditionals() {
 		return [ Migrations_Conditional::class ];
 	}
 
 	/**
-	 * Indexable_Author_Watcher constructor.
+	 * Indexable_Home_Page_Watcher constructor.
 	 *
 	 * @param Indexable_Repository $repository The repository to use.
 	 * @param Indexable_Builder    $builder    The post builder to use.
@@ -50,14 +49,15 @@ class Indexable_Home_Page_Watcher implements Integration_Interface {
 	}
 
 	/**
-	 * @inheritDoc
+	 * Initializes the integration.
+	 *
+	 * This is the place to register hooks and filters.
 	 */
 	public function register_hooks() {
 		\add_action( 'update_option_wpseo_titles', [ $this, 'check_option' ], 15, 3 );
 		\add_action( 'update_option_wpseo_social', [ $this, 'check_option' ], 15, 3 );
 		\add_action( 'update_option_blog_public', [ $this, 'build_indexable' ] );
 		\add_action( 'update_option_blogdescription', [ $this, 'build_indexable' ] );
-		\add_action( 'update_option_home', [ $this, 'build_indexable' ] );
 	}
 
 	/**
@@ -71,8 +71,14 @@ class Indexable_Home_Page_Watcher implements Integration_Interface {
 	 */
 	public function check_option( $old_value, $new_value, $option ) {
 		$relevant_keys = [
-			'wpseo_titles' => [ 'title-home-wpseo', 'breadcrumbs-home', 'metadesc-home-wpseo' ],
-			'wpseo_social' => [ 'og_frontpage_title', 'og_frontpage_desc', 'og_frontpage_image' ],
+			'wpseo_titles' => [
+				'title-home-wpseo',
+				'breadcrumbs-home',
+				'metadesc-home-wpseo',
+				'open_graph_frontpage_title',
+				'open_graph_frontpage_desc',
+				'open_graph_frontpage_image',
+			],
 		];
 
 		if ( ! isset( $relevant_keys[ $option ] ) ) {
@@ -100,6 +106,11 @@ class Indexable_Home_Page_Watcher implements Integration_Interface {
 	 */
 	public function build_indexable() {
 		$indexable = $this->repository->find_for_home_page( false );
-		$this->builder->build_for_home_page( $indexable );
+		$indexable = $this->builder->build_for_home_page( $indexable );
+
+		if ( $indexable ) {
+			$indexable->object_last_modified = \max( $indexable->object_last_modified, \current_time( 'mysql' ) );
+			$indexable->save();
+		}
 	}
 }

@@ -6,17 +6,17 @@
  * Description: Take the guesswork out of WordPress security. iThemes Security offers 30+ ways to lock down WordPress in an easy-to-use WordPress security plugin.
  * Author: iThemes
  * Author URI: https://ithemes.com
- * Version: 7.8.0
+ * Version: 8.1.8
  * Text Domain: better-wp-security
  * Network: True
  * License: GPLv2
- * Requires PHP: 5.6
- * Requires at least: 5.2
+ * Requires PHP: 7.3
+ * Requires at least: 5.9
  */
 
-if ( version_compare( phpversion(), '5.6.0', '<' ) ) {
+if ( version_compare( phpversion(), '7.3.0', '<' ) ) {
 	function itsec_free_minimum_php_version_notice() {
-		echo '<div class="notice notice-error"><p>' . esc_html__( 'iThemes Security requires PHP 5.6 or higher.', 'better-wp-security' ) . '</p></div>';
+		echo '<div class="notice notice-error"><p>' . esc_html__( 'iThemes Security requires PHP 7.3 or higher.', 'better-wp-security' ) . '</p></div>';
 	}
 
 	add_action( 'admin_notices', 'itsec_free_minimum_php_version_notice' );
@@ -24,9 +24,9 @@ if ( version_compare( phpversion(), '5.6.0', '<' ) ) {
 	return;
 }
 
-if ( version_compare( $GLOBALS['wp_version'], '5.2.0', '<' ) ) {
+if ( version_compare( $GLOBALS['wp_version'], '5.9', '<' ) ) {
 	function itsec_minimum_wp_version_notice() {
-		echo '<div class="notice notice-error"><p>' . esc_html__( 'iThemes Security Pro requires WordPress 5.2 or later.', 'better-wp-security' ) . '</p></div>';
+		echo '<div class="notice notice-error"><p>' . esc_html__( 'iThemes Security requires WordPress 5.9 or later.', 'better-wp-security' ) . '</p></div>';
 	}
 
 	add_action( 'admin_notices', 'itsec_minimum_wp_version_notice' );
@@ -35,15 +35,7 @@ if ( version_compare( $GLOBALS['wp_version'], '5.2.0', '<' ) ) {
 }
 
 function itsec_load_textdomain() {
-
-	if ( function_exists( 'determine_locale' ) ) {
-		$locale = determine_locale();
-	} elseif ( function_exists( 'get_user_locale' ) && is_admin() ) {
-		$locale = get_user_locale();
-	} else {
-		$locale = get_locale();
-	}
-
+	$locale = determine_locale();
 	$locale = apply_filters( 'plugin_locale', $locale, 'better-wp-security' );
 
 	load_textdomain( 'better-wp-security', WP_LANG_DIR . "/plugins/better-wp-security/better-wp-security-$locale.mo" );

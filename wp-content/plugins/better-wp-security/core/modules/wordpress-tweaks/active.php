@@ -1,3 +1,3 @@
 <?php
 
-require_once( 'class-itsec-wordpress-tweaks.php' );
+require_once __DIR__ . '/class-itsec-wordpress-tweaks.php';

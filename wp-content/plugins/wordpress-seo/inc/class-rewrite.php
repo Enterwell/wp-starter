@@ -22,36 +22,15 @@ class WPSEO_Rewrite {
 		add_action( 'created_category', [ $this, 'schedule_flush' ] );
 		add_action( 'edited_category', [ $this, 'schedule_flush' ] );
 		add_action( 'delete_category', [ $this, 'schedule_flush' ] );
-
-		add_action( 'init', [ $this, 'flush' ], 999 );
 	}
 
 	/**
-	 * Save an option that triggers a flush on the next init.
+	 * Trigger a rewrite_rule flush on shutdown.
 	 *
 	 * @since 1.2.8
 	 */
 	public function schedule_flush() {
-		update_option( 'wpseo_flush_rewrite', 1 );
-	}
-
-	/**
-	 * If the flush option is set, flush the rewrite rules.
-	 *
-	 * @since 1.2.8
-	 *
-	 * @return bool
-	 */
-	public function flush() {
-		if ( get_option( 'wpseo_flush_rewrite' ) ) {
-
-			add_action( 'shutdown', 'flush_rewrite_rules' );
-			delete_option( 'wpseo_flush_rewrite' );
-
-			return true;
-		}
-
-		return false;
+		add_action( 'shutdown', 'flush_rewrite_rules' );
 	}
 
 	/**

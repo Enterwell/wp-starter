@@ -25,13 +25,16 @@ import {
 	APPEND_TO_QUERY,
 	START_PATCH_BULK_GROUP_SETTINGS,
 	FINISH_PATCH_BULK_GROUP_SETTINGS,
-	FAILED_PATCH_BULK_GROUP_SETTINGS, RECEIVE_MATCHABLES,
+	FAILED_PATCH_BULK_GROUP_SETTINGS,
+	RECEIVE_MATCHABLES,
+	GROUP_NOT_FOUND,
 } from './actions';
 
 const DEFAULT_STATE = {
 	matchablesById: {},
 	matchableIds: [],
 	byId: {},
+	groupsNotFound: [],
 	queries: {},
 	creating: [],
 	updating: [],
@@ -83,26 +86,35 @@ export default function userGroups( state = DEFAULT_STATE, action ) {
 					...state.byId,
 					[ action.group.id ]: action.group,
 				},
-				matchablesById: state.matchablesById[ action.group.id ] ? {
-					...state.matchablesById,
-					[ action.group.id ]: {
-						...state.matchablesById[ action.group.id ],
-						label: action.group.label,
-					},
-				} : state.matchablesById,
+				matchablesById: state.matchablesById[ action.group.id ]
+					? {
+						...state.matchablesById,
+						[ action.group.id ]: {
+							...state.matchablesById[ action.group.id ],
+							label: action.group.label,
+						},
+					}
+					: state.matchablesById,
 			};
+		case GROUP_NOT_FOUND: {
+			return {
+				...state,
+				groupsNotFound: state.groupsNotFound.includes( action.id )
+					? state.groupsNotFound
+					: [ ...state.groupsNotFound, action.id ],
+			};
+		}
 		case START_CREATE_GROUP:
 			return {
 				...state,
-				creating: [
-					...state.creating,
-					action.group,
-				],
+				creating: [ ...state.creating, action.group ],
 			};
 		case FINISH_CREATE_GROUP:
 			return {
 				...state,
-				creating: state.creating.filter( ( group ) => group !== action.group ),
+				creating: state.creating.filter(
+					( group ) => group !== action.group
+				),
 				matchablesById: {
 					...state.matchablesById,
 					[ action.response.id ]: {
@@ -111,23 +123,19 @@ export default function userGroups( state = DEFAULT_STATE, action ) {
 						type: 'user-group',
 					},
 				},
-				matchableIds: [
-					...state.matchableIds,
-					[ action.response.id ],
-				],
+				matchableIds: [ ...state.matchableIds, [ action.response.id ] ],
 			};
 		case FAILED_CREATE_GROUP:
 			return {
 				...state,
-				creating: state.creating.filter( ( group ) => group !== action.group ),
+				creating: state.creating.filter(
+					( group ) => group !== action.group
+				),
 			};
 		case START_UPDATE_GROUP:
 			return {
 				...state,
-				updating: [
-					...state.updating,
-					action.id,
-				],
+				updating: [ ...state.updating, action.id ],
 			};
 		case FINISH_UPDATE_GROUP:
 		case FAILED_UPDATE_GROUP:
@@ -138,10 +146,7 @@ export default function userGroups( state = DEFAULT_STATE, action ) {
 		case START_DELETE_GROUP:
 			return {
 				...state,
-				deleting: [
-					...state.deleting,
-					action.id,
-				],
+				deleting: [ ...state.deleting, action.id ],
 			};
 		case FINISH_DELETE_GROUP:
 			return {
@@ -149,7 +154,9 @@ export default function userGroups( state = DEFAULT_STATE, action ) {
 				deleting: state.deleting.filter( ( id ) => id !== action.id ),
 				byId: omit( state.byId, [ action.id ] ),
 				matchablesById: omit( state.matchablesById, [ action.id ] ),
-				matchableIds: state.matchableIds.filter( ( id ) => id !== action.id ),
+				matchableIds: state.matchableIds.filter(
+					( id ) => id !== action.id
+				),
 				settings: omit( state.settings, [ action.id ] ),
 			};
 		case FAILED_DELETE_GROUP:
@@ -168,16 +175,15 @@ export default function userGroups( state = DEFAULT_STATE, action ) {
 		case START_UPDATE_GROUP_SETTINGS:
 			return {
 				...state,
-				updatingSettings: [
-					...state.updatingSettings,
-					action.id,
-				],
+				updatingSettings: [ ...state.updatingSettings, action.id ],
 			};
 		case FINISH_UPDATE_GROUP_SETTINGS:
 		case FAILED_UPDATE_GROUP_SETTINGS:
 			return {
 				...state,
-				updatingSettings: state.updatingSettings.filter( ( id ) => id !== action.id ),
+				updatingSettings: state.updatingSettings.filter(
+					( id ) => id !== action.id
+				),
 			};
 		case START_PATCH_BULK_GROUP_SETTINGS:
 			return {
@@ -191,7 +197,9 @@ export default function userGroups( state = DEFAULT_STATE, action ) {
 		case FAILED_PATCH_BULK_GROUP_SETTINGS:
 			return {
 				...state,
-				bulkPatchingSettings: omit( state.bulkPatchingSettings, [ action.groupIds.join( '_' ) ] ),
+				bulkPatchingSettings: omit( state.bulkPatchingSettings, [
+					action.groupIds.join( '_' ),
+				] ),
 			};
 		default:
 			return state;

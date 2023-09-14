@@ -42,8 +42,13 @@ final class ITSEC_Files {
 		$result = ITSEC_Lib_Config_File::update_wp_config();
 		$success = ! is_wp_error( $result );
 
-		if ( $add_responses && is_wp_error( $result ) ) {
-			ITSEC_Response::add_error( $result );
+		if ( $add_responses ) {
+			if ( is_wp_error( $result ) ) {
+				ITSEC_Response::set_success( false );
+				ITSEC_Response::add_error( $result );
+			} else {
+				ITSEC_Response::set_success();
+			}
 		}
 
 		return $success;
@@ -58,11 +63,15 @@ final class ITSEC_Files {
 
 		if ( $add_responses ) {
 			if ( is_wp_error( $result ) ) {
+				ITSEC_Response::set_success( false );
 				ITSEC_Response::add_error( $result );
+				ITSEC_Lib_Config_File::get_server_config_file_path();
+			} else {
+				ITSEC_Response::set_success();
 
-				$file = ITSEC_Lib_Config_File::get_server_config_file_path();
-			} else if ( 'nginx' === $server ) {
-				ITSEC_Response::add_message( __( 'You must restart your NGINX server for the changes to take effect.', 'better-wp-security' ) );
+				if ( 'nginx' === $server ) {
+					ITSEC_Response::add_info( __( 'You must restart your NGINX server for the changes to take effect.', 'better-wp-security' ) );
+				}
 			}
 		}
 

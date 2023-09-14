@@ -1,0 +1,22 @@
+.itsec-site-type-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(Min(20rem, 100%), 1fr));
+    grid-gap: 1rem;
+
+    li {
+        margin-bottom: 0;
+    }
+
+    .itsec-selectable-card {
+        height: 100%;
+        width: 100%;
+        display: flex;
+        align-items: stretch;
+        flex-direction: column;
+        text-align: left;
+
+        .components-card {
+            height: 100%;
+        }
+    }
+}

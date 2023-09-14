@@ -1,9 +1,4 @@
 <?php
-/**
- * Yoast SEO plugin file.
- *
- * @package Yoast\YoastSEO\Conditionals
- */
 
 namespace Yoast\WP\SEO\Conditionals;
 
@@ -31,13 +26,24 @@ class Primary_Category_Conditional implements Conditional {
 	}
 
 	/**
-	 * @inheritDoc
+	 * Returns `true` when on the frontend,
+	 * or when on the post overview, post edit or new post admin page,
+	 * or when on additional admin pages, allowed by filter.
+	 *
+	 * @return bool `true` when on the frontend, or when on the post overview,
+	 *          post edit, new post admin page or additional admin pages, allowed by filter.
 	 */
 	public function is_met() {
 		if ( ! \is_admin() ) {
 			return true;
 		}
 
-		return \in_array( $this->current_page->get_current_admin_page(), [ 'edit.php', 'post.php', 'post-new.php' ], true );
+		/**
+		 * Filter: Adds the possibility to use primary category at additional admin pages.
+		 *
+		 * @param array $admin_pages List of additional admin pages.
+		 */
+		$additional_pages = \apply_filters( 'wpseo_primary_category_admin_pages', [] );
+		return \in_array( $this->current_page->get_current_admin_page(), \array_merge( [ 'edit.php', 'post.php', 'post-new.php' ], $additional_pages ), true );
 	}
 }

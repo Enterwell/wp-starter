@@ -42,7 +42,8 @@ class WPSEO_Option_Tabs {
 	public function __construct( $base, $active_tab = '' ) {
 		$this->base = sanitize_title( $base );
 
-		$tab              = filter_input( INPUT_GET, 'tab' );
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reason: We are not processing form information.
+		$tab              = isset( $_GET['tab'] ) && is_string( $_GET['tab'] ) ? sanitize_text_field( wp_unslash( $_GET['tab'] ) ) : '';
 		$this->active_tab = empty( $tab ) ? $active_tab : $tab;
 	}
 
@@ -71,7 +72,7 @@ class WPSEO_Option_Tabs {
 	/**
 	 * Get active tab.
 	 *
-	 * @return null|WPSEO_Option_Tab Get the active tab.
+	 * @return WPSEO_Option_Tab|null Get the active tab.
 	 */
 	public function get_active_tab() {
 		if ( empty( $this->active_tab ) ) {

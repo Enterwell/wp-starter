@@ -30,7 +30,7 @@ final class ITSEC_Lib_User_Activity {
 			return false;
 		}
 
-		return get_user_meta( $user_id, 'itsec_user_activity_last_seen', true );
+		return (int) get_user_meta( $user_id, 'itsec_user_activity_last_seen', true );
 	}
 
 	public function identify_user() {

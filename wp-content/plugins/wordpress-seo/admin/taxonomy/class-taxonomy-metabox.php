@@ -25,25 +25,32 @@ class WPSEO_Taxonomy_Metabox {
 	private $taxonomy;
 
 	/**
-	 * Renders the taxonomy field.
+	 * Whether or not the social tab is enabled for this metabox.
 	 *
-	 * @var WPSEO_Taxonomy_Fields_Presenter
+	 * @var bool
 	 */
-	private $taxonomy_tab_content;
+	private $is_social_enabled;
 
 	/**
-	 * Renders the taxonomy social fields.
+	 * Helper to determine whether or not the SEO analysis is enabled.
 	 *
-	 * @var WPSEO_Taxonomy_Social_Fields
+	 * @var WPSEO_Metabox_Analysis_SEO
 	 */
-	private $taxonomy_social_fields;
+	protected $seo_analysis;
 
 	/**
-	 * This class adds the Social tab to the Yoast SEO metabox and makes sure the settings are saved.
+	 * Helper to determine whether or not the readability analysis is enabled.
 	 *
-	 * @var WPSEO_Social_Admin
+	 * @var WPSEO_Metabox_Analysis_Readability
 	 */
-	private $social_admin;
+	protected $readability_analysis;
+
+	/**
+	 * Helper to determine whether or not the inclusive language analysis is enabled.
+	 *
+	 * @var WPSEO_Metabox_Analysis_Inclusive_Language
+	 */
+	protected $inclusive_language_analysis;
 
 	/**
 	 * The constructor.
@@ -52,45 +59,73 @@ class WPSEO_Taxonomy_Metabox {
 	 * @param stdClass $term     The term.
 	 */
 	public function __construct( $taxonomy, $term ) {
-		$this->term                 = $term;
-		$this->taxonomy             = $taxonomy;
-		$this->taxonomy_tab_content = new WPSEO_Taxonomy_Fields_Presenter( $this->term );
+		$this->term              = $term;
+		$this->taxonomy          = $taxonomy;
+		$this->is_social_enabled = WPSEO_Options::get( 'opengraph', false ) || WPSEO_Options::get( 'twitter', false );
+
+		$this->seo_analysis                = new WPSEO_Metabox_Analysis_SEO();
+		$this->readability_analysis        = new WPSEO_Metabox_Analysis_Readability();
+		$this->inclusive_language_analysis = new WPSEO_Metabox_Analysis_Inclusive_Language();
 	}
 
 	/**
 	 * Shows the Yoast SEO metabox for the term.
 	 */
 	public function display() {
-
-		$content_sections = $this->get_content_sections();
-
-		$product_title = 'Yoast SEO';
-		if ( file_exists( WPSEO_PATH . 'premium/' ) ) {
-			$product_title .= ' Premium';
-		}
-
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason: $product_title is hardcoded.
-		printf( '<div id="wpseo_meta" class="postbox yoast wpseo-taxonomy-metabox-postbox"><h2><span>%1$s</span></h2>', $product_title );
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason: $this->get_product_title() returns a hard-coded string.
+		printf( '<div id="wpseo_meta" class="postbox yoast wpseo-taxonomy-metabox-postbox"><h2><span>%1$s</span></h2>', $this->get_product_title() );
 
 		echo '<div class="inside">';
 		echo '<div id="taxonomy_overall"></div>';
 
+		$this->render_hidden_fields();
+		$this->render_tabs();
 
+		echo '</div>';
+		echo '</div>';
+	}
+
+	/**
+	 * Renders the metabox hidden fields.
+	 *
+	 * @return void
+	 */
+	protected function render_hidden_fields() {
+		$fields_presenter  = new WPSEO_Taxonomy_Fields_Presenter( $this->term );
+		$field_definitions = new WPSEO_Taxonomy_Fields();
+
+		echo $fields_presenter->html( $field_definitions->get( 'content' ) );
+		if ( WPSEO_Capability_Utils::current_user_can( 'wpseo_edit_advanced_metadata' ) || WPSEO_Options::get( 'disableadvanced_meta' ) === false ) {
+			echo $fields_presenter->html( $field_definitions->get( 'settings' ) );
+		}
+
+		if ( $this->is_social_enabled ) {
+			echo $fields_presenter->html( $field_definitions->get( 'social' ) );
+		}
+	}
+
+	/**
+	 * Renders the metabox tabs.
+	 *
+	 * @return void
+	 */
+	protected function render_tabs() {
 		echo '<div class="wpseo-metabox-content">';
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason: $product_title is hardcoded.
-		printf( '<div class="wpseo-metabox-menu"><ul role="tablist" class="yoast-aria-tabs" aria-label="%s">', $product_title );
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason: $this->get_product_title() returns a hard-coded string.
+		printf( '<div class="wpseo-metabox-menu"><ul role="tablist" class="yoast-aria-tabs" aria-label="%s">', $this->get_product_title() );
 
-		foreach ( $content_sections as $content_section ) {
-			$content_section->display_link();
+		$tabs = $this->get_tabs();
+
+		foreach ( $tabs as $tab ) {
+			$tab->display_link();
 		}
 
 		echo '</ul></div>';
 
-		foreach ( $content_sections as $content_section ) {
-			$content_section->display_content();
+		foreach ( $tabs as $tab ) {
+			$tab->display_content();
 		}
 
-		echo '</div></div>';
 		echo '</div>';
 	}
 
@@ -99,99 +134,94 @@ class WPSEO_Taxonomy_Metabox {
 	 *
 	 * @return WPSEO_Metabox_Section[]
 	 */
-	private function get_content_sections() {
-		$content_sections = [];
+	private function get_tabs() {
+		$tabs = [];
 
-		$content_sections[] = $this->get_seo_meta_section();
-
-		$readability_analysis = new WPSEO_Metabox_Analysis_Readability();
-		if ( $readability_analysis->is_enabled() ) {
-			$content_sections[] = $this->get_readability_meta_section();
-		}
-
-		$show_facebook = WPSEO_Options::get( 'opengraph', false );
-		$show_twitter  = WPSEO_Options::get( 'twitter', false );
-
-		if ( $show_facebook || $show_twitter ) {
-			$content_sections[] = $this->get_social_meta_section( $show_facebook, $show_twitter );
-		}
-
-		return $content_sections;
-	}
-
-	/**
-	 * Returns the metabox section for the content analysis.
-	 *
-	 * @return WPSEO_Metabox_Section
-	 */
-	private function get_seo_meta_section() {
-		$taxonomy_content_fields = new WPSEO_Taxonomy_Content_Fields( $this->term );
-		$content                 = $this->taxonomy_tab_content->html( $taxonomy_content_fields->get( $this->term ) );
-
-		$seo_analysis = new WPSEO_Metabox_Analysis_SEO();
-		$label        = __( 'SEO', 'wordpress-seo' );
-
-		if ( $seo_analysis->is_enabled() ) {
+		$label = __( 'SEO', 'wordpress-seo' );
+		if ( $this->seo_analysis->is_enabled() ) {
 			$label = '<span class="wpseo-score-icon-container" id="wpseo-seo-score-icon"></span>' . $label;
 		}
 
-		$html_after = '';
+		$tabs[] = new WPSEO_Metabox_Section_React( 'content', $label );
 
-		if ( WPSEO_Capability_Utils::current_user_can( 'wpseo_edit_advanced_metadata' ) || WPSEO_Options::get( 'disableadvanced_meta' ) === false ) {
-			$taxonomy_settings_fields = new WPSEO_Taxonomy_Settings_Fields( $this->term );
-
-			$html_after = $this->taxonomy_tab_content->html( $taxonomy_settings_fields->get() );
+		if ( $this->readability_analysis->is_enabled() ) {
+			$tabs[] = new WPSEO_Metabox_Section_Readability();
 		}
 
-		return new WPSEO_Metabox_Section_React(
-			'content',
-			$label,
-			$content,
-			[
-				'html_after' => $html_after,
-			]
-		);
+		if ( $this->inclusive_language_analysis->is_enabled() ) {
+			$tabs[] = new WPSEO_Metabox_Section_Inclusive_Language();
+		}
+
+		if ( $this->is_social_enabled ) {
+			$tabs[] = new WPSEO_Metabox_Section_React(
+				'social',
+				'<span class="dashicons dashicons-share"></span>' . __( 'Social', 'wordpress-seo' ),
+				'',
+				[
+					'html_after' => '<div id="wpseo-section-social"></div>',
+				]
+			);
+		}
+
+		$tabs = array_merge( $tabs, $this->get_additional_tabs() );
+
+		return $tabs;
 	}
 
 	/**
-	 * Returns the metabox section for the readability analysis.
+	 * Returns the metabox tabs that have been added by other plugins.
 	 *
-	 * @return WPSEO_Metabox_Section
+	 * @return WPSEO_Metabox_Section_Additional[]
 	 */
-	private function get_readability_meta_section() {
-		return new WPSEO_Metabox_Section_Readability();
+	protected function get_additional_tabs() {
+		$tabs = [];
+
+		/**
+		 * Private filter: 'yoast_free_additional_taxonomy_metabox_sections'.
+		 *
+		 * Meant for internal use only. Allows adding additional tabs to the Yoast SEO metabox for taxonomies.
+		 *
+		 * @param array[] $tabs {
+		 *     An array of arrays with tab specifications.
+		 *
+		 *     @type array $tab {
+		 *          A tab specification.
+		 *
+		 *          @type string $name         The name of the tab. Used in the HTML IDs, href and aria properties.
+		 *          @type string $link_content The content of the tab link.
+		 *          @type string $content      The content of the tab.
+		 *          @type array $options {
+		 *              Optional. Extra options.
+		 *
+		 *              @type string $link_class      Optional. The class for the tab link.
+		 *              @type string $link_aria_label Optional. The aria label of the tab link.
+		 *          }
+		 *     }
+		 * }
+		 */
+		$requested_tabs = apply_filters( 'yoast_free_additional_taxonomy_metabox_sections', [] );
+
+		foreach ( $requested_tabs as $tab ) {
+			if ( is_array( $tab ) && array_key_exists( 'name', $tab ) && array_key_exists( 'link_content', $tab ) && array_key_exists( 'content', $tab ) ) {
+				$options = array_key_exists( 'options', $tab ) ? $tab['options'] : [];
+				$tabs[]  = new WPSEO_Metabox_Section_Additional(
+					$tab['name'],
+					$tab['link_content'],
+					$tab['content'],
+					$options
+				);
+			}
+		}
+
+		return $tabs;
 	}
 
 	/**
-	 * Returns the metabox section for the social settings.
+	 * Retrieves the product title.
 	 *
-	 * @param boolean $show_facebook Whether to render the facebook fields.
-	 * @param boolean $show_twitter  Whether to render the twitter fields.
-	 *
-	 * @return WPSEO_Metabox_Section
+	 * @return string The product title.
 	 */
-	private function get_social_meta_section( $show_facebook, $show_twitter ) {
-		$this->taxonomy_social_fields = new WPSEO_Taxonomy_Social_Fields( $this->term );
-
-		$content = '';
-
-		if ( $show_facebook ) {
-			$facebook_fields = $this->taxonomy_social_fields->get_by_network( 'opengraph' );
-			$content        .= $this->taxonomy_tab_content->html( $facebook_fields );
-		};
-
-		if ( $show_twitter ) {
-			$twitter_fields = $this->taxonomy_social_fields->get_by_network( 'twitter' );
-			$content       .= $this->taxonomy_tab_content->html( $twitter_fields );
-		}
-
-		// Add react target.
-		$content .= '<div id="wpseo-section-social"></div>';
-
-		return new WPSEO_Metabox_Section_React(
-			'social',
-			'<span class="dashicons dashicons-share"></span>' . __( 'Social', 'wordpress-seo' ),
-			$content
-		);
+	protected function get_product_title() {
+		return YoastSEO()->helpers->product->get_product_name();
 	}
 }

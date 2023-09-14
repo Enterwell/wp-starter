@@ -1,0 +1,13 @@
+.itsec-site-type-questions-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min-content, 250px));
+    grid-gap: 1rem;
+}
+
+.itsec-site-type-question .components-card {
+    width: 15rem;
+}
+
+.itsec-message-list.itsec-site-type-question__error-list {
+    margin-bottom: 2rem;
+}

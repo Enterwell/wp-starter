@@ -1,0 +1,131 @@
+ {
+  "id": "two-factor",
+  "status": "default-inactive",
+  "type": "login",
+  "onboard": true,
+  "keywords": [
+    "2fa",
+    "multi-factor",
+    "mfa"
+  ],
+  "title": "Two-Factor",
+  "description": "Two-Factor Authentication greatly increases the security of your WordPress user account by requiring additional information beyond your username and password in order to log in.",
+  "help": "Two-Factor authentication is a tried and true security method and will stop most automated bot attacks on the WordPress login. Once Two-Factor Authentication is enabled here, users can visit their profile to enable two-factor for their account.",
+  "user-groups": {
+    "exclude_group": {
+      "type": "multiple",
+      "title": "Skip Two-Factor Onboarding",
+      "description": "By default, when a user logs in via the WordPress Login Page, iThemes Security will prompt them to setup Two-Factor. Optionally, you can skip the two-factor authentication on-boarding process for certain users. Users can still manually enroll in two-factor through their WordPress admin profile."
+    },
+    "application_passwords_group": {
+      "type": "multiple",
+      "title": "Application Passwords",
+      "description": "Use Application Passwords to allow authentication without providing your actual password when using non-traditional login methods such as XML-RPC or the REST API. They can be easily revoked, and can never be used for traditional logins to your website.",
+      "default": "all"
+    }
+  },
+  "settings": {
+    "type": "object",
+    "properties": {
+      "available_methods": {
+        "type": "string",
+        "enum": [
+          "all",
+          "not_email",
+          "custom"
+        ],
+        "enumNames": [
+          "All Methods (recommended)",
+          "All Except Email",
+          "Select Methods Manually"
+        ],
+        "default": "all",
+        "title": "Authentication Methods Available to Users",
+        "description": "iThemes Security supports multiple two-factor methods: mobile app, email, and backup codes. Selecting “All Methods” is highly recommended so that users can use the method that works the best for them."
+      },
+      "custom_available_methods": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": [],
+          "enumNames": [],
+          "pattern": "^[a-zA-Z_\\x80-\\xff][a-zA-Z0-9_\\x80-\\xff]*$"
+        },
+        "uniqueItems": true,
+        "minItems": 1,
+        "default": [
+          "Two_Factor_Totp",
+          "Two_Factor_Email",
+          "Two_Factor_Backup_Codes"
+        ],
+        "title": "Select Available Methods"
+      },
+      "disable_first_login": {
+        "type": "boolean",
+        "default": false,
+        "title": "Disable on First Login",
+        "description": "This simplifies the sign up flow for users that require two-factor to be enabled for their account."
+      },
+      "on_board_welcome": {
+        "type": "string",
+        "default": "",
+        "title": "On-board Welcome Text",
+        "description": "Customize the text shown to users at the beginning of the Two-Factor On-Board flow."
+      }
+    },
+    "uiSchema": {
+      "custom_available_methods": {
+        "ui:widget": "checkboxes"
+      },
+      "on_board_welcome": {
+        "ui:widget": "textarea"
+      },
+      "ui:sections": [
+        {
+          "title": "Methods",
+          "fields": [
+            "available_methods",
+            "custom_available_methods"
+          ]
+        },
+        {
+          "title": "Setup Flow",
+          "fields": [
+            "disable_first_login",
+            "on_board_welcome"
+          ]
+        }
+      ]
+    }
+  },
+  "conditional-settings": {
+    "custom_available_methods": {
+      "settings": {
+        "type": "object",
+        "properties": {
+          "available_methods": {
+            "type": "string",
+            "enum": [
+              "custom"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "removed-settings": [
+    "protect_user_type",
+    "protect_user_type_roles",
+    "allow_remember",
+    "allow_remember_roles",
+    "application_passwords_type",
+    "application_passwords_roles",
+    "exclude_type",
+    "exclude_roles"
+  ],
+   "encryption": {
+     "user-meta": [
+       "_two_factor_totp_key"
+     ]
+   }
+ }

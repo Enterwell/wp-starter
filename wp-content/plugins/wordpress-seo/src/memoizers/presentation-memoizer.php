@@ -1,9 +1,4 @@
 <?php
-/**
- * The presentation memoizer.
- *
- * @package Yoast\YoastSEO\Memoizers
- */
 
 namespace Yoast\WP\SEO\Memoizers;
 
@@ -13,7 +8,7 @@ use Yoast\WP\SEO\Presentations\Indexable_Presentation;
 use YoastSEO_Vendor\Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Class Presentation_Memoizer
+ * The presentation memoizer.
  */
 class Presentation_Memoizer {
 
@@ -22,14 +17,14 @@ class Presentation_Memoizer {
 	 *
 	 * @var ContainerInterface
 	 */
-	private $container;
+	protected $container;
 
 	/**
 	 * Cache with indexable presentations.
 	 *
 	 * @var Indexable_Presentation[]
 	 */
-	private $cache = [];
+	protected $cache = [];
 
 	/**
 	 * Presentation_Memoizer constructor.
@@ -74,7 +69,7 @@ class Presentation_Memoizer {
 	/**
 	 * Clears the memoization of either a specific indexable or all indexables.
 	 *
-	 * @param Indexable|int $indexable Optional. The indexable or indexable id to clear the memoization of.
+	 * @param Indexable|int|null $indexable Optional. The indexable or indexable id to clear the memoization of.
 	 */
 	public function clear( $indexable = null ) {
 		if ( $indexable instanceof Indexable ) {
@@ -83,6 +78,7 @@ class Presentation_Memoizer {
 		}
 		if ( \is_int( $indexable ) ) {
 			unset( $this->cache[ $indexable ] );
+			return;
 		}
 		if ( $indexable === null ) {
 			$this->cache = [];

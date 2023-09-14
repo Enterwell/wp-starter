@@ -8,6 +8,7 @@ import { Component } from '@wordpress/element';
  */
 import ControlledTabPanel from './controlled';
 import ControlledMultiTabPanel from './multi';
+import './style.scss';
 
 export { ControlledTabPanel, ControlledMultiTabPanel };
 
@@ -25,6 +26,12 @@ export default class UncontrolledTabPanel extends Component {
 	};
 
 	render() {
-		return ( <ControlledTabPanel { ...this.props } selected={ this.state.selected } onSelect={ this.onSelect } /> );
+		return (
+			<ControlledTabPanel
+				{ ...this.props }
+				selected={ this.state.selected }
+				onSelect={ this.onSelect }
+			/>
+		);
 	}
 }

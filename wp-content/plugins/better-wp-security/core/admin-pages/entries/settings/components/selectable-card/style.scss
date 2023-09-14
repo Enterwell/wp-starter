@@ -1,0 +1,134 @@
+.itsec-selectable-card {
+    .components-card {
+        position: relative;
+    }
+
+    &:hover,
+    &:focus {
+        .components-card {
+            box-shadow: 0 0 0 2px $main-blue;
+            background-color: $focused-blue;
+        }
+
+        .dashicon {
+            color: $main-blue;
+        }
+
+        .itsec-selectable-card__content::after {
+            visibility: visible;
+        }
+    }
+
+    .components-card__body {
+        height: 100%;
+    }
+
+    .itsec-selectable-card__content {
+        display: flex;
+        align-items: center;
+        justify-content: stretch;
+        height: 100%;
+    }
+
+    .itsec-selectable-card__content::after {
+        @include dashicon("\f344");
+    }
+}
+
+a.itsec-selectable-card {
+    text-decoration: none;
+    color: $main-blue;
+
+    &:focus {
+        box-shadow: none;
+        outline: none;
+    }
+
+    .components-card {
+        border-color: $light-gray-500;
+    }
+}
+
+button.itsec-selectable-card {
+    text-decoration: none;
+    margin: 0;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    -webkit-appearance: none;
+    background: none;
+    color: $main-blue;
+
+    &:hover, &:focus {
+        color: $main-blue;
+    }
+}
+
+.itsec-selectable-card .dashicon {
+    --icon-size: 55px;
+
+    width: var(--icon-size);
+    height: var(--icon-size);
+    font-size: var(--icon-size);
+    line-height: 1;
+}
+
+.itsec-selectable-card.itsec-selectable-card--fill-icon .dashicon {
+    --icon-size: calc(55px - (8px * 2));
+    padding: 8px;
+    border-radius: 8px;
+    background: $main-blue;
+    color: $white;
+    box-sizing: content-box;
+}
+
+.itsec-selectable-card--recommended .components-card::before {
+    position: absolute;
+    right: 8px;
+    top: 8px;
+    @include recommended-icon;
+}
+
+.itsec-selectable-card--recommended.itsec-selectable-card--vertical .components-card::before {
+    --itsec-recommended-icon-size: 30px;
+}
+
+.itsec-selectable-card .itsec-selectable-card__title {
+    color: $dark-text;
+    margin-top: 0;
+}
+
+.itsec-selectable-card__description {
+    color: $medium-text;
+    margin: .5rem 0 0 0;
+}
+
+.itsec-selectable-card--horizontal .itsec-selectable-card__content {
+    .dashicon {
+        margin-right: 8px;
+    }
+
+    .itsec-selectable-card__text {
+        height: 100%;
+        flex-direction: column;
+        padding-right: 8px;
+        margin-right: auto;
+    }
+}
+
+.itsec-selectable-card--vertical .itsec-selectable-card__content {
+    flex-direction: column;
+    text-align: center;
+
+    .dashicon {
+        margin-bottom: 12px;
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+
+    &::after {
+        margin-top: 12px;
+    }
+}

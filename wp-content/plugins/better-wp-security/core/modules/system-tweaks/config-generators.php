@@ -50,7 +50,6 @@ final class ITSEC_System_Tweaks_Config_Generators {
 			$modification .= "\tOptions -Indexes\n";
 		}
 
-
 		$rewrites = '';
 
 		if ( $input['protect_files'] ) {
@@ -109,45 +108,6 @@ final class ITSEC_System_Tweaks_Config_Generators {
 			}
 		}
 
-		if ( $input['request_methods'] ) {
-			$rewrites .= "\n";
-			$rewrites .= "\t\t# " . __( 'Filter Request Methods - Security > Settings > System Tweaks > Request Methods', 'better-wp-security' ) . "\n";
-			$rewrites .= "\t\tRewriteCond %{REQUEST_METHOD} ^(TRACE|TRACK) [NC]\n";
-			$rewrites .= "\t\tRewriteRule ^.* - [F]\n";
-		}
-
-		if ( $input['suspicious_query_strings'] ) {
-			$rewrites .= "\n";
-			$rewrites .= "\t\t# " . __( 'Filter Suspicious Query Strings in the URL - Security > Settings > System Tweaks > Suspicious Query Strings', 'better-wp-security' ) . "\n";
-			$rewrites .= "\t\tRewriteCond %{QUERY_STRING} \.\.\/ [OR]\n";
-			$rewrites .= "\t\tRewriteCond %{QUERY_STRING} \.(bash|git|hg|log|svn|swp|cvs) [NC,OR]\n";
-			$rewrites .= "\t\tRewriteCond %{QUERY_STRING} etc/passwd [NC,OR]\n";
-			$rewrites .= "\t\tRewriteCond %{QUERY_STRING} boot\.ini [NC,OR]\n";
-			$rewrites .= "\t\tRewriteCond %{QUERY_STRING} ftp: [NC,OR]\n";
-			$rewrites .= "\t\tRewriteCond %{QUERY_STRING} https?: [NC,OR]\n";
-			$rewrites .= "\t\tRewriteCond %{QUERY_STRING} (<|%3C)script(>|%3E) [NC,OR]\n";
-			$rewrites .= "\t\tRewriteCond %{QUERY_STRING} mosConfig_[a-zA-Z_]{1,21}(=|%3D) [NC,OR]\n";
-			$rewrites .= "\t\tRewriteCond %{QUERY_STRING} base64_decode\( [NC,OR]\n";
-			$rewrites .= "\t\tRewriteCond %{QUERY_STRING} %24&x [NC,OR]\n";
-			$rewrites .= "\t\tRewriteCond %{QUERY_STRING} 127\.0 [NC,OR]\n";
-			$rewrites .= "\t\tRewriteCond %{QUERY_STRING} (^|\\W)(globals|encode|localhost|loopback)($|\\W) [NC,OR]\n";
-			$rewrites .= "\t\tRewriteCond %{QUERY_STRING} (^|\\W)(concat|insert|union|declare)($|\\W) [NC,OR]\n";
-			$rewrites .= "\t\tRewriteCond %{QUERY_STRING} %[01][0-9A-F] [NC]\n";
-			$rewrites .= "\t\tRewriteCond %{QUERY_STRING} !^loggedout=true\n";
-			$rewrites .= "\t\tRewriteCond %{QUERY_STRING} !^action=jetpack-sso\n";
-			$rewrites .= "\t\tRewriteCond %{QUERY_STRING} !^action=rp\n";
-			$rewrites .= "\t\tRewriteCond %{HTTP_COOKIE} !wordpress_logged_in_\n";
-			$rewrites .= "\t\tRewriteCond %{HTTP_REFERER} !^http://maps\.googleapis\.com\n";
-			$rewrites .= "\t\tRewriteRule ^.* - [F]\n";
-		}
-
-		if ( $input['non_english_characters'] ) {
-			$rewrites .= "\n";
-			$rewrites .= "\t\t# " . __( 'Filter Non-English Characters - Security > Settings > System Tweaks > Non-English Characters', 'better-wp-security' ) . "\n";
-			$rewrites .= "\t\tRewriteCond %{QUERY_STRING} %[A-F][0-9A-F] [NC]\n";
-			$rewrites .= "\t\tRewriteRule ^.* - [F]\n";
-		}
-
 		if ( ! empty( $rewrites ) ) {
 			$modification .= "\n";
 			$modification .= "\t<IfModule mod_rewrite.c>\n";
@@ -155,7 +115,6 @@ final class ITSEC_System_Tweaks_Config_Generators {
 			$modification .= $rewrites;
 			$modification .= "\t</IfModule>\n";
 		}
-
 
 		return $modification;
 	}
@@ -236,81 +195,6 @@ final class ITSEC_System_Tweaks_Config_Generators {
 			}
 		}
 
-		// Apache rewrite rules for disable http methods
-		if ( $input['request_methods'] ) {
-			$modification .= "\n";
-			$modification .= "\t# " . __( 'Filter Request Methods - Security > Settings > System Tweaks > Request Methods', 'better-wp-security' ) . "\n";
-			$modification .= "\tif ( \$request_method ~* ^(TRACE|TRACK)$ ) { return 403; }\n";
-		}
-
-		// Process suspicious query rules
-		if ( $input['suspicious_query_strings'] ) {
-			$modification .= "\n";
-			$modification .= "\t# " . __( 'Filter Suspicious Query Strings in the URL - Security > Settings > System Tweaks > Suspicious Query Strings', 'better-wp-security' ) . "\n";
-			$modification .= "\tset \$susquery 0;\n";
-			$modification .= "\tif ( \$args ~* \"\.\./\" ) { set \$susquery 1; }\n";
-			$modification .= "\tif ( \$args ~* \"\.(bash|git|hg|log|svn|swp|cvs)\" ) { set \$susquery 1; }\n";
-			$modification .= "\tif ( \$args ~* \"etc/passwd\" ) { set \$susquery 1; }\n";
-			$modification .= "\tif ( \$args ~* \"boot\.ini\" ) { set \$susquery 1; }\n";
-			$modification .= "\tif ( \$args ~* \"ftp:\" ) { set \$susquery 1; }\n";
-			$modification .= "\tif ( \$args ~* \"https?:\" ) { set \$susquery 1; }\n";
-			$modification .= "\tif ( \$args ~* \"(<|%3C)script(>|%3E)\" ) { set \$susquery 1; }\n";
-			$modification .= "\tif ( \$args ~* \"mosConfig_[a-zA-Z_]{1,21}(=|%3D)\" ) { set \$susquery 1; }\n";
-			$modification .= "\tif ( \$args ~* \"base64_decode\(\" ) { set \$susquery 1; }\n";
-			$modification .= "\tif ( \$args ~* \"%24&x\" ) { set \$susquery 1; }\n";
-			$modification .= "\tif ( \$args ~* \"127\.0\" ) { set \$susquery 1; }\n";
-			$modification .= "\tif ( \$args ~* \"(^|\\W)(globals|encode|localhost|loopback)($|\\W)\" ) { set \$susquery 1; }\n";
-			$modification .= "\tif ( \$args ~* \"(^|\\W)(insert|concat|union|declare)($|\\W)\" ) { set \$susquery 1; }\n";
-			$modification .= "\tif ( \$args ~* \"%[01][0-9A-F]\" ) { set \$susquery 1; }\n";
-			$modification .= "\tif ( \$args ~ \"^loggedout=true\" ) { set \$susquery 0; }\n";
-			$modification .= "\tif ( \$args ~ \"^action=jetpack-sso\" ) { set \$susquery 0; }\n";
-			$modification .= "\tif ( \$args ~ \"^action=rp\" ) { set \$susquery 0; }\n";
-			$modification .= "\tif ( \$http_cookie ~ \"wordpress_logged_in_\" ) { set \$susquery 0; }\n";
-			$modification .= "\tif ( \$http_referer ~* \"^https?://maps\.googleapis\.com/\" ) { set \$susquery 0; }\n";
-			$modification .= "\tif ( \$susquery = 1 ) { return 403; }\n";
-
-		}
-
-		// Process filtering of foreign characters
-		if ( $input['non_english_characters'] ) {
-			$modification .= "\n";
-			$modification .= "\t# " . __( 'Filter Non-English Characters - Security > Settings > System Tweaks > Non-English Characters', 'better-wp-security' ) . "\n";
-			$modification .= "\tif (\$args ~* \"%[A-F][0-9A-F]\") { return 403; }\n";
-		}
-
 		return $modification;
-	}
-
-	protected static function get_valid_referers( $server_type ) {
-		$valid_referers = array();
-
-		if ( 'apache' === $server_type ) {
-			$domain = ITSEC_Lib::get_domain( get_site_url() );
-
-			if ( '*' == $domain ) {
-				$valid_referers[] = $domain;
-			} else {
-				$valid_referers[] = "*.$domain";
-			}
-		} else if ( 'nginx' === $server_type ) {
-			$valid_referers[] = 'server_names';
-		} else {
-			return array();
-		}
-
-		$valid_referers[] = 'jetpack.wordpress.com/jetpack-comment/';
-		$valid_referers = apply_filters( 'itsec_filter_valid_comment_referers', $valid_referers, $server_type );
-
-		if ( is_string( $valid_referers ) ) {
-			$valid_referers = array( $valid_referers );
-		} else if ( ! is_array( $valid_referers ) ) {
-			$valid_referers = array();
-		}
-
-		foreach ( $valid_referers as $index => $referer ) {
-			$valid_referers[$index] = preg_replace( '|^https?://|', '', $referer );
-		}
-
-		return $valid_referers;
 	}
 }

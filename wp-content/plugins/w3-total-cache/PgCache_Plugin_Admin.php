@@ -36,29 +36,16 @@ class PgCache_Plugin_Admin {
 					$this, 'w3tc_usage_statistics_summary_from_history' ), 10, 2 );
 		}
 
-		add_filter( 'w3tc_admin_menu', array( $this, 'w3tc_admin_menu' ) );
-
-		add_action( 'admin_print_scripts-performance_page_w3tc_pgcache', array(
-				'\W3TC\PgCache_Page',
-				'admin_print_scripts_w3tc_pgcache'
-			) );
-
-		// cookie groups
-		add_action( 'admin_init_w3tc_pgcache_cookiegroups',	array(
-				'\W3TC\PgCache_Page_CookieGroups',
-				'admin_init_w3tc_pgcache_cookiegroups'
-			) );
-
-		add_action( 'w3tc_settings_page-w3tc_pgcache_cookiegroups',	array(
-				'\W3TC\PgCache_Page_CookieGroups',
-				'w3tc_settings_page_w3tc_pgcache_cookiegroups'
-			) );
-
-		add_action( 'w3tc_config_ui_save-w3tc_pgcache_cookiegroups', array(
-				'\W3TC\PgCache_Page_CookieGroups',
-				'w3tc_config_ui_save_w3tc_pgcache_cookiegroups'
-			), 10, 1 );
-
+		// Cache groups.
+		add_action(
+			'w3tc_config_ui_save-w3tc_cachegroups',
+			array(
+				'\W3TC\CacheGroups_Plugin_Admin',
+				'w3tc_config_ui_save_w3tc_cachegroups',
+			),
+			10,
+			1
+		);
 	}
 
 	function cleanup() {
@@ -294,8 +281,11 @@ class PgCache_Plugin_Admin {
 
 		if ( $c->get_string( 'pgcache.engine' ) == 'memcached' ) {
 			$memcached_servers = $c->get_array( 'pgcache.memcached.servers' );
+			$memcached_binary_protocol = $c->get_boolean( 'pgcache.memcached.binary_protocol' );
+			$memcached_username = $c->get_string( 'pgcache.memcached.username' );
+			$memcached_password = $c->get_string( 'pgcache.memcached.password' );
 
-			if ( !Util_Installed::is_memcache_available( $memcached_servers ) ) {
+			if ( !Util_Installed::is_memcache_available( $memcached_servers, $memcached_binary_protocol, $memcached_username, $memcached_password ) ) {
 				if ( !isset( $errors['memcache_not_responding.details'] ) )
 					$errors['memcache_not_responding.details'] = array();
 
@@ -306,17 +296,6 @@ class PgCache_Plugin_Admin {
 		}
 
 		return $errors;
-	}
-
-	public function w3tc_admin_menu( $menu ) {
-		$menu['w3tc_pgcache_cookiegroups'] = array(
-			'page_title' => __( 'Cookie Groups', 'w3-total-cache' ),
-			'menu_text' => __( 'Cookie Groups', 'w3-total-cache' ),
-			'visible_always' => false,
-			'order' => 950
-		);
-
-		return $menu;
 	}
 
 	public function w3tc_usage_statistics_summary_from_history( $summary, $history ) {

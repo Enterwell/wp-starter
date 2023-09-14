@@ -5,14 +5,17 @@
  * @package WPSEO\Deprecated
  */
 
-if ( ! function_exists( 'initialize_wpseo_front' ) ) {
+if ( ! function_exists( 'wpseo_cli_init' ) ) {
+
 	/**
-	 * Wraps frontend class.
+	 * Initialize the WP-CLI integration.
 	 *
-	 * @deprecated 14.0
+	 * @deprecated 19.6.1
 	 * @codeCoverageIgnore
+	 *
+	 * @phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound
 	 */
-	function initialize_wpseo_front() {
-		_deprecated_function( __FUNCTION__, 'WPSEO 14.0' );
+	function wpseo_cli_init() {
+		_deprecated_function( __FUNCTION__, 'Yoast SEO 19.6.1' );
 	}
 }

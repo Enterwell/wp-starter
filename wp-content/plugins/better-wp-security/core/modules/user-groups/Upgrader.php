@@ -2,7 +2,7 @@
 
 namespace iThemesSecurity\User_Groups;
 
-use iThemesSecurity\User_Groups\Module\Settings;
+use iThemesSecurity\Exception\Invalid_Argument_Exception;
 use iThemesSecurity\User_Groups\Repository\Repository;
 use ITSEC_Lib_Canonical_Roles;
 
@@ -11,18 +11,16 @@ final class Upgrader {
 	/** @var Repository */
 	private $user_groups;
 
-	/** @var Settings */
-	private $settings;
+	/** @var User_Group[] */
+	private $defaults = [];
 
 	/**
 	 * Upgrader constructor.
 	 *
 	 * @param Repository $user_groups
-	 * @param Settings   $settings
 	 */
-	public function __construct( Repository $user_groups, Settings $settings ) {
+	public function __construct( Repository $user_groups ) {
 		$this->user_groups = $user_groups;
-		$this->settings    = $settings;
 	}
 
 	/**
@@ -44,7 +42,7 @@ final class Upgrader {
 		}
 
 		$user_group->set_label( $label );
-		$this->user_groups->persist( $user_group );
+		$this->user_groups->persist( $user_group, [] );
 
 		return $user_group;
 	}
@@ -64,7 +62,7 @@ final class Upgrader {
 				continue;
 			}
 
-			$groups[] = $this->settings->get_default_group_id( $role, true );
+			$groups[] = $this->get_default_group_id( $role );
 		}
 
 		if ( 'subscriber' === $min_role ) {
@@ -72,5 +70,95 @@ final class Upgrader {
 		}
 
 		return $groups;
+	}
+
+	/**
+	 * Get the default user group.
+	 *
+	 * @param string $name     The name of the group.
+	 *
+	 * @return string
+	 *
+	 * @throws Invalid_Argument_Exception
+	 * @throws \iThemesSecurity\Exception\WP_Error
+	 */
+	public function get_default_group_id( $name ) {
+		if ( ! in_array( $name, \ITSEC_Lib_Canonical_Roles::get_canonical_roles( false ), true ) ) {
+			throw new Invalid_Argument_Exception( sprintf( __( 'No default group called %s', 'better-wp-security' ), $name ) );
+		}
+
+		if ( ! isset( $this->defaults[ $name ] ) ) {
+			$this->create_default_groups();
+		}
+
+		if ( $this->user_groups->has( $this->defaults[ $name ] ) ) {
+			return $this->defaults[ $name ];
+		}
+
+		$prototype = new User_Group( $this->user_groups->next_id() );
+		$this->configure_group( $prototype, $name );
+
+		foreach ( $this->user_groups->all() as $group ) {
+			if ( $group->equals( $prototype ) ) {
+				$this->defaults[ $name ] = $group->get_id();
+
+				return $group->get_id();
+			}
+		}
+
+		$this->user_groups->persist( $prototype, [ 'is_default' => $name ] );
+		$this->defaults[ $name ] = $prototype->get_id();
+
+		return $prototype->get_id();
+	}
+
+	/**
+	 * Get the default canonical groups and the everybody-else group.
+	 *
+	 * @return string[]
+	 */
+	public function get_groups_for_all_users() {
+		$groups = [];
+
+		foreach ( \ITSEC_Lib_Canonical_Roles::get_canonical_roles( false ) as $canonical ) {
+			if ( $group = $this->get_default_group_id( $canonical ) ) {
+				$groups[] = $group;
+			}
+		}
+
+		$groups[] = Everybody_Else::ID;
+
+		return $groups;
+	}
+
+	/**
+	 * Create the default user groups.
+	 */
+	private function create_default_groups() {
+		foreach ( \ITSEC_Lib_Canonical_Roles::get_canonical_roles( false ) as $role ) {
+			if ( ! isset( $this->defaults[ $role ] ) ) {
+				$group = new User_Group( $this->user_groups->next_id() );
+				$this->configure_group( $group, $role );
+				$this->user_groups->persist( $group, [ 'is_default' => $role ] );
+				$this->defaults[ $role ] = $group->get_id();
+			}
+		}
+	}
+
+	/**
+	 * Configure a group
+	 *
+	 * @param User_Group $group
+	 * @param string     $type
+	 *
+	 * @return void
+	 */
+	private function configure_group( User_Group $group, $type ) {
+		$group->add_canonical_role( $type );
+		$group->set_label( sprintf( __( '%s Users', 'better-wp-security' ), translate_user_role( ucfirst( $type ) ) ) );
+
+		if ( $type === 'administrator' && is_multisite() ) {
+			$group->add_canonical_role( 'super-admin' );
+		}
 	}
 }

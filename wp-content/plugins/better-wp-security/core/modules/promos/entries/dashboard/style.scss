@@ -1,0 +1,105 @@
+.itsec-promo-pro-upgrade {
+    display: flex;
+    align-items: center;
+    background: transparent conic-gradient(from 270deg at 63% -6%, #002338 0.00%, #0083E3 100.00%) 0 0 no-repeat padding-box;
+    border: 1px solid $border-color;
+    border-radius: .5rem;
+    color: $white;
+    margin: 20px 20px 0;
+    padding: 1em;
+    flex-direction: column;
+    position: relative;
+
+    & > * {
+        margin-bottom: 1rem;
+    }
+
+    @include break-small {
+        flex-direction: row;
+
+        & > * {
+            margin-bottom: 0;
+        }
+    }
+
+    @include break-large {
+        padding: 1em 2em;
+    }
+
+    svg {
+        height: 5rem;
+
+        @include break-small {
+            margin-right: 2rem;
+        }
+    }
+
+    section {
+        text-align: center;
+
+        @include break-small {
+            text-align: left;
+        }
+    }
+
+    h2 {
+        color: $white;
+        margin: 0;
+    }
+
+    p {
+        margin: .5rem 0 0 0;
+    }
+
+    .itsec-component-flex-spacer {
+        display: none;
+
+        @include break-small {
+            display: revert;
+        }
+    }
+
+    .itsec-promo-pro-upgrade__details {
+        color: $white;
+
+        &:hover {
+            color: $background-blue;
+        }
+
+        @include break-small {
+            display: none;
+        }
+
+        @include break-xlarge {
+            display: revert;
+        }
+    }
+
+    .itsec-promo-pro-upgrade__button {
+        background-color: #002338;
+        color: $white;
+        height: auto; // Core forces a height of 36px exactly.
+        min-height: 36px;
+        text-align: center;
+        margin-bottom: 0;
+
+        @include break-small {
+            margin-left: 1rem;
+        }
+
+        &:hover {
+            background-color: #0082e1;
+        }
+    }
+
+    .itsec-promo-pro-upgrade__close {
+        color: $white;
+        position: absolute;
+        top: 0;
+        right: 0;
+
+        &:hover {
+            color: $background-blue;
+        }
+    }
+}

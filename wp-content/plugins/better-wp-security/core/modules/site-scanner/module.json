@@ -1,0 +1,73 @@
+{
+  "id": "site-scanner",
+  "status": "always-active",
+  "type": "site-check",
+  "title": "Site Scanner",
+  "settings": {
+    "type": "object",
+    "properties": {
+      "vulnerabilities": {
+        "type": "array",
+        "items": {
+          "type": "object"
+        },
+        "default": [],
+        "readonly": true
+      },
+      "muted_issues": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": [
+            "id",
+            "muted_at",
+            "muted_by"
+          ],
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "muted_at": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "muted_by": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "additionalProperties": false
+        },
+        "default": [],
+        "readonly": true
+      },
+      "registered_sites": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "object",
+          "required": [
+            "url",
+            "key"
+          ],
+          "properties": {
+            "url": {
+              "type": "string",
+              "format": "uri"
+            },
+            "key": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "additionalProperties": false
+        },
+        "default": [],
+        "readonly": true
+      }
+    }
+  },
+  "removed-settings": [
+    "public_key",
+    "secret_key"
+  ]
+}

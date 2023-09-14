@@ -1,0 +1,21 @@
+.itsec-split-button {
+    display: inline-flex;
+    align-items: center;
+
+    .itsec-split-button__main {
+        border-radius: 0;
+    }
+
+    .itsec-split-button__dropdown {
+        display: inline-flex;
+
+        .components-button {
+            border-radius: 0;
+
+            @at-root .is-small#{&} {
+                width: 30px;
+                min-width: 0;
+            }
+        }
+    }
+}

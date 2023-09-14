@@ -1,0 +1,148 @@
+{
+  "id": "wordpress-tweaks",
+  "status": "always-active",
+  "type": "advanced",
+  "title": "WordPress Tweaks",
+  "description": "Make changes to the default behavior of WordPress.",
+  "help": "Increase the security of your website by removing the ability to edit files from the WordPress dashboard and limiting how APIs and users access your site.",
+  "settings": {
+    "type": "object",
+    "properties": {
+      "file_editor": {
+        "type": "boolean",
+        "default": true,
+        "title": "Disable File Editor",
+        "description": "Disables the WordPress file editor for plugins and themes. Once activated you will need to manually edit files using FTP or other tools."
+      },
+      "disable_xmlrpc": {
+        "type": "string",
+        "oneOf": [
+          {
+            "enum": [
+              "disable"
+            ],
+            "title": "Disable XML-RPC",
+            "description": "XML-RPC is disabled on the site. This setting is highly recommended if Jetpack, the WordPress mobile app, pingbacks, and other services that use XML-RPC are not used."
+          },
+          {
+            "enum": [
+              "disable_pingbacks"
+            ],
+            "title": "Disable Pingbacks",
+            "description": "Only disable pingbacks. Other XML-RPC features will work as normal. Select this setting if you require features such as Jetpack or the WordPress Mobile app."
+          },
+          {
+            "enum": [
+              "enable"
+            ],
+            "title": "Enable XML-RPC",
+            "description": "XML-RPC is fully enabled and will function as normal. Use this setting only if the site must have unrestricted use of XML-RPC."
+          }
+        ],
+        "default": "enable",
+        "title": "XML-RPC",
+        "description": "The WordPress XML-RPC API allows external services to access and modify content on the site. Common example of services that make use of XML-RPC are [the Jetpack plugin](https://jetpack.com), [the WordPress mobile apps](https://wordpress.org/mobile/), and [pingbacks](https://wpbeg.in/IiI0sh). If the site does not use a service that requires XML-RPC, select the “Disable XML-RPC” setting as disabling XML-RPC prevents attackers from using the feature to attack the site."
+      },
+      "allow_xmlrpc_multiauth": {
+        "type": "boolean",
+        "default": false,
+        "title": "Allow Multiple Authentication Attempts per XML-RPC Request",
+        "description": "By default, the WordPress XML-RPC API allows hundreds of username and password guesses per request. Turn off this setting to prevent attackers from exploiting this feature."
+      },
+      "rest_api": {
+        "type": "string",
+        "oneOf": [
+          {
+            "enum": [
+              "default-access"
+            ],
+            "title": "Default Access",
+            "description": "Access to REST API data is left as default. Information including published posts, user details, and media library entries is available for public access."
+          },
+          {
+            "enum": [
+              "restrict-access"
+            ],
+            "title": "Restricted Access",
+            "description": "Restrict access to most REST API data. This means that most requests will require a logged in user or a user with specific privileges, blocking public requests for potentially-private data. We recommend selecting this option."
+          }
+        ],
+        "default": "default-access",
+        "title": "REST API",
+        "description": "The WordPress REST API is part of WordPress and provides developers with new ways to manage WordPress. By default, it could give public access to information that you believe is private on your site."
+      },
+      "valid_user_login_type": {
+        "type": "string",
+        "oneOf": [
+          {
+            "enum": [
+              "both"
+            ],
+            "title": "Email Address and Username",
+            "description": "Allow users to log in using their user’s email address or username. This is the default WordPress behavior."
+          },
+          {
+            "enum": [
+              "email"
+            ],
+            "title": "Email Address Only",
+            "description": "Users can only log in using their user’s email address. This disables logging in using a username."
+          },
+          {
+            "enum": [
+              "username"
+            ],
+            "title": "Username Only",
+            "description": "Users can only log in using their user’s username. This disables logging in using an email address."
+          }
+        ],
+        "default": "both",
+        "title": "Login with Email Address or Username",
+        "description": "By default, WordPress allows users to log in using either an email address or username. This setting allows you to restrict logins to only accept email addresses or usernames."
+      },
+      "force_unique_nicename": {
+        "type": "boolean",
+        "default": false,
+        "title": "Force Unique Nickname",
+        "description": "This forces users to choose a unique nickname when updating their profile or creating a new account which prevents bots and attackers from easily harvesting user’s login usernames from the code on author pages. Note this does not automatically update existing users as it will affect author feed urls if used."
+      },
+      "disable_unused_author_pages": {
+        "type": "boolean",
+        "default": false,
+        "title": "Disable Extra User Archives",
+        "description": "Disables a user’s author page if their post count is 0. This makes it harder for bots to determine usernames by disabling post archives for users that don’t write content for your site."
+      }
+    },
+    "uiSchema": {
+      "rest_api": {
+        "ui:widget": "radio"
+      },
+      "ui:sections": [
+        {
+          "title": "API Access",
+          "fields": [
+            "disable_xmlrpc",
+            "allow_xmlrpc_multiauth",
+            "rest_api"
+          ]
+        },
+        {
+          "title": "Users",
+          "fields": [
+            "valid_user_login_type",
+            "force_unique_nicename",
+            "disable_unused_author_pages"
+          ]
+        }
+      ]
+    }
+  },
+  "removed-settings": [
+    "wlwmanifest_header",
+    "edituri_header",
+    "comment_spam",
+    "login_errors",
+    "block_tabnapping",
+    "patch_thumb_file_traversal"
+  ]
+}

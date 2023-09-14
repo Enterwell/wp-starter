@@ -7,7 +7,15 @@ import { registerPlugin } from '@wordpress/plugins';
  * Internal dependencies
  */
 import '@ithemes/security.core.admin-notices-api';
-import AdminBar from './admin-notices/components/admin-bar';
+import { AdminBarFill } from '@ithemes/security.dashboard.api';
+import ToolbarButton from './admin-notices/components/toolbar-button';
+
 registerPlugin( 'itsec-admin-notices-dashboard-admin-bar', {
-	render: AdminBar,
+	render() {
+		return (
+			<AdminBarFill>
+				<ToolbarButton />
+			</AdminBarFill>
+		);
+	},
 } );

@@ -1,9 +1,4 @@
 <?php
-/**
- * WPSEO plugin file.
- *
- * @package Yoast\WP\SEO\Generators\Schema
- */
 
 namespace Yoast\WP\SEO\Generators\Schema;
 
@@ -26,48 +21,52 @@ class Organization extends Abstract_Schema_Piece {
 	/**
 	 * Returns the Organization Schema data.
 	 *
-	 * @return array $data The Organization schema.
+	 * @return array The Organization schema.
 	 */
 	public function generate() {
 		$logo_schema_id = $this->context->site_url . Schema_IDs::ORGANIZATION_LOGO_HASH;
 
-		return [
-			'@type'  => 'Organization',
-			'@id'    => $this->context->site_url . Schema_IDs::ORGANIZATION_HASH,
-			'name'   => $this->helpers->schema->html->smart_strip_tags( $this->context->company_name ),
-			'url'    => $this->context->site_url,
-			'sameAs' => $this->fetch_social_profiles(),
-			'logo'   => $this->helpers->schema->image->generate_from_attachment_id( $logo_schema_id, $this->context->company_logo_id, $this->context->company_name ),
-			'image'  => [ '@id' => $logo_schema_id ],
+		if ( $this->context->company_logo_meta ) {
+			$logo = $this->helpers->schema->image->generate_from_attachment_meta( $logo_schema_id, $this->context->company_logo_meta, $this->context->company_name );
+		}
+		else {
+			$logo = $this->helpers->schema->image->generate_from_attachment_id( $logo_schema_id, $this->context->company_logo_id, $this->context->company_name );
+		}
+
+		$organization = [
+			'@type' => 'Organization',
+			'@id'   => $this->context->site_url . Schema_IDs::ORGANIZATION_HASH,
+			'name'  => $this->helpers->schema->html->smart_strip_tags( $this->context->company_name ),
 		];
+
+		if ( ! empty( $this->context->company_alternate_name ) ) {
+			$organization['alternateName'] = $this->context->company_alternate_name;
+		}
+
+		$organization['url']   = $this->context->site_url;
+		$organization['logo']  = $logo;
+		$organization['image'] = [ '@id' => $logo['@id'] ];
+
+		$same_as = \array_values( \array_unique( \array_filter( $this->fetch_social_profiles() ) ) );
+		if ( ! empty( $same_as ) ) {
+			$organization['sameAs'] = $same_as;
+		}
+
+		return $organization;
 	}
 
 	/**
 	 * Retrieve the social profiles to display in the organization schema.
 	 *
-	 * @return array $profiles An array of social profiles.
+	 * @return array An array of social profiles.
 	 */
 	private function fetch_social_profiles() {
-		$profiles        = [];
-		$social_profiles = [
-			'facebook_site',
-			'instagram_url',
-			'linkedin_url',
-			'myspace_url',
-			'youtube_url',
-			'pinterest_url',
-			'wikipedia_url',
-		];
-		foreach ( $social_profiles as $profile ) {
-			$social_profile = $this->helpers->options->get( $profile, '' );
-			if ( $social_profile !== '' ) {
-				$profiles[] = \urldecode( $social_profile );
-			}
-		}
+		$profiles = $this->helpers->social_profiles->get_organization_social_profiles();
 
-		$twitter = $this->helpers->options->get( 'twitter_site', '' );
-		if ( $twitter !== '' ) {
-			$profiles[] = 'https://twitter.com/' . $twitter;
+		if ( isset( $profiles['other_social_urls'] ) ) {
+			$other_social_urls = $profiles['other_social_urls'];
+			unset( $profiles['other_social_urls'] );
+			$profiles = \array_merge( $profiles, $other_social_urls );
 		}
 
 		/**

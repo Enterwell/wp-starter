@@ -11,7 +11,11 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link href="<?php echo plugin_dir_url( __FILE__ ) . 'lockout.css'; ?>" type="text/css" rel="stylesheet">
-	<?php wp_no_robots(); ?>
+	<?php if ( ITSEC_Lib::is_wp_version_at_least( '5.7' ) ):; ?>
+		<?php wp_robots(); ?>
+	<?php else: ?>
+		<?php wp_no_robots(); ?>
+	<?php endif; ?>
 	<title><?php esc_html_e( 'Forbidden', 'better-wp-security' ); ?></title>
 </head>
 <body id="error-page">

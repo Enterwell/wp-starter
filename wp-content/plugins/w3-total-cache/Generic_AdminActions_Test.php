@@ -27,42 +27,54 @@ class Generic_AdminActions_Test {
 	 * @return void
 	 */
 	function w3tc_test_memcached() {
-		$servers = Util_Request::get_array( 'servers' );
+		$servers 		 = Util_Request::get_array( 'servers' );
+		$binary_protocol = Util_Request::get_boolean( 'binary_protocol', true );
+		$username        = Util_Request::get_string( 'username', '' );
+		$password        = Util_Request::get_string( 'password', '' );
 
-		$this->respond_test_result( $this->is_memcache_available( $servers ) );
+		$this->respond_test_result( $this->is_memcache_available( $servers, $binary_protocol, $username, $password ) );
 	}
 
 	/**
-	 * Test memcached
-	 *
-	 * @return void
+	 * Test redis
 	 */
-	function w3tc_test_redis() {
-		$servers = Util_Request::get_array( 'servers' );
-		$password   = Util_Request::get_string('password', '');
-		$dbid       = Util_Request::get_integer( 'dbid', 0 );
+	public function w3tc_test_redis() {
+		$servers                 = Util_Request::get_array( 'servers' );
+		$verify_tls_certificates = Util_Request::get_boolean('verify_tls_certificates', true );
+		$password                = Util_Request::get_string('password', '');
+		$dbid                    = Util_Request::get_integer( 'dbid', 0 );
 
-		if ( count( $servers ) <= 0 )
+		if ( count( $servers ) <= 0 ) {
 			$success = false;
-		else {
+		} else {
 			$success = true;
 
 			foreach ( $servers as $server ) {
-				@$cache = Cache::instance( 'redis', array(
-						'servers' => $server,
-						'persistent' => false,
-						'password' => $password,
-						'dbid' => $dbid
-					) );
-				if ( is_null( $cache ) )
+				@$cache = Cache::instance( // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+					'redis',
+					array(
+						'servers'                 => $server,
+						'verify_tls_certificates' => $verify_tls_certificates,
+						'persistent'              => false,
+						'password'                => $password,
+						'dbid'                    => $dbid,
+					)
+				);
+
+				if ( is_null( $cache ) ) {
 					$success = false;
+				}
 
 				$test_string = sprintf( 'test_' . md5( time() ) );
-				$test_value = array( 'content' => $test_string );
+				$test_value  = array( 'content' => $test_string );
+
 				$cache->set( $test_string, $test_value, 60 );
+
 				$test_value = $cache->get( $test_string );
-				if ( $test_value['content'] != $test_string )
+
+				if ( isset( $test_value['content'] ) && $test_value['content'] !== $test_string ) {
 					$success = false;
+				}
 			}
 		}
 
@@ -82,7 +94,7 @@ class Generic_AdminActions_Test {
 			);
 		}
 
-		echo json_encode( $response );
+		echo wp_json_encode( $response );
 		exit();
 	}
 
@@ -109,32 +121,32 @@ class Generic_AdminActions_Test {
 		if ( empty( $error ) ) {
 			switch ( $engine ) {
 			case 'yuijs':
-				\Minify_YUICompressor::$tempDir = Util_File::create_tmp_dir();
-				\Minify_YUICompressor::$javaExecutable = $path_java;
-				\Minify_YUICompressor::$jarFile = $path_jar;
+				\W3TCL\Minify\Minify_YUICompressor::$tempDir = Util_File::create_tmp_dir();
+				\W3TCL\Minify\Minify_YUICompressor::$javaExecutable = $path_java;
+				\W3TCL\Minify\Minify_YUICompressor::$jarFile = $path_jar;
 
-				$result = \Minify_YUICompressor::testJs( $error );
+				$result = \W3TCL\Minify\Minify_YUICompressor::testJs( $error );
 				break;
 
 			case 'yuicss':
-				\Minify_YUICompressor::$tempDir = Util_File::create_tmp_dir();
-				\Minify_YUICompressor::$javaExecutable = $path_java;
-				\Minify_YUICompressor::$jarFile = $path_jar;
+				\W3TCL\Minify\Minify_YUICompressor::$tempDir = Util_File::create_tmp_dir();
+				\W3TCL\Minify\Minify_YUICompressor::$javaExecutable = $path_java;
+				\W3TCL\Minify\Minify_YUICompressor::$jarFile = $path_jar;
 
-				$result = \Minify_YUICompressor::testCss( $error );
+				$result = \W3TCL\Minify\Minify_YUICompressor::testCss( $error );
 				break;
 
 			case 'ccjs':
-				\Minify_ClosureCompiler::$tempDir = Util_File::create_tmp_dir();
-				\Minify_ClosureCompiler::$javaExecutable = $path_java;
-				\Minify_ClosureCompiler::$jarFile = $path_jar;
+				\W3TCL\Minify\Minify_ClosureCompiler::$tempDir = Util_File::create_tmp_dir();
+				\W3TCL\Minify\Minify_ClosureCompiler::$javaExecutable = $path_java;
+				\W3TCL\Minify\Minify_ClosureCompiler::$jarFile = $path_jar;
 
-				$result = \Minify_ClosureCompiler::test( $error );
+				$result = \W3TCL\Minify\Minify_ClosureCompiler::test( $error );
 				break;
 
 			case 'googleccjs':
 
-				$result = \Minify_JS_ClosureCompiler::test( $error );
+				$result = \W3TCL\Minify\Minify_JS_ClosureCompiler::test( $error );
 				break;
 
 			default:
@@ -157,14 +169,17 @@ class Generic_AdminActions_Test {
 	 * @param array   $servers
 	 * @return boolean
 	 */
-	private function is_memcache_available( $servers ) {
+	private function is_memcache_available( $servers, $binary_protocol, $username, $password ) {
 		if ( count( $servers ) <= 0 )
 			return false;
 
 		foreach ( $servers as $server ) {
 			@$memcached = Cache::instance( 'memcached', array(
 					'servers' => $server,
-					'persistent' => false
+					'persistent' => false,
+					'binary_protocol' => $binary_protocol,
+					'username' => $username,
+					'password' => $password
 				) );
 			if ( is_null( $memcached ) )
 				return false;
@@ -195,24 +210,5 @@ class Generic_AdminActions_Test {
 	function w3tc_test_minify_recommendations() {
 		$options_minify = new Minify_Page();
 		$options_minify->recommendations();
-	}
-
-
-	/**
-	 * Page Speed results action
-	 *
-	 * @return void
-	 */
-	function w3tc_test_pagespeed_results() {
-		$title = 'Google Page Speed';
-
-		$config = Dispatcher::config();
-		$key = $config->get_string( 'widget.pagespeed.key' );
-		$ref = $config->get_string( 'widget.pagespeed.key.restrict.referrer' );
-
- 		$w3_pagespeed = new PageSpeed_Api( $key, $ref );
-
-		$results = $w3_pagespeed->analyze( get_home_url() );
-		include W3TC_INC_POPUP_DIR . '/pagespeed_results.php';
 	}
 }

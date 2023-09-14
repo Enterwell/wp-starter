@@ -1,5 +1,7 @@
 <?php
 
+use iThemesSecurity\Lib\Legacy_Password_Requirement;
+use iThemesSecurity\Lib\Password_Requirement;
 use iThemesSecurity\User_Groups;
 
 /**
@@ -7,13 +9,13 @@ use iThemesSecurity\User_Groups;
  */
 class ITSEC_Lib_Password_Requirements {
 
-	/** @var array[] */
+	/** @var Password_Requirement[] */
 	private static $requirements;
 
 	/**
 	 * Get all registered password requirements.
 	 *
-	 * @return array
+	 * @return Password_Requirement[]
 	 */
 	public static function get_registered() {
 		if ( null === self::$requirements ) {
@@ -31,10 +33,20 @@ class ITSEC_Lib_Password_Requirements {
 	/**
 	 * Register a password requirement.
 	 *
-	 * @param string $reason_code
-	 * @param array  $opts
+	 * @param Password_Requirement|string $requirement_or_code
+	 * @param array                       $opts
 	 */
-	public static function register( $reason_code, $opts ) {
+	public static function register( $requirement_or_code, $opts = [] ) {
+		if ( $requirement_or_code instanceof Password_Requirement ) {
+			self::$requirements[ $requirement_or_code->get_code() ] = $requirement_or_code;
+
+			return;
+		}
+
+		_doing_it_wrong( __METHOD__, 'Pass a Password_Requirement instance instead of a configuration array.', '7.0.0' );
+
+		$reason_code = $requirement_or_code;
+
 		$merged = wp_parse_args( $opts, array(
 			'evaluate'                => null,
 			'validate'                => null,
@@ -51,6 +63,7 @@ class ITSEC_Lib_Password_Requirements {
 			( ! is_callable( $merged['validate'] ) || ! is_callable( $merged['evaluate'] ) )
 		) {
 			_doing_it_wrong( __METHOD__, 'Validate and evaluate must be callable if defined.', '5.8.0' );
+
 			return;
 		}
 
@@ -63,6 +76,7 @@ class ITSEC_Lib_Password_Requirements {
 		if ( array_key_exists( 'defaults', $opts ) ) {
 			if ( ! is_array( $merged['defaults'] ) ) {
 				_doing_it_wrong( __METHOD__, 'Defaults must be an array if defined.', '5.8.0' );
+
 				return;
 			}
 
@@ -79,7 +93,7 @@ class ITSEC_Lib_Password_Requirements {
 			return;
 		}
 
-		self::$requirements[ $reason_code ] = $merged;
+		self::$requirements[ $reason_code ] = new Legacy_Password_Requirement( $reason_code, $merged );
 	}
 
 	/**
@@ -100,8 +114,9 @@ class ITSEC_Lib_Password_Requirements {
 		$registered = self::get_registered();
 
 		if ( isset( $registered[ $reason ] ) ) {
-			$settings = self::get_requirement_settings( $reason );
-			$message  = call_user_func( $registered[ $reason ]['reason'], get_user_meta( $user->ID, $registered[ $reason ]['meta'], true ), $settings );
+			$settings   = self::get_requirement_settings( $reason );
+			$evaluation = get_user_meta( $user->ID, $registered[ $reason ]->get_meta_key(), true );
+			$message    = $registered[ $reason ]->get_reason_message( $evaluation, $settings );
 		}
 
 		/**
@@ -289,9 +304,12 @@ class ITSEC_Lib_Password_Requirements {
 			return false;
 		}
 
-		// If the requirement does not have any settings, than it is always enabled.
-		if ( null === $requirements[ $requirement ]['settings_config'] ) {
+		if ( $requirements[ $requirement ]->is_always_enabled() ) {
 			return true;
+		}
+
+		if ( $requirements[ $requirement ]->has_user_group() ) {
+			return ! empty( self::get_requirement_settings( $requirement )['group'] );
 		}
 
 		$enabled = ITSEC_Modules::get_setting( 'password-requirements', 'enabled_requirements' );
@@ -308,23 +326,22 @@ class ITSEC_Lib_Password_Requirements {
 	 *
 	 * @param string $requirement
 	 *
-	 * @return array|false
+	 * @return array
 	 */
 	public static function get_requirement_settings( $requirement ) {
 
 		$requirements = self::get_registered();
 
 		if ( ! isset( $requirements[ $requirement ] ) ) {
-			return false;
+			return [];
 		}
 
-		if ( null === $requirements[ $requirement ]['settings_config'] ) {
-			return false;
+		if ( ! $requirements[ $requirement ]->get_settings_schema() ) {
+			return [];
 		}
 
 		$all_settings = ITSEC_Modules::get_setting( 'password-requirements', 'requirement_settings' );
-		$settings     = isset( $all_settings[ $requirement ] ) ? $all_settings[ $requirement ] : array();
 
-		return wp_parse_args( $settings, $requirements[ $requirement ]['defaults'] );
+		return $all_settings[ $requirement ] ?? [];
 	}
 }

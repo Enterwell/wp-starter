@@ -300,7 +300,7 @@ class ITSEC_File_Change_Scanner {
 		if ( $storage->is_empty() ) {
 			ITSEC_Lib::release_lock( 'file-change' );
 			ITSEC_Log::add_debug( 'file_change', 'skipping-recovery::empty-storage', array(
-				'backtrace' => debug_backtrace()
+				'backtrace' => wp_debug_backtrace_summary(),
 			) );
 
 			return false;
@@ -1085,9 +1085,15 @@ class ITSEC_File_Change_Scanner {
 	private function generate_notification_email( $email_details ) {
 		$mail = ITSEC_Core::get_notification_center()->mail();
 
+		$tracking_link = ITSEC_Core::is_pro()
+			? 'https://go.solidwp.com/security-file-change-email-ithemes-becoming-solidwp'
+			: 'https://go.solidwp.com/security-free-file-change-ithemes-becoming-solidwp';
+
 		$mail->add_header(
 			esc_html__( 'File Change Warning', 'better-wp-security' ),
-			sprintf( esc_html__( 'File Scan Report for %s', 'better-wp-security' ), '<b>' . date_i18n( get_option( 'date_format' ) ) . '</b>' )
+			sprintf( esc_html__( 'File Scan Report for %s', 'better-wp-security' ), '<b>' . date_i18n( get_option( 'date_format' ) ) . '</b>' ),
+			false,
+			$tracking_link
 		);
 		$mail->add_text( esc_html__( 'A file (or files) on your site have been changed. Please review the report below to verify changes are not the result of a compromise.', 'better-wp-security' ) );
 

@@ -11,7 +11,7 @@ final class ITSEC_Backup_Privacy {
 	}
 
 	public function get_privacy_policy_for_retention( $policy ) {
-		$suggested_text = '<strong class="privacy-policy-tutorial">' . __( 'Suggested text:' ) . ' </strong>';
+		$suggested_text = '<strong class="privacy-policy-tutorial">' . __( 'Suggested text:', 'better-wp-security' ) . ' </strong>';
 
 		if ( $this->settings['enabled'] ) {
 			if ( 1 !== $this->settings['method'] ) {

@@ -36,7 +36,7 @@ final class In_Memory_Repository implements Repository {
 		return isset( $this->memory[ $id ] );
 	}
 
-	public function persist( User_Group $user_group ) {
+	public function persist( User_Group $user_group, array $args = [] ) {
 		$created = empty( $this->memory[ $user_group->get_id() ] );
 
 		$this->memory[ $user_group->get_id() ] = $user_group;
@@ -49,7 +49,7 @@ final class In_Memory_Repository implements Repository {
 			 *
 			 * @param User_Group $user_group
 			 */
-			do_action( 'itsec_create_user_group', $user_group );
+			do_action( 'itsec_create_user_group', $user_group, $args );
 		} else {
 			/**
 			 * Fires when a user group is updated.
@@ -58,7 +58,7 @@ final class In_Memory_Repository implements Repository {
 			 *
 			 * @param User_Group $user_group
 			 */
-			do_action( 'itsec_update_user_group', $user_group );
+			do_action( 'itsec_update_user_group', $user_group, $args );
 		}
 	}
 

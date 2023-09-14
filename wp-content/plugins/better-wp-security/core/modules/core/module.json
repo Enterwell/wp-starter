@@ -1,0 +1,75 @@
+{
+  "id": "core",
+  "type": "recommended",
+  "status": "always-active",
+  "title": "Core",
+  "scheduling": {
+    "clear-locks": {
+      "schedule": "daily",
+      "type": "recurring"
+    },
+    "clear-tokens": {
+      "schedule": "daily",
+      "type": "recurring"
+    },
+    "purge-lockouts": {
+      "schedule": "daily",
+      "type": "recurring"
+    },
+    "enable-encryption": {
+      "schedule": "daily",
+      "type": "recurring"
+    }
+  },
+  "feature-flags": {
+    "enable_encryption": {
+      "remote": true,
+      "rate": 100,
+      "title": "Enable Encryption",
+      "description": "Automatically enables encryption for Two-Factor if available.",
+      "documentation": "https://ithemes.com/?p=84653"
+    }
+  },
+  "tools": {
+    "set-encryption-key": {
+      "title": "Set Encryption Key",
+      "description": "Sets a secure key that iThemes Security uses to encrypt sensitive values like Two-Factor codes.",
+      "help": "iThemes Security will add a constant to your website’s <code>wp-config.php</code> file named <code>ITSEC_ENCRYPTION_KEY</code>.",
+      "keywords": [
+        "encryption"
+      ],
+      "form": {
+        "type": "object",
+        "properties": {
+          "confirm": {
+            "type": "boolean",
+            "title": "Confirm Reset Key",
+            "description": "Confirm you want to reset the encryption key to a new value."
+          }
+        }
+      }
+    },
+    "rotate-encryption-key": {
+      "title": "Rotate Encryption Key",
+      "description": "Updates all encrypted values to use the new encryption key.",
+      "help": "If you’ve manually updated the <code>ITSEC_ENCRYPTION_KEY</code> constant in your website’s <code>wp-config.php</code> file, use this tool to update any existing encrypted values.",
+      "keywords": [
+        "encryption"
+      ],
+      "form": {
+        "type": "object",
+        "required": [
+          "previous"
+        ],
+        "properties": {
+          "previous": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Previous Key",
+            "description": "Provide the previous value of <code>ITSEC_ENCRYPTION_KEY</code>."
+          }
+        }
+      }
+    }
+  }
+}

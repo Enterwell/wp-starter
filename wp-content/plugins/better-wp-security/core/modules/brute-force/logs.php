@@ -38,7 +38,7 @@ final class ITSEC_Brute_Force_Logs {
 		}
 
 		$details['source'] = array(
-			'header'  => esc_html__( 'Login Source' ),
+			'header'  => esc_html__( 'Login Source', 'better-wp-security' ),
 			'content' => $source,
 		);
 

@@ -1,5 +1,8 @@
 <?php
 
+use iThemesSecurity\Ban_Users\Database_Repository;
+use \iThemesSecurity\Ban_Hosts\Filters;
+
 final class ITSEC_Ban_Users_Config_Generators {
 	public static function get_server_config_default_blacklist_rules( $server_type ) {
 		$rules = '';
@@ -24,18 +27,18 @@ final class ITSEC_Ban_Users_Config_Generators {
 	}
 
 	public static function get_server_config_ban_hosts_rules( $server_type ) {
-		$host_list = ITSEC_Modules::get_setting( 'ban-users', 'host_list', array() );
-
-		if ( ! is_array( $host_list ) || empty( $host_list ) ) {
-			return '';
-		}
-
 		/**
 		 * Filters the maximum number of IPs to include in the server config file.
 		 *
 		 * @param int $max_hosts The maximum IPs. Defaults to 100.
 		 */
-		$max_hosts = apply_filters( 'itsec_ban_users_max_hosts_for_server_config', 100 );
+		$max_hosts = apply_filters( 'itsec_ban_users_max_hosts_for_server_config', ITSEC_Modules::get_setting( 'ban-users', 'server_config_limit' ) );
+
+		$host_list = ITSEC_Modules::get_container()->get( Database_Repository::class )->get_bans( ( new Filters() )->with_limit( $max_hosts ) );
+
+		if ( ! $host_list ) {
+			return '';
+		}
 
 		$hosts = array_slice( $host_list, -$max_hosts, $max_hosts );
 

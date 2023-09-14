@@ -122,30 +122,46 @@ class ITSEC_Lib_Login_Interstitial {
 	}
 
 	/**
-	 * Show the interstitial.
+	 * Renders the current interstitial, or if no more interstitials
+	 * are available, log the user in.
 	 *
 	 * @api
 	 *
 	 * @param ITSEC_Login_Interstitial_Session $session
+	 * @param array                            $args
 	 *
 	 * @return void
 	 */
-	public function show_interstitial( ITSEC_Login_Interstitial_Session $session ) {
+	public function render_current_interstitial_or_login( ITSEC_Login_Interstitial_Session $session, array $args = array() ) {
+		if ( $session->get_current_interstitial() ) {
+			$this->show_interstitial( $session );
+		} else {
+			if ( true === $args['delete'] ) {
+				$session->delete();
+			}
 
-		if ( ! isset( $this->registered[ $session->get_current_interstitial() ] ) ) {
-			return;
+			$this->handle_interstitials_completed( $session, $args );
 		}
+	}
 
-		$this->current_session = $session;
+	/**
+	 * Do the next step for a session.
+	 *
+	 * If there are more steps, show the next step, otherwise log the user in.
+	 *
+	 * @api
+	 *
+	 * @param ITSEC_Login_Interstitial_Session $session
+	 * @param array                            $args
+	 */
+	public function do_next_step( ITSEC_Login_Interstitial_Session $session, array $args = array() ) {
+		$args = wp_parse_args( $args, array(
+			'delete'        => true,
+			'allow_interim' => true,
+		) );
 
-		$interstitial = $this->registered[ $session->get_current_interstitial() ];
-
-		if ( $interstitial->is_completion_forced( $session ) ) {
-			$this->destroy_session_token( $session->get_user() );
-		}
-
-		$this->login_html( $session );
-		die;
+		$this->proceed_to_next( $session );
+		$this->render_current_interstitial_or_login( $session, $args );
 	}
 
 	/**
@@ -159,8 +175,9 @@ class ITSEC_Lib_Login_Interstitial {
 	 */
 	public function proceed_to_next( ITSEC_Login_Interstitial_Session $session ) {
 
-		$current = $session->get_current_interstitial();
-		$session->add_completed_interstitial( $current );
+		if ( $current = $session->get_current_interstitial() ) {
+			$session->add_completed_interstitial( $current );
+		}
 
 		$session->set_current_interstitial( $this->get_next_interstitial( $session ) );
 
@@ -190,7 +207,7 @@ class ITSEC_Lib_Login_Interstitial {
 	 */
 	public function get_async_action_url( ITSEC_Login_Interstitial_Session $session, $action ) {
 
-		$url = $this->get_base_wp_login_url();
+		$url = ITSEC_Lib::get_login_url( '', '', 'login_post' );
 		$url = add_query_arg( array(
 			'action'             => "itsec-{$session->get_current_interstitial()}",
 			self::R_USER         => $session->get_user()->ID,
@@ -228,8 +245,11 @@ class ITSEC_Lib_Login_Interstitial {
 	 * @internal
 	 */
 	public function enqueue() {
-		wp_register_script( 'itsec-login-interstitial-util', plugin_dir_url( __FILE__ ) . '/login-interstitial/util.js', array( 'jquery', 'wp-util' ), 1 );
-		wp_add_inline_script( 'itsec-login-interstitial-util', '(function() { window.itsecLoginInterstitial = new ITSECLoginInterstitial(); window.itsecLoginInterstitial.init() })()' );
+		wp_register_script( 'itsec-login-interstitial-util', plugin_dir_url( __FILE__ ) . 'login-interstitial/util.js', array( 'jquery', 'wp-util' ), 3 );
+		wp_add_inline_script(
+			'itsec-login-interstitial-util',
+			'(function() { window.itsecLoginInterstitial = new ITSECLoginInterstitial(); window.itsecLoginInterstitial.init() })();'
+		);
 	}
 
 	/**
@@ -241,13 +261,17 @@ class ITSEC_Lib_Login_Interstitial {
 	 * @param WP_User $user
 	 */
 	public function wp_login( $username, $user = null ) {
-		$user = $user ? $user : wp_get_current_user();
+		$user = $user ?: wp_get_current_user();
 
 		if ( ! $user || ! $user->exists() ) {
 			return;
 		}
 
-		foreach ( $this->get_applicable_interstitials( $user ) as $action => $opts ) {
+		foreach ( $this->get_applicable_interstitials( $user ) as $action => $interstitial ) {
+			if ( $interstitial->show_on_wp_login_only( $user ) && isset( $_REQUEST['interim-login'] ) ) {
+				continue;
+			}
+
 			$session = ITSEC_Login_Interstitial_Session::create( $user, $action );
 
 			if ( is_wp_error( $session ) ) {
@@ -329,6 +353,9 @@ class ITSEC_Lib_Login_Interstitial {
 		}
 
 		$session = ITSEC_Login_Interstitial_Session::create( $user, $slug );
+		$session->initialize_from_global_state();
+		$session->add_show_after( $slug );
+		$session->save();
 		$this->show_interstitial( $session );
 	}
 
@@ -363,6 +390,36 @@ class ITSEC_Lib_Login_Interstitial {
 	}
 
 	/**
+	 * Show the interstitial.
+	 *
+	 * @internal
+	 *
+	 * @param ITSEC_Login_Interstitial_Session $session
+	 *
+	 * @return void
+	 */
+	public function show_interstitial( ITSEC_Login_Interstitial_Session $session ) {
+
+		if ( ! isset( $this->registered[ $session->get_current_interstitial() ] ) ) {
+			return;
+		}
+
+		$this->current_session = $session;
+
+		$interstitial = $this->registered[ $session->get_current_interstitial() ];
+
+		if ( $interstitial->is_completion_forced( $session ) ) {
+			$this->destroy_session_token( $session->get_user() );
+		} elseif ( $interstitial->show_after_authentication() ) {
+			$this->set_auth_cookie( $session );
+			wp_set_current_user( $session->get_user()->ID );
+		}
+
+		$this->login_html( $session );
+		die;
+	}
+
+	/**
 	 * Handle submitting the interstitial form.
 	 *
 	 * @internal
@@ -374,13 +431,6 @@ class ITSEC_Lib_Login_Interstitial {
 		// If we think we have all finished all the interstitials.
 		// We need to check because another process may have moved the interstitial forward.
 		if ( ! $slug ) {
-			// Double check to ensure we are actually finished.
-			if ( $next = $this->get_next_interstitial( $session ) ) {
-				// If not, display the next interstitial.
-				$session->set_current_interstitial( $next );
-				$session->save();
-			}
-
 			$this->do_next_step( $session );
 		}
 
@@ -420,7 +470,6 @@ class ITSEC_Lib_Login_Interstitial {
 
 		$interstitial->after_submit( $session, $_POST );
 
-		$this->proceed_to_next( $session );
 		$this->do_next_step( $session );
 	}
 
@@ -456,7 +505,7 @@ class ITSEC_Lib_Login_Interstitial {
 
 		if ( isset( $_REQUEST[ self::R_SAME_BROWSER_DENY ] ) ) {
 			$session->delete();
-			wp_redirect( wp_login_url() );
+			wp_safe_redirect( ITSEC_Lib::get_login_url() );
 			die;
 		}
 
@@ -491,8 +540,8 @@ class ITSEC_Lib_Login_Interstitial {
 			$result = array();
 		}
 
-		if ( $args['same_browser'] && empty( $result['allow_same_browser'] ) ) {
-			$this->do_next_step( $session, array(
+		if ( $args['same_browser'] ) {
+			$this->render_current_interstitial_or_login( $session, array(
 				'delete'        => false,
 				'allow_interim' => false,
 			) );
@@ -570,7 +619,7 @@ class ITSEC_Lib_Login_Interstitial {
 		$session      = $this->get_and_verify_session();
 
 		if ( ! $interstitial->show_to_user( $session->get_user(), $session->is_current_requested() ) ) {
-			wp_safe_redirect( wp_login_url() );
+			wp_safe_redirect( ITSEC_Lib::get_login_url() );
 			die;
 		}
 
@@ -591,8 +640,7 @@ class ITSEC_Lib_Login_Interstitial {
 		$action       = $session->get_current_interstitial();
 		$interstitial = $this->registered[ $action ];
 
-		$wp_login_url = $this->get_base_wp_login_url();
-		$wp_login_url = add_query_arg( 'action', "itsec-{$action}", $wp_login_url );
+		$wp_login_url = ITSEC_Lib::get_login_url( "itsec-{$action}", '', 'login_post' );
 
 		$interstitial->pre_render( $session );
 
@@ -660,7 +708,7 @@ class ITSEC_Lib_Login_Interstitial {
 			wp_enqueue_script( 'customize-base' );
 		}
 
-		login_header( '', '<p class="message">' . __( 'You have logged in successfully.' ) . '</p>' );
+		login_header( '', '<p class="message">' . __( 'You have logged in successfully.', 'better-wp-security' ) . '</p>' );
 		?>
 		</div>
 		<?php
@@ -669,7 +717,7 @@ class ITSEC_Lib_Login_Interstitial {
 
 		<?php if ( $customize_login ) : ?>
 			<script type="text/javascript">
-				setTimeout( function() {
+				setTimeout( function () {
 					new wp.customize.Messenger( {
 						url    : '<?php echo wp_customize_url(); ?>',
 						channel: 'login',
@@ -762,17 +810,21 @@ class ITSEC_Lib_Login_Interstitial {
 				width: 100%;
 				text-align: center;
 			}
+
 			.itsec-login-interstitial-confirm-async-action:last-child {
 				margin-bottom: 0;
 			}
+
 			.itsec-login-interstitial-confirm-async-action:hover,
 			.itsec-login-interstitial-confirm-async-action:focus {
 				background: #006799;
 				color: #fff;
 			}
+
 			.itsec-login-interstitial-confirm-async-action.itsec-login-interstitial-confirm-async-action--deny {
 				background: #d54e21;
 			}
+
 			.itsec-login-interstitial-confirm-async-action.itsec-login-interstitial-confirm-async-action--deny:hover,
 			.itsec-login-interstitial-confirm-async-action.itsec-login-interstitial-confirm-async-action--deny:focus {
 				background: #983818;
@@ -808,60 +860,15 @@ class ITSEC_Lib_Login_Interstitial {
 	}
 
 	/**
-	 * Do the next step for a session.
-	 *
-	 * If there are more steps, show the next step,  otherwise log the user in.
-	 *
-	 * @param ITSEC_Login_Interstitial_Session $session
-	 * @param array                            $args
-	 */
-	private function do_next_step( ITSEC_Login_Interstitial_Session $session, array $args = array() ) {
-		$args = wp_parse_args( $args, array(
-			'delete'        => true,
-			'allow_interim' => true,
-		) );
-
-		if ( $session->get_current_interstitial() ) {
-			$this->show_interstitial( $session );
-		} else {
-			if ( true === $args['delete'] ) {
-				$session->delete();
-			}
-
-			$this->handle_interstitials_completed( $session, $args );
-		}
-	}
-
-	/**
-	 * Handle when all of the interstitials have been processed.
+	 * Handle when all interstitials have been processed.
 	 *
 	 * @param ITSEC_Login_Interstitial_Session $session
 	 * @param array                            $args
 	 */
 	private function handle_interstitials_completed( ITSEC_Login_Interstitial_Session $session, array $args ) {
 
-		$user   = $session->get_user();
-		$secure = '';
-
-		// If the user wants SSL but the session is not SSL, force a secure cookie.
-		if ( ! force_ssl_admin() && get_user_option( 'use_ssl', $user->ID ) ) {
-			$secure = true;
-			force_ssl_admin( true );
-		}
-
-		if ( ! is_user_logged_in() ) {
-			wp_set_auth_cookie( $user->ID, $session->is_remember_me(), $secure );
-
-			remove_action( 'wp_login', array( $this, 'wp_login' ), - 1000 );
-			do_action( 'wp_login', $user->user_login, $user );
-
-			/**
-			 * Fires when a user is re-logged back in after submitting an interstitial.
-			 *
-			 * @param WP_User $user
-			 */
-			do_action( 'itsec_login_interstitial_logged_in', $user );
-		}
+		$user = $session->get_user();
+		$this->set_auth_cookie( $session );
 
 		if ( $args['allow_interim'] && $session->is_interim_login() ) {
 			$this->interim_login();
@@ -870,7 +877,7 @@ class ITSEC_Lib_Login_Interstitial {
 		if ( $session->get_redirect_to() ) {
 			$redirect_to = $requested = $session->get_redirect_to();
 
-			if ( $secure && false !== strpos( $redirect_to, 'wp-admin' ) ) {
+			if ( force_ssl_admin() && false !== strpos( $redirect_to, 'wp-admin' ) ) {
 				$redirect_to = preg_replace( '|^http://|', 'https://', $redirect_to );
 			}
 		} else {
@@ -896,19 +903,37 @@ class ITSEC_Lib_Login_Interstitial {
 	}
 
 	/**
-	 * Get the base wp login URL.
+	 * Sets the authentication cookie for the requested session.
 	 *
-	 * @return string
+	 * @param ITSEC_Login_Interstitial_Session $session
+	 *
+	 * @return void
 	 */
-	private function get_base_wp_login_url() {
-		$wp_login_url = set_url_scheme( wp_login_url(), 'login_post' );
-
-		if ( ( defined( 'WPE_PLUGIN_URL' ) || isset( $_GET['wpe-login'] ) ) && ! preg_match( '/[&?]wpe-login=/', $wp_login_url ) ) {
-			$wpe_login    = isset( $_GET['wpe-login'] ) ? $_GET['wpe-login'] : 'true';
-			$wp_login_url = add_query_arg( 'wpe-login', $wpe_login, $wp_login_url );
+	private function set_auth_cookie( ITSEC_Login_Interstitial_Session $session ) {
+		if ( is_user_logged_in() ) {
+			return;
 		}
 
-		return $wp_login_url;
+		$user   = $session->get_user();
+		$secure = '';
+
+		// If the user wants SSL but the session is not SSL, force a secure cookie.
+		if ( ! force_ssl_admin() && get_user_option( 'use_ssl', $user->ID ) ) {
+			$secure = true;
+			force_ssl_admin( true );
+		}
+
+		wp_set_auth_cookie( $user->ID, $session->is_remember_me(), $secure );
+
+		remove_action( 'wp_login', array( $this, 'wp_login' ), - 1000 );
+		do_action( 'wp_login', $user->user_login, $user );
+
+		/**
+		 * Fires when a user is re-logged back in after submitting an interstitial.
+		 *
+		 * @param WP_User $user
+		 */
+		do_action( 'itsec_login_interstitial_logged_in', $user );
 	}
 
 	/**
@@ -921,13 +946,24 @@ class ITSEC_Lib_Login_Interstitial {
 	private function get_next_interstitial( ITSEC_Login_Interstitial_Session $session ) {
 
 		foreach ( $this->get_applicable_interstitials( $session->get_user() ) as $action => $interstitial ) {
+			if ( $interstitial->show_on_wp_login_only( $session->get_user() ) && $session->is_interim_login() ) {
+				continue;
+			}
+
 			if ( ! $session->is_interstitial_completed( $action ) ) {
 				return $action;
-
 			}
 		}
 
 		foreach ( $session->get_show_after() as $action ) {
+			if (
+				$session->is_interim_login() &&
+				isset( $this->registered[ $action ] ) &&
+				$this->registered[ $action ]->show_on_wp_login_only( $session->get_user() )
+			) {
+				continue;
+			}
+
 			if ( ! $session->is_interstitial_completed( $action ) ) {
 				return $action;
 			}
@@ -941,7 +977,7 @@ class ITSEC_Lib_Login_Interstitial {
 	 *
 	 * @param WP_User $user
 	 *
-	 * @return array
+	 * @return ITSEC_Login_Interstitial[]
 	 */
 	private function get_applicable_interstitials( $user ) {
 
@@ -1059,8 +1095,8 @@ class ITSEC_Lib_Login_Interstitial {
 			die;
 		}
 
-		$redirect = add_query_arg( self::R_EXPIRED, 1, wp_login_url() );
-		wp_safe_redirect( set_url_scheme( $redirect, 'login_post' ) );
+		$redirect = add_query_arg( self::R_EXPIRED, 1, ITSEC_Lib::get_login_url( '', '', 'login_post' ) );
+		wp_safe_redirect( $redirect );
 		die;
 	}
 
@@ -1070,7 +1106,7 @@ class ITSEC_Lib_Login_Interstitial {
 	 * @param WP_User $user
 	 */
 	private function destroy_session_token( $user ) {
-		WP_Session_Tokens::get_instance( $user->ID )->destroy( $this->session_token ? $this->session_token : wp_get_session_token() );
+		WP_Session_Tokens::get_instance( $user->ID )->destroy( $this->session_token ?: wp_get_session_token() );
 		wp_clear_auth_cookie();
 	}
 
@@ -1082,7 +1118,11 @@ class ITSEC_Lib_Login_Interstitial {
 	 *
 	 * @return int
 	 */
-	private function _sort_interstitials( $a, $b ) {
+	private function _sort_interstitials( ITSEC_Login_Interstitial $a, ITSEC_Login_Interstitial $b ): int {
+		if ( $a->show_after_authentication() !== $b->show_after_authentication() ) {
+			return $a->show_after_authentication() ? 1 : - 1;
+		}
+
 		return $a->get_priority() - $b->get_priority();
 	}
 }

@@ -1,28 +1,17 @@
 <?php
-/**
- * Notification Center Validator.
- */
 
-class ITSEC_Notification_Center_Validator extends ITSEC_Validator {
+use iThemesSecurity\Config_Validator;
+
+class ITSEC_Notification_Center_Validator extends Config_Validator {
 
 	private $current_tags = array();
 	private $tag_errors = array();
 
-	public function get_id() {
-		return 'notification-center';
-	}
+	protected function validate_settings() {
+		parent::validate_settings();
 
-	protected function sanitize_settings() {
-		$this->vars_to_skip_validate_matching_fields = array( 'last_sent', 'data', 'resend_at', 'admin_emails', 'last_mail_error' );
-		$this->set_previous_if_empty( array( 'last_sent', 'data', 'resend_at', 'admin_emails' ) );
-
-		if ( ! isset( $this->settings['last_mail_error'] ) ) {
-			$this->settings['last_mail_error'] = $this->previous_settings['last_mail_error'];
-		}
-
-		// We allow an empty email string.
-		if ( ! empty( $this->settings['from_email'] ) ) {
-			$this->sanitize_setting( 'email', 'from_email', __( 'Admin Email', 'better-wp-security' ) );
+		if ( ! $this->can_save() ) {
+			return;
 		}
 
 		if ( $this->sanitize_setting( 'array', 'default_recipients', esc_html__( 'Default Recipients', 'better-wp-security' ) ) ) {
@@ -41,11 +30,20 @@ class ITSEC_Notification_Center_Validator extends ITSEC_Validator {
 
 				$contact_errors = array();
 
-				foreach ( $this->settings['default_recipients']['user_list'] as $contact ) {
-					if ( ! isset( $valid_contacts[ $contact ] ) ) {
+				foreach ( $this->settings['default_recipients']['user_list'] as $i => $contact ) {
+					if ( isset( $valid_contacts[ $contact ] ) ) {
+						continue;
+					}
+
+					if ( in_array( $contact, $this->previous_settings['default_recipients']['user_list'], true ) ) {
+						unset( $this->settings['default_recipients']['user_list'][ $i ] );
+					} else {
+						// Only error for new entries.
 						$contact_errors[] = $contact;
 					}
 				}
+
+				$this->settings['default_recipients']['user_list'] = array_values( $this->settings['default_recipients']['user_list'] );
 
 				if ( $contact_errors ) {
 					$this->add_error( new WP_Error(
@@ -87,11 +85,20 @@ class ITSEC_Notification_Center_Validator extends ITSEC_Validator {
 
 				$contact_errors = array();
 
-				foreach ( $settings['user_list'] as $contact ) {
-					if ( ! isset( $valid_contacts[ $contact ] ) ) {
+				foreach ( $settings['user_list'] as $i => $contact ) {
+					if ( isset( $valid_contacts[ $contact ] ) ) {
+						continue;
+					}
+
+					if ( in_array( $contact, $this->previous_settings['notifications'][ $notification ]['user_list'], true ) ) {
+						unset( $settings['user_list'][ $i ] );
+					} else {
+						// Only error for new entries.
 						$contact_errors[] = $contact;
 					}
 				}
+
+				$settings['user_list'] = array_values( $settings['user_list'] );
 
 				if ( ITSEC_Notification_Center::R_USER_LIST_ADMIN_UPGRADE === $config['recipient'] && isset( $settings['previous_emails'] ) ) {
 					foreach ( $settings['previous_emails'] as $previous_email ) {
@@ -175,14 +182,6 @@ class ITSEC_Notification_Center_Validator extends ITSEC_Validator {
 
 			if ( empty( $config['optional'] ) ) {
 				unset( $settings['enabled'] );
-			} else {
-				if ( 'false' === $settings['enabled'] ) {
-					$settings['enabled'] = false;
-				} elseif ( 'true' === $settings['enabled'] ) {
-					$settings['enabled'] = true;
-				} else {
-					$settings['enabled'] = (bool) $settings['enabled'];
-				}
 			}
 
 			if ( ! is_array( $config['schedule'] ) ) {
@@ -364,4 +363,4 @@ class ITSEC_Notification_Center_Validator extends ITSEC_Validator {
 	}
 }
 
-ITSEC_Modules::register_validator( new ITSEC_Notification_Center_Validator() );
+ITSEC_Modules::register_validator( new ITSEC_Notification_Center_Validator( ITSEC_Modules::get_config( 'notification-center' ) ) );

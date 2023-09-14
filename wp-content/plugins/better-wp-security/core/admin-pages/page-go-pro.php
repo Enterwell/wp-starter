@@ -1,4 +1,12 @@
 <?php
 
-wp_redirect( 'https://ithemes.com/security/?utm_source=wordpressadmin&utm_medium=wpmenu&utm_campaign=itsecfreecta' );
-exit;
+add_action( 'admin_enqueue_scripts', function () {
+	wp_enqueue_script( 'itsec-pages-go-pro' );
+	wp_enqueue_style( 'itsec-pages-go-pro' );
+} );
+
+add_action( 'itsec-page-show', function () {
+	printf(
+		'<div id="itsec-go-pro-root"></div>'
+	);
+} );

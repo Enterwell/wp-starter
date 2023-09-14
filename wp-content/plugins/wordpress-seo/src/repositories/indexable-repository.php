@@ -1,9 +1,4 @@
 <?php
-/**
- * Yoast extension of the Model class.
- *
- * @package Yoast\WP\SEO\Repositories
- */
 
 namespace Yoast\WP\SEO\Repositories;
 
@@ -16,9 +11,10 @@ use Yoast\WP\SEO\Helpers\Current_Page_Helper;
 use Yoast\WP\SEO\Helpers\Indexable_Helper;
 use Yoast\WP\SEO\Loggers\Logger;
 use Yoast\WP\SEO\Models\Indexable;
+use Yoast\WP\SEO\Services\Indexables\Indexable_Version_Manager;
 
 /**
- * Class Indexable_Repository
+ * Class Indexable_Repository.
  */
 class Indexable_Repository {
 
@@ -65,6 +61,13 @@ class Indexable_Repository {
 	protected $indexable_helper;
 
 	/**
+	 * Checks if Indexables are up to date.
+	 *
+	 * @var Indexable_Version_Manager
+	 */
+	protected $version_manager;
+
+	/**
 	 * Returns the instance of this class constructed through the ORM Wrapper.
 	 *
 	 * @param Indexable_Builder              $builder              The indexable builder.
@@ -72,7 +75,7 @@ class Indexable_Repository {
 	 * @param Logger                         $logger               The logger.
 	 * @param Indexable_Hierarchy_Repository $hierarchy_repository The hierarchy repository.
 	 * @param wpdb                           $wpdb                 The WordPress database instance.
-	 * @param Indexable_Helper               $indexable_helper     The indexable helper.
+	 * @param Indexable_Version_Manager      $version_manager      The indexable version manager.
 	 */
 	public function __construct(
 		Indexable_Builder $builder,
@@ -80,14 +83,14 @@ class Indexable_Repository {
 		Logger $logger,
 		Indexable_Hierarchy_Repository $hierarchy_repository,
 		wpdb $wpdb,
-		Indexable_Helper $indexable_helper
+		Indexable_Version_Manager $version_manager
 	) {
 		$this->builder              = $builder;
 		$this->current_page         = $current_page;
 		$this->logger               = $logger;
 		$this->hierarchy_repository = $hierarchy_repository;
 		$this->wpdb                 = $wpdb;
-		$this->indexable_helper     = $indexable_helper;
+		$this->version_manager      = $version_manager;
 	}
 
 	/**
@@ -104,7 +107,7 @@ class Indexable_Repository {
 	 * This may be the result of the indexable not existing or of being unable to determine what type of page the
 	 * current page is.
 	 *
-	 * @return bool|Indexable The indexable, false if none could be found.
+	 * @return bool|Indexable The indexable. If no indexable is found returns an empty indexable. Returns false if there is a database error.
 	 */
 	public function for_current_page() {
 		$indexable = false;
@@ -144,6 +147,7 @@ class Indexable_Repository {
 				[
 					'object_type' => 'unknown',
 					'post_status' => 'unindexed',
+					'version'     => 1,
 				]
 			);
 		}
@@ -186,7 +190,7 @@ class Indexable_Repository {
 			->where( 'object_type', $object_type )
 			->find_many();
 
-		return \array_map( [ $this, 'ensure_permalink' ], $indexables );
+		return \array_map( [ $this, 'upgrade_indexable' ], $indexables );
 	}
 
 	/**
@@ -209,7 +213,7 @@ class Indexable_Repository {
 			->where( 'object_sub_type', $object_sub_type )
 			->find_many();
 
-		return \array_map( [ $this, 'ensure_permalink' ], $indexables );
+		return \array_map( [ $this, 'upgrade_indexable' ], $indexables );
 	}
 
 	/**
@@ -220,18 +224,25 @@ class Indexable_Repository {
 	 * @return bool|Indexable Instance of indexable.
 	 */
 	public function find_for_home_page( $auto_create = true ) {
-		/**
-		 * Indexable instance.
-		 *
-		 * @var Indexable $indexable
-		 */
-		$indexable = $this->query()->where( 'object_type', 'home-page' )->find_one();
+		$indexable = \wp_cache_get( 'home-page', 'yoast-seo-indexables' );
+		if ( ! $indexable ) {
+			/**
+			 * Indexable instance.
+			 *
+			 * @var Indexable $indexable
+			 */
+			$indexable = $this->query()->where( 'object_type', 'home-page' )->find_one();
 
-		if ( $auto_create && ! $indexable ) {
-			$indexable = $this->builder->build_for_home_page();
+			if ( $auto_create && ! $indexable ) {
+				$indexable = $this->builder->build_for_home_page();
+			}
+
+			$indexable = $this->upgrade_indexable( $indexable );
+
+			\wp_cache_set( 'home-page', $indexable, 'yoast-seo-indexables', ( 5 * \MINUTE_IN_SECONDS ) );
 		}
 
-		return $this->ensure_permalink( $indexable );
+		return $indexable;
 	}
 
 	/**
@@ -253,7 +264,7 @@ class Indexable_Repository {
 			$indexable = $this->builder->build_for_date_archive();
 		}
 
-		return $this->ensure_permalink( $indexable );
+		return $this->upgrade_indexable( $indexable );
 	}
 
 	/**
@@ -279,7 +290,7 @@ class Indexable_Repository {
 			$indexable = $this->builder->build_for_post_type_archive( $post_type );
 		}
 
-		return $this->ensure_permalink( $indexable );
+		return $this->upgrade_indexable( $indexable );
 	}
 
 	/**
@@ -305,7 +316,7 @@ class Indexable_Repository {
 			$indexable = $this->builder->build_for_system_page( $object_sub_type );
 		}
 
-		return $this->ensure_permalink( $indexable );
+		return $this->upgrade_indexable( $indexable );
 	}
 
 	/**
@@ -326,14 +337,17 @@ class Indexable_Repository {
 		if ( $auto_create && ! $indexable ) {
 			$indexable = $this->builder->build_for_id_and_type( $object_id, $object_type );
 		}
+		else {
+			$indexable = $this->upgrade_indexable( $indexable );
+		}
 
-		return $this->ensure_permalink( $indexable );
+		return $indexable;
 	}
 
 	/**
-	 * Retrieves multiple indexables at once by their IDs and type.
+	 * Retrieves multiple indexables at once by their id's and type.
 	 *
-	 * @param int[]  $object_ids  The array of indexable object IDs.
+	 * @param int[]  $object_ids  The array of indexable object id's.
 	 * @param string $object_type The indexable object type.
 	 * @param bool   $auto_create Optional. Create the indexable if it does not exist.
 	 *
@@ -367,7 +381,27 @@ class Indexable_Repository {
 			}
 		}
 
-		return \array_map( [ $this, 'ensure_permalink' ], $indexables );
+		return \array_map( [ $this, 'upgrade_indexable' ], $indexables );
+	}
+
+	/**
+	 * Finds the indexables by id's.
+	 *
+	 * @param array $indexable_ids The indexable id's.
+	 *
+	 * @return Indexable[] The found indexables.
+	 */
+	public function find_by_ids( array $indexable_ids ) {
+		if ( empty( $indexable_ids ) ) {
+			return [];
+		}
+
+		$indexables = $this
+			->query()
+			->where_in( 'id', $indexable_ids )
+			->find_many();
+
+		return \array_map( [ $this, 'upgrade_indexable' ], $indexables );
 	}
 
 	/**
@@ -380,14 +414,14 @@ class Indexable_Repository {
 	public function get_ancestors( Indexable $indexable ) {
 		// If we've already set ancestors on the indexable no need to get them again.
 		if ( \is_array( $indexable->ancestors ) && ! empty( $indexable->ancestors ) ) {
-			return \array_map( [ $this, 'ensure_permalink' ], $indexable->ancestors );
+			return \array_map( [ $this, 'upgrade_indexable' ], $indexable->ancestors );
 		}
 
 		$indexable_ids = $this->hierarchy_repository->find_ancestors( $indexable );
 
 		// If we've set ancestors on the indexable because we had to build them to find them.
 		if ( \is_array( $indexable->ancestors ) && ! empty( $indexable->ancestors ) ) {
-			return \array_map( [ $this, 'ensure_permalink' ], $indexable->ancestors );
+			return \array_map( [ $this, 'upgrade_indexable' ], $indexable->ancestors );
 		}
 
 		if ( empty( $indexable_ids ) ) {
@@ -403,37 +437,14 @@ class Indexable_Repository {
 			->order_by_expr( 'FIELD(id,' . \implode( ',', $indexable_ids ) . ')' )
 			->find_many();
 
-		return \array_map( [ $this, 'ensure_permalink' ], $indexables );
-	}
-
-	/**
-	 * Returns all children of a given indexable.
-	 *
-	 * @param Indexable $indexable The indexable to find the children of.
-	 *
-	 * @return Indexable[] All children of the given indexable.
-	 */
-	public function get_children( Indexable $indexable ) {
-		$indexable_ids = $this->hierarchy_repository->find_children( $indexable );
-
-		if ( empty( $indexable_ids ) ) {
-			return [];
-		}
-
-		$indexables = $this
-			->query()
-			->where_in( 'id', $indexable_ids )
-			->order_by_expr( 'FIELD(id,' . \implode( ',', $indexable_ids ) . ')' )
-			->find_many();
-
-		return \array_map( [ $this, 'ensure_permalink' ], $indexables );
+		return \array_map( [ $this, 'upgrade_indexable' ], $indexables );
 	}
 
 	/**
 	 * Returns all subpages with a given post_parent.
 	 *
 	 * @param int   $post_parent The post parent.
-	 * @param array $exclude_ids The ids to exclude.
+	 * @param array $exclude_ids The id's to exclude.
 	 *
 	 * @return Indexable[] array of indexables.
 	 */
@@ -452,7 +463,7 @@ class Indexable_Repository {
 	/**
 	 * Updates the incoming link count for an indexable without first fetching it.
 	 *
-	 * @param int $indexable_id The indexable ID.
+	 * @param int $indexable_id The indexable id.
 	 * @param int $count        The incoming link count.
 	 *
 	 * @return bool Whether or not the update was succeful.
@@ -467,19 +478,70 @@ class Indexable_Repository {
 	/**
 	 * Ensures that the given indexable has a permalink.
 	 *
+	 * Will be deprecated in 17.3 - Use upgrade_indexable instead.
+	 *
+	 * @codeCoverageIgnore
+	 *
 	 * @param Indexable $indexable The indexable.
 	 *
 	 * @return bool|Indexable The indexable.
 	 */
-	protected function ensure_permalink( $indexable ) {
-		if ( $indexable && $indexable->permalink === null ) {
-			$indexable->permalink = $this->indexable_helper->get_permalink_for_indexable( $indexable );
+	public function ensure_permalink( $indexable ) {
+		// @phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- self::class is safe.
+		// @phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+		// _deprecated_function( __METHOD__, 'Yoast SEO 17.3', self::class . '::upgrade_indexable' );
 
-			// Only save if changed.
-			if ( $indexable->permalink !== null ) {
-				$indexable->save();
-			}
+		return $this->upgrade_indexable( $indexable );
+	}
+
+	/**
+	 * Checks if an Indexable is outdated, and rebuilds it when necessary.
+	 *
+	 * @param Indexable $indexable The indexable.
+	 *
+	 * @return Indexable The indexable.
+	 */
+	public function upgrade_indexable( $indexable ) {
+		if ( $this->version_manager->indexable_needs_upgrade( $indexable ) ) {
+			$indexable = $this->builder->build( $indexable );
 		}
 		return $indexable;
+	}
+
+	/**
+	 * Resets the permalinks of the passed object type and subtype.
+	 *
+	 * @param string|null $type    The type of the indexable. Can be null.
+	 * @param string|null $subtype The subtype. Can be null.
+	 *
+	 * @return int|bool The number of permalinks changed if the query was succesful. False otherwise.
+	 */
+	public function reset_permalink( $type = null, $subtype = null ) {
+		$query = $this->query()->set(
+			[
+				'permalink'      => null,
+				'permalink_hash' => null,
+				'version'        => 0,
+			]
+		);
+
+		if ( $type !== null ) {
+			$query->where( 'object_type', $type );
+		}
+
+		if ( $type !== null && $subtype !== null ) {
+			$query->where( 'object_sub_type', $subtype );
+		}
+
+		return $query->update_many();
+	}
+
+	/**
+	 * Gets the total number of stored indexables.
+	 *
+	 * @return int The total number of stored indexables.
+	 */
+	public function get_total_number_of_indexables() {
+		return $this->query()->count();
 	}
 }

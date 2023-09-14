@@ -1,9 +1,4 @@
 <?php
-/**
- * WPSEO plugin file.
- *
- * @package Yoast\WP\SEO\Integrations\Front_End
- */
 
 namespace Yoast\WP\SEO\Integrations;
 
@@ -19,16 +14,20 @@ use Yoast\WP\SEO\Conditionals\Primary_Category_Conditional;
 class Primary_Category implements Integration_Interface {
 
 	/**
-	 * @codeCoverageIgnore
-	 * @inheritDoc
+	 * Returns the conditionals based on which this loadable should be active.
+	 *
+	 * In this case only when on the frontend, the post overview, post edit or new post admin page.
+	 *
+	 * @return array The conditionals.
 	 */
 	public static function get_conditionals() {
 		return [ Primary_Category_Conditional::class ];
 	}
 
 	/**
-	 * @codeCoverageIgnore
-	 * @inheritDoc
+	 * Registers a filter to change a post's primary category.
+	 *
+	 * @return void
 	 */
 	public function register_hooks() {
 		\add_filter( 'post_link_category', [ $this, 'post_link_category' ], 10, 3 );
@@ -37,11 +36,11 @@ class Primary_Category implements Integration_Interface {
 	/**
 	 * Filters post_link_category to change the category to the chosen category by the user.
 	 *
-	 * @param stdClass $category   The category that is now used for the post link.
-	 * @param array    $categories This parameter is not used.
-	 * @param WP_Post  $post       The post in question.
+	 * @param stdClass     $category   The category that is now used for the post link.
+	 * @param array|null   $categories This parameter is not used.
+	 * @param WP_Post|null $post       The post in question.
 	 *
-	 * @return array|null|object|WP_Error The category we want to use for the post link.
+	 * @return array|object|WP_Error|null The category we want to use for the post link.
 	 */
 	public function post_link_category( $category, $categories = null, $post = null ) {
 		$post = \get_post( $post );

@@ -1,9 +1,4 @@
 <?php
-/**
- * WordPress post meta watcher.
- *
- * @package Yoast\YoastSEO\Watchers
- */
 
 namespace Yoast\WP\SEO\Integrations\Watchers;
 
@@ -12,7 +7,7 @@ use Yoast\WP\SEO\Conditionals\Migrations_Conditional;
 use Yoast\WP\SEO\Integrations\Integration_Interface;
 
 /**
- * Indexable_Postmeta_Watcher class
+ * WordPress post meta watcher.
  */
 class Indexable_Post_Meta_Watcher implements Integration_Interface {
 
@@ -31,7 +26,9 @@ class Indexable_Post_Meta_Watcher implements Integration_Interface {
 	protected $post_ids_to_update = [];
 
 	/**
-	 * @inheritDoc
+	 * Returns the conditionals based on which this loadable should be active.
+	 *
+	 * @return array
 	 */
 	public static function get_conditionals() {
 		return [ Migrations_Conditional::class ];
@@ -47,7 +44,9 @@ class Indexable_Post_Meta_Watcher implements Integration_Interface {
 	}
 
 	/**
-	 * @inheritDoc
+	 * Initializes the integration.
+	 *
+	 * This is the place to register hooks and filters.
 	 */
 	public function register_hooks() {
 		// Register all posts whose meta have changed.

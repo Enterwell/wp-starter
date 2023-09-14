@@ -1,14 +1,22 @@
 <?php
 
+use iThemesSecurity\Module_Config;
 use iThemesSecurity\User_Groups\Matchables_Source;
 
 abstract class ITSEC_Validator {
 	protected $run_validate_matching_fields = true;
 	protected $run_validate_matching_types = true;
 
+	/** @var Module_Config */
+	protected $config;
+
+	/** @var ITSEC_Settings */
 	protected $settings_obj;
-	protected $defaults;
+
+	/** @var array */
 	protected $settings;
+
+	/** @var array */
 	protected $previous_settings;
 
 	protected $can_save = true;
@@ -18,15 +26,14 @@ abstract class ITSEC_Validator {
 	protected $vars_to_skip_validate_matching_fields = array();
 	protected $vars_to_skip_validate_matching_types = array();
 
-
-	public function __construct() {
+	/**
+	 * ITSEC_Validator constructor.
+	 *
+	 * @param Module_Config|null $config The configuration object. If omitted, will attempt to retrieve it.
+	 */
+	public function __construct( Module_Config $config = null ) {
+		$this->config       = $config ?: ITSEC_Modules::get_config( $this->get_id() );
 		$this->settings_obj = ITSEC_Modules::get_settings_obj( $this->get_id() );
-
-		if ( ! is_callable( array( $this->settings_obj, 'get_defaults' ) ) ) {
-			return;
-		}
-
-		$this->defaults = $this->settings_obj->get_defaults();
 	}
 
 	abstract public function get_id();
@@ -38,6 +45,10 @@ abstract class ITSEC_Validator {
 	public function validate( $settings ) {
 		$this->settings          = $settings;
 		$this->previous_settings = ITSEC_Modules::get_settings( $this->get_id() );
+
+		$this->can_save = true;
+		$this->errors   = [];
+		$this->messages = [];
 
 		$this->sanitize_settings();
 
@@ -55,15 +66,15 @@ abstract class ITSEC_Validator {
 	protected function validate_matching_fields() {
 		$id = $this->get_id();
 
-		foreach ( array_keys( $this->defaults ) as $name ) {
-			if ( ! isset( $this->settings[ $name ] ) && ! in_array( $name, $this->vars_to_skip_validate_matching_fields ) ) {
+		foreach ( $this->settings_obj->get_known_settings() as $name ) {
+			if ( ! array_key_exists( $name, $this->settings ) && ! in_array( $name, $this->vars_to_skip_validate_matching_fields, true ) ) {
 				$this->add_error( new WP_Error( "itsec-validator-$id-validate_matching_fields-missing-name-$name", sprintf( __( 'A validation function for %1$s received data that did not have the required entry for %2$s.', 'better-wp-security' ), $id, $name ) ) );
 				$this->set_can_save( false );
 			}
 		}
 
-		foreach ( array_keys( $this->settings ) as $name ) {
-			if ( ! isset( $this->defaults[ $name ] ) && ! in_array( $name, $this->vars_to_skip_validate_matching_fields ) ) {
+		foreach ( $this->settings as $name => $value ) {
+			if ( ! $this->settings_obj->is_known_setting( $name ) && ! in_array( $name, $this->vars_to_skip_validate_matching_fields, true ) && ! $this->is_extended_setting_from_inactive_module( $name ) ) {
 				$this->add_error( new WP_Error( "itsec-validator-$id-validate_matching_fields-unknown-name-$name", sprintf( __( 'A validation function for %1$s received data that has an entry for %2$s when no such entry exists.', 'better-wp-security' ), $id, $name ) ) );
 				$this->set_can_save( false );
 			}
@@ -73,29 +84,55 @@ abstract class ITSEC_Validator {
 	protected function validate_matching_types() {
 		$id = $this->get_id();
 
-		foreach ( $this->defaults as $name => $value ) {
-			if ( in_array( $name, $this->vars_to_skip_validate_matching_types ) ) {
+		foreach ( $this->settings as $name => $value ) {
+			if ( in_array( $name, $this->vars_to_skip_validate_matching_types, true ) || ! $this->settings_obj->is_known_setting( $name ) ) {
 				// This is to prevent errors for a specific var appearing twice.
 				continue;
 			}
 
-			if ( ! isset( $this->settings[ $name ] ) ) {
-				// Skip missing entries to allow implementations that use validate_matching_types() but not
-				// validate_matching_fields().
-				continue;
-			}
+			$default = $this->settings_obj->get_default( $name );
 
-			if ( gettype( $value ) !== gettype( $this->settings[ $name ] ) ) {
-				$this->add_error( new WP_Error( "itsec-validator-$id-validate_matching_types-inmatching-type-$name", sprintf( __( 'A validation function for %1$s received data that does not match the expected data type for the %2$s entry. A data type of %3$s was expected, but a data type of %4$s was received.', 'better-wp-security' ), $id, $name, gettype( $value ), gettype( $this->settings[ $name ] ) ) ) );
+			if ( gettype( $default ) !== gettype( $value ) ) {
+				$this->add_error(
+					new WP_Error(
+						"itsec-validator-$id-validate_matching_types-inmatching-type-$name",
+						sprintf(
+							__( 'A validation function for %1$s received data that does not match the expected data type for the %2$s entry. A data type of %3$s was expected, but a data type of %4$s was received.', 'better-wp-security' ),
+							$id,
+							$name,
+							gettype( $default ),
+							gettype( $value )
+						)
+					)
+				);
 				$this->set_can_save( false );
 			}
 		}
 	}
 
+	/**
+	 * Checks if the given setting is from a now deactivated module that extends this module.
+	 *
+	 * This allow for preserving settings from pro modules if the user downgrades to free.
+	 *
+	 * @param string $setting
+	 *
+	 * @return bool
+	 */
+	final protected function is_extended_setting_from_inactive_module( string $setting ): bool {
+		$extended = ITSEC_Storage::get( '__extended' );
+
+		if ( empty( $extended[ $this->get_id() ] ) ) {
+			return false;
+		}
+
+		return in_array( $setting, $extended[ $this->get_id() ], true );
+	}
+
 	final protected function set_default_if_empty( $vars ) {
 		foreach ( (array) $vars as $var ) {
 			if ( ! isset( $this->settings[ $var ] ) || '' === $this->settings[ $var ] ) {
-				$this->settings[ $var ] = $this->defaults[ $var ];
+				$this->settings[ $var ] = $this->settings_obj->get_default( $var );
 			}
 		}
 	}
@@ -103,6 +140,14 @@ abstract class ITSEC_Validator {
 	final protected function set_previous_if_empty( $vars ) {
 		foreach ( (array) $vars as $var ) {
 			if ( ! isset( $this->settings[ $var ] ) || '' === $this->settings[ $var ] ) {
+				$this->settings[ $var ] = $this->previous_settings[ $var ];
+			}
+		}
+	}
+
+	final protected function set_previous_if_missing( $vars ) {
+		foreach ( (array) $vars as $var ) {
+			if ( ! isset( $this->settings[ $var ] ) ) {
 				$this->settings[ $var ] = $this->previous_settings[ $var ];
 			}
 		}
@@ -116,6 +161,18 @@ abstract class ITSEC_Validator {
 		}
 	}
 
+	/**
+	 * Sanitizes a setting.
+	 *
+	 * @param string|callable $type                  The sanitization to apply.
+	 * @param string          $var                   The variable name.
+	 * @param string          $name                  The human facing label for the setting.
+	 * @param bool            $prevent_save_on_error Whether to prevent the module from saving if sanitization fails.
+	 * @param bool            $trim_value            Whether to trim the value if it is a string.
+	 * @param string          $custom_error          A custom error message to use instead of the default.
+	 *
+	 * @return bool Whether sanitization passed or not.
+	 */
 	final protected function sanitize_setting( $type, $var, $name, $prevent_save_on_error = true, $trim_value = true, $custom_error = '' ) {
 		$id = $this->get_id();
 
@@ -324,6 +381,7 @@ abstract class ITSEC_Validator {
 
 				if ( ! empty( $invalid_entries ) ) {
 					$error = wp_sprintf( _n( 'The following entry in %1$s is invalid: %2$l', 'The following entries in %1$s are invalid: %2$l', count( $invalid_entries ), 'better-wp-security' ), $name, $invalid_entries );
+					$type  = 'array';
 				}
 			} elseif ( ! in_array( $this->settings[ $var ], $type, true ) ) {
 				$error = wp_sprintf( _n( 'The valid value for %1$s is: %2$l.', 'The valid values for %1$s are: %2$l.', count( $type ), 'better-wp-security' ), $name, $type );
@@ -527,6 +585,54 @@ abstract class ITSEC_Validator {
 		return true;
 	}
 
+	/**
+	 * Validates a user groups setting.
+	 *
+	 * @param string $name The setting label.
+	 * @param string $var  The setting var.
+	 *
+	 * @return array|WP_Error The sanitized user groups, or a WP_Error.
+	 */
+	protected function validate_user_groups( $name, $var ) {
+		$new_value      = ITSEC_Lib::array_get( $this->settings, $var );
+		$previous_value = ITSEC_Lib::array_get( $this->previous_settings, $var );
+
+		$source              = ITSEC_Modules::get_container()->get( Matchables_Source::class );
+		$invalid_user_groups = [];
+
+		foreach ( $new_value as $i => $group ) {
+			if ( ! is_string( $group ) ) {
+				unset( $new_value[ $i ] );
+
+				continue;
+			}
+
+			if ( $source->has( $group ) ) {
+				continue;
+			}
+
+			if ( in_array( $group, $previous_value, true ) ) {
+				unset( $new_value[ $i ] );
+			} else {
+				$invalid_user_groups[] = $group;
+			}
+		}
+
+		$new_value = wp_is_numeric_array( $new_value ) ? array_values( $new_value ) : $new_value;
+
+		if ( ! $invalid_user_groups ) {
+			return $new_value;
+		}
+
+		$error = wp_sprintf(
+			_n( 'The following entry in %1$s is invalid: %2$l', 'The following entries in %1$s are invalid: %2$l', count( $invalid_user_groups ), 'better-wp-security' ),
+			$name,
+			$invalid_user_groups
+		);
+
+		return $this->generate_error( $this->get_id(), $var, 'user-groups', $error );
+	}
+
 	protected function generate_error( $id, $var, $type, $error ) {
 		return new WP_Error( "itsec-validator-$id-invalid-type-$var-$type", $error );
 	}
@@ -553,16 +659,17 @@ abstract class ITSEC_Validator {
 		return $array;
 	}
 
+	/**
+	 * Adds an error to be displayed to the user.
+	 *
+	 * @param \WP_Error $error
+	 */
 	final protected function add_error( $error ) {
 		$this->errors[] = $error;
 	}
 
 	final public function found_errors() {
-		if ( empty( $this->errors ) ) {
-			return false;
-		} else {
-			return true;
-		}
+		return ! empty( $this->errors );
 	}
 
 	final public function get_errors() {
@@ -595,5 +702,21 @@ abstract class ITSEC_Validator {
 
 	final public function get_settings() {
 		return $this->settings;
+	}
+
+	public function __get( $name ) {
+		if ( 'defaults' === $name ) {
+			_deprecated_function( static::class . '::$defaults', '7.0.0', 'ITSEC_Modules::get_default' );
+
+			return $this->settings_obj->get_defaults();
+		}
+
+		trigger_error( sprintf( 'Undefined property: %s::$%s', static::class, $name ) );
+
+		return null;
+	}
+
+	public function __isset( $name ) {
+		return 'defaults' === $name;
 	}
 }

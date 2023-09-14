@@ -1,1 +1,1 @@
-<?php //You don't belong here. ?>
+<?php // Silence is golden.

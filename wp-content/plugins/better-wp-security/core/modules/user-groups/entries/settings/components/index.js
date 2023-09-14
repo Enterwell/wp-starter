@@ -11,6 +11,11 @@ export { default as TabSettingsBulk } from './tab-settings-bulk';
 export { default as PanelMinimumRole } from './panel-minimum-role';
 export { default as PanelRoles } from './panel-roles';
 export { default as PanelUsers } from './panel-users';
-export { NewGroupHeader, SingleGroupHeader, MultiGroupHeader } from './group-header';
+export {
+	NewGroupHeader,
+	SingleGroupHeader,
+	MultiGroupHeader,
+} from './group-header';
 export { default as EditGroupFields } from './edit-group-fields';
 export { default as SettingsForm } from './settings-form';
+export { default as MultiGroupSelector } from './multi-group-selector';

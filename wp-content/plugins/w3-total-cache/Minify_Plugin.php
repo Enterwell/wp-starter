@@ -90,17 +90,17 @@ class Minify_Plugin {
 		$parsed = parse_url( $url );
 		$prefix = '/' . trim( $parsed['path'], '/' ) . '/';
 
-		if ( substr( $_SERVER['REQUEST_URI'], 0, strlen( $prefix ) ) == $prefix ) {
+		$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
+		if ( substr( $request_uri, 0, strlen( $prefix ) ) == $prefix ) {
 			$w3_minify = Dispatcher::component( 'Minify_MinifiedFileRequestHandler' );
-			$filename = Util_Environment::remove_query_all(
-				substr( $_SERVER['REQUEST_URI'], strlen( $prefix ) ) );
+			$filename = Util_Environment::remove_query_all( substr( $request_uri, strlen( $prefix ) ) );
 			$w3_minify->process( $filename );
 			exit();
 		}
 
-		if ( !empty( $_REQUEST['w3tc_minify'] ) ) {
+		if ( !empty( Util_Request::get_string( 'w3tc_minify' ) ) ) {
 			$w3_minify = Dispatcher::component( 'Minify_MinifiedFileRequestHandler' );
-			$w3_minify->process( $_REQUEST['w3tc_minify'] );
+			$w3_minify->process( Util_Request::get_string( 'w3tc_minify' ) );
 			exit();
 		}
 	}
@@ -170,7 +170,11 @@ class Minify_Plugin {
 		$embed_extsrcjs = false;
 		$buffer = apply_filters( 'w3tc_minify_before', $buffer );
 
-
+		// If the minify cache folder is missing minify fails. This will generate the minify folder path if missing.
+		$minify_environment = Dispatcher::component( 'Minify_Environment' );
+		try {
+			$minify_environment->fix_on_wpadmin_request( $this->_config, true );
+		} catch ( \Exception $e ) {}
 
 		if ( $this->_config->get_boolean( 'minify.auto' ) ) {
 			if ( $js_enable ) {
@@ -303,7 +307,7 @@ class Minify_Plugin {
 		$menu_items['20210.minify'] = array(
 			'id' => 'w3tc_flush_minify',
 			'parent' => 'w3tc_flush',
-			'title' => __( 'Minify', 'w3-total-cache' ),
+			'title' => __( 'Minify Cache', 'w3-total-cache' ),
 			'href' => wp_nonce_url( admin_url(
 					'admin.php?page=w3tc_dashboard&amp;w3tc_flush_minify' ),
 				'w3tc' )
@@ -513,7 +517,7 @@ class Minify_Plugin {
 		$ignored_comments = $this->_config->get_array( 'minify.html.comments.ignore' );
 
 		if ( count( $ignored_comments ) ) {
-			$ignored_comments_preserver = new \Minify_IgnoredCommentPreserver();
+			$ignored_comments_preserver = new \W3TCL\Minify\Minify_IgnoredCommentPreserver();
 			$ignored_comments_preserver->setIgnoredComments( $ignored_comments );
 
 			$html = $ignored_comments_preserver->search( $html );
@@ -531,7 +535,7 @@ class Minify_Plugin {
 
 			$w3_minifier->init( $js_engine );
 
-			$html = \Minify_Inline_JavaScript::minify( $html, $js_minifier, $js_options );
+			$html = \W3TCL\Minify\Minify_Inline_JavaScript::minify( $html, $js_minifier, $js_options );
 		}
 
 		if ( $this->_config->get_boolean( 'minify.html.inline.css' ) ) {
@@ -546,7 +550,7 @@ class Minify_Plugin {
 
 			$w3_minifier->init( $css_engine );
 
-			$html = \Minify_Inline_CSS::minify( $html, $css_minifier, $css_options );
+			$html = \W3TCL\Minify\Minify_Inline_CSS::minify( $html, $css_minifier, $css_options );
 		}
 
 		$engine = $this->_config->get_string( 'minify.html.engine' );
@@ -927,7 +931,7 @@ class Minify_Plugin {
 
 		foreach ( $uas as $ua ) {
 			if ( !empty( $ua ) ) {
-				if ( isset( $_SERVER['HTTP_USER_AGENT'] ) && stristr( $_SERVER['HTTP_USER_AGENT'], $ua ) !== false ) {
+				if ( stristr( isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '', $ua ) !== false ) {
 					return false;
 				}
 			}
@@ -962,7 +966,7 @@ class Minify_Plugin {
 		);
 
 		foreach ( $auto_reject_uri as $uri ) {
-			if ( strstr( $_SERVER['REQUEST_URI'], $uri ) !== false ) {
+			if ( strstr( isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '', $uri ) !== false ) {
 				return false;
 			}
 		}
@@ -974,11 +978,10 @@ class Minify_Plugin {
 			$expr = trim( $expr );
 			$expr = str_replace( '~', '\~', $expr );
 
-			if ( $expr != '' && preg_match( '~' . $expr . '~i', $_SERVER['REQUEST_URI'] ) ) {
+			if ( '' !== $expr && preg_match( '~' . $expr . '~i', isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '' ) ) {
 				return false;
 			}
 		}
-
 
 		if ( Util_Request::get_string( 'wp_customize' ) )
 			return false;
@@ -1053,6 +1056,8 @@ class _W3_MinifyHelpers {
 		$url = Minify_Core::minified_url( $minify_filename );
 		$url = Util_Environment::url_to_maybe_https( $url );
 
+		$url = apply_filters( 'w3tc_minify_url_for_files', $url, $files, $type );
+
 		return $url;
 	}
 
@@ -1091,8 +1096,13 @@ class _W3_MinifyHelpers {
 	function generate_script_tag( $url, $embed_type = 'blocking' ) {
 		static $non_blocking_function = false;
 
+		$rocket_loader_ignore = "";
+		if( $this->config->get_boolean( array( 'cloudflare', 'minify_js_rl_exclude' ) ) ){
+			$rocket_loader_ignore = 'data-cfasync="false"';
+		}
+
 		if ( $embed_type == 'blocking' ) {
-			$script = '<script src="' .
+			$script = '<script ' . $rocket_loader_ignore . ' src="' .
 				str_replace( '&', '&amp;', $url ) . '"></script>';
 		} else {
 			$script = '';
@@ -1107,19 +1117,19 @@ class _W3_MinifyHelpers {
 					$url . "');</script>";
 
 			} elseif ( $embed_type == 'nb-async' ) {
-				$script = '<script async src="' .
+				$script = '<script ' . $rocket_loader_ignore . ' async src="' .
 					str_replace( '&', '&amp;', $url ) . '"></script>';
 			} elseif ( $embed_type == 'nb-defer' ) {
-				$script = '<script defer src="' .
+				$script = '<script ' . $rocket_loader_ignore . ' defer src="' .
 					str_replace( '&', '&amp;', $url ) . '"></script>';
 			} elseif ( $embed_type == 'extsrc' ) {
-				$script = '<script extsrc="' .
+				$script = '<script ' . $rocket_loader_ignore . ' extsrc="' .
 					str_replace( '&', '&amp;', $url ) . '"></script>';
 			} elseif ( $embed_type == 'asyncsrc' ) {
-				$script = '<script asyncsrc="' .
+				$script = '<script ' . $rocket_loader_ignore . ' asyncsrc="' .
 					str_replace( '&', '&amp;', $url ) . '"></script>';
 			} else {
-				$script = '<script src="' .
+				$script = '<script ' . $rocket_loader_ignore . ' src="' .
 					str_replace( '&', '&amp;', $url ) . '"></script>';
 			}
 		}

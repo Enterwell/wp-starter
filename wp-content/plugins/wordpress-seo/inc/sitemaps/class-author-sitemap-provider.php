@@ -5,33 +5,17 @@
  * @package WPSEO\XML_Sitemaps
  */
 
-use Yoast\WP\SEO\Helpers\Author_Archive_Helper;
-
 /**
  * Sitemap provider for author archives.
  */
 class WPSEO_Author_Sitemap_Provider implements WPSEO_Sitemap_Provider {
 
 	/**
-	 * The date helper.
-	 *
-	 * @var WPSEO_Date_Helper
-	 */
-	protected $date;
-
-	/**
-	 * WPSEO_Author_Sitemap_Provider constructor.
-	 */
-	public function __construct() {
-		$this->date = new WPSEO_Date_Helper();
-	}
-
-	/**
 	 * Check if provider supports given item type.
 	 *
 	 * @param string $type Type string to check for.
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
 	public function handles_type( $type ) {
 		// If the author archives have been disabled, we don't do anything.
@@ -78,23 +62,18 @@ class WPSEO_Author_Sitemap_Provider implements WPSEO_Sitemap_Provider {
 		}
 
 		$index      = [];
-		$page       = 1;
 		$user_pages = array_chunk( $users, $max_entries );
 
-		if ( count( $user_pages ) === 1 ) {
-			$page = '';
-		}
+		foreach ( $user_pages as $page_counter => $users_page ) {
 
-		foreach ( $user_pages as $users_page ) {
+			$current_page = ( $page_counter === 0 ) ? '' : ( $page_counter + 1 );
 
 			$user_id = array_shift( $users_page ); // Time descending, first user on page is most recently updated.
 			$user    = get_user_by( 'id', $user_id );
 			$index[] = [
-				'loc'     => WPSEO_Sitemaps_Router::get_base_url( 'author-sitemap' . $page . '.xml' ),
-				'lastmod' => ( $user->_yoast_wpseo_profile_updated ) ? $this->date->format_timestamp( $user->_yoast_wpseo_profile_updated ) : null,
+				'loc'     => WPSEO_Sitemaps_Router::get_base_url( 'author-sitemap' . $current_page . '.xml' ),
+				'lastmod' => ( $user->_yoast_wpseo_profile_updated ) ? YoastSEO()->helpers->date->format_timestamp( $user->_yoast_wpseo_profile_updated ) : null,
 			];
-
-			++$page;
 		}
 
 		return $index;
@@ -112,7 +91,7 @@ class WPSEO_Author_Sitemap_Provider implements WPSEO_Sitemap_Provider {
 		global $wpdb;
 
 		$defaults = [
-			'who'        => 'authors',
+			'capability' => [ 'edit_posts' ],
 			'meta_key'   => '_yoast_wpseo_profile_updated',
 			'orderby'    => 'meta_value_num',
 			'order'      => 'DESC',
@@ -139,9 +118,8 @@ class WPSEO_Author_Sitemap_Provider implements WPSEO_Sitemap_Provider {
 		];
 
 		if ( WPSEO_Options::get( 'noindex-author-noposts-wpseo', true ) ) {
-			$defaults['who']                 = ''; // Otherwise it cancels out next argument.
-			$author_archive                  = new Author_Archive_Helper();
-			$defaults['has_published_posts'] = $author_archive->get_author_archive_post_types();
+			unset( $defaults['capability'] ); // Otherwise it cancels out next argument.
+			$defaults['has_published_posts'] = YoastSEO()->helpers->author_archive->get_author_archive_post_types();
 		}
 
 		return get_users( array_merge( $defaults, $arguments ) );
@@ -154,9 +132,9 @@ class WPSEO_Author_Sitemap_Provider implements WPSEO_Sitemap_Provider {
 	 * @param int    $max_entries  Entries per sitemap.
 	 * @param int    $current_page Current page of the sitemap.
 	 *
-	 * @throws OutOfBoundsException When an invalid page is requested.
-	 *
 	 * @return array
+	 *
+	 * @throws OutOfBoundsException When an invalid page is requested.
 	 */
 	public function get_sitemap_links( $type, $max_entries, $current_page ) {
 
@@ -227,7 +205,7 @@ class WPSEO_Author_Sitemap_Provider implements WPSEO_Sitemap_Provider {
 	protected function update_user_meta() {
 
 		$user_criteria = [
-			'who'        => 'authors',
+			'capability' => [ 'edit_posts' ],
 			'meta_query' => [
 				[
 					'key'     => '_yoast_wpseo_profile_updated',
@@ -235,7 +213,8 @@ class WPSEO_Author_Sitemap_Provider implements WPSEO_Sitemap_Provider {
 				],
 			],
 		];
-		$users         = get_users( $user_criteria );
+
+		$users = get_users( $user_criteria );
 
 		$time = time();
 
