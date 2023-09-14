@@ -15,8 +15,8 @@ on:
   workflow_dispatch:
 
 env:
-  phpVersion: '8.0'
-  nodeVersion: '16.13.1'
+  phpVersion: '8.1'
+  nodeVersion: '18.x'
   rootFolder: ${{ github.workspace }}
   pluginFolder: "${{ github.workspace }}/wp-content/plugins/ewplugin"
   themeFolder: "${{ github.workspace }}/wp-content/themes/ew-theme"
@@ -26,7 +26,7 @@ jobs:
   build-and-test:
     name: Build and test
 
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout

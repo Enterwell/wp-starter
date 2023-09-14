@@ -93,7 +93,7 @@ server {
                 include snippets/fastcgi-php.conf;
                 # Run PHP files through PHP-FPM service
                 # Change version if needed
-                fastcgi_pass unix:/run/php/php8.0-fpm.sock;
+                fastcgi_pass unix:/run/php/php8.1-fpm.sock;
         }
 }
 ```
@@ -168,9 +168,9 @@ List of recommended (and tested) environment requirements:
 - Linux distribution (native or WSL)
 - Nginx v1.18.0+
 - MySQL/MariaDB distribution v10.6.11+ (or MySQL alternative)
-- PHP v8.0+ with PHP-FPM
+- PHP v8.1+ with PHP-FPM
 - Composer v2+
-- NodeJS v16+ (LTS)
+- NodeJS v18+ (LTS)
 - Git
 > 🔔 It is possible to run this on XAMPP, Laragon (and on Apache) or other environments with other versions, but this is 
 > the tested and most used stack (LEMP)
