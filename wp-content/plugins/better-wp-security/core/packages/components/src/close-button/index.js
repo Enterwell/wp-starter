@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies
  */
-import { IconButton } from '@wordpress/components';
+import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -11,9 +11,15 @@ import './style.scss';
 
 export default function CloseButton( { close } ) {
 	return (
-		<IconButton className="itsec-close-button" icon="no-alt" onClick={ ( e ) => {
-			e.preventDefault();
-			close();
-		} } tooltip={ false } label={ __( 'Close', 'better-wp-security' ) } />
+		<Button
+			className="itsec-close-button"
+			icon="no-alt"
+			onClick={ ( e ) => {
+				e.preventDefault();
+				close();
+			} }
+			tooltip={ false }
+			label={ __( 'Close', 'better-wp-security' ) }
+		/>
 	);
 }

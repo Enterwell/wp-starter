@@ -1,0 +1,114 @@
+.itsec-search {
+    position: relative;
+
+    .it-ui-input-group {
+        width: 100%;
+        max-width: 400px;
+    }
+
+    .itsec-search__results {
+        width: 600px;
+        max-width: 100vw;
+        max-height: 800px;
+        overflow-y: scroll;
+        margin: .5rem 0 0;
+        padding: .5rem 0;
+        position: absolute;
+        background: $white;
+        box-shadow: $popover-shadow;
+        border: 1px solid $border-color;
+        z-index: 1000;
+
+        &:focus, &:focus-within {
+            border-color: var(--wp-admin-theme-color);
+            box-shadow: 0 0 0 1px var(--wp-admin-theme-color);
+            outline: 2px solid transparent;
+        }
+    }
+
+    .itsec-search__kind {
+        & > [role="presentation"] {
+            text-transform: uppercase;
+            font-size: 1rem;
+            font-weight: 700;
+            color: $dark-text;
+            border-top: 1px solid $border-color;
+            border-bottom: 1px solid $border-color;
+            padding: .75rem 1rem;
+            margin-top: .25rem;
+            margin-bottom: .25rem;
+            display: block;
+        }
+
+        &:first-child > [role="presentation"] {
+            margin-top: 0;
+        }
+
+        & > .itsec-search__result {
+            margin-left: 1rem;
+        }
+    }
+
+    .itsec-search__group {
+        padding-left: 1rem;
+
+        & > [role="presentation"] {
+            display: grid;
+            grid-template-columns: 180px 1fr;
+            font-size: 1rem;
+            font-weight: 700;
+            color: $dark-text;
+            margin-bottom: 0;
+
+            span {
+                padding: .5rem .25rem .5rem 0;
+                border-right: 1px solid $border-color;
+                font-weight: 500;
+            }
+        }
+    }
+
+    .itsec-search__result {
+        position: relative;
+        display: block;
+        margin-right: .75rem;
+        margin-bottom: 0;
+
+        a {
+            display: grid;
+            grid-template-columns: 180px 1fr;
+            text-decoration: none;
+
+            &:focus {
+                box-shadow: none;
+                outline: none;
+            }
+        }
+
+        &[aria-selected="true"],
+        &:hover {
+            background: $focused-blue;
+        }
+
+        span {
+            color: $medium-text;
+            font-weight: 500;
+            border-right: 1px solid $border-color;
+            margin-left: 1rem;
+            padding: .5rem .75rem .5rem 0;
+        }
+
+        p {
+            margin: 0;
+            padding: .5rem .5rem .5rem .75rem;
+            font-weight: 300;
+        }
+
+        &:hover {
+            span {
+                color: $medium-text;
+            }
+        }
+    }
+}
+

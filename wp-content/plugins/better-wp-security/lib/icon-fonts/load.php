@@ -4,10 +4,10 @@
  *
  * @package icon-fonts
  * @author iThemes
- * @version 1.2.0
+ * @version 1.2.2
 */
 
-$it_registration_list_version   = '1.2.0';
+$it_registration_list_version   = '1.2.2';
 $it_registration_list_library   = 'icon-fonts';
 $it_registration_list_init_file = dirname( __FILE__ ) . '/init.php';
 

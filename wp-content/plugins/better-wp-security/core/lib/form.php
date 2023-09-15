@@ -508,6 +508,8 @@ final class ITSEC_Form {
 	}
 
 	public function add_user_groups( $var, $module, $setting = '', $options = array() ) {
+		_deprecated_function( __METHOD__, '7.0.0' );
+
 		$source  = ITSEC_Modules::get_container()->get( Matchables_Source::class );
 
 		$user_groups = [];
@@ -527,8 +529,6 @@ final class ITSEC_Form {
 		$options['class'] = 'itsec-form-input--type-user-groups';
 
 		$this->add_multi_select( $var, $options );
-		wp_enqueue_script( 'itsec-form-user-groups' );
-		wp_enqueue_style( 'itsec-jquery-multi-select' );
 	}
 
 	public function get_dotted_var( $var ) {

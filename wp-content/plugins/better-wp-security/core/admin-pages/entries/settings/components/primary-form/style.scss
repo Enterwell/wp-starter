@@ -1,0 +1,46 @@
+.itsec-settings {
+    .itsec-primary-form {
+        .components-base-control__label,
+        .components-input-control__label,
+        label,
+        caption,
+        legend {
+            color: $dark-text;
+        }
+    }
+
+    .itsec-primary-form__section {
+        display: grid;
+        grid-template-columns: [label fields] minmax(0, 1fr);
+        grid-template-rows: auto;
+        grid-gap: .5rem 0;
+
+        @include break-small {
+            grid-template-columns: [label] 10rem [fields] minmax(0, 1fr);
+        }
+
+        .itsec-primary-form__section-title,
+        .itsec-primary-form__section-title label {
+            color: $dark-text;
+            grid-column: label;
+            font-size: 1rem;
+            padding-right: 1rem;
+        }
+
+        &:not(:first-child) {
+            border-top: 1px solid $border-color;
+            margin-top: 1rem;
+            padding-top: 1rem;
+
+            & + * {
+                border-top: 1px solid $border-color;
+                margin-top: 1rem;
+                padding-top: 1rem;
+            }
+        }
+
+        > *:not(.itsec-primary-form__section-title) {
+            grid-column: fields;
+        }
+    }
+}

@@ -22,14 +22,17 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ *
+ * Modified using Strauss.
+ * @see https://github.com/BrianHenryIE/strauss
  */
 
-namespace Pimple;
+namespace iThemesSecurity\Strauss\Pimple;
 
-use Pimple\Exception\ExpectedInvokableException;
-use Pimple\Exception\FrozenServiceException;
-use Pimple\Exception\InvalidServiceIdentifierException;
-use Pimple\Exception\UnknownIdentifierException;
+use iThemesSecurity\Strauss\Pimple\Exception\ExpectedInvokableException;
+use iThemesSecurity\Strauss\Pimple\Exception\FrozenServiceException;
+use iThemesSecurity\Strauss\Pimple\Exception\InvalidServiceIdentifierException;
+use iThemesSecurity\Strauss\Pimple\Exception\UnknownIdentifierException;
 
 /**
  * Container main class.
@@ -38,12 +41,12 @@ use Pimple\Exception\UnknownIdentifierException;
  */
 class Container implements \ArrayAccess
 {
-    private $values = array();
+    private $values = [];
     private $factories;
     private $protected;
-    private $frozen = array();
-    private $raw = array();
-    private $keys = array();
+    private $frozen = [];
+    private $raw = [];
+    private $keys = [];
 
     /**
      * Instantiates the container.
@@ -52,7 +55,7 @@ class Container implements \ArrayAccess
      *
      * @param array $values The parameters or objects
      */
-    public function __construct(array $values = array())
+    public function __construct(array $values = [])
     {
         $this->factories = new \SplObjectStorage();
         $this->protected = new \SplObjectStorage();
@@ -74,8 +77,11 @@ class Container implements \ArrayAccess
      * @param string $id    The unique identifier for the parameter or object
      * @param mixed  $value The value of the parameter or a closure to define an object
      *
+     * @return void
+     *
      * @throws FrozenServiceException Prevent override of a frozen service
      */
+    #[\ReturnTypeWillChange]
     public function offsetSet($id, $value)
     {
         if (isset($this->frozen[$id])) {
@@ -95,6 +101,7 @@ class Container implements \ArrayAccess
      *
      * @throws UnknownIdentifierException If the identifier is not defined
      */
+    #[\ReturnTypeWillChange]
     public function offsetGet($id)
     {
         if (!isset($this->keys[$id])) {
@@ -130,6 +137,7 @@ class Container implements \ArrayAccess
      *
      * @return bool
      */
+    #[\ReturnTypeWillChange]
     public function offsetExists($id)
     {
         return isset($this->keys[$id]);
@@ -139,7 +147,10 @@ class Container implements \ArrayAccess
      * Unsets a parameter or an object.
      *
      * @param string $id The unique identifier for the parameter or object
+     *
+     * @return void
      */
+    #[\ReturnTypeWillChange]
     public function offsetUnset($id)
     {
         if (isset($this->keys[$id])) {
@@ -162,7 +173,7 @@ class Container implements \ArrayAccess
      */
     public function factory($callable)
     {
-        if (!\method_exists($callable, '__invoke')) {
+        if (!\is_object($callable) || !\method_exists($callable, '__invoke')) {
             throw new ExpectedInvokableException('Service definition is not a Closure or invokable object.');
         }
 
@@ -184,7 +195,7 @@ class Container implements \ArrayAccess
      */
     public function protect($callable)
     {
-        if (!\method_exists($callable, '__invoke')) {
+        if (!\is_object($callable) || !\method_exists($callable, '__invoke')) {
             throw new ExpectedInvokableException('Callable is not a Closure or invokable object.');
         }
 
@@ -246,7 +257,7 @@ class Container implements \ArrayAccess
         }
 
         if (isset($this->protected[$this->values[$id]])) {
-            @\trigger_error(\sprintf('How Pimple behaves when extending protected closures will be fixed in Pimple 4. Are you sure "%s" should be protected?', $id), \E_USER_DEPRECATED);
+            @\trigger_error(\sprintf('How Pimple behaves when extending protected closures will be fixed in Pimple 4. Are you sure "%s" should be protected?', $id), E_USER_DEPRECATED);
         }
 
         if (!\is_object($callable) || !\method_exists($callable, '__invoke')) {
@@ -280,12 +291,11 @@ class Container implements \ArrayAccess
     /**
      * Registers a service provider.
      *
-     * @param ServiceProviderInterface $provider A ServiceProviderInterface instance
-     * @param array                    $values   An array of values that customizes the provider
+     * @param array $values An array of values that customizes the provider
      *
      * @return static
      */
-    public function register(ServiceProviderInterface $provider, array $values = array())
+    public function register(ServiceProviderInterface $provider, array $values = [])
     {
         $provider->register($this);
 

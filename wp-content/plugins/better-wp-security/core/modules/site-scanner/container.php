@@ -5,12 +5,19 @@ namespace iThemesSecurity\Site_Scanner;
 use iThemesSecurity\Site_Scanner\Repository\LatestScanRepository;
 use iThemesSecurity\Site_Scanner\Repository\LogRepository;
 use iThemesSecurity\Site_Scanner\Repository\Repository;
-use Pimple\Container;
+use iThemesSecurity\Strauss\Pimple\Container;
 
 return static function ( Container $c ) {
 	$c['module.site-scanner.files'] = [
 		'rest.php' => REST\REST::class,
 	];
+
+	$c->extend( 'dashboard.cards', function ( $cards ) {
+		require_once __DIR__ . '/cards/class-itsec-dashboard-card-malware-scan.php';
+		$cards[] = new \ITSEC_Dashboard_Card_Malware_Scan();
+
+		return $cards;
+	} );
 
 	$c[ Factory::class ] = static function () {
 		return new Factory();

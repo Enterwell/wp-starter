@@ -1,16 +1,12 @@
 <?php
-/**
- * Meta value object.
- *
- * @package Yoast\YoastSEO\Surfaces\Values
- */
 
 namespace Yoast\WP\SEO\Surfaces\Values;
 
-use Exception;
 use WPSEO_Replace_Vars;
 use Yoast\WP\SEO\Context\Meta_Tags_Context;
+use Yoast\WP\SEO\Exceptions\Forbidden_Property_Mutation_Exception;
 use Yoast\WP\SEO\Integrations\Front_End_Integration;
+use Yoast\WP\SEO\Models\Indexable;
 use Yoast\WP\SEO\Presenters\Abstract_Indexable_Presenter;
 use Yoast\WP\SEO\Presenters\Rel_Next_Presenter;
 use Yoast\WP\SEO\Presenters\Rel_Prev_Presenter;
@@ -18,14 +14,15 @@ use Yoast\WP\SEO\Surfaces\Helpers_Surface;
 use YoastSEO_Vendor\Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Class Meta
+ * Meta value object.
  *
  * @property array       $breadcrumbs                       The breadcrumbs array for the current page.
- * @property bool        $breadcrumbs_enabled               Whether breadcrumbs are enabled or not.
  * @property string      $canonical                         The canonical URL for the current page.
  * @property string      $company_name                      The company name from the Knowledge graph settings.
  * @property int         $company_logo_id                   The attachment ID for the company logo.
  * @property string      $description                       The meta description for the current page, if set.
+ * @property int         $estimated_reading_time_minutes    The estimated reading time in minutes for posts.
+ * @property Indexable   $indexable                         The indexable object.
  * @property string      $main_schema_id                    Schema ID that points to the main Schema thing on the page, usually the webpage or article Schema piece.
  * @property string      $meta_description                  The meta description for the current page, if set.
  * @property string      $open_graph_article_author         The article:author value.
@@ -65,6 +62,8 @@ use YoastSEO_Vendor\Symfony\Component\DependencyInjection\ContainerInterface;
 class Meta {
 
 	/**
+	 * The container.
+	 *
 	 * @var ContainerInterface
 	 */
 	protected $container;
@@ -98,6 +97,13 @@ class Meta {
 	protected $replace_vars;
 
 	/**
+	 * Collection of properties dynamically set via the magic __get() method.
+	 *
+	 * @var array<string, mixed> Key is the property name.
+	 */
+	private $properties_bin = [];
+
+	/**
 	 * Create a meta value object.
 	 *
 	 * @param Meta_Tags_Context  $context   The indexable presentation.
@@ -118,35 +124,36 @@ class Meta {
 	/**
 	 * Returns the output as would be presented in the head.
 	 *
-	 * @return string The HTML output of the head.
+	 * @return object The HTML and JSON presentation of the head metadata.
 	 */
 	public function get_head() {
-		$presenters = $this->front_end->get_presenters( $this->context->page_type );
-
-		if ( $this->context->page_type === 'Date_Archive' ) {
-			$callback   = function ( $presenter ) {
-				return ! \is_a( $presenter, Rel_Next_Presenter::class )
-					&& ! \is_a( $presenter, Rel_Prev_Presenter::class );
-			};
-			$presenters = \array_filter( $presenters, $callback );
-		}
-
-		$output = '';
+		$presenters = $this->get_presenters();
 
 		/** This filter is documented in src/integrations/front-end-integration.php */
 		$presentation = \apply_filters( 'wpseo_frontend_presentation', $this->context->presentation, $this->context );
+
+		$html_output      = '';
+		$json_head_fields = [];
+
 		foreach ( $presenters as $presenter ) {
 			$presenter->presentation = $presentation;
-			$presenter->helpers      = $this->helpers;
 			$presenter->replace_vars = $this->replace_vars;
+			$presenter->helpers      = $this->helpers;
 
-			$presenter_output = $presenter->present();
-			if ( ! empty( $presenter_output ) ) {
-				$output .= $presenter_output . \PHP_EOL;
+			$html_output .= $this->create_html_presentation( $presenter );
+			$json_field   = $this->create_json_field( $presenter );
+
+			// Only use the output of presenters that could successfully present their data.
+			if ( $json_field !== null && ! empty( $json_field->key ) ) {
+				$json_head_fields[ $json_field->key ] = $json_field->value;
 			}
 		}
+		$html_output = \trim( $html_output );
 
-		return \trim( $output );
+		return (object) [
+			'html' => $html_output,
+			'json' => $json_head_fields,
+		];
 	}
 
 	/**
@@ -154,18 +161,20 @@ class Meta {
 	 *
 	 * @param string $name The property to get.
 	 *
-	 * @return mixed The value, as presented by teh appropriate presenter.
-	 *
-	 * @throws Exception If an invalid property is accessed.
+	 * @return mixed The value, as presented by the appropriate presenter.
 	 */
 	public function __get( $name ) {
+		if ( \array_key_exists( $name, $this->properties_bin ) ) {
+			return $this->properties_bin[ $name ];
+		}
+
 		/** This filter is documented in src/integrations/front-end-integration.php */
 		$presentation = \apply_filters( 'wpseo_frontend_presentation', $this->context->presentation, $this->context );
 
 		if ( ! isset( $presentation->{$name} ) ) {
 			if ( isset( $this->context->{$name} ) ) {
-				$this->{$name} = $this->context->{$name};
-				return $this->{$name};
+				$this->properties_bin[ $name ] = $this->context->{$name};
+				return $this->properties_bin[ $name ];
 			}
 			return null;
 		}
@@ -185,6 +194,8 @@ class Meta {
 
 		if ( \class_exists( $presenter_class ) ) {
 			/**
+			 * The indexable presenter.
+			 *
 			 * @var Abstract_Indexable_Presenter
 			 */
 			$presenter               = new $presenter_class();
@@ -197,8 +208,8 @@ class Meta {
 			$value = $presentation->{$name};
 		}
 
-		$this->{$name} = $value;
-		return $this->{$name};
+		$this->properties_bin[ $name ] = $value;
+		return $this->properties_bin[ $name ];
 	}
 
 	/**
@@ -209,7 +220,40 @@ class Meta {
 	 * @return bool Whether or not the requested property exists.
 	 */
 	public function __isset( $name ) {
+		if ( \array_key_exists( $name, $this->properties_bin ) ) {
+			return true;
+		}
+
 		return isset( $this->context->presentation->{$name} );
+	}
+
+	/**
+	 * Prevents setting dynamic properties and overwriting the value of declared properties
+	 * from an inaccessible context.
+	 *
+	 * @param string $name  The property name.
+	 * @param mixed  $value The property value.
+	 *
+	 * @return void
+	 *
+	 * @throws Forbidden_Property_Mutation_Exception Set is never meant to be called.
+	 */
+	public function __set( $name, $value ) { // @phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- __set must have a name and value - PHPCS #3715.
+		throw Forbidden_Property_Mutation_Exception::cannot_set_because_property_is_immutable( $name );
+	}
+
+	/**
+	 * Prevents unsetting dynamic properties and unsetting declared properties
+	 * from an inaccessible context.
+	 *
+	 * @param string $name The property name.
+	 *
+	 * @return void
+	 *
+	 * @throws Forbidden_Property_Mutation_Exception Unset is never meant to be called.
+	 */
+	public function __unset( $name ) {
+		throw Forbidden_Property_Mutation_Exception::cannot_unset_because_property_is_immutable( $name );
 	}
 
 	/**
@@ -219,5 +263,69 @@ class Meta {
 	 */
 	public function __debugInfo() {
 		return [ 'context' => $this->context ];
+	}
+
+	/**
+	 * Returns all presenters.
+	 *
+	 * @return Abstract_Indexable_Presenter[]
+	 */
+	protected function get_presenters() {
+		$presenters = $this->front_end->get_presenters( $this->context->page_type, $this->context );
+
+		if ( $this->context->page_type === 'Date_Archive' ) {
+			/**
+			 * Define a filter that removes objects of type Rel_Next_Presenter or Rel_Prev_Presenter from a list.
+			 *
+			 * @param object $presenter The presenter to verify.
+			 *
+			 * @return bool True if the presenter is not a Rel_Next or Rel_Prev presenter.
+			 */
+			$callback   = static function ( $presenter ) {
+				return ! \is_a( $presenter, Rel_Next_Presenter::class )
+					&& ! \is_a( $presenter, Rel_Prev_Presenter::class );
+			};
+			$presenters = \array_filter( $presenters, $callback );
+		}
+
+		return $presenters;
+	}
+
+	/**
+	 * Uses the presenter to create a line of HTML.
+	 *
+	 * @param Abstract_Indexable_Presenter $presenter The presenter.
+	 *
+	 * @return string
+	 */
+	protected function create_html_presentation( $presenter ) {
+		$presenter_output = $presenter->present();
+		if ( ! empty( $presenter_output ) ) {
+			return $presenter_output . \PHP_EOL;
+		}
+		return '';
+	}
+
+	/**
+	 * Converts a presenter's key and value to JSON.
+	 *
+	 * @param Abstract_Indexable_Presenter $presenter The presenter whose key and value are to be converted to JSON.
+	 *
+	 * @return object|null
+	 */
+	protected function create_json_field( $presenter ) {
+		if ( $presenter->get_key() === 'NO KEY PROVIDED' ) {
+			return null;
+		}
+
+		$value = $presenter->get();
+		if ( empty( $value ) ) {
+			return null;
+		}
+
+		return (object) [
+			'key'   => $presenter->escape_key(),
+			'value' => $value,
+		];
 	}
 }

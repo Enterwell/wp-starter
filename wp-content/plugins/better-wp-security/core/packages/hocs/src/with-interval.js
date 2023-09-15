@@ -29,7 +29,12 @@ export default function withInterval( delay, cb ) {
 			componentDidMount() {
 				for ( const interval of intervals ) {
 					( ( callback ) => {
-						this.intervalIds.push( setInterval( () => callback( this.props ), interval.delay ) );
+						this.intervalIds.push(
+							setInterval(
+								() => callback( this.props ),
+								interval.delay
+							)
+						);
 					} )( interval.cb );
 				}
 			}

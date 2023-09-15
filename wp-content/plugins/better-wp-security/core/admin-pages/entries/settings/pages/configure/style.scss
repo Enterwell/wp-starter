@@ -1,0 +1,26 @@
+.itsec-configure-intro {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min-content, 250px));
+    grid-gap: 1rem;
+}
+
+.itsec-configure-module-links {
+    padding-top: 4px !important;
+    padding-bottom: 4px !important;
+
+    ul {
+        margin: 0;
+    }
+
+    li {
+        margin: 0;
+    }
+
+    .components-button.is-link {
+        text-decoration: none;
+
+        &:first-child {
+            padding-left: 0;
+        }
+    }
+}

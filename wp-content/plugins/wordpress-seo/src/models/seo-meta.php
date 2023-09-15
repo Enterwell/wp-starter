@@ -1,9 +1,4 @@
 <?php
-/**
- * Model for the SEO Meta table.
- *
- * @package Yoast\YoastSEO\Models
- */
 
 namespace Yoast\WP\SEO\Models;
 
@@ -35,13 +30,4 @@ class SEO_Meta extends Model {
 		'internal_link_count',
 		'incoming_link_count',
 	];
-
-	/**
-	 * SEO_Meta constructor.
-	 *
-	 * @deprecated 14.8
-	 */
-	public function __construct() {
-		_deprecated_function( __METHOD__, '14.8' );
-	}
 }

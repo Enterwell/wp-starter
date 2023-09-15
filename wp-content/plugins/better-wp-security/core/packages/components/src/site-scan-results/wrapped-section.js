@@ -8,16 +8,24 @@ import { isEmpty } from 'lodash';
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { Fragment } from '@wordpress/element';
+import { Fragment, useState } from '@wordpress/element';
 import { Button } from '@wordpress/components';
-import { compose, withState, withInstanceId } from '@wordpress/compose';
+import { useInstanceId } from '@wordpress/compose';
 
 /**
  * Internal dependencies
  */
 import Details from './details';
 
-function WrappedSection( { type, status, description, isShowing, setState, instanceId, children } ) {
+export default function WrappedSection( {
+	type,
+	status,
+	description,
+	children,
+} ) {
+	const instanceId = useInstanceId( WrappedSection );
+	const [ isShowing, setIsShowing ] = useState( false );
+
 	let statusText;
 
 	switch ( status ) {
@@ -35,24 +43,48 @@ function WrappedSection( { type, status, description, isShowing, setState, insta
 			break;
 	}
 
-	const statusEl = ( <span className={ `itsec-site-scan__status itsec-site-scan__status--${ status }` }>{ statusText }</span> );
+	const statusEl = (
+		<span
+			className={ `itsec-site-scan__status itsec-site-scan__status--${ status }` }
+		>
+			{ statusText }
+		</span>
+	);
 
 	return (
-		<div className={ classnames( 'itsec-site-scan-results-section', `itsec-site-scan-results-${ type }-section` ) }>
-			{ isEmpty( children ) ? ( <p>{ statusEl } { description }</p> ) : (
+		<div
+			className={ classnames(
+				'itsec-site-scan-results-section',
+				`itsec-site-scan-results-${ type }-section`
+			) }
+		>
+			{ isEmpty( children ) ? (
+				<p>
+					{ statusEl } { description }
+				</p>
+			) : (
 				<Fragment>
 					<p>
 						{ statusEl }
 						{ description }
-						<Button isLink className="itsec-site-scan-toggle-details" onClick={ () => setState( { isShowing: ! isShowing } ) }
-							aria-expanded={ isShowing } aria-controls={ `itsec-site-scan__details--${ instanceId }` }>
-							{ isShowing ?
-								__( 'Hide Details', 'better-wp-security' ) :
-								__( 'Show Details', 'better-wp-security' )
+						<Button
+							variant="link"
+							className="itsec-site-scan-toggle-details"
+							onClick={ () =>
+								setIsShowing( ! isShowing )
 							}
+							aria-expanded={ isShowing }
+							aria-controls={ `itsec-site-scan__details--${ instanceId }` }
+						>
+							{ isShowing
+								? __( 'Hide Details', 'better-wp-security' )
+								: __( 'Show Details', 'better-wp-security' ) }
 						</Button>
 					</p>
-					<Details id={ `itsec-site-scan__details--${ instanceId }` } isVisible={ isShowing }>
+					<Details
+						id={ `itsec-site-scan__details--${ instanceId }` }
+						isVisible={ isShowing }
+					>
 						{ children }
 					</Details>
 				</Fragment>
@@ -60,8 +92,3 @@ function WrappedSection( { type, status, description, isShowing, setState, insta
 		</div>
 	);
 }
-
-export default compose( [
-	withState( { isShowing: false } ),
-	withInstanceId,
-] )( WrappedSection );

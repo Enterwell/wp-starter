@@ -1,0 +1,45 @@
+
+.itsec-user-groups-multi-group-selector {
+    padding: 12px 24px;
+    background: $focused-blue;
+    border-bottom: 1px solid $border-color;
+
+    .components-checkbox-control__label {
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .components-base-control__field {
+        margin-bottom: 0;
+    }
+
+    fieldset {
+        display: flex;
+        flex-wrap: wrap;
+        margin-left: 28px;
+
+        .itsec-chip-control {
+            margin-right: 8px;
+            margin-top: 8px;
+
+            &:last-child {
+                margin-right: 0;
+            }
+        }
+    }
+
+    .itsec-user-groups-multi-group-selector__select-all {
+        text-transform: uppercase;
+        display: inline-flex;
+        align-items: center;
+
+        &::after {
+            content: '';
+            height: 50%;
+            width: 1px;
+            margin-left: .5rem;
+            background: $main-blue;
+            display: inline-block;
+        }
+    }
+}

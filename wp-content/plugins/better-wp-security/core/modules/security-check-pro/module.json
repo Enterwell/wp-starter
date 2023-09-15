@@ -1,0 +1,104 @@
+{
+  "id": "security-check-pro",
+  "status": {
+    "free": "default-inactive",
+    "pro": "always-active"
+  },
+  "type": "utility",
+  "title": "Security Check Pro",
+  "description": "Detects the correct way to identify user IP addresses based on your server configuration by making an API request to iThemes.com servers. No user information is sent to iThemes. [Read our Privacy Policy](https://ithemes.com/privacy-policy/).",
+  "onboard": true,
+  "side-effects": true,
+  "tools": {
+    "security-check-pro": {
+      "schedule": "security-check-pro",
+      "description": "Detects the correct way to identify user IP addresses based on your server configuration."
+    }
+  },
+  "scheduling": {
+    "security-check-pro": {
+      "type": "recurring",
+      "schedule": "daily"
+    }
+  },
+  "settings": {
+    "type": "object",
+    "properties": {
+      "last_scan_timestamp": {
+        "type": [
+          "null",
+          "integer"
+        ],
+        "minimum": 0,
+        "default": null,
+        "readonly": true
+      },
+      "ip_header": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "position_from_end": {
+            "type": "integer"
+          }
+        },
+        "default": {
+          "name": "",
+          "position_from_end": -1
+        },
+        "readonly": true
+      },
+      "remote_ip_index": {
+        "type": [
+          "null",
+          "string",
+          "object"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "0": {
+            "type": "string"
+          },
+          "1": {
+            "type": "integer"
+          }
+        },
+        "default": null,
+        "readonly": true
+      },
+      "ssl_supported": {
+        "type": [
+          "null",
+          "boolean"
+        ],
+        "default": null,
+        "readonly": true
+      },
+      "remote_ips_timestamp": {
+        "type": [
+          "null",
+          "integer"
+        ],
+        "minimum": 0,
+        "default": null,
+        "readonly": true
+      },
+      "remote_ips": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "format": "ip"
+        },
+        "uniqueItems": true,
+        "default": [],
+        "readonly": true
+      },
+      "key_salt": {
+        "type": "string",
+        "default": "",
+        "readonly": true
+      }
+    }
+  }
+}

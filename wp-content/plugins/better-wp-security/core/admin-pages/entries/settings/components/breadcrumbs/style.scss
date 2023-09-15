@@ -1,0 +1,99 @@
+.itsec-breadcrumbs {
+    ul {
+        display: flex;
+        align-items: center;
+        margin: 0;
+
+        li {
+            display: inline-flex;
+            align-items: center;
+            margin: 0;
+            min-height: 26px;
+            color: $dark-text;
+            font-size: .75rem;
+
+            a {
+                color: $dark-text;
+                text-decoration: none;
+
+                &:hover {
+                    color: $main-blue;
+                }
+            }
+
+            &:after {
+                @include dashicon('\f345', .75rem);
+                margin: 0 .25rem;
+                color: $medium-text;
+            }
+
+            &:last-child {
+                color: $medium-text;
+
+                a {
+                    color: $medium-text;
+
+                    &:hover {
+                        color: $main-blue;
+                    }
+                }
+
+                &:after {
+                    content: '';
+                }
+            }
+        }
+
+        .itsec-breadcrumbs__menu {
+            margin-left: 2px;
+
+            .components-button.has-icon {
+                color: $main-blue;
+                padding: 3px;
+                height: auto;
+
+                .dashicon {
+                    margin-left: 2px;
+                    margin-right: -5px;
+                }
+
+                &:hover {
+                    color: $dark-text;
+                }
+            }
+        }
+    }
+}
+
+.itsec-breadcrumbs__menu-popover {
+    .components-popover__content > div {
+        padding: .5rem;
+    }
+
+    a {
+        display: block;
+        width: max-content;
+        color: $medium-text;
+        border-left: 3px solid transparent;
+        text-decoration: none;
+        padding: .125rem calc(.25rem + 3px) .125rem .25rem;
+        margin: .5rem 0;
+        font-weight: 500;
+
+        &:first-child {
+            margin-top: 0;
+        }
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+
+        &:hover,
+        &:focus {
+            color: $dark-text;
+            border-left-color: $main-blue;
+            outline: none;
+            box-shadow: none;
+        }
+    }
+}

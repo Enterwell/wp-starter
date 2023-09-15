@@ -1,17 +1,14 @@
 <?php
-/**
- * A helper object for images.
- *
- * @package Yoast\WP\SEO\Helpers
- */
 
 namespace Yoast\WP\SEO\Helpers;
 
 use WPSEO_Image_Utils;
+use Yoast\WP\SEO\Models\SEO_Links;
 use Yoast\WP\SEO\Repositories\Indexable_Repository;
+use Yoast\WP\SEO\Repositories\SEO_Links_Repository;
 
 /**
- * Class Image_Helper
+ * A helper object for images.
  */
 class Image_Helper {
 
@@ -20,14 +17,14 @@ class Image_Helper {
 	 *
 	 * @var array
 	 */
-	protected static $valid_image_types = [ 'image/jpeg', 'image/gif', 'image/png' ];
+	protected static $valid_image_types = [ 'image/jpeg', 'image/gif', 'image/png', 'image/webp' ];
 
 	/**
 	 * Image extensions that are supported by Open Graph.
 	 *
 	 * @var array
 	 */
-	protected static $valid_image_extensions = [ 'jpeg', 'jpg', 'gif', 'png' ];
+	protected static $valid_image_extensions = [ 'jpeg', 'jpg', 'gif', 'png', 'webp' ];
 
 	/**
 	 * Represents the indexables repository.
@@ -37,12 +34,44 @@ class Image_Helper {
 	protected $indexable_repository;
 
 	/**
+	 * Represents the SEO Links repository.
+	 *
+	 * @var SEO_Links_Repository
+	 */
+	protected $seo_links_repository;
+
+	/**
+	 * The options helper.
+	 *
+	 * @var Options_Helper
+	 */
+	private $options_helper;
+
+	/**
+	 * The URL helper.
+	 *
+	 * @var Url_Helper
+	 */
+	private $url_helper;
+
+	/**
 	 * Image_Helper constructor.
 	 *
 	 * @param Indexable_Repository $indexable_repository The indexable repository.
+	 * @param SEO_Links_Repository $seo_links_repository The SEO Links repository.
+	 * @param Options_Helper       $options              The options helper.
+	 * @param Url_Helper           $url_helper           The URL helper.
 	 */
-	public function __construct( Indexable_Repository $indexable_repository ) {
+	public function __construct(
+		Indexable_Repository $indexable_repository,
+		SEO_Links_Repository $seo_links_repository,
+		Options_Helper $options,
+		Url_Helper $url_helper
+	) {
 		$this->indexable_repository = $indexable_repository;
+		$this->seo_links_repository = $seo_links_repository;
+		$this->options_helper       = $options;
+		$this->url_helper           = $url_helper;
 	}
 
 	/**
@@ -232,10 +261,10 @@ class Image_Helper {
 	/**
 	 * Find the right version of an image based on size.
 	 *
+	 * @codeCoverageIgnore - We have to write test when this method contains own code.
+	 *
 	 * @param int    $attachment_id Attachment ID.
 	 * @param string $size          Size name.
-	 *
-	 * @codeCoverageIgnore - We have to write test when this method contains own code.
 	 *
 	 * @return array|false Returns an array with image data on success, false on failure.
 	 */
@@ -246,9 +275,9 @@ class Image_Helper {
 	/**
 	 * Retrieves the best attachment variation for the given attachment.
 	 *
-	 * @param int $attachment_id The attachment id.
-	 *
 	 * @codeCoverageIgnore - We have to write test when this method contains own code.
+	 *
+	 * @param int $attachment_id The attachment id.
 	 *
 	 * @return bool|string The attachment url or false when no variations found.
 	 */
@@ -268,33 +297,47 @@ class Image_Helper {
 	/**
 	 * Find an attachment ID for a given URL.
 	 *
-	 * @param string $url The URL to find the attachment for.
+	 * @param string $url            The URL to find the attachment for.
+	 * @param bool   $use_link_table Whether the SEO Links table will be used to retrieve the id.
 	 *
 	 * @return int The found attachment ID, or 0 if none was found.
 	 */
-	public function get_attachment_by_url( $url ) {
-		// Strip out the size part of an image URL.
-		$url = \preg_replace( '/(.*)-\d+x\d+\.(jpeg|jpg|png|gif)$/', '$1.$2', $url );
-
+	public function get_attachment_by_url( $url, $use_link_table = true ) {
 		// Don't try to do this for external URLs.
-		if ( \strpos( $url, \get_site_url() ) !== 0 ) {
+		if ( $this->url_helper->get_link_type( $url ) === SEO_Links::TYPE_EXTERNAL ) {
 			return 0;
 		}
 
-		$indexable = $this->indexable_repository->find_by_permalink( $url );
+		if ( ! $this->options_helper->get( 'disable-attachment' ) ) {
+			// Strip out the size part of an image URL.
+			$url = \preg_replace( '/(.*)-\d+x\d+\.(jpeg|jpg|png|gif)$/', '$1.$2', $url );
 
-		if ( $indexable && $indexable->object_type === 'post' && $indexable->object_sub_type === 'attachment' ) {
-			return $indexable->object_id;
+			$indexable = $this->indexable_repository->find_by_permalink( $url );
+
+			if ( $indexable && $indexable->object_type === 'post' && $indexable->object_sub_type === 'attachment' ) {
+				return $indexable->object_id;
+			}
+
+			$post_id = WPSEO_Image_Utils::get_attachment_by_url( $url );
+
+			if ( $post_id !== 0 ) {
+				// Find the indexable, this triggers creating it so it can be found next time.
+				$this->indexable_repository->find_by_id_and_type( $post_id, 'post' );
+			}
+
+			return $post_id;
 		}
 
-		$post_id = WPSEO_Image_Utils::get_attachment_by_url( $url );
-
-		if ( $post_id !== 0 ) {
-			// Find the indexable, this triggers creating it so it can be found next time.
-			$this->indexable_repository->find_by_id_and_type( $post_id, 'post' );
+		if ( ! $use_link_table ) {
+			return WPSEO_Image_Utils::get_attachment_by_url( $url );
 		}
 
-		return $post_id;
+		$link = $this->seo_links_repository->find_one_by_url( $url );
+		if ( ! \is_a( $link, SEO_Links::class ) ) {
+			return WPSEO_Image_Utils::get_attachment_by_url( $url );
+		}
+
+		return $link->target_post_id;
 	}
 
 	/**
@@ -303,9 +346,9 @@ class Image_Helper {
 	 * Due to self::get_attachment_by_url returning 0 instead of false.
 	 * 0 is also a possibility when no ID is available.
 	 *
-	 * @param string $setting The setting the image is stored in.
-	 *
 	 * @codeCoverageIgnore - We have to write test when this method contains own code.
+	 *
+	 * @param string $setting The setting the image is stored in.
 	 *
 	 * @return int|bool The attachment id, or false or 0 if no ID is available.
 	 */
@@ -314,11 +357,35 @@ class Image_Helper {
 	}
 
 	/**
+	 * Based on and image ID return array with the best variation of that image. If it's not saved to the DB,  save it to an option.
+	 *
+	 * @param string $setting The setting name. Should be company or person.
+	 *
+	 * @return array|bool Array with image details when the image is found, boolean when it's not found.
+	 */
+	public function get_attachment_meta_from_settings( $setting ) {
+		$image_meta = $this->options_helper->get( $setting . '_meta', false );
+		if ( ! $image_meta ) {
+			$image_id = $this->options_helper->get( $setting . '_id', false );
+			if ( $image_id ) {
+				// There is not an option to put a URL in an image field in the settings anymore, only to upload it through the media manager.
+				// This means an attachment always exists, so doing this is only needed once.
+				$image_meta = $this->get_best_attachment_variation( $image_id );
+				if ( $image_meta ) {
+					$this->options_helper->set( $setting . '_meta', $image_meta );
+				}
+			}
+		}
+
+		return $image_meta;
+	}
+
+	/**
 	 * Retrieves the first usable content image for a post.
 	 *
-	 * @param int $post_id The post id to extract the images from.
-	 *
 	 * @codeCoverageIgnore - We have to write test when this method contains own code.
+	 *
+	 * @param int $post_id The post id to extract the images from.
 	 *
 	 * @return string|null
 	 */

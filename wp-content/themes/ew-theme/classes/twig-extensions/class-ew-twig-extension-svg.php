@@ -2,24 +2,24 @@
 
 namespace EwStarter;
 
-use Twig_Extension;
-use Twig_SimpleFunction;
+use Twig\Extension\AbstractExtension;
+use Twig\TwigFunction;
 use Exception;
 
 /**
  * Class Ew_Twig_Extension_Svg
  * @package EwStarter
  */
-class Ew_Twig_Extension_Svg extends Twig_Extension {
+class Ew_Twig_Extension_Svg extends AbstractExtension {
 
 	/**
 	 * Get functions.
-	 *
-	 * @return array|Twig_SimpleFunction[]
+	 * @return array
 	 */
-	public function getFunctions() {
+	public function getFunctions(): array
+	{
 		return [
-			new Twig_SimpleFunction( 'load_svg', [ $this, 'load_svg' ] ),
+			new TwigFunction( 'load_svg', [ $this, 'load_svg' ] ),
 		];
 	}
 

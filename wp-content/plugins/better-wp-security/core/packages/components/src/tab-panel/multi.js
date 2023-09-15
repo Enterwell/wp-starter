@@ -33,7 +33,9 @@ class ControlledMultiTabPanel extends Component {
 		this.getTabId = this.getTabId.bind( this );
 		this.getTabPanelId = this.getTabPanelId.bind( this );
 		this.isTabDisabled = this.isTabDisabled.bind( this );
-		this.isNonMultiSelectableTabSelected = this.isNonMultiSelectableTabSelected.bind( this );
+		this.isNonMultiSelectableTabSelected = this.isNonMultiSelectableTabSelected.bind(
+			this
+		);
 	}
 
 	handleClick( tabKey, event ) {
@@ -81,7 +83,10 @@ class ControlledMultiTabPanel extends Component {
 		// since onNavigate is called during the original onKeyDown event handler.
 		this.event = event;
 
-		if ( event.ctrlKey && ( event.code === 'Space' || event.keyCode === 32 ) ) {
+		if (
+			event.ctrlKey &&
+			( event.code === 'Space' || event.keyCode === 32 )
+		) {
 			event.preventDefault();
 			const tabName = event.target.dataset.tabname;
 
@@ -99,12 +104,13 @@ class ControlledMultiTabPanel extends Component {
 		}
 
 		if ( this.props.selected.includes( name ) ) {
-			this.props.onSelect( this.props.selected.filter( ( maybeName ) => maybeName !== name ) );
+			this.props.onSelect(
+				this.props.selected.filter(
+					( maybeName ) => maybeName !== name
+				)
+			);
 		} else {
-			this.props.onSelect( [
-				...this.props.selected,
-				name,
-			] );
+			this.props.onSelect( [ ...this.props.selected, name ] );
 		}
 	}
 
@@ -137,7 +143,10 @@ class ControlledMultiTabPanel extends Component {
 			return false;
 		}
 
-		if ( tab.allowMultiple !== false && ! this.isNonMultiSelectableTabSelected() ) {
+		if (
+			tab.allowMultiple !== false &&
+			! this.isNonMultiSelectableTabSelected()
+		) {
 			return false;
 		}
 
@@ -148,7 +157,11 @@ class ControlledMultiTabPanel extends Component {
 		if ( pressedModifierKeys.shift ) {
 			const { activeElement } = document;
 
-			if ( activeElement.parentElement && activeElement.parentElement.id === `components-tab-panel__tabs-${ this.props.instanceId }` ) {
+			if (
+				activeElement.parentElement &&
+				activeElement.parentElement.id ===
+					`components-tab-panel__tabs-${ this.props.instanceId }`
+			) {
 				return true;
 			}
 		}
@@ -161,7 +174,9 @@ class ControlledMultiTabPanel extends Component {
 			return false;
 		}
 
-		const selectedTab = find( this.props.tabs, { name: this.props.selected[ 0 ] } );
+		const selectedTab = find( this.props.tabs, {
+			name: this.props.selected[ 0 ],
+		} );
 
 		return selectedTab && selectedTab.allowMultiple === false;
 	}
@@ -171,11 +186,16 @@ class ControlledMultiTabPanel extends Component {
 			return this.getTabPanelId( selectedTabs[ 0 ].name );
 		}
 
-		return `components-tab-panel__panel-${ this.props.instanceId }-${ map( selectedTabs, 'name' ).join( '-' ) }`;
+		return `components-tab-panel__panel-${ this.props.instanceId }-${ map(
+			selectedTabs,
+			'name'
+		).join( '-' ) }`;
 	}
 
 	getLabelledBy( selectedTabs ) {
-		return selectedTabs.map( ( tab ) => this.getTabId( tab.name ) ).join( ',' );
+		return selectedTabs
+			.map( ( tab ) => this.getTabId( tab.name ) )
+			.join( ',' );
 	}
 
 	getTabId( tabName ) {
@@ -239,16 +259,25 @@ class ControlledMultiTabPanel extends Component {
 				>
 					{ tabs.map( ( tab ) => {
 						const isSelected = this.isSelected( selectedTabs, tab );
-						const controls = isSelected && selectedTabs.length > 1 ? selectedId : this.getTabPanelId( tab.name );
+						const controls =
+							isSelected && selectedTabs.length > 1
+								? selectedId
+								: this.getTabPanelId( tab.name );
 
 						return (
-							<TabButton className={ classnames( tab.className, { [ activeClass ]: isSelected } ) }
+							<TabButton
+								className={ classnames( tab.className, {
+									[ activeClass ]: isSelected,
+								} ) }
 								tabId={ this.getTabId( tab.name ) }
 								aria-controls={ controls }
 								selected={ isSelected }
 								disabled={ this.isTabDisabled( tab ) }
 								key={ tab.name }
-								onClick={ partial( this.handleClick, tab.name ) }
+								onClick={ partial(
+									this.handleClick,
+									tab.name
+								) }
 								data-tabname={ tab.name }
 							>
 								{ tab.title }
@@ -257,7 +286,8 @@ class ControlledMultiTabPanel extends Component {
 					} ) }
 				</NavigableMenu>
 				{ selectedTabs.length > 0 && (
-					<div aria-labelledby={ this.getLabelledBy( selectedTabs ) }
+					<div
+						aria-labelledby={ this.getLabelledBy( selectedTabs ) }
 						role="tabpanel"
 						id={ selectedId }
 						className="components-tab-panel__tab-content"
@@ -271,7 +301,6 @@ class ControlledMultiTabPanel extends Component {
 	}
 }
 
-export default compose( [
-	withInstanceId,
-	withPressedModifierKeys,
-] )( ControlledMultiTabPanel );
+export default compose( [ withInstanceId, withPressedModifierKeys ] )(
+	ControlledMultiTabPanel
+);

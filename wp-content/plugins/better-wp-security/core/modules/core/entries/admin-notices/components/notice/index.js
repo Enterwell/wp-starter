@@ -9,50 +9,60 @@ import { isEmpty, size, map } from 'lodash';
 import { Fragment } from '@wordpress/element';
 import { autop } from '@wordpress/autop';
 import { Button } from '@wordpress/components';
+import { useSelect, useDispatch } from '@wordpress/data';
 
 /**
  * Internal dependencies
  */
 import './style.scss';
 
-/**
- * Notice Component.
- *
- * @param {string|number} noticeId
- * @param {Object} notice
- * @param {string} notice.severity
- * @param {string} notice.title
- * @param {string} notice.message
- * @param {Object} notice.meta
- * @param {Array.<{title: string, style: string, uri: string}>} notice.actions
- * @return {Component} Notice component.
- */
 export default function Notice( { notice } ) {
 	return (
-		<article className={ `itsec-admin-notice itsec-admin-notice--severity-${ notice.severity }` }>
+		<article
+			className={ `itsec-admin-notice itsec-admin-notice--severity-${ notice.severity }` }
+		>
 			<header className="itsec-admin-notice__header">
 				<div className="itsec-admin-notice__header-inset">
-					<h4 dangerouslySetInnerHTML={ { __html: notice.title || formatMessage( notice.message, notice ) } } />
-					{ map( notice.actions, ( action, slug ) => ( action.style === 'primary' && (
-						<Button key={ slug } href={ action.uri }>{ action.title }</Button>
-					) ) ) }
+					<h4
+						dangerouslySetInnerHTML={ {
+							__html:
+								notice.title ||
+								formatMessage( notice.message, notice ),
+						} }
+					/>
+					{ map(
+						notice.actions,
+						( action, slug ) =>
+							action.style === 'primary' && (
+								<PrimaryAction key={ slug } notice={ notice } action={ action } />
+							)
+					) }
 				</div>
 			</header>
 
 			{ notice.title && notice.message && (
-				<section className="itsec-admin-notice__message" dangerouslySetInnerHTML={ { __html: autop( formatMessage( notice.message, notice ) ) } } />
+				<section
+					className="itsec-admin-notice__message"
+					dangerouslySetInnerHTML={ {
+						__html: autop(
+							formatMessage( notice.message, notice )
+						),
+					} }
+				/>
 			) }
 
 			{ hasMeta( notice ) && (
 				<dl className="itsec-admin-notice__meta">
-					{ map( notice.meta, ( meta, key ) => (
-						key !== 'created_at' && (
-							<Fragment key={ key }>
-								<dt>{ meta.label }</dt>
-								<dd>{ meta.formatted }</dd>
-							</Fragment>
-						)
-					) ) }
+					{ map(
+						notice.meta,
+						( meta, key ) =>
+							key !== 'created_at' && (
+								<Fragment key={ key }>
+									<dt>{ meta.label }</dt>
+									<dd>{ meta.formatted }</dd>
+								</Fragment>
+							)
+					) }
 				</dl>
 			) }
 
@@ -67,12 +77,56 @@ export default function Notice( { notice } ) {
 	);
 }
 
+function PrimaryAction( { notice, action } ) {
+	const isInProgress = useSelect( ( select ) =>
+		select( 'ithemes-security/admin-notices' )
+			.getInProgressActions( notice.id )
+			.includes( action.id ),
+	[ notice.id, action.id ]
+	);
+	const { doNoticeAction } = useDispatch( 'ithemes-security/admin-notices' );
+	// Intentionally uses string-based API because we only want to refresh modules if they are in use.
+	const { fetchModules } = useDispatch( 'ithemes-security/modules' ) || {};
+
+	const onClick = async ( e ) => {
+		if ( ! action.uri ) {
+			e.preventDefault();
+			await doNoticeAction( notice.id, action.id );
+			fetchModules?.();
+		}
+	};
+
+	// We don't want to cause a dependency on the settings page entry.
+	if ( action.route && window.itsec?.pages?.settings?.history ) {
+		return <PrimaryRouteAction route={ action.route } title={ action.title } history={ window.itsec?.pages?.settings?.history } />;
+	}
+
+	return (
+		<Button href={ action.uri } onClick={ onClick } isBusy={ isInProgress }>
+			{ action.title }
+		</Button>
+	);
+}
+
+function PrimaryRouteAction( { title, route, history } ) {
+	const onClick = () => history.push( route );
+
+	return (
+		<Button onClick={ onClick } href={ history.createHref( route ) }>
+			{ title }
+		</Button>
+	);
+}
+
 function hasMeta( notice ) {
 	if ( isEmpty( notice.meta ) ) {
 		return false;
 	}
 
-	if ( size( notice.meta ) === 1 && notice.meta.hasOwnProperty( 'created_at' ) ) {
+	if (
+		size( notice.meta ) === 1 &&
+		notice.meta.hasOwnProperty( 'created_at' )
+	) {
 		return false;
 	}
 
@@ -89,7 +143,10 @@ function formatMessage( message, notice ) {
 			continue;
 		}
 
-		message = message.replace( '{{ $' + action + ' }}', notice.actions[ action ].uri );
+		message = message.replace(
+			'{{ $' + action + ' }}',
+			notice.actions[ action ].uri
+		);
 	}
 
 	return message;

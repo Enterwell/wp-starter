@@ -6,10 +6,15 @@
  * @package iThemes-Security
  */
 
+use iThemesSecurity\Actor\Actor;
+use iThemesSecurity\Ban_Hosts\Repository_Ban;
+use iThemesSecurity\Ban_Users;
+use iThemesSecurity\Ban_Users\Ban;
 use iThemesSecurity\Lib\Lockout;
 use iThemesSecurity\Lib\Lockout\Execute_Lock;
 use iThemesSecurity\Lib\Lockout\Execute_Lock\Source\Configurable;
 use iThemesSecurity\Lib\Lockout\Execute_Lock\Source\Lockout_Module;
+use iThemesSecurity\Lib\Result;
 
 require_once( __DIR__ . '/lib/lockout/execute-lock/source/interface-source.php' );
 require_once( __DIR__ . '/lib/lockout/execute-lock/abstract-context.php' );
@@ -76,7 +81,8 @@ final class ITSEC_Lockout {
 	}
 
 	public function run() {
-		add_action( 'itsec_scheduler_register_events', array( $this, 'register_events' ) );
+		wp_cache_add_non_persistent_groups( 'itsec-lockouts' );
+
 		add_action( 'itsec_scheduled_purge-lockouts', array( $this, 'purge_lockouts' ) );
 
 		//Check for host lockouts
@@ -86,7 +92,7 @@ final class ITSEC_Lockout {
 		add_filter( 'authenticate', array( $this, 'check_authenticate_lockout' ), 30 );
 
 		// Updated temp whitelist to ensure that admin users are automatically added.
-		if ( ! defined( 'ITSEC_DISABLE_TEMP_WHITELIST' ) || ! ITSEC_DISABLE_TEMP_WHITELIST ) {
+		if ( $this->is_temp_authorization_enabled() ) {
 			add_action( 'init', array( $this, 'update_temp_whitelist' ), 0 );
 		}
 
@@ -96,17 +102,10 @@ final class ITSEC_Lockout {
 		add_action( 'ithemes_sync_register_verbs', array( $this, 'register_sync_verbs' ) );
 		add_filter( 'itsec-filter-itsec-get-everything-verbs', array( $this, 'register_sync_get_everything_verbs' ) );
 
-		add_action( 'itsec-settings-page-init', array( $this, 'init_settings_page' ) );
-		add_action( 'itsec-logs-page-init', array( $this, 'init_settings_page' ) );
-
 		add_filter( 'itsec_notifications', array( $this, 'register_notification' ) );
 		add_filter( 'itsec_lockout_notification_strings', array( $this, 'notification_strings' ) );
 
 		add_filter( 'itsec_logs_prepare_lockout_entry_for_list_display', array( $this, 'filter_entry_for_list_display' ), 10, 3 );
-	}
-
-	public function init_settings_page() {
-		require_once( dirname( __FILE__ ) . '/sidebar-widget-active-lockouts.php' );
 	}
 
 	/**
@@ -142,7 +141,7 @@ final class ITSEC_Lockout {
 
 		$host = ITSEC_Lib::get_ip();
 
-		if ( ITSEC_Lib::is_ip_blacklisted() ) {
+		if ( ITSEC_Lib::is_ip_banned() ) {
 			$this->execute_lock( new Execute_Lock\Host_Context( new Configurable( 'blacklist' ), $host ) );
 		}
 
@@ -582,7 +581,7 @@ final class ITSEC_Lockout {
 				if ( $whitelisted ) {
 					ITSEC_Log::add_notice( 'lockout', 'whitelisted-host-triggered-blacklist', array_merge( $log_data, compact( 'blacklist_period', 'blacklist_count', 'host_count' ) ) );
 				} else {
-					$this->blacklist_ip( $host );
+					$this->blacklist_ip( $host, $context );
 					ITSEC_Log::add_action( 'lockout', 'host-triggered-blacklist', array_merge( $log_data, compact( 'blacklist_period', 'blacklist_count', 'host_count' ) ) );
 				}
 			}
@@ -703,6 +702,86 @@ final class ITSEC_Lockout {
 	}
 
 	/**
+	 * Checks if ITSEC supports ban creation from a lockout.
+	 *
+	 * @return bool True if ban users module is active.
+	 */
+	public function is_lockout_banning_available(): bool {
+		return ITSEC_Modules::is_active( 'ban-users' );
+	}
+
+	/**
+	 * Checks is specific lockout can be banned.
+	 *
+	 * @param int $lockout_id The lockout id.
+	 *
+	 * @return Result<Lockout\Lockout> Successful if lockout can be banned.
+	 */
+	public function can_create_ban_from_lockout( int $lockout_id ): Result {
+		if ( ! $this->is_lockout_banning_available() ) {
+			return Result::error( new WP_Error(
+				'itsec.lockout.persist-ban.not-supported',
+				__( 'Not supported.', 'better-wp-security' )
+			) );
+		}
+
+		try {
+			$lockout = $this->get_lockout( $lockout_id, OBJECT );
+		} catch ( Exception $e ) {
+			return Result::error( new WP_Error(
+				'itsec.lockout.persist-ban.invalid-lockout',
+				__( 'Invalid lockout.', 'better-wp-security' )
+			) );
+		}
+
+		if ( ! $lockout instanceof Lockout\Lockout ) {
+			return Result::error( new WP_Error(
+				'itsec.lockout.persist-ban.lockout-not-found',
+				__( 'Lockout not found.', 'better-wp-security' )
+			) );
+		}
+
+		if ( ! $lockout->get_host() ) {
+			return Result::error( new WP_Error(
+				'itsec.lockout.persist-ban.no-host',
+				__( 'No host.', 'better-wp-security' )
+			) );
+		}
+
+		return Result::success( $lockout );
+	}
+
+	/**
+	 * Creates a ban from a lockout
+	 *
+	 * @param int        $lockout_id The lockout id.
+	 * @param Actor|null $actor      Optionally, the actor creating the ban.
+	 *
+	 * @return Result<Repository_Ban>
+	 */
+	public function persist_ban_from_lockout( int $lockout_id, Actor $actor = null ): Result {
+
+		$can_convert = $this->can_create_ban_from_lockout( $lockout_id );
+		if ( ! $can_convert->is_success() ) {
+			return $can_convert;
+		}
+
+		$lockout    = $can_convert->get_data();
+		$module     = $lockout->get_module();
+		$comment    = $this->lockout_modules[ $module ]['reason'] ?? '';
+		$ban        = new Ban( $lockout->get_host(), $actor, $comment );
+		$repository = ITSEC_Modules::get_container()->get( Ban_Users\Database_Repository::class );
+
+		try {
+			$saved = $repository->persist( $ban );
+		} catch ( \iThemesSecurity\Exception\WP_Error $e ) {
+			return Result::error( $e->get_error() );
+		}
+
+		return Result::success( $saved );
+	}
+
+	/**
 	 * Executes lockout (locks user out)
 	 *
 	 * @param Execute_Lock\Context|array $context
@@ -797,12 +876,26 @@ final class ITSEC_Lockout {
 
 		$current_user = wp_get_current_user();
 
-		if ( is_object( $current_user ) && isset( $current_user->ID ) ) {
-			wp_logout();
+		if ( headers_sent() ) {
+			wp_destroy_current_session();
+			wp_set_current_user( 0 );
+
+			if ( $current_user instanceof WP_User && $current_user->exists() ) {
+				do_action( 'wp_logout', $current_user->ID );
+			}
+		} else {
+			if ( $current_user instanceof WP_User && $current_user->exists() ) {
+				wp_logout();
+			}
+
+			wp_clear_auth_cookie();
+			status_header( 403 );
+			ITSEC_Lib::no_cache();
 		}
 
-		@header( 'HTTP/1.0 403 Forbidden' );
-		ITSEC_Lib::no_cache();
+		if ( ITSEC_Lib::is_wp_version_at_least( '5.7' ) ) {
+			add_filter( 'wp_robots', 'wp_robots_sensitive_page' );
+		}
 
 		$actions = apply_filters( 'itsec_lockout_action_links', array(), $context );
 
@@ -825,33 +918,9 @@ final class ITSEC_Lockout {
 	 * @return string the description of settings.
 	 */
 	public function get_lockout_description() {
-		$global_settings_url = add_query_arg( array( 'module' => 'global' ), ITSEC_Core::get_settings_page_url() ) . '#itsec-global-blacklist';
-		// If the user is currently viewing "all" then let them keep viewing all
-		if ( ! empty( $_GET['module_type'] ) && 'all' === $_GET['module_type'] ) {
-			$global_settings_url = add_query_arg( array( 'module_type', 'all' ), $global_settings_url );
-		}
+		_deprecated_function( __METHOD__, '7.0.0' );
 
-		$description = '<h4>' . __( 'About Lockouts', 'better-wp-security' ) . '</h4>';
-		$description .= '<p>';
-		$description .= sprintf( __( 'Your lockout settings can be configured in <a href="%s" data-module-link="global">Global Settings</a>.', 'better-wp-security' ), esc_url( $global_settings_url ) );
-		$description .= '<br />';
-		$description .= __( 'Your current settings are configured as follows:', 'better-wp-security' );
-		$description .= '<ul><li>';
-		$description .= sprintf( __( '<strong>Permanently ban:</strong> %s', 'better-wp-security' ), ITSEC_Modules::get_setting( 'global', 'blacklist' ) === true ? __( 'yes', 'better-wp-security' ) : __( 'no', 'better-wp-security' ) );
-		$description .= '</li><li>';
-		$description .= sprintf( __( '<strong>Number of lockouts before permanent ban:</strong> %s', 'better-wp-security' ), ITSEC_Modules::get_setting( 'global', 'blacklist_count' ) );
-		$description .= '</li><li>';
-		$description .= sprintf( __( '<strong>How long lockouts will be remembered for ban:</strong> %s', 'better-wp-security' ), ITSEC_Modules::get_setting( 'global', 'blacklist_period' ) );
-		$description .= '</li><li>';
-		$description .= sprintf( __( '<strong>Host lockout message:</strong> %s', 'better-wp-security' ), ITSEC_Modules::get_setting( 'global', 'lockout_message' ) );
-		$description .= '</li><li>';
-		$description .= sprintf( __( '<strong>User lockout message:</strong> %s', 'better-wp-security' ), ITSEC_Modules::get_setting( 'global', 'user_lockout_message' ) );
-		$description .= '</li><li>';
-		$description .= sprintf( __( '<strong>Is this computer an authorized host:</strong> %s', 'better-wp-security' ), ITSEC_Lib::is_ip_whitelisted( ITSEC_Lib::get_ip() ) === true ? __( 'yes', 'better-wp-security' ) : __( 'no', 'better-wp-security' ) );
-		$description .= '</li></ul>';
-
-		return $description;
-
+		return '';
 	}
 
 	/**
@@ -968,7 +1037,24 @@ final class ITSEC_Lockout {
 			return $results[0]['COUNT'];
 		}
 
+		foreach ( $results as $result ) {
+			wp_cache_add( $result['lockout_id'], $result, 'itsec-lockouts' );
+		}
+
 		return $results;
+	}
+
+	/**
+	 * Checks if temp host authorization is enabled.
+	 *
+	 * @return bool
+	 */
+	public function is_temp_authorization_enabled() {
+		if ( defined( 'ITSEC_DISABLE_TEMP_WHITELIST' ) && ITSEC_DISABLE_TEMP_WHITELIST ) {
+			return false;
+		}
+
+		return ITSEC_Modules::get_setting( 'global', 'automatic_temp_auth' );
 	}
 
 	/**
@@ -1062,13 +1148,50 @@ final class ITSEC_Lockout {
 	}
 
 	/**
+	 * Inserts an IP address into the htaccess ban list.
+	 *
+	 * @since 4.0
+	 *
+	 * @param string               $ip      The IP address to ban.
+	 * @param Lockout\Context|null $context The lockout context that caused the ban.
+	 *
+	 * @return boolean False if the IP is whitelisted, true otherwise.
+	 */
+	public function blacklist_ip( $ip, Lockout\Context $context = null ) {
+		$ip = sanitize_text_field( $ip );
+
+		if ( ITSEC_Lib::is_ip_banned( $ip ) ) {
+			// Already blacklisted.
+			return true;
+		}
+
+		if ( ITSEC_Lib::is_ip_whitelisted( $ip ) ) {
+			// Cannot blacklist a whitelisted IP.
+			return false;
+		}
+
+		do_action_deprecated( 'itsec-new-blacklisted-ip', array( $ip ), '6.7.0', 'itsec_new_banned_ip' );
+
+		/**
+		 * Fires when a new IP has been banned.
+		 *
+		 * This is primarily used by the Ban Users module.
+		 *
+		 * @param string               $ip      The IP address.
+		 * @param Lockout\Context|null $context The lockout context that caused the ban.
+		 */
+		do_action( 'itsec_new_banned_ip', $ip, $context );
+
+		return true;
+	}
+
+	/**
 	 * Check if the current user is temporarily whitelisted.
 	 *
 	 * @return bool
 	 */
 	public function is_visitor_temp_whitelisted() {
-
-		if ( defined( 'ITSEC_DISABLE_TEMP_WHITELIST' ) && ITSEC_DISABLE_TEMP_WHITELIST ) {
+		if ( ! $this->is_temp_authorization_enabled() ) {
 			return false;
 		}
 
@@ -1080,44 +1203,6 @@ final class ITSEC_Lockout {
 		}
 
 		return false;
-	}
-
-	/**
-	 * Inserts an IP address into the htaccess ban list.
-	 *
-	 * @since 4.0
-	 *
-	 * @param $ip
-	 *
-	 * @return boolean False if the IP is whitelisted, true otherwise.
-	 */
-	public function blacklist_ip( $ip ) {
-		$ip = sanitize_text_field( $ip );
-
-		if ( ITSEC_Lib::is_ip_blacklisted( $ip ) ) {
-			// Already blacklisted.
-			return true;
-		}
-
-		if ( ITSEC_Lib::is_ip_whitelisted( $ip ) ) {
-			// Cannot blacklist a whitelisted IP.
-			return false;
-		}
-
-		// The following action allows modules to handle the blacklist as needed. This is primarily useful for the Ban
-		// Users module.
-		do_action( 'itsec-new-blacklisted-ip', $ip );
-
-		return true;
-	}
-
-	/**
-	 * Register the purge lockout event.
-	 *
-	 * @param ITSEC_Scheduler $scheduler
-	 */
-	public function register_events( $scheduler ) {
-		$scheduler->schedule( ITSEC_Scheduler::S_DAILY, 'purge-lockouts' );
 	}
 
 	/**
@@ -1204,16 +1289,21 @@ final class ITSEC_Lockout {
 	public function get_lockout( $id, $return = ARRAY_A ) {
 		global $wpdb;
 
-		$results = $wpdb->get_results( $wpdb->prepare(
-			"SELECT * FROM `{$wpdb->base_prefix}itsec_lockouts` WHERE `lockout_id` = %d",
-			$id
-		), ARRAY_A );
+		$data = wp_cache_get( $id, 'itsec-lockouts' );
 
-		if ( ! is_array( $results ) || ! isset( $results[0] ) ) {
-			return false;
+		if ( ! $data ) {
+			$results = $wpdb->get_results( $wpdb->prepare(
+				"SELECT * FROM `{$wpdb->base_prefix}itsec_lockouts` WHERE `lockout_id` = %d",
+				$id
+			), ARRAY_A );
+
+			if ( ! is_array( $results ) || ! isset( $results[0] ) ) {
+				return false;
+			}
+
+			$data = $results[0];
+			wp_cache_add( $id, $data, 'itsec-lockouts' );
 		}
-
-		$data = $results[0];
 
 		if ( $return === OBJECT ) {
 			return $this->hydrate_lockout_entity( $id, $data );
@@ -1259,7 +1349,7 @@ final class ITSEC_Lockout {
 	public function register_notification( $notifications ) {
 		$notifications['lockout'] = array(
 			'subject_editable' => true,
-			'recipient'        => ITSEC_Notification_Center::R_USER_LIST_ADMIN_UPGRADE,
+			'recipient'        => ITSEC_Notification_Center::R_USER_LIST,
 			'schedule'         => ITSEC_Notification_Center::S_NONE,
 			'optional'         => true,
 		);
@@ -1274,9 +1364,9 @@ final class ITSEC_Lockout {
 	 */
 	public function notification_strings() {
 		return array(
-			'label'       => esc_html__( 'Site Lockouts', 'better-wp-security' ),
-			'description' => esc_html__( 'Various modules send emails to notify you when a user or host is locked out of your website.', 'better-wp-security' ),
-			'subject'     => esc_html__( 'Site Lockout Notification', 'better-wp-security' ),
+			'label'       => __( 'Site Lockouts', 'better-wp-security' ),
+			'description' => __( 'Various modules send emails to notify you when a user or host is locked out of your website.', 'better-wp-security' ),
+			'subject'     => __( 'Site Lockout Notification', 'better-wp-security' ),
 		);
 	}
 
@@ -1348,7 +1438,11 @@ final class ITSEC_Lockout {
 
 		$mail = $nc->mail();
 
-		$mail->add_header( esc_html__( 'Site Lockout Notification', 'better-wp-security' ), esc_html__( 'Site Lockout Notification', 'better-wp-security' ) );
+		$tracking_link = ITSEC_Core::is_pro()
+			? 'https://go.solidwp.com/security-site-lockout-email-ithemes-becoming-solidwp'
+			: 'https://go.solidwp.com/security-free-site-lockout-email-ithemes-becoming-solidwp';
+
+		$mail->add_header( esc_html__( 'Site Lockout Notification', 'better-wp-security' ), esc_html__( 'Site Lockout Notification', 'better-wp-security' ), false, $tracking_link );
 		$mail->add_lockouts_table( $lockouts );
 
 		if ( $show_remove_lockout_message ) {

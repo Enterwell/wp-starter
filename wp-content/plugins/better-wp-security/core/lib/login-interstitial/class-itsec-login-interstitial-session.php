@@ -57,7 +57,9 @@ class ITSEC_Login_Interstitial_Session {
 	 * @return $this
 	 */
 	public function add_completed_interstitial( $action ) {
-		$this->data['completed'][] = $action;
+		if ( ! in_array( $action, $this->data['completed'], true ) ) {
+			$this->data['completed'][] = $action;
+		}
 
 		return $this;
 	}

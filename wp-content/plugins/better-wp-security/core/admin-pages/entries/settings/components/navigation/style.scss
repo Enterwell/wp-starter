@@ -1,0 +1,77 @@
+.itsec-nav {
+    margin: 0;
+    --icon-size: 30px;
+
+    @include break-xlarge {
+        &.itsec-nav--guided {
+            --icon-size: 40px;
+        }
+    }
+
+    .itsec-nav__item {
+        margin: 1.25rem 0;
+    }
+
+    .itsec-nav__item-title {
+        display: flex;
+        align-items: center;
+        margin: 0;
+        font-weight: bold;
+        text-transform: uppercase;
+        font-size: 1.25rem;
+        line-height: 1;
+        color: $medium-text;
+    }
+
+    .itsec-nav__item-title a {
+        color: $medium-text;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+    }
+
+    .itsec-nav__item--completed .itsec-nav__item-title,
+    .itsec-nav__item--completed .itsec-nav__item-title a {
+        color: $light-text;
+    }
+
+    .itsec-nav__item--active .itsec-nav__item-title,
+    .itsec-nav__item--active .itsec-nav__item-title a,
+    .itsec-nav__item-title a:hover {
+        color: $main-blue;
+    }
+
+    .itsec-nav__item-title .dashicon {
+        margin-right: .5rem;
+        width: var(--icon-size);
+        height: var(--icon-size);
+        font-size: var(--icon-size);
+    }
+
+    .itsec-nav__children {
+        // Width of icon and margin.
+        margin-left: calc(30px + .5rem);
+        margin-top: 1rem;
+    }
+
+    &.itsec-nav--guided .itsec-nav__children {
+        // Width of icon and margin.
+        margin-left: calc(40px + .5rem);
+        margin-top: .5rem;
+    }
+
+    .itsec-nav__children a {
+        display: inline-block;
+        color: $medium-text;
+        text-decoration: none;
+        font-weight: 500;
+        border-left: 3px solid transparent;
+        padding-left: 5px;
+    }
+
+    .itsec-nav__children a.active,
+    .itsec-nav__children a:hover {
+        color: $dark-text;
+        border-left-color: $main-blue;
+    }
+}

@@ -1,7 +1,7 @@
 # Default settings for all host machines
 
 #System Settings
-php_version: "8.0"
+php_version: "8.1"
 php_modules: [ "fpm", "common", "mysql", "mbstring", "xml", "gd", "curl", "imagick", "zip", "memcached", "redis", "opcache" ]
 
-node_version: "14.17.5"
+node_version: "18.x"

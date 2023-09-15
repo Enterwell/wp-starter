@@ -1,12 +1,11 @@
 function camelCaseDash( string ) {
-	return string.replace(
-		/-([a-z])/g,
-		( match, letter ) => letter.toUpperCase(),
+	return string.replace( /-([a-z])/g, ( match, letter ) =>
+		letter.toUpperCase()
 	);
 }
 
 const formatRequest = ( request ) => {
-	// '@wordpress/api-fetch' -> [ '@wordpress', 'api-fetch' ]
+	// '@wordpress/apiFetch' -> [ '@wordpress', 'api-fetch' ]
 	const [ , name ] = request.split( '/' );
 
 	// { this: [ 'wp', 'apiFetch' ] }
@@ -15,8 +14,8 @@ const formatRequest = ( request ) => {
 	};
 };
 
-const wpPackages = ( context, request, callback ) => {
-	if ( /^@wordpress\//.test( request ) ) {
+const wpPackages = ( { request }, callback ) => {
+	if ( /^@wordpress\//.test( request ) && request !== '@wordpress/icons' ) {
 		callback( null, formatRequest( request ), 'this' );
 	} else {
 		callback();

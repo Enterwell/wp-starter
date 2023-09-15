@@ -7,8 +7,9 @@ import { get, size } from 'lodash';
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { IconButton, FormToggle } from '@wordpress/components';
-import { compose, withState } from '@wordpress/compose';
+import { Button, FormToggle } from '@wordpress/components';
+import { compose } from '@wordpress/compose';
+import { useState } from '@wordpress/element';
 import { withSelect, withDispatch } from '@wordpress/data';
 
 /**
@@ -42,50 +43,94 @@ function getAvailableHighlights() {
 	];
 }
 
-function Panel( { notices, loaded, mutedHighlights, mutedHighlightUpdatesInFlight, updateMutedHighlight, isConfiguring, setState } ) {
+function Panel( {
+	notices,
+	loaded,
+	mutedHighlights,
+	mutedHighlightUpdatesInFlight,
+	updateMutedHighlight,
+} ) {
+	const [ isConfiguring, setIsConfiguring ] = useState( false );
+
 	return (
-		<div className={ classnames( 'itsec-admin-notice-panel', {
-			'itsec-admin-notice-panel--is-configuring': isConfiguring,
-		} ) }>
-			<IconButton icon="admin-generic" label={ __( 'Configure', 'better-wp-security' ) }
+		<div
+			className={ classnames( 'itsec-admin-notice-panel', {
+				'itsec-admin-notice-panel--is-configuring': isConfiguring,
+			} ) }
+		>
+			<Button
+				icon="admin-generic"
+				label={ __( 'Configure', 'better-wp-security' ) }
 				className="itsec-admin-notice-panel__configure-trigger"
 				style={ { opacity: size( mutedHighlights ) > 0 ? 1 : 0 } }
-				onClick={ () => setState( { isConfiguring: ! isConfiguring } ) } />
+				onClick={ () => setIsConfiguring( ! isConfiguring ) }
+			/>
 			<header className="itsec-admin-notice-panel__header">
 				<h3>{ __( 'Security Admin Messages', 'better-wp-security' ) }</h3>
-				<p>{ __( 'Important notices from iThemes Security', 'better-wp-security' ) }</p>
+				<p>
+					{ __( 'Important notices from iThemes Security', 'better-wp-security' ) }
+				</p>
 			</header>
 			{ isConfiguring && (
 				<ul className="itsec-admin-notice-panel__configure-highlighted-logs">
-					{ getAvailableHighlights().map( ( { slug, label } ) => (
-						mutedHighlights[ slug ] !== undefined && (
-							<li>
-								<label htmlFor={ `itsec-mute-highlight-${ slug }` }>{ label }</label>
-								<FormToggle id={ `itsec-mute-highlight-${ slug }` }
-									disabled={ ! loaded || mutedHighlightUpdatesInFlight[ slug ] }
-									checked={ ! get( mutedHighlightUpdatesInFlight, [ slug, 'mute' ], mutedHighlights[ slug ] ) }
-									onChange={ () => updateMutedHighlight( slug, ! mutedHighlights[ slug ] ) }
-								/>
-							</li>
-						)
-					) ) }
+					{ getAvailableHighlights().map(
+						( { slug, label } ) =>
+							mutedHighlights[ slug ] !== undefined && (
+								<li>
+									<label
+										htmlFor={ `itsec-mute-highlight-${ slug }` }
+									>
+										{ label }
+									</label>
+									<FormToggle
+										id={ `itsec-mute-highlight-${ slug }` }
+										disabled={
+											! loaded ||
+											mutedHighlightUpdatesInFlight[
+												slug
+											]
+										}
+										checked={
+											! get(
+												mutedHighlightUpdatesInFlight,
+												[ slug, 'mute' ],
+												mutedHighlights[ slug ]
+											)
+										}
+										onChange={ () =>
+											updateMutedHighlight(
+												slug,
+												! mutedHighlights[ slug ]
+											)
+										}
+									/>
+								</li>
+							)
+					) }
 				</ul>
 			) }
-			{ notices.length > 0 ?
-				<NoticeList notices={ notices } /> :
-				loaded && <span>{ __( 'No notices at the moment.', 'better-wp-security' ) }</span>
-			}
+			{ notices.length > 0 ? (
+				<NoticeList notices={ notices } />
+			) : (
+				loaded && (
+					<span>{ __( 'No notices at the moment.', 'better-wp-security' ) }</span>
+				)
+			) }
 		</div>
 	);
 }
 
 export default compose( [
-	withState( { isConfiguring: false, checked: {} } ),
 	withSelect( ( select ) => ( {
-		mutedHighlights: select( 'ithemes-security/admin-notices' ).getMutedHighlights(),
-		mutedHighlightUpdatesInFlight: select( 'ithemes-security/admin-notices' ).getMutedHighlightUpdatesInFlight(),
+		mutedHighlights: select(
+			'ithemes-security/admin-notices'
+		).getMutedHighlights(),
+		mutedHighlightUpdatesInFlight: select(
+			'ithemes-security/admin-notices'
+		).getMutedHighlightUpdatesInFlight(),
 	} ) ),
 	withDispatch( ( dispatch ) => ( {
-		updateMutedHighlight: dispatch( 'ithemes-security/admin-notices' ).updateMutedHighlight,
+		updateMutedHighlight: dispatch( 'ithemes-security/admin-notices' )
+			.updateMutedHighlight,
 	} ) ),
 ] )( Panel );

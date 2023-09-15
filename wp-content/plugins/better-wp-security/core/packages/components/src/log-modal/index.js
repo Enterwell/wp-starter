@@ -22,7 +22,9 @@ export default class LogModal extends Component {
 	}
 
 	shouldComponentUpdate( nextProps, nextState ) {
-		return this.props.id !== nextProps.id || this.state.html !== nextState.html;
+		return (
+			this.props.id !== nextProps.id || this.state.html !== nextState.html
+		);
 	}
 
 	componentDidUpdate( prevProps ) {
@@ -36,19 +38,22 @@ export default class LogModal extends Component {
 			this.setState( { html: LogModal.#html[ this.props.id ] } );
 		}
 
-		const form = new FormData();
+		const form = new window.FormData();
 		form.set( 'id', this.props.id );
 		form.set( 'nonce', this.props.nonce );
 		form.set( 'action', 'itsec_logs_page' );
 
-		fetch( this.props.ajaxurl, {
-			method: 'POST',
-			credentials: 'same-origin',
-			body: form,
-		} ).then( ( response ) => response.json() ).then( ( response ) => {
-			LogModal.#html[ this.props.id ] = response.response;
-			this.setState( { html: response.response } );
-		} );
+		window
+			.fetch( this.props.ajaxurl, {
+				method: 'POST',
+				credentials: 'same-origin',
+				body: form,
+			} )
+			.then( ( response ) => response.json() )
+			.then( ( response ) => {
+				LogModal.#html[ this.props.id ] = response.response;
+				this.setState( { html: response.response } );
+			} );
 	};
 
 	render() {
@@ -56,11 +61,14 @@ export default class LogModal extends Component {
 			<Modal
 				title={ __( 'Log Details', 'better-wp-security' ) }
 				overlayClassName="itsec-log-modal"
-				onRequestClose={ this.props.onClose }>
+				onRequestClose={ this.props.onClose }
+			>
 				<div className="itsec-log-modal__content">
-					{ this.state.html ?
-						<RawHTML>{ this.state.html }</RawHTML> :
-						<span>{ __( 'Loading', 'better-wp-security' ) }</span> }
+					{ this.state.html ? (
+						<RawHTML>{ this.state.html }</RawHTML>
+					) : (
+						<span>{ __( 'Loading', 'better-wp-security' ) }</span>
+					) }
 				</div>
 			</Modal>
 		);

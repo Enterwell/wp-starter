@@ -1,0 +1,26 @@
+
+.itsec-tree {
+    .components-base-control__label {
+        margin-bottom: 8px;
+    }
+
+    [role="tree"] {
+        margin: 0;
+
+        [role="group"] {
+            display: none;
+        }
+
+        [aria-expanded="true"] > [role="group"] {
+            display: block;
+        }
+
+        ul {
+            margin-left: 1rem;
+        }
+
+        [aria-selected="true"] > span {
+            background: $focused-blue;
+        }
+    }
+}

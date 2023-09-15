@@ -11,7 +11,7 @@ class ITSEC_Lib_IP_Detector {
 
 	public static function get_proxy_types() {
 		$types = array(
-			'automatic' => esc_html__( 'Automatic', 'better-wp-security' ),
+			'automatic' => esc_html__( 'Automatic (Insecure)', 'better-wp-security' ),
 			'manual'    => esc_html__( 'Manual', 'better-wp-security' ),
 			'disabled'  => esc_html__( 'Disabled', 'better-wp-security' ),
 		);
@@ -33,6 +33,10 @@ class ITSEC_Lib_IP_Detector {
 		return apply_filters( 'itsec_filter_remote_addr_headers', array(
 			'HTTP_CF_CONNECTING_IP', // CloudFlare
 			'HTTP_X_FORWARDED_FOR',  // Squid and most other forward and reverse proxies
+			'HTTP_X_REAL_IP',
+			'HTTP_X_CLIENT_IP',
+			'HTTP_CLIENT_IP',
+			'HTTP_X_CLUSTER_CLIENT_IP',
 		) );
 	}
 

@@ -1,0 +1,8 @@
+
+#itsec_password-requirements_requirement_settings__title {
+    display: none;
+
+    & ~ .form-group {
+        grid-column: label / fields-end;
+    }
+}

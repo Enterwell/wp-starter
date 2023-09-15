@@ -6,6 +6,7 @@ namespace W3TC;
  */
 class Extension_FragmentCache_Plugin {
 	private $_config = null;
+	private $_core = null;
 
 	function __construct() {
 		$this->_config = Dispatcher::config();
@@ -90,6 +91,7 @@ class Extension_FragmentCache_Plugin {
 			'memcached.persistent' => true,
 			'redis.persistent' => true,
 			'redis.servers' => array( '127.0.0.1:6379' ),
+			'redis.verify_tls_certificates' => true,
 			'lifetime' => 180
 		);
 

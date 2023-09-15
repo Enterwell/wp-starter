@@ -1,0 +1,104 @@
+.itsec-settings-toolbar {
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: .5rem 1.5rem;
+    min-height: calc(30px + 1rem);
+
+    .components-accessible-toolbar {
+        border: none;
+        max-width: 100%;
+
+        a.components-button:focus {
+            outline: none;
+            box-shadow: none;
+        }
+
+        .components-button.has-icon::before,
+        .components-toolbar .components-button.has-icon::before {
+            left: 6px;
+            right: 2px;
+        }
+    }
+
+    .components-button {
+        height: auto;
+        font-size: 1rem;
+        padding-top: 0;
+        padding-bottom: 0;
+        color: $main-blue;
+
+        .dashicon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            width: 26px;
+            height: 26px;
+            color: $white;
+            background: $main-blue;
+            border-radius: 50%;
+            margin-right: 4px;
+        }
+
+        &:hover {
+            color: $dark-text;
+
+            .dashicon {
+                background: darken($main-blue, 20);
+            }
+        }
+    }
+
+    .itsec-search {
+        margin-right: auto;
+        flex-grow: 1;
+    }
+
+    @media screen and (max-width: $break-medium) {
+        .itsec-settings-toolbar {
+            min-height: calc(40px + 1rem);
+        }
+    }
+
+    @media screen and (max-width: $break-mobile) {
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+
+        .components-accessible-toolbar {
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            justify-items: start;
+            grid-gap: 1rem;
+        }
+    }
+}
+
+.itsec-settings-search__popover.components-popover.is-expanded .components-popover__content {
+    padding: 1rem;
+    overflow-y: scroll;
+
+    .components-base-control__field {
+        max-width: none;
+    }
+
+    .itsec-search__results {
+        position: relative;
+        padding-top: 0;
+        margin-bottom: 1rem;
+        width: 100%;
+        max-width: none;
+        box-shadow: none;
+        max-height: none;
+
+        :first-child {
+            margin-top: 0;
+
+            :first-child {
+                border-top: none;
+            }
+        }
+    }
+}

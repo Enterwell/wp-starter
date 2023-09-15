@@ -1,37 +1,29 @@
 <?php
 
-final class ITSEC_Hide_Backend_Settings extends ITSEC_Settings {
-	public function get_id() {
-		return 'hide-backend';
-	}
+use iThemesSecurity\Config_Settings;
 
-	public function get_defaults() {
-		return array(
-			'enabled'           => false,
-			'slug'              => 'wplogin',
-			'register'          => 'wp-signup.php',
-			'theme_compat'      => true,
-			'theme_compat_slug' => 'not_found',
-			'post_logout_slug'  => '',
-		);
-	}
-
+final class ITSEC_Hide_Backend_Settings extends Config_Settings {
 	protected function handle_settings_changes( $old_settings ) {
 		parent::handle_settings_changes( $old_settings );
 
 		if ( $this->settings['enabled'] && ! $old_settings['enabled'] ) {
 			$url      = get_site_url() . '/' . $this->settings['slug'];
 			$enabling = true;
+			$message  = __( 'The Hide Backend feature is now active.', 'better-wp-security' );
 		} elseif ( ! $this->settings['enabled'] && $old_settings['enabled'] ) {
 			$url      = get_site_url() . '/wp-login.php';
 			$enabling = false;
+			$message  = __( 'The Hide Backend feature is now disabled', 'better-wp-security' );
 		} elseif ( $this->settings['enabled'] && $this->settings['slug'] !== $old_settings['slug'] ) {
 			$url      = get_site_url() . '/' . $this->settings['slug'];
 			$enabling = false;
+			$message  = __( 'The Hide Backend feature is now active.', 'better-wp-security' );
 		} else {
 			return;
 		}
 
+		ITSEC_Response::add_message( $message );
+		ITSEC_Response::add_message( sprintf( __( 'Your new login URL is <strong><code>%1$s</code></strong>. A reminder has also been sent to the notification email addresses set in iThemes Security’s Notification Center.', 'better-wp-security' ), esc_url( $url ) ) );
 		$this->send_new_login_url( $url, $enabling );
 	}
 
@@ -51,7 +43,16 @@ final class ITSEC_Hide_Backend_Settings extends ITSEC_Settings {
 
 		$mail = $nc->mail();
 
-		$mail->add_header( esc_html__( 'New Login URL', 'better-wp-security' ), esc_html__( 'New Login URL', 'better-wp-security' ) );
+		$tracking_link = ITSEC_Core::is_pro()
+			? 'https://go.solidwp.com/security-new-login-email-ithemes-becoming-solidwp'
+			: 'https://go.solidwp.com/security-free-new-login-ithemes-becoming-solidwp';
+
+		$mail->add_header(
+			esc_html__( 'New Login URL', 'better-wp-security' ),
+			esc_html__( 'New Login URL', 'better-wp-security' ),
+			false,
+			$tracking_link
+		);
 		$mail->add_text( ITSEC_Lib::replace_tags( $nc->get_message( 'hide-backend' ), array(
 			'login_url'  => '<code>' . esc_url( $url ) . '</code>',
 			'site_title' => get_bloginfo( 'name', 'display' ),
@@ -67,4 +68,4 @@ final class ITSEC_Hide_Backend_Settings extends ITSEC_Settings {
 	}
 }
 
-ITSEC_Modules::register_settings( new ITSEC_Hide_Backend_Settings() );
+ITSEC_Modules::register_settings( new ITSEC_Hide_Backend_Settings( ITSEC_Modules::get_config( 'hide-backend' ) ) );

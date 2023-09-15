@@ -73,26 +73,43 @@ const toCanonicalGroup = memize( ( availableRoles, includeSuperAdmin ) => {
 	return Object.values( group );
 } );
 
-function PanelRoles( { canonical, roles, onChange, available, schema, disabled = false } ) {
-	const includeSuperAdmin = get( schema, [ 'properties', 'canonical', 'items', 'enum' ], [] ).includes( 'super-admin' );
-	const value = [
-		...roles,
-		...canonical.map( ( role ) => `$${ role }$` ),
-	];
+function PanelRoles( {
+	canonical,
+	roles,
+	onChange,
+	available,
+	schema,
+	disabled = false,
+} ) {
+	const includeSuperAdmin = get(
+		schema,
+		[ 'properties', 'canonical', 'items', 'enum' ],
+		[]
+	).includes( 'super-admin' );
+	const value = [ ...roles, ...canonical.map( ( role ) => `$${ role }$` ) ];
 
 	return (
 		<HierarchicalCheckboxControl
 			label={ __( 'Select Roles', 'better-wp-security' ) }
-			help={ __( 'Add users with the selected roles to this group.', 'better-wp-security' ) }
+			help={ __(
+				'Add users with the selected roles to this group.',
+				'better-wp-security'
+			) }
 			value={ value }
 			disabled={ disabled }
 			options={ toCanonicalGroup( available, includeSuperAdmin ) }
 			onChange={ ( change ) => {
-				const [ newCanonical, newRoles ] = bifurcate( change, ( role ) => role.startsWith( '$' ) && role.endsWith( '$' ) );
+				const [ newCanonical, newRoles ] = bifurcate(
+					change,
+					( role ) => role.startsWith( '$' ) && role.endsWith( '$' )
+				);
 
 				onChange( {
 					roles: newRoles,
-					canonical: without( newCanonical.map( ( role ) => role.slice( 1, -1 ) ), 'other' ),
+					canonical: without(
+						newCanonical.map( ( role ) => role.slice( 1, -1 ) ),
+						'other'
+					),
 				} );
 			} }
 		/>
@@ -101,14 +118,25 @@ function PanelRoles( { canonical, roles, onChange, available, schema, disabled =
 
 export default compose( [
 	withSelect( ( select, { groupId } ) => ( {
-		roles: select( 'ithemes-security/user-groups-editor' ).getEditedGroupAttribute( groupId, 'roles' ) || [],
-		canonical: select( 'ithemes-security/user-groups-editor' ).getEditedGroupAttribute( groupId, 'canonical' ) || [],
+		roles:
+			select(
+				'ithemes-security/user-groups-editor'
+			).getEditedGroupAttribute( groupId, 'roles' ) || [],
+		canonical:
+			select(
+				'ithemes-security/user-groups-editor'
+			).getEditedGroupAttribute( groupId, 'canonical' ) || [],
 		available: select( 'ithemes-security/core' ).getRoles(),
-		schema: select( 'ithemes-security/core' ).getSchema( 'ithemes-security-user-group' ),
+		schema: select( 'ithemes-security/core' ).getSchema(
+			'ithemes-security-user-group'
+		),
 	} ) ),
 	withDispatch( ( dispatch, { groupId } ) => ( {
 		onChange( edit ) {
-			return dispatch( 'ithemes-security/user-groups-editor' ).editGroup( groupId, edit );
+			return dispatch( 'ithemes-security/user-groups-editor' ).editGroup(
+				groupId,
+				edit
+			);
 		},
 	} ) ),
 ] )( PanelRoles );

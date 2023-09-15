@@ -1,0 +1,87 @@
+.itsec-settings-sidebar--root-onboard:not(.itsec-settings-sidebar--expanded) {
+    .itsec-settings-sidebar__inner {
+        > :not(.itsec-settings-sidebar__toggle) {
+            display: none;
+
+            @include break-large {
+                display: initial;
+            }
+        }
+    }
+}
+
+.itsec-onboard-skip-setup {
+    margin-top: auto;
+    align-self: center;
+
+    a {
+        font-size: 1.1rem;
+        text-decoration-skip-ink: all;
+    }
+
+    p.itsec-onboard-skip-setup__description {
+        font-style: italic;
+        margin: 0;
+    }
+}
+
+.itsec-settings-sidebar.itsec-onboard-welcome-sidebar {
+    background: $main-blue;
+    color: $highlight-blue;
+    overflow-x: hidden;
+    width: 22rem;
+
+    .itsec-settings-sidebar__logo svg {
+        max-width: 16rem;
+    }
+
+    p {
+        color: $highlight-blue;
+    }
+
+    .itsec-onboard-welcome-sidebar__lead {
+        font-size: 1.6rem;
+        line-height: 1.2;
+        font-weight: 500;
+        margin: 1rem 0 1rem 0;
+
+        @include break-small {
+            margin-top: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+    }
+
+    .itsec-onboard-welcome-sidebar__content {
+        font-size: 1.125rem;
+        font-weight: 300;
+        margin: 0;
+    }
+
+    .itsec-onboard-skip-setup {
+        align-self: stretch;
+
+        a {
+            color: $highlight-blue;
+
+            &:hover {
+                color: $highlight-blue;
+                text-decoration: none;
+            }
+        }
+    }
+
+    .itsec-onboard-skip-setup__text {
+        margin-top: 2rem;
+    }
+
+    p.itsec-onboard-skip-setup__description {
+        color: $highlight-blue;
+    }
+
+    .itsec-onboard-welcome-sidebar__graphic {
+        float: right;
+        margin-right: -6rem;
+        shape-outside: polygon(66.63% 0px, 0px 72.4%, 65.51% 99.48%);
+        height: 12rem;
+    }
+}

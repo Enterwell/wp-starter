@@ -9,6 +9,12 @@ namespace W3TC;
  * class Minify_Environment
  */
 class Minify_Environment {
+	public function __construct() {
+		add_filter( 'w3tc_browsercache_rules_section',
+			array( $this, 'w3tc_browsercache_rules_section' ),
+			10, 3 );
+	}
+
 	/**
 	 * Fixes environment in each wp-admin request
 	 *
@@ -146,7 +152,7 @@ class Minify_Environment {
 
 			try{
 				if ( file_exists( $dir ) && !is_writeable( $dir ) )
-					Util_WpFile::delete_folder( $dir, '', $_SERVER['REQUEST_URI'] );
+					Util_WpFile::delete_folder( $dir, '', isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '' );
 			} catch ( Util_WpFile_FilesystemRmdirException $ex ) {
 				$exs->push( $ex );
 			}
@@ -319,7 +325,6 @@ class Minify_Environment {
 			W3TC_MARKER_END_MINIFY_CORE,
 			array(
 				W3TC_MARKER_BEGIN_PGCACHE_CORE => 0,
-				W3TC_MARKER_BEGIN_BROWSERCACHE_NO404WP => 0,
 				W3TC_MARKER_BEGIN_WORDPRESS => 0,
 				W3TC_MARKER_END_BROWSERCACHE_CACHE => strlen( W3TC_MARKER_END_BROWSERCACHE_CACHE ) + 1,
 				W3TC_MARKER_END_PGCACHE_CACHE => strlen( W3TC_MARKER_END_PGCACHE_CACHE ) + 1,
@@ -364,6 +369,19 @@ class Minify_Environment {
 		return '';
 	}
 
+	private function site_uri() {
+		$site_uri = rtrim( network_site_url( '', 'relative' ), '/' ) . '/';
+
+		/* There is a bug in WP where network_home_url can return
+		 * a non-relative URI even though scheme is set to relative.
+		 */
+		if ( Util_Environment::is_url( $site_uri ) ) {
+			$site_uri = parse_url( $site_uri, PHP_URL_PATH );
+		}
+
+		return $site_uri;
+	}
+
 	/**
 	 * Generates rules
 	 *
@@ -373,7 +391,14 @@ class Minify_Environment {
 	function rules_core_generate_apache( $config ) {
 		$cache_uri = Util_Environment::url_to_uri(
 			Util_Environment::filename_to_url( W3TC_CACHE_MINIFY_DIR ) ) . '/';
-		$site_uri = rtrim( network_site_url( '', 'relative' ), '/' ) . '/';
+		$site_uri = $this->site_uri();
+
+		/* There is a bug in WP where network_home_url can return
+		 * a non-relative URI even though scheme is set to relative.
+		 */
+		if ( Util_Environment::is_url( $site_uri ) ) {
+			$site_uri = parse_url( $site_uri, PHP_URL_PATH );
+		}
 
 		$engine = $config->get_string( 'minify.engine' );
 		$browsercache = $config->get_boolean( 'browsercache.enabled' );
@@ -407,7 +432,7 @@ class Minify_Environment {
 				$rules .= "    RewriteCond %{REQUEST_FILENAME} !-f\n";
 			}
 		}
-		$rules .= "    RewriteRule ^(.+\\.(css|js))$ ${site_uri}index.php [L]\n";
+		$rules .= "    RewriteRule ^(.+\\.(css|js))$ {$site_uri}index.php [L]\n";
 
 		$rules .= "</IfModule>\n";
 		$rules .= W3TC_MARKER_END_MINIFY_CORE . "\n";
@@ -439,7 +464,7 @@ class Minify_Environment {
 			$first_regex_var = '$2';
 		}
 
-		$minify_uri = rtrim( network_site_url( '', 'relative' ), '/' ) . '/';
+		$minify_uri = $this->site_uri();
 
 		$engine = $config->get_string( 'minify.engine' );
 		$browsercache = $config->get_boolean( 'browsercache.enabled' );
@@ -472,7 +497,7 @@ class Minify_Environment {
 			$rules .= "    rewrite (.*) $1\$w3tc_enc break;\n";
 			$rules .= "}\n";
 		}
-		$rules .= "rewrite ^$cache_uri ${minify_uri}index.php last;\n";
+		$rules .= "rewrite ^$cache_uri {$minify_uri}index.php last;\n";
 		$rules .= W3TC_MARKER_END_MINIFY_CORE . "\n";
 
 		return $rules;
@@ -502,7 +527,6 @@ class Minify_Environment {
 				W3TC_MARKER_BEGIN_BROWSERCACHE_CACHE => 0,
 				W3TC_MARKER_BEGIN_MINIFY_CORE => 0,
 				W3TC_MARKER_BEGIN_PGCACHE_CORE => 0,
-				W3TC_MARKER_BEGIN_BROWSERCACHE_NO404WP => 0,
 				W3TC_MARKER_BEGIN_WORDPRESS => 0
 			)
 		);
@@ -607,8 +631,8 @@ class Minify_Environment {
 		if ( $expires ) {
 			$rules .= "<IfModule mod_expires.c>\n";
 			$rules .= "    ExpiresActive On\n";
-			$rules .= "    ExpiresByType text/css M" . $lifetime . "\n";
-			$rules .= "    ExpiresByType application/x-javascript M" . $lifetime . "\n";
+			$rules .= "    ExpiresByType text/css A" . $lifetime . "\n";
+			$rules .= "    ExpiresByType application/x-javascript A" . $lifetime . "\n";
 			$rules .= "</IfModule>\n";
 		}
 
@@ -740,5 +764,14 @@ class Minify_Environment {
 		$rules .= W3TC_MARKER_END_MINIFY_CACHE . "\n";
 
 		return $rules;
+	}
+
+	public function w3tc_browsercache_rules_section( $section_rules, $config, $section ) {
+		if ( Util_Environment::is_litespeed() ) {
+			$o = new Minify_Environment_LiteSpeed( $config );
+			$section_rules = $o->w3tc_browsercache_rules_section(
+				$section_rules, $section );
+		}
+		return $section_rules;
 	}
 }

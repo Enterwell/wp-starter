@@ -1,9 +1,4 @@
 <?php
-/**
- * A helper object for pagination.
- *
- * @package Yoast\WP\SEO\Helpers
- */
 
 namespace Yoast\WP\SEO\Helpers;
 
@@ -11,7 +6,7 @@ use Yoast\WP\SEO\Wrappers\WP_Query_Wrapper;
 use Yoast\WP\SEO\Wrappers\WP_Rewrite_Wrapper;
 
 /**
- * Class Pagination_Helper.
+ * A helper object for pagination.
  *
  * Used for the canonical URL and the rel "next" and "prev" meta tags.
  */
@@ -73,6 +68,23 @@ class Pagination_Helper {
 		$wp_rewrite = $this->wp_rewrite_wrapper->get();
 
 		if ( $wp_rewrite->using_permalinks() ) {
+			$url_parts      = \wp_parse_url( $url );
+			$has_url_params = \array_key_exists( 'query', $url_parts );
+
+			if ( $has_url_params ) {
+				// We need to first remove the query params, before potentially adding the pagination parts.
+				\wp_parse_str( $url_parts['query'], $query_parts );
+
+				$url = \trailingslashit( \remove_query_arg( \array_keys( $query_parts ), $url ) );
+
+				if ( $add_pagination_base ) {
+					$url .= \trailingslashit( $wp_rewrite->pagination_base );
+				}
+
+				// We can now re-add the query params, after appending the last pagination parts.
+				return \add_query_arg( $query_parts, \user_trailingslashit( $url . $page ) );
+			}
+
 			$url = \trailingslashit( $url );
 			if ( $add_pagination_base ) {
 				$url .= \trailingslashit( $wp_rewrite->pagination_base );

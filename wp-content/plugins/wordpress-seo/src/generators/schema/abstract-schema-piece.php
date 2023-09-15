@@ -1,9 +1,4 @@
 <?php
-/**
- * WPSEO plugin file.
- *
- * @package Yoast\WP\SEO\Generators\Schema
- */
 
 namespace Yoast\WP\SEO\Generators\Schema;
 
@@ -11,7 +6,7 @@ use Yoast\WP\SEO\Context\Meta_Tags_Context;
 use Yoast\WP\SEO\Surfaces\Helpers_Surface;
 
 /**
- * Class Abstract_Schema_Piece
+ * Class Abstract_Schema_Piece.
  */
 abstract class Abstract_Schema_Piece {
 
@@ -28,6 +23,15 @@ abstract class Abstract_Schema_Piece {
 	 * @var Helpers_Surface
 	 */
 	public $helpers;
+
+	/**
+	 * Optional identifier for this schema piece.
+	 *
+	 * Used in the `Schema_Generator::filter_graph_pieces_to_generate()` method.
+	 *
+	 * @var string
+	 */
+	public $identifier;
 
 	/**
 	 * Generates the schema piece.

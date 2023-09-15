@@ -41,8 +41,6 @@ final class ITSEC_Security_Check_Scanner {
 	}
 
 	public static function run_scan() {
-		$admin_group = ( $group_id = ITSEC_Modules::get_settings_obj( 'user-groups' )->get_default_group_id( 'administrator' ) ) ? [ $group_id ] : [];
-
 		require_once( dirname( __FILE__ ) . '/feedback.php' );
 
 		self::$feedback = new ITSEC_Security_Check_Feedback();
@@ -85,7 +83,6 @@ final class ITSEC_Security_Check_Scanner {
 		self::enforce_activation( 'two-factor', __( 'Two-Factor Authentication', 'better-wp-security' ) );
 		self::enforce_setting( 'two-factor', 'available_methods', 'all', esc_html__( 'Changed the Authentication Methods Available to Users setting in Two-Factor Authentication to "All Methods".', 'better-wp-security' ) );
 		self::enforce_setting( 'two-factor', 'exclude_type', 'disabled', esc_html__( 'Changed the Disabled Force Two-Factor for Certain Users to "None".', 'better-wp-security' ) );
-		self::enforce_setting( 'two-factor', 'protect_user_group', $admin_group, esc_html__( 'Changed the User Type Protection setting in Two-Factor Authentication to "Privileged Users".', 'better-wp-security' ) );
 		self::enforce_setting( 'two-factor', 'protect_vulnerable_users', true, esc_html__( 'Enabled the Vulnerable User Protection setting in Two-Factor Authentication.', 'better-wp-security' ) );
 		self::enforce_setting( 'two-factor', 'protect_vulnerable_site', true, esc_html__( 'Enabled the Vulnerable Site Protection setting in Two-Factor Authentication.', 'better-wp-security' ) );
 
@@ -261,7 +258,8 @@ final class ITSEC_Security_Check_Scanner {
 		$hash   = hash_hmac( 'sha1', "{$action}|{$exp}", wp_salt() );
 
 		$response = wp_remote_post( admin_url( 'admin-post.php' ), array(
-			'body' => array(
+			'sslverify' => apply_filters( 'https_local_ssl_verify', false ),
+			'body'      => array(
 				'action' => $action,
 				'hash'   => $hash,
 				'exp'    => $exp,

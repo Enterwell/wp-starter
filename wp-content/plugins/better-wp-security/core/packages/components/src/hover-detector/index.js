@@ -110,13 +110,16 @@ export default class extends Component {
 		const { children, className } = this.props;
 
 		return (
-			<div { ...{
-				className,
-				onMouseEnter: this.onMouseEnter,
-				onMouseLeave: this.onMouseLeave,
-				onMouseOver: this.onMouseOver,
-				onMouseOut: this.onMouseOut,
-			} }>
+			// eslint-disable-next-line jsx-a11y/mouse-events-have-key-events
+			<div
+				{ ...{
+					className,
+					onMouseEnter: this.onMouseEnter,
+					onMouseLeave: this.onMouseLeave,
+					onMouseOver: this.onMouseOver,
+					onMouseOut: this.onMouseOut,
+				} }
+			>
 				{ children }
 			</div>
 		);

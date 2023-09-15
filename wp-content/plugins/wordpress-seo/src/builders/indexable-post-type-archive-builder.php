@@ -1,16 +1,18 @@
 <?php
-/**
- * Post type archive builder for the indexables.
- *
- * @package Yoast\YoastSEO\Builders
- */
 
 namespace Yoast\WP\SEO\Builders;
 
+use wpdb;
+use Yoast\WP\SEO\Exceptions\Indexable\Post_Type_Not_Built_Exception;
 use Yoast\WP\SEO\Helpers\Options_Helper;
+use Yoast\WP\SEO\Helpers\Post_Helper;
+use Yoast\WP\SEO\Helpers\Post_Type_Helper;
 use Yoast\WP\SEO\Models\Indexable;
+use Yoast\WP\SEO\Values\Indexables\Indexable_Builder_Versions;
 
 /**
+ * Post type archive builder for the indexables.
+ *
  * Formats the post type archive meta to indexable format.
  */
 class Indexable_Post_Type_Archive_Builder {
@@ -20,17 +22,57 @@ class Indexable_Post_Type_Archive_Builder {
 	 *
 	 * @var Options_Helper
 	 */
-	private $options;
+	protected $options;
+
+	/**
+	 * The latest version of the Indexable_Post_Type_Archive_Builder.
+	 *
+	 * @var int
+	 */
+	protected $version;
+
+	/**
+	 * Holds the post helper instance.
+	 *
+	 * @var Post_Helper
+	 */
+	protected $post_helper;
+
+	/**
+	 * Holds the post type helper instance.
+	 *
+	 * @var Post_Type_Helper
+	 */
+	protected $post_type_helper;
+
+	/**
+	 * The WPDB instance.
+	 *
+	 * @var wpdb
+	 */
+	protected $wpdb;
 
 	/**
 	 * Indexable_Post_Type_Archive_Builder constructor.
 	 *
-	 * @param Options_Helper $options The options helper.
+	 * @param Options_Helper             $options          The options helper.
+	 * @param Indexable_Builder_Versions $versions         The latest version of each Indexable builder.
+	 * @param Post_Helper                $post_helper      The post helper.
+	 * @param Post_Type_Helper           $post_type_helper The post type helper.
+	 * @param wpdb                       $wpdb             The WPDB instance.
 	 */
 	public function __construct(
-		Options_Helper $options
+		Options_Helper $options,
+		Indexable_Builder_Versions $versions,
+		Post_Helper $post_helper,
+		Post_Type_Helper $post_type_helper,
+		wpdb $wpdb
 	) {
-		$this->options = $options;
+		$this->options          = $options;
+		$this->version          = $versions->get_latest_version_for_type( 'post-type-archive' );
+		$this->post_helper      = $post_helper;
+		$this->post_type_helper = $post_type_helper;
+		$this->wpdb             = $wpdb;
 	}
 
 	/**
@@ -40,8 +82,13 @@ class Indexable_Post_Type_Archive_Builder {
 	 * @param Indexable $indexable The indexable to format.
 	 *
 	 * @return Indexable The extended indexable.
+	 * @throws Post_Type_Not_Built_Exception Throws exception if the post type is excluded.
 	 */
 	public function build( $post_type, Indexable $indexable ) {
+		if ( ! $this->post_type_helper->is_post_type_archive_indexable( $post_type ) ) {
+			throw Post_Type_Not_Built_Exception::because_not_indexable( $post_type );
+		}
+
 		$indexable->object_type       = 'post-type-archive';
 		$indexable->object_sub_type   = $post_type;
 		$indexable->title             = $this->options->get( 'title-ptarchive-' . $post_type );
@@ -51,6 +98,11 @@ class Indexable_Post_Type_Archive_Builder {
 		$indexable->is_robots_noindex = $this->options->get( 'noindex-ptarchive-' . $post_type );
 		$indexable->is_public         = ( (int) $indexable->is_robots_noindex !== 1 );
 		$indexable->blog_id           = \get_current_blog_id();
+		$indexable->version           = $this->version;
+
+		$timestamps                      = $this->get_object_timestamps( $post_type );
+		$indexable->object_published_at  = $timestamps->published_at;
+		$indexable->object_last_modified = $timestamps->last_modified;
 
 		return $indexable;
 	}
@@ -84,5 +136,29 @@ class Indexable_Post_Type_Archive_Builder {
 		}
 
 		return $post_type_obj->name;
+	}
+
+	/**
+	 * Returns the timestamps for a given post type.
+	 *
+	 * @param string $post_type The post type.
+	 *
+	 * @return object An object with last_modified and published_at timestamps.
+	 */
+	protected function get_object_timestamps( $post_type ) {
+		$post_statuses = $this->post_helper->get_public_post_statuses();
+
+		$sql = "
+			SELECT MAX(p.post_modified_gmt) AS last_modified, MIN(p.post_date_gmt) AS published_at
+			FROM {$this->wpdb->posts} AS p
+			WHERE p.post_status IN (" . \implode( ', ', \array_fill( 0, \count( $post_statuses ), '%s' ) ) . ")
+				AND p.post_password = ''
+				AND p.post_type = %s
+		";
+
+		$replacements = \array_merge( $post_statuses, [ $post_type ] );
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- We are using wpdb prepare.
+		return $this->wpdb->get_row( $this->wpdb->prepare( $sql, $replacements ) );
 	}
 }

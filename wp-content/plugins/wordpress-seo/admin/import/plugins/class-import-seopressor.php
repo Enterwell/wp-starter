@@ -45,7 +45,7 @@ class WPSEO_Import_SEOPressor extends WPSEO_Plugin_Importer {
 	protected function import() {
 		// Query for all the posts that have an _seop_settings meta set.
 		$query_posts = new WP_Query( 'post_type=any&meta_key=_seop_settings&order=ASC&fields=ids&nopaging=true' );
-		foreach ( $query_posts->posts as $key => $post_id ) {
+		foreach ( $query_posts->posts as $post_id ) {
 			$this->import_post_focus_keywords( $post_id );
 			$this->import_seopressor_post_settings( $post_id );
 		}
@@ -99,7 +99,7 @@ class WPSEO_Import_SEOPressor extends WPSEO_Plugin_Importer {
 	/**
 	 * Imports the focus keywords, and stores them for later use.
 	 *
-	 * @param integer $post_id Post ID.
+	 * @param int $post_id Post ID.
 	 *
 	 * @return void
 	 */
@@ -128,8 +128,8 @@ class WPSEO_Import_SEOPressor extends WPSEO_Plugin_Importer {
 	/**
 	 * Retrieves the SEOpressor robot value and map this to Yoast SEO values.
 	 *
-	 * @param string  $meta_rules The meta rules taken from the SEOpressor settings array.
-	 * @param integer $post_id    The post id of the current post.
+	 * @param string $meta_rules The meta rules taken from the SEOpressor settings array.
+	 * @param int    $post_id    The post id of the current post.
 	 *
 	 * @return void
 	 */

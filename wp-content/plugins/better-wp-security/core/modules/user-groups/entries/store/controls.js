@@ -1,7 +1,10 @@
 /**
  * WordPress dependencies
  */
-import { dispatch as dispatchData, select as selectData } from '@wordpress/data';
+import {
+	dispatch as dispatchData,
+	select as selectData,
+} from '@wordpress/data';
 import { default as triggerApiFetch } from '@wordpress/api-fetch';
 
 /**
@@ -24,9 +27,10 @@ export function apiFetch( request ) {
 
 /**
  * Calls a selector using the current state.
- * @param {string} storeKey Store key.
+ *
+ * @param {string} storeKey     Store key.
  * @param {string} selectorName Selector name.
- * @param {Array} args         Selector arguments.
+ * @param {Array}  args         Selector arguments.
  *
  * @return {Object} control descriptor.
  */
@@ -42,9 +46,9 @@ export function select( storeKey, selectorName, ...args ) {
 /**
  * Dispatches a control action for triggering a registry dispatch.
  *
- * @param {string} storeKey    The key for the store the action belongs to
- * @param {string} actionName  The name of the action to dispatch
- * @param {Array}  args        Arguments for the dispatch action.
+ * @param {string} storeKey   The key for the store the action belongs to
+ * @param {string} actionName The name of the action to dispatch
+ * @param {Array}  args       Arguments for the dispatch action.
  *
  * @example
  * ```js

@@ -219,8 +219,10 @@ class Ew_Blocks {
 		$block_name    = ! empty( $attributes['blockName'] ) ? $attributes['blockName'] : '';
 		$twig_template = static::get_theme_template_for_block( $block_name );
 
-		// Add block public script
-		self::add_block_assets($block_name);
+		if (!is_admin()) {
+			// Add block public script
+			self::add_block_assets($block_name);
+		}
 
 		ob_start();
 		$ew_twig->render( $twig_template, [

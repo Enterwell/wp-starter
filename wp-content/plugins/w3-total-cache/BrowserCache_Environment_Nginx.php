@@ -15,6 +15,17 @@ class BrowserCache_Environment_Nginx {
 
 
 
+	public function get_required_rules( $mime_types ) {
+		return array(
+			array(
+				'filename' => Util_Rule::get_nginx_rules_path(),
+				'content'  => $this->generate( $mime_types ),
+			),
+		);
+	}
+
+
+
 	/**
 	 * Returns cache rules
 	 */
@@ -141,11 +152,9 @@ class BrowserCache_Environment_Nginx {
 			}
 		}
 
-		foreach ( $mime_types as $type => $extensions ) {
-			if ( $type != 'other_compression' ) {
-				$this->generate_section( $rules, $extensions, $type );
-			}
-		}
+		$this->generate_section( $rules, $mime_types['cssjs'], 'cssjs' );
+		$this->generate_section( $rules, $mime_types['html'], 'html' );
+		$this->generate_section( $rules, $mime_types['other'], 'other' );
 
 		$rules .= implode( "\n", $this->security_rules() ) . "\n";
 		$rules .= W3TC_MARKER_END_BROWSERCACHE_CACHE . "\n";
@@ -162,14 +171,15 @@ class BrowserCache_Environment_Nginx {
 		$rules = [];
 
 		if ( $this->c->get_boolean( 'browsercache.hsts' ) ||
-			 $this->c->get_boolean( 'browsercache.security.xfo' ) ||
-			 $this->c->get_boolean( 'browsercache.security.xss' ) ||
-			 $this->c->get_boolean( 'browsercache.security.xcto' ) ||
-			 $this->c->get_boolean( 'browsercache.security.pkp' ) ||
-			 $this->c->get_boolean( 'browsercache.security.referrer.policy' ) ||
-			 $this->c->get_boolean( 'browsercache.security.csp' ) ||
-			 $this->c->get_boolean( 'browsercache.security.fp' )
-		   ) {
+			$this->c->get_boolean( 'browsercache.security.xfo' ) ||
+			$this->c->get_boolean( 'browsercache.security.xss' ) ||
+			$this->c->get_boolean( 'browsercache.security.xcto' ) ||
+			$this->c->get_boolean( 'browsercache.security.pkp' ) ||
+			$this->c->get_boolean( 'browsercache.security.referrer.policy' ) ||
+			$this->c->get_boolean( 'browsercache.security.csp' ) ||
+			$this->c->get_boolean( 'browsercache.security.cspro' ) ||
+			$this->c->get_boolean( 'browsercache.security.fp' )
+			) {
 			$lifetime = $this->c->get_integer( 'browsercache.other.lifetime' );
 
 			if ( $this->c->get_boolean( 'browsercache.hsts' ) ) {
@@ -210,55 +220,135 @@ class BrowserCache_Environment_Nginx {
 			}
 
 			if ( $this->c->get_boolean( 'browsercache.security.csp' ) ) {
-				$base = trim( $this->c->get_string( 'browsercache.security.csp.base' ) );
-				$frame = trim( $this->c->get_string( 'browsercache.security.csp.frame' ) );
-				$connect = trim( $this->c->get_string( 'browsercache.security.csp.connect' ) );
-				$font = trim( $this->c->get_string( 'browsercache.security.csp.font' ) );
-				$script = trim( $this->c->get_string( 'browsercache.security.csp.script' ) );
-				$style = trim( $this->c->get_string( 'browsercache.security.csp.style' ) );
-				$img = trim( $this->c->get_string( 'browsercache.security.csp.img' ) );
-				$media = trim( $this->c->get_string( 'browsercache.security.csp.media' ) );
-				$object = trim( $this->c->get_string( 'browsercache.security.csp.object' ) );
-				$plugin = trim( $this->c->get_string( 'browsercache.security.csp.plugin' ) );
-				$form = trim( $this->c->get_string( 'browsercache.security.csp.form' ) );
+				$base            = trim( $this->c->get_string( 'browsercache.security.csp.base' ) );
+				$frame           = trim( $this->c->get_string( 'browsercache.security.csp.frame' ) );
+				$connect         = trim( $this->c->get_string( 'browsercache.security.csp.connect' ) );
+				$font            = trim( $this->c->get_string( 'browsercache.security.csp.font' ) );
+				$script          = trim( $this->c->get_string( 'browsercache.security.csp.script' ) );
+				$style           = trim( $this->c->get_string( 'browsercache.security.csp.style' ) );
+				$img             = trim( $this->c->get_string( 'browsercache.security.csp.img' ) );
+				$media           = trim( $this->c->get_string( 'browsercache.security.csp.media' ) );
+				$object          = trim( $this->c->get_string( 'browsercache.security.csp.object' ) );
+				$plugin          = trim( $this->c->get_string( 'browsercache.security.csp.plugin' ) );
+				$form            = trim( $this->c->get_string( 'browsercache.security.csp.form' ) );
 				$frame_ancestors = trim( $this->c->get_string( 'browsercache.security.csp.frame.ancestors' ) );
-				$sandbox = $this->c->get_string( 'browsercache.security.csp.sandbox' );
-				$default = trim( $this->c->get_string( 'browsercache.security.csp.default' ) );
+				$sandbox         = trim( $this->c->get_string( 'browsercache.security.csp.sandbox' ) );
+				$child           = trim( $this->c->get_string( 'browsercache.security.csp.child' ) );
+				$manifest        = trim( $this->c->get_string( 'browsercache.security.csp.manifest' ) );
+				$scriptelem      = trim( $this->c->get_string( 'browsercache.security.csp.scriptelem' ) );
+				$scriptattr      = trim( $this->c->get_string( 'browsercache.security.csp.scriptattr' ) );
+				$styleelem       = trim( $this->c->get_string( 'browsercache.security.csp.styleelem' ) );
+				$scriptelem      = trim( $this->c->get_string( 'browsercache.security.csp.styleattr' ) );
+				$worker          = trim( $this->c->get_string( 'browsercache.security.csp.worker' ) );
+				$default         = trim( $this->c->get_string( 'browsercache.security.csp.default' ) );
 
-				$dir = rtrim( ( !empty( $base ) ? "base-uri $base; " : "" ).
-					   ( !empty( $frame ) ? "frame-src $frame; " : "" ).
-					   ( !empty( $connect ) ? "connect-src $connect; " : "" ).
-					   ( !empty( $font ) ? "font-src $font; " : "" ).
-					   ( !empty( $script ) ? "script-src $script; " : "" ).
-					   ( !empty( $style ) ? "style-src $style; " : "" ).
-					   ( !empty( $img ) ? "img-src $img; " : "" ).
-					   ( !empty( $media ) ? "media-src $media; " : "" ).
-					   ( !empty( $object ) ? "object-src $object; " : "" ).
-					   ( !empty( $plugin ) ? "plugin-types $plugin; " : "" ).
-					   ( !empty( $form ) ? "form-action $form; " : "" ).
-					   ( !empty( $frame_ancestors ) ? "frame-ancestors $frame_ancestors; " : "" ).
-					   ( !empty( $sandbox ) ? "sandbox " . trim( $sandbox ) . "; " : "" ).
-					   ( !empty( $default ) ? "default-src $default;" : "" ), "; " );
+				$dir = rtrim(
+					( ! empty( $base ) ? "base-uri $base; " : '' ) .
+						( ! empty( $frame ) ? "frame-src $frame; " : '' ) .
+						( ! empty( $connect ) ? "connect-src $connect; " : '' ) .
+						( ! empty( $font ) ? "font-src $font; " : '' ) .
+						( ! empty( $script ) ? "script-src $script; " : '' ) .
+						( ! empty( $style ) ? "style-src $style; " : '' ) .
+						( ! empty( $img ) ? "img-src $img; " : '' ) .
+						( ! empty( $media ) ? "media-src $media; " : '' ) .
+						( ! empty( $object ) ? "object-src $object; " : '' ) .
+						( ! empty( $plugin ) ? "plugin-types $plugin; " : '' ) .
+						( ! empty( $form ) ? "form-action $form; " : '' ) .
+						( ! empty( $frame_ancestors ) ? "frame-ancestors $frame_ancestors; " : '' ) .
+						( ! empty( $sandbox ) ? "sandbox $sandbox; " : '' ) .
+						( ! empty( $child ) ? "child-src $child; " : '' ) .
+						( ! empty( $manifest ) ? "manifest-src $manifest; " : '' ) .
+						( ! empty( $scriptelem ) ? "script-src-elem $scriptelem; " : '' ) .
+						( ! empty( $scriptattr ) ? "script-src-attr $scriptattr; " : '' ) .
+						( ! empty( $styleelem ) ? "style-src-elem $styleelem; " : '' ) .
+						( ! empty( $styleattr ) ? "style-src-attr $styleattr; " : '' ) .
+						( ! empty( $worker ) ? "worker-src $worker; " : '' ) .
+						( ! empty( $default ) ? "default-src $default;" : '' ),
+					'; '
+				);
 
-				if ( !empty( $dir ) ) {
+				if ( ! empty( $dir ) ) {
 					$rules[] = "add_header Content-Security-Policy \"$dir\";";
+				}
+			}
+
+			if ( $this->c->get_boolean( 'browsercache.security.cspro' ) && ( ! empty( $this->c->get_string( 'browsercache.security.cspro.reporturi' ) ) || ! empty( $this->c->get_string( 'browsercache.security.cspro.reportto' ) ) ) ) {
+				$base            = trim( $this->c->get_string( 'browsercache.security.cspro.base' ) );
+				$reporturi       = trim( $this->c->get_string( 'browsercache.security.cspro.reporturi' ) );
+				$reportto        = trim( $this->c->get_string( 'browsercache.security.cspro.reportto' ) );
+				$frame           = trim( $this->c->get_string( 'browsercache.security.cspro.frame' ) );
+				$connect         = trim( $this->c->get_string( 'browsercache.security.cspro.connect' ) );
+				$font            = trim( $this->c->get_string( 'browsercache.security.cspro.font' ) );
+				$script          = trim( $this->c->get_string( 'browsercache.security.cspro.script' ) );
+				$style           = trim( $this->c->get_string( 'browsercache.security.cspro.style' ) );
+				$img             = trim( $this->c->get_string( 'browsercache.security.cspro.img' ) );
+				$media           = trim( $this->c->get_string( 'browsercache.security.cspro.media' ) );
+				$object          = trim( $this->c->get_string( 'browsercache.security.cspro.object' ) );
+				$plugin          = trim( $this->c->get_string( 'browsercache.security.cspro.plugin' ) );
+				$form            = trim( $this->c->get_string( 'browsercache.security.cspro.form' ) );
+				$frame_ancestors = trim( $this->c->get_string( 'browsercache.security.cspro.frame.ancestors' ) );
+				$sandbox         = trim( $this->c->get_string( 'browsercache.security.cspro.sandbox' ) );
+				$child           = trim( $this->c->get_string( 'browsercache.security.csp.child' ) );
+				$manifest        = trim( $this->c->get_string( 'browsercache.security.csp.manifest' ) );
+				$scriptelem      = trim( $this->c->get_string( 'browsercache.security.csp.scriptelem' ) );
+				$scriptattr      = trim( $this->c->get_string( 'browsercache.security.csp.scriptattr' ) );
+				$styleelem       = trim( $this->c->get_string( 'browsercache.security.csp.styleelem' ) );
+				$scriptelem      = trim( $this->c->get_string( 'browsercache.security.csp.styleattr' ) );
+				$worker          = trim( $this->c->get_string( 'browsercache.security.csp.worker' ) );
+				$default         = trim( $this->c->get_string( 'browsercache.security.cspro.default' ) );
+
+				$dir = rtrim(
+					( ! empty( $base ) ? "base-uri $base; " : '' ) .
+						( ! empty( $reporturi ) ? "report-uri $reporturi; " : '' ) .
+						( ! empty( $reportto ) ? "report-to $reportto; " : '' ) .
+						( ! empty( $frame ) ? "frame-src $frame; " : '' ) .
+						( ! empty( $connect ) ? "connect-src $connect; " : '' ) .
+						( ! empty( $font ) ? "font-src $font; " : '' ) .
+						( ! empty( $script ) ? "script-src $script; " : '' ) .
+						( ! empty( $style ) ? "style-src $style; " : '' ) .
+						( ! empty( $img ) ? "img-src $img; " : '' ) .
+						( ! empty( $media ) ? "media-src $media; " : '' ) .
+						( ! empty( $object ) ? "object-src $object; " : '' ) .
+						( ! empty( $plugin ) ? "plugin-types $plugin; " : '' ) .
+						( ! empty( $form ) ? "form-action $form; " : '' ) .
+						( ! empty( $frame_ancestors ) ? "frame-ancestors $frame_ancestors; " : '' ) .
+						( ! empty( $sandbox ) ? "sandbox $sandbox; " : '' ) .
+						( ! empty( $child ) ? "child-src $child; " : '' ) .
+						( ! empty( $manifest ) ? "manifest-src $manifest; " : '' ) .
+						( ! empty( $scriptelem ) ? "script-src-elem $scriptelem; " : '' ) .
+						( ! empty( $scriptattr ) ? "script-src-attr $scriptattr; " : '' ) .
+						( ! empty( $styleelem ) ? "style-src-elem $styleelem; " : '' ) .
+						( ! empty( $styleattr ) ? "style-src-attr $styleattr; " : '' ) .
+						( ! empty( $worker ) ? "worker-src $worker; " : '' ) .
+						( ! empty( $default ) ? "default-src $default;" : '' ),
+					'; '
+				);
+
+				if ( ! empty( $dir ) ) {
+					$rules[] = "add_header Content-Security-Policy-Report-Only \"$dir\";";
 				}
 			}
 
 			if ( $this->c->get_boolean( 'browsercache.security.fp' ) ) {
 				$fp_values = $this->c->get_array( 'browsercache.security.fp.values' );
 
-				$v = array();
+				$feature_v    = array();
+				$permission_v = array();
 				foreach ( $fp_values as $key => $value ) {
-					$value = str_replace( '"', "'", $value );
-					if ( !empty( $value ) ) {
-						$v[] = "$key $value";
+					if ( ! empty( $value ) ) {
+						$value = str_replace( array( '"', "'" ), '', $value );
+
+						$feature_v[]    = "$key '$value'";
+						$permission_v[] = "$key=($value)";
 					}
 				}
 
-				if ( !empty( $v ) ) {
-					$rules[] = 'add_header Feature-Policy "' .
-						implode( ';', $v ) . "\";\n";
+				if ( ! empty( $feature_v ) ) {
+					$rules .= '    Header set Feature-Policy "' . implode( ';', $feature_v ) . "\"\n";
+				}
+
+				if ( ! empty( $permission_v ) ) {
+					$rules .= '    Header set Permissions-Policy "' . implode( ',', $permission_v ) . "\"\n";
 				}
 			}
 		}
@@ -266,54 +356,69 @@ class BrowserCache_Environment_Nginx {
 		return $rules;
 	}
 
-
-
 	/**
-	 * Adds cache rules for type to &$rules
+	 * Adds cache rules for type to &$rules.
 	 *
-	 * @param string  $rules
-	 * @param array   $mime_types
-	 * @param string  $section
+	 * @param string $rules      Rules.
+	 * @param array  $mime_types MIME types.
+	 * @param string $section    Section.
 	 * @return void
 	 */
 	private function generate_section( &$rules, $mime_types, $section ) {
-		$expires = $this->c->get_boolean( 'browsercache.' . $section . '.expires' );
-		$etag = $this->c->get_boolean( 'browsercache.' . $section . '.etag' );
+		$expires       = $this->c->get_boolean( 'browsercache.' . $section . '.expires' );
+		$etag          = $this->c->get_boolean( 'browsercache.' . $section . '.etag' );
 		$cache_control = $this->c->get_boolean( 'browsercache.' . $section . '.cache.control' );
-		$w3tc = $this->c->get_boolean( 'browsercache.' . $section . '.w3tc' );
+		$w3tc          = $this->c->get_boolean( 'browsercache.' . $section . '.w3tc' );
 		$last_modified = $this->c->get_boolean( 'browsercache.' . $section . '.last_modified' );
 
-		if ( $etag || $expires || $cache_control || $w3tc || !$last_modified ) {
-			$lifetime = $this->c->get_integer( 'browsercache.' . $section . '.lifetime' );
+		if ( $etag || $expires || $cache_control || $w3tc || ! $last_modified ) {
+			$mime_types2 = apply_filters(
+				'w3tc_browsercache_rules_section_extensions',
+				$mime_types,
+				$this->c,
+				$section
+			);
+			$extensions  = array_keys( $mime_types2 );
 
-			$mime_types2 = apply_filters( 'w3tc_browsercache_rules_section_extensions',
-				$mime_types, $this->c, $section );
-			$extensions = array_keys( $mime_types2 );
-
-			// Remove ext from filesmatch if its the same as permalink extension
+			// Remove ext from filesmatch if its the same as permalink extension.
 			$pext = strtolower( pathinfo( get_option( 'permalink_structure' ), PATHINFO_EXTENSION ) );
+
 			if ( $pext ) {
 				$extensions = Util_Rule::remove_extension_from_list( $extensions, $pext );
 			}
 
-			$rules .= "location ~ \\.(" . implode( '|', $extensions ) . ")$ {\n";
+			$rules .= 'location ~ \\.(' . implode( '|', $extensions ) . ')$ {' . "\n";
 
-			$subrules = Dispatcher::nginx_rules_for_browsercache_section(
-				$this->c, $section );
-			$rules .= '    ' . implode( "\n    ", $subrules ) . "\n";
+			$subrules = Dispatcher::nginx_rules_for_browsercache_section( $this->c, $section );
+			$rules   .= '    ' . implode( "\n    ", $subrules ) . "\n";
 
-			if ( !$this->c->get_boolean( 'browsercache.no404wp' ) ) {
+			// Add rules for the Image Service extension, if active.
+			if ( 'other' === $section && array_key_exists( 'imageservice', $this->c->get_array( 'extensions.active' ) ) ) {
+				$rules .= "\n" . '    location ~* ^(?<path>.+)\.(jpe?g|png|gif)$ {' . "\n" .
+					'        if ( $http_accept !~* "webp|\*/\*" ) {' . "\n" .
+					'            break;' . "\n" .
+					'        }' . "\n\n" .
+					'        ' . implode( "\n        ", Dispatcher::nginx_rules_for_browsercache_section( $this->c, $section, true ) ) . "\n" .
+					'        add_header Vary Accept;' . "\n";
+
+				if ( $this->c->get_boolean( 'browsercache.no404wp' ) ) {
+					$rules .= '        try_files ${path}.webp $uri =404;';
+				} else {
+					$rules .= '        try_files ${path}.webp $uri /index.php?$args;';
+				}
+
+				$rules .= "\n" . '    }' . "\n\n";
+			}
+
+			if ( ! $this->c->get_boolean( 'browsercache.no404wp' ) ) {
 				$wp_uri = network_home_url( '', 'relative' );
 				$wp_uri = rtrim( $wp_uri, '/' );
-
-				$rules .= '    try_files $uri $uri/ ' . $wp_uri .
-					'/index.php?$args;' . "\n";
+				$rules .= '    try_files $uri $uri/ ' . $wp_uri . '/index.php?$args;' . "\n";
 			}
-			$rules .= "}\n";
+
+			$rules .= '}' . "\n";
 		}
 	}
-
-
 
 	/**
 	 * Returns directives plugin applies to files of specific section
@@ -329,7 +434,7 @@ class BrowserCache_Environment_Nginx {
 		$lifetime = $this->c->get_integer( "browsercache.$section.lifetime" );
 
 		if ( $expires ) {
-			$rules[] = "expires ${lifetime}s;";
+			$rules[] = 'expires ' . $lifetime . 's;';
 		}
 		if ( version_compare( Util_Environment::get_server_version(), '1.3.3', '>=' ) ) {
 			if ( $this->c->get_boolean( "browsercache.$section.etag" ) ) {

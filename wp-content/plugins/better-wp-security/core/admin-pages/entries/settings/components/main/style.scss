@@ -1,0 +1,142 @@
+.itsec-settings-main {
+    flex-grow: 1;
+    background: $background-blue;
+    z-index: 1;
+    overflow: auto;
+}
+
+.itsec-settings-main__wrapper {
+    padding: .5rem .5rem 2rem .5rem;
+    margin-top: .25rem;
+
+    @include break-mobile {
+        padding: 1rem;
+    }
+
+    @include break-small {
+        padding: 2rem;
+        margin-top: calc(40px + 1rem);
+    }
+
+    @include break-min-width($break-medium + 1) {
+        padding: 3rem;
+        margin-top: 0;
+    }
+}
+
+.itsec-settings-main__content {
+    max-width: 70rem;
+    margin: 0 auto;
+    position: relative;
+
+    &:focus {
+        outline: none;
+    }
+}
+
+.itsec-settings-main__content > header,
+.itsec-settings-main__content > .components-disabled > header {
+    & :first-child {
+        margin-top: 0;
+    }
+
+    & :last-child {
+        margin-bottom: 0;
+    }
+}
+
+.itsec-settings-main__content > *,
+.itsec-settings-main__content > .components-disabled > *,
+.itsec-settings-main__content > form > * {
+    margin-bottom: 1rem;
+
+    @include break-small {
+        margin-bottom: 2rem;
+    }
+
+    &:empty {
+        display: none;
+    }
+
+    &:last-child {
+        margin-bottom: 0;
+    }
+
+    &.itsec-message-list:not(:first-child):not(:last-child) {
+        margin-top: -.5rem;
+
+        @include break-small {
+            margin-top: -1rem;
+        }
+    }
+}
+
+.itsec-settings-main__wrapper.itsec-settings-main__wrapper--has-aside {
+    @mixin wide {
+        @include break-min-width(1599px) {
+            body:not(.folded) & {
+                @content
+            }
+        }
+
+        @include break-min-width(1475px) {
+            body.folded & {
+                @content
+            }
+        }
+    }
+
+    display: flex;
+    justify-content: flex-start;
+    flex-direction: column;
+    align-items: center;
+
+    @include break-small {
+        align-items: stretch;
+    }
+
+    @include wide {
+        flex-direction: row;
+        justify-content: center;
+    }
+
+    .itsec-settings-main__content {
+        margin: 0;
+        flex-grow: 2;
+        flex-shrink: 1;
+    }
+
+    .itsec-aside {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: flex-start;
+        flex-grow: 1;
+        min-width: 15rem;
+        margin-left: -1rem;
+
+        @include break-small {
+            justify-content: stretch;
+        }
+
+        @include wide {
+            align-content: flex-start;;
+            margin-top: -1rem;
+            margin-left: 0;
+            width: min-content;
+            max-width: 18rem;
+        }
+
+        & > * {
+            flex-basis: 15rem;
+            flex-grow: 1;
+            flex-shrink: 1;
+
+            min-width: 15rem;
+            max-width: 18rem;
+
+            margin-top: 1rem;
+            margin-left: 1rem;
+        }
+    }
+}

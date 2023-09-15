@@ -47,8 +47,8 @@ final class Object_Caching_Decorator implements Repository {
 		return $this->decorates->has( $id );
 	}
 
-	public function persist( User_Group $user_group ) {
-		$this->decorates->persist( $user_group );
+	public function persist( User_Group $user_group, array $args = [] ) {
+		$this->decorates->persist( $user_group, $args );
 		$this->cache( $user_group );
 	}
 

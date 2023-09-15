@@ -1,0 +1,7 @@
+.itsec-go-pro-features.components-flex {
+    align-items: center;
+
+    .itsec-go-pro-card-grid:empty + * {
+        display: none;
+    }
+}

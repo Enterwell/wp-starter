@@ -1,0 +1,14 @@
+/***************************************
+	2fa Settings
+****************************************/
+.two-factor-methods-table #the-list tr:nth-of-type(odd) {
+	background: #e4f0fd;
+}
+
+#itsec-application-passwords-list-table-wrapper .tablenav.top {
+	display: none;
+}
+
+.form-wrap label[for="itsec-app-password-rest_api_permissions"] {
+	display: inline-block;
+}

@@ -37,12 +37,13 @@ interface Repository {
 	 * Persist a user group.
 	 *
 	 * @param User_Group $user_group
+	 * @param array      $args
 	 *
 	 * @return void
 	 *
 	 * @throws WP_Error
 	 */
-	public function persist( User_Group $user_group );
+	public function persist( User_Group $user_group, array $args = [] );
 
 	/**
 	 * Delete a user group.

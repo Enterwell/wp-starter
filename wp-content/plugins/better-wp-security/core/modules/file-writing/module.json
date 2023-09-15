@@ -1,0 +1,48 @@
+{
+  "id": "file-writing",
+  "type": "tool",
+  "status": "always-active",
+  "title": "File Writing",
+  "tools": {
+    "server-config-rules": {
+      "title": "Server Config Rules",
+      "description": "View or flush the generated Server Config rules.",
+      "schedule": "flush-files",
+      "condition": {
+        "$ref": "#/definitions/tool-condition"
+      }
+    },
+    "wp-config-rules": {
+      "title": "wp-config.php Rules",
+      "description": "View or flush the generated wp-config.php rules.",
+      "schedule": "flush-files",
+      "condition": {
+        "$ref": "#/definitions/tool-condition"
+      }
+    }
+  },
+  "scheduling": {
+    "flush-files": {
+      "type": "recurring",
+      "schedule": "hourly"
+    }
+  },
+  "definitions": {
+    "tool-condition": {
+      "description": "The “Write to Files” setting must be enabled to automatically flush rules.",
+      "settings": {
+        "global": {
+          "type": "object",
+          "properties": {
+            "write_files": {
+              "type": "boolean",
+              "enum": [
+                true
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

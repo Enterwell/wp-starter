@@ -66,8 +66,17 @@ class WPSEO_Image_Utils {
 			return $id;
 		}
 
-		// phpcs:ignore WordPress.VIP.RestrictedFunctions -- We use the WP COM version if we can, see above.
+		// Note: We use the WP COM version if we can, see above.
 		$id = attachment_url_to_postid( $url );
+
+		if ( empty( $id ) ) {
+			/**
+			 * If no ID was found, maybe we're dealing with a scaled big image. So, let's try that.
+			 *
+			 * @see https://core.trac.wordpress.org/ticket/51058
+			 */
+			$id = self::get_scaled_image_id( $url );
+		}
 
 		if ( empty( $id ) ) {
 			wp_cache_set( $cache_key, 'not_found', '', ( 12 * HOUR_IN_SECONDS + wp_rand( 0, ( 4 * HOUR_IN_SECONDS ) ) ) );
@@ -80,19 +89,38 @@ class WPSEO_Image_Utils {
 	}
 
 	/**
+	 * Tries getting the ID of a potentially scaled image.
+	 *
+	 * @param string $url The URL of the image.
+	 *
+	 * @return int|false The ID of the image or false for failure.
+	 */
+	protected static function get_scaled_image_id( $url ) {
+		$path_parts = pathinfo( $url );
+		if ( isset( $path_parts['dirname'], $path_parts['filename'], $path_parts['extension'] ) ) {
+			$scaled_url = trailingslashit( $path_parts['dirname'] ) . $path_parts['filename'] . '-scaled.' . $path_parts['extension'];
+
+			return attachment_url_to_postid( $scaled_url );
+		}
+
+		return false;
+	}
+
+	/**
 	 * Retrieves the image data.
 	 *
 	 * @param array $image         Image array with URL and metadata.
 	 * @param int   $attachment_id Attachment ID.
 	 *
-	 * @return false|array $image {
+	 * @return false|array {
 	 *     Array of image data
 	 *
 	 *     @type string $alt      Image's alt text.
-	 *     @type string $alt      Image's alt text.
+	 *     @type string $path     Path of image.
 	 *     @type int    $width    Width of image.
 	 *     @type int    $height   Height of image.
 	 *     @type string $type     Image's MIME type.
+	 *     @type string $size     Image's size.
 	 *     @type string $url      Image's URL.
 	 *     @type int    $filesize The file size in bytes, if already set.
 	 * }
@@ -114,6 +142,29 @@ class WPSEO_Image_Utils {
 		if ( ! isset( $image['type'] ) ) {
 			$image['type'] = get_post_mime_type( $attachment_id );
 		}
+
+		/**
+		 * Filter: 'wpseo_image_data' - Filter image data.
+		 *
+		 * Elements with keys not listed in the section will be discarded.
+		 *
+		 * @api array {
+		 *     Array of image data
+		 *
+		 *     @type int    id       Image's ID as an attachment.
+		 *     @type string alt      Image's alt text.
+		 *     @type string path     Image's path.
+		 *     @type int    width    Width of image.
+		 *     @type int    height   Height of image.
+		 *     @type int    pixels   Number of pixels in the image.
+		 *     @type string type     Image's MIME type.
+		 *     @type string size     Image's size.
+		 *     @type string url      Image's URL.
+		 *     @type int    filesize The file size in bytes, if already set.
+		 * }
+		 * @api int  Attachment ID.
+		 */
+		$image = apply_filters( 'wpseo_image_data', $image, $attachment_id );
 
 		// Keep only the keys we need, and nothing else.
 		return array_intersect_key( $image, array_flip( [ 'id', 'alt', 'path', 'width', 'height', 'pixels', 'type', 'size', 'url', 'filesize' ] ) );
@@ -150,8 +201,8 @@ class WPSEO_Image_Utils {
 	/**
 	 * Find the right version of an image based on size.
 	 *
-	 * @param int    $attachment_id Attachment ID.
-	 * @param string $size          Size name.
+	 * @param int          $attachment_id Attachment ID.
+	 * @param string|array $size          Size name, or array of width and height in pixels (e.g [800,400]).
 	 *
 	 * @return array|false Returns an array with image data on success, false on failure.
 	 */
@@ -162,12 +213,26 @@ class WPSEO_Image_Utils {
 		}
 
 		if ( ! $image ) {
-			$image         = image_get_intermediate_size( $attachment_id, $size );
-			$image['size'] = $size;
+			$image = image_get_intermediate_size( $attachment_id, $size );
+		}
+
+		if ( ! is_array( $image ) ) {
+			$image_src = wp_get_attachment_image_src( $attachment_id, $size );
+			if ( is_array( $image_src ) && isset( $image_src[1] ) && isset( $image_src[2] ) ) {
+				$image           = [];
+				$image['url']    = $image_src[0];
+				$image['width']  = $image_src[1];
+				$image['height'] = $image_src[2];
+				$image['size']   = 'full';
+			}
 		}
 
 		if ( ! $image ) {
 			return false;
+		}
+
+		if ( ! isset( $image['size'] ) ) {
+			$image['size'] = $size;
 		}
 
 		return self::get_data( $image, $attachment_id );
@@ -247,10 +312,16 @@ class WPSEO_Image_Utils {
 			return $image['filesize'];
 		}
 
+		if ( ! isset( $image['path'] ) ) {
+			return 0;
+		}
+
 		// If the file size for the file is over our limit, we're going to go for a smaller version.
-		// @todo Save the filesize to the image metadata.
-		// phpcs:ignore Generic.PHP.NoSilencedErrors.Discouraged -- If file size doesn't properly return, we'll not fail.
-		return @filesize( self::get_absolute_path( $image['path'] ) );
+		if ( function_exists( 'wp_filesize' ) ) {
+			return wp_filesize( self::get_absolute_path( $image['path'] ) );
+		}
+
+		return file_exists( $image['path'] ) ? (int) filesize( $image['path'] ) : 0;
 	}
 
 	/**
@@ -327,7 +398,7 @@ class WPSEO_Image_Utils {
 	/**
 	 * Retrieve the internal WP image file sizes.
 	 *
-	 * @return array $image_sizes An array of image sizes.
+	 * @return array An array of image sizes.
 	 */
 	public static function get_sizes() {
 		/**
@@ -374,7 +445,7 @@ class WPSEO_Image_Utils {
 	/**
 	 * Gets the post's first usable content image. Null if none is available.
 	 *
-	 * @param int $post_id The post id.
+	 * @param int|null $post_id The post id.
 	 *
 	 * @return string|null The image URL.
 	 */

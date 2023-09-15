@@ -30,13 +30,13 @@ class WPSEO_Tracking_Server_Data implements WPSEO_Collection {
 		$server_data = [];
 
 		// Validate if the server address is a valid IP-address.
-		$ipaddress = filter_input( INPUT_SERVER, 'SERVER_ADDR', FILTER_VALIDATE_IP );
+		$ipaddress = isset( $_SERVER['SERVER_ADDR'] ) ? filter_var( wp_unslash( $_SERVER['SERVER_ADDR'] ), FILTER_VALIDATE_IP ) : '';
 		if ( $ipaddress ) {
 			$server_data['ip']       = $ipaddress;
 			$server_data['Hostname'] = gethostbyaddr( $ipaddress );
 		}
 
-		$server_data['os']            = php_uname();
+		$server_data['os']            = function_exists( 'php_uname' ) ? php_uname() : PHP_OS;
 		$server_data['PhpVersion']    = PHP_VERSION;
 		$server_data['CurlVersion']   = $this->get_curl_info();
 		$server_data['PhpExtensions'] = $this->get_php_extensions();
@@ -57,7 +57,6 @@ class WPSEO_Tracking_Server_Data implements WPSEO_Collection {
 		$curl = curl_version();
 
 		$ssl_support = true;
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_version_ssl -- This only concerns the basic act of getting the curl version.
 		if ( ! $curl['features'] && CURL_VERSION_SSL ) {
 			$ssl_support = false;
 		}

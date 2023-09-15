@@ -7,14 +7,15 @@ class ITSEC_SSL {
 	private $http_site_url;
 	private $https_site_url;
 
-
-	private function __construct() {
-		$this->init();
+	private function __construct( $run ) {
+		if ( $run ) {
+			$this->init();
+		}
 	}
 
-	public static function get_instance() {
+	public static function get_instance( $run = true ) {
 		if ( ! self::$instance ) {
-			self::$instance = new self;
+			self::$instance = new self( $run );
 		}
 
 		return self::$instance;
@@ -28,8 +29,7 @@ class ITSEC_SSL {
 	}
 
 	public static function deactivate() {
-		$self = self::get_instance();
-
+		$self = self::get_instance( false );
 		$self->remove_config_hooks();
 		ITSEC_Response::regenerate_wp_config();
 	}
@@ -53,23 +53,18 @@ class ITSEC_SSL {
 	public function init() {
 		$this->add_config_hooks();
 
-		add_action( 'template_redirect', array( $this, 'do_conditional_ssl_redirect' ), 0 );
-		$settings = ITSEC_Modules::get_settings( 'ssl' );
-
-		if ( 'enabled' === $settings['require_ssl'] ) {
-			add_filter( 'option_siteurl', array( $this, 'get_https_url' ), 5 );
-			add_filter( 'option_home', array( $this, 'get_https_url' ), 5 );
-		}
+		add_filter( 'option_siteurl', array( $this, 'get_https_url' ), 5 );
+		add_filter( 'option_home', array( $this, 'get_https_url' ), 5 );
 
 		if ( is_ssl() ) {
-			$this->http_site_url = site_url( '', 'http' );
+			$this->http_site_url  = site_url( '', 'http' );
 			$this->https_site_url = site_url( '', 'https' );
 
 			add_filter( 'the_content', array( $this, 'replace_content_urls' ) );
 			add_filter( 'script_loader_src', array( $this, 'script_loader_src' ) );
 			add_filter( 'style_loader_src', array( $this, 'style_loader_src' ) );
 			add_filter( 'upload_dir', array( $this, 'upload_dir' ) );
-		} else if ( 'enabled' === $settings['require_ssl'] && 'cli' !== php_sapi_name() && 'GET' === $_SERVER['REQUEST_METHOD'] ) {
+		} elseif ( 'cli' !== php_sapi_name() && ! ITSEC_Core::doing_data_upgrade() && 'GET' === $_SERVER['REQUEST_METHOD'] ) {
 			$this->redirect_to_https();
 		}
 	}
@@ -78,58 +73,13 @@ class ITSEC_SSL {
 		return preg_replace( '/^http:/', 'https:', $url );
 	}
 
-	/**
-	 * Redirects to or from SSL where appropriate
-	 *
-	 * @since 4.0
-	 *
-	 * @return void
-	 */
-	public function do_conditional_ssl_redirect() {
-
-		if ( 'cli' === php_sapi_name() ) {
-			return;
-		}
-
-		$settings = ITSEC_Modules::get_settings( 'ssl' );
-		$protocol = 'http';
-
-		if ( 2 === $settings['frontend'] ) {
-			$protocol = 'https';
-		} else if ( 1 === $settings['frontend'] && is_singular() ) {
-			global $post;
-
-			$enable_ssl = get_post_meta( $post->ID, 'itsec_enable_ssl' );
-
-			if ( ! empty( $enable_ssl ) ) {
-				if ( $enable_ssl[0] ) {
-					$protocol = 'https';
-				} else {
-					delete_post_meta( $post->ID, 'itsec_enable_ssl' );
-				}
-			}
-		} else {
-			return;
-		}
-
-		$is_ssl = is_ssl();
-
-		if ( $is_ssl && ( 'http' === $protocol ) ) {
-			$this->redirect_to_http();
-		} else if ( ! $is_ssl && ( 'https' == $protocol ) ) {
-			$this->redirect_to_https();
-		}
-	}
-
-	private function redirect_to_http() {
-		$redirect = "http://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}";
-		wp_redirect( $redirect, 301 );
-		exit();
-	}
-
 	private function redirect_to_https() {
+		add_filter( 'wp_safe_redirect_fallback', function () {
+			return set_url_scheme( wp_validate_redirect( home_url( $_SERVER['REQUEST_URI'] ), home_url() ), 'https' );
+		} );
+
 		$redirect = "https://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}";
-		wp_redirect( $redirect, 301 );
+		wp_safe_redirect( $redirect, 301, 'iThemes Security' );
 		exit();
 	}
 
@@ -182,24 +132,15 @@ class ITSEC_SSL {
 	 * @return array
 	 */
 	public function upload_dir( $upload_dir ) {
-		$upload_dir['url'] = str_replace( $this->http_site_url, $this->https_site_url, $upload_dir['url'] );
+		$upload_dir['url']     = str_replace( $this->http_site_url, $this->https_site_url, $upload_dir['url'] );
 		$upload_dir['baseurl'] = str_replace( $this->http_site_url, $this->https_site_url, $upload_dir['baseurl'] );
 
 		return $upload_dir;
 	}
 
 	public function filter_wp_config_modification( $modification ) {
-		$settings = ITSEC_Modules::get_settings( 'ssl' );
-
-		if ( 'enabled' === $settings['require_ssl'] ) {
-			$modification .= "define( 'FORCE_SSL_ADMIN', true ); // " . __( 'Redirect All HTTP Page Requests to HTTPS - Security > Settings > Secure Socket Layers (SSL) > SSL for Dashboard', 'better-wp-security' ) . "\n";
-		} else if ( 'advanced' === $settings['require_ssl'] && $settings['admin'] ) {
-			$modification .= "define( 'FORCE_SSL_ADMIN', true ); // " . __( 'Force SSL for Dashboard - Security > Settings > Secure Socket Layers (SSL) > SSL for Dashboard', 'better-wp-security' ) . "\n";
-		}
+		$modification .= "define( 'FORCE_SSL_ADMIN', true ); // " . __( 'Redirect All HTTP Page Requests to HTTPS - Security > Settings > Enforce SSL', 'better-wp-security' ) . "\n";
 
 		return $modification;
 	}
 }
-
-
-ITSEC_SSL::get_instance();

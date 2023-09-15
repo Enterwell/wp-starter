@@ -20,6 +20,14 @@ class Cdnfsd_Core {
 				$engine_object = null;   // extension handles everything
 				break;
 
+				case 'transparentcdn':
+					$engine_object = new Cdnfsd_TransparentCDN_Engine( array(
+						'company_id'    => $c->get_string( 'cdnfsd.transparentcdn.company_id' ),
+						'client_id'     => $c->get_string( 'cdnfsd.transparentcdn.client_id' ),
+						'client_secret' => $c->get_string( 'cdnfsd.transparentcdn.client_secret' )
+					) );
+				break;
+
 			case 'cloudfront':
 				$engine_object = new Cdnfsd_CloudFront_Engine( array(
 						'access_key' => $c->get_string( 'cdnfsd.cloudfront.access_key' ),
@@ -34,13 +42,6 @@ class Cdnfsd_Core {
 						'username' => $c->get_string( 'cdnfsd.limelight.username' ),
 						'api_key' => $c->get_string( 'cdnfsd.limelight.api_key' ),
 						'debug' => $c->get_string( 'cdnfsd.debug' )
-					) );
-				break;
-
-			case 'maxcdn':
-				$engine_object = new Cdnfsd_MaxCdn_Engine( array(
-						'api_key' => $c->get_string( 'cdnfsd.maxcdn.api_key' ),
-						'zone_id' => $c->get_integer( 'cdnfsd.maxcdn.zone_id' )
 					) );
 				break;
 

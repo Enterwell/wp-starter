@@ -124,7 +124,7 @@ final class ITSEC_Logs_List_Table extends ITSEC_WP_List_Table {
 		$out = '&nbsp;<a class="dashicons dashicons-filter" href="' . esc_url( $url ) . '" title="' . sprintf( esc_attr__( 'Show only entries for this %s', 'better-wp-security' ), strtolower( $column_header ) ) . '">&nbsp;</a>';
 
 		if ( 'module' === $column_name ) {
-			$out .= '<button type="button" class="toggle-row"><span class="screen-reader-text">' . __( 'Show more details' ) . '</span></button>';
+			$out .= '<button type="button" class="toggle-row"><span class="screen-reader-text">' . __( 'Show more details', 'better-wp-security' ) . '</span></button>';
 		}
 
 		return $out;
@@ -143,7 +143,7 @@ final class ITSEC_Logs_List_Table extends ITSEC_WP_List_Table {
 			$vars = array_merge( array( 'page' => $_GET['page'] ), $vars );
 		}
 
-		return network_admin_url( 'admin.php?' . http_build_query( $vars, null, '&' ) );
+		return network_admin_url( 'admin.php?' . http_build_query( $vars, '', '&' ) );
 	}
 
 	/**
@@ -433,7 +433,7 @@ final class ITSEC_Logs_List_Table extends ITSEC_WP_List_Table {
 					<?php endforeach; ?>
 				</select>
 
-				<?php submit_button( __( 'Filter' ), '', 'filter_action', false, array( 'id' => 'itsec-logs-query-submit' ) ); ?>
+				<?php submit_button( __( 'Filter', 'better-wp-security' ), '', 'filter_action', false, array( 'id' => 'itsec-logs-query-submit' ) ); ?>
 
 				<?php if ( isset( $filters['type'] ) ): ?>
 					<input type="hidden" name="filters[]" value="type|<?php echo esc_attr( $filters['type'] ); ?>">

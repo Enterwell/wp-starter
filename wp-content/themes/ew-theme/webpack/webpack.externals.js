@@ -1,23 +1,24 @@
 // Define all external components used in Gutenberg.
 const wplib = [
+  'apiFetch',
+  'blob',
+  'blockEditor',
+  'blocks',
   'components',
   'compose',
   'dispatch',
-  'blocks',
+  'data',
+  'date',
+  'domReady',
   'element',
   'editor',
-  'date',
-  'data',
+  'editPost',
   'i18n',
   'keycodes',
-  'viewport',
-  'blob',
-  'url',
-  'apiFetch',
   'plugins',
-  'editPost',
-  'blockEditor',
-  'richText'
+  'richText',
+  'url',
+  'viewport'
 ];
 
 /**
@@ -33,6 +34,7 @@ const externals = (function() {
   wplib.forEach((name) => {
     ext[`@wordpress/${kebabize(name)}`] = `wp.${name}`;
   });
+  ext['jquery'] = 'jQuery';
   return ext;
 })();
 

@@ -11,7 +11,12 @@ function login_header( $title = 'Log In', $message = '', $wp_error = '' ) {
 	global $error, $interim_login, $action;
 
 	// Don't index any of these forms
-	add_action( 'login_head', 'wp_no_robots' );
+	if ( ITSEC_Lib::is_wp_version_at_least( '5.7' ) ) {
+		add_filter( 'wp_robots', 'wp_robots_sensitive_page' );
+		add_action( 'login_head', 'wp_strict_cross_origin_referrer' );
+	} else {
+		add_action( 'login_head', 'wp_no_robots' );
+	}
 
 	add_action( 'login_head', 'wp_login_viewport_meta' );
 
@@ -77,8 +82,8 @@ function login_header( $title = 'Log In', $message = '', $wp_error = '' ) {
 		$login_header_url   = network_home_url();
 		$login_header_title = get_network()->site_name;
 	} else {
-		$login_header_url   = __( 'https://wordpress.org/' );
-		$login_header_title = __( 'Powered by WordPress' );
+		$login_header_url   = __( 'https://wordpress.org/', 'default' );
+		$login_header_title = __( 'Powered by WordPress', 'default' );
 	}
 
 	/**

@@ -1,18 +1,22 @@
 <?php
-/**
- * Surface for the indexables.
- *
- * @package Yoast\YoastSEO\Surfaces
- */
 
 namespace Yoast\WP\SEO\Surfaces;
 
 use YoastSEO_Vendor\Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Class Classes_Surface
+ * Class Classes_Surface.
+ *
+ * Surface for the indexables.
  */
 class Classes_Surface {
+
+	/**
+	 * The dependency injection container.
+	 *
+	 * @var ContainerInterface
+	 */
+	public $container;
 
 	/**
 	 * Loader constructor.
@@ -26,11 +30,11 @@ class Classes_Surface {
 	/**
 	 * Returns the instance of a class. Handy for unhooking things.
 	 *
-	 * @param string $class The class to get the instance of.
+	 * @param string $class_name The class to get the instance of.
 	 *
 	 * @return mixed The instance of the class.
 	 */
-	public function get( $class ) {
-		return $this->container->get( $class );
+	public function get( $class_name ) {
+		return $this->container->get( $class_name );
 	}
 }

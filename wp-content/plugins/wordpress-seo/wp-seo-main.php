@@ -15,7 +15,7 @@ if ( ! function_exists( 'add_filter' ) ) {
  * {@internal Nobody should be able to overrule the real version number as this can cause
  *            serious issues with the options, so no if ( ! defined() ).}}
  */
-define( 'WPSEO_VERSION', '14.9' );
+define( 'WPSEO_VERSION', '21.1' );
 
 
 if ( ! defined( 'WPSEO_PATH' ) ) {
@@ -34,6 +34,10 @@ define( 'YOAST_VENDOR_NS_PREFIX', 'YoastSEO_Vendor' );
 define( 'YOAST_VENDOR_DEFINE_PREFIX', 'YOASTSEO_VENDOR__' );
 define( 'YOAST_VENDOR_PREFIX_DIRECTORY', 'vendor_prefixed' );
 
+define( 'YOAST_SEO_PHP_REQUIRED', '7.2.5' );
+define( 'YOAST_SEO_WP_TESTED', '6.3.1' );
+define( 'YOAST_SEO_WP_REQUIRED', '6.1' );
+
 if ( ! defined( 'WPSEO_NAMESPACES' ) ) {
 	define( 'WPSEO_NAMESPACES', true );
 }
@@ -44,11 +48,11 @@ if ( ! defined( 'WPSEO_NAMESPACES' ) ) {
 /**
  * Autoload our class files.
  *
- * @param string $class Class name.
+ * @param string $class_name Class name.
  *
  * @return void
  */
-function wpseo_auto_load( $class ) {
+function wpseo_auto_load( $class_name ) {
 	static $classes = null;
 
 	if ( $classes === null ) {
@@ -58,9 +62,9 @@ function wpseo_auto_load( $class ) {
 		];
 	}
 
-	$cn = strtolower( $class );
+	$cn = strtolower( $class_name );
 
-	if ( ! class_exists( $class ) && isset( $classes[ $cn ] ) ) {
+	if ( ! class_exists( $class_name ) && isset( $classes[ $cn ] ) ) {
 		require_once $classes[ $cn ];
 	}
 }
@@ -68,7 +72,7 @@ function wpseo_auto_load( $class ) {
 $yoast_autoload_file = WPSEO_PATH . 'vendor/autoload.php';
 
 if ( is_readable( $yoast_autoload_file ) ) {
-	require $yoast_autoload_file;
+	$yoast_autoloader = require $yoast_autoload_file;
 }
 elseif ( ! class_exists( 'WPSEO_Options' ) ) { // Still checking since might be site-level autoload R.
 	add_action( 'admin_init', 'yoast_wpseo_missing_autoload', 1 );
@@ -88,6 +92,25 @@ require_once WPSEO_PATH . 'src/functions.php';
  */
 if ( ! defined( 'YOAST_ENVIRONMENT' ) ) {
 	define( 'YOAST_ENVIRONMENT', 'production' );
+}
+
+if ( YOAST_ENVIRONMENT === 'development' && isset( $yoast_autoloader ) ) {
+	add_action(
+		'plugins_loaded',
+		/**
+		 * Reregisters the autoloader so that Yoast SEO is at the front.
+		 * This prevents conflicts with the development versions of our addons.
+		 * An anonymous function is used so we can use the autoloader variable.
+		 * As this is only loaded in development removing this action is not a concern.
+		 *
+		 * @return void
+		 */
+		static function() use ( $yoast_autoloader ) {
+			$yoast_autoloader->unregister();
+			$yoast_autoloader->register( true );
+		},
+		1
+	);
 }
 
 /**
@@ -112,6 +135,9 @@ function wpseo_activate( $networkwide = false ) {
 		/* Multi-site network activation - activate the plugin for all blogs. */
 		wpseo_network_activate_deactivate( true );
 	}
+
+	// This is done so that the 'uninstall_{$file}' is triggered.
+	register_uninstall_hook( WPSEO_FILE, '__return_false' );
 }
 
 /**
@@ -176,18 +202,29 @@ function _wpseo_activate() {
 	WPSEO_Options::ensure_options_exist();
 
 	if ( is_multisite() && ms_is_switched() ) {
-		delete_option( 'rewrite_rules' );
+		update_option( 'rewrite_rules', '' );
 	}
 	else {
-		$wpseo_rewrite = new WPSEO_Rewrite();
-		$wpseo_rewrite->schedule_flush();
+		if ( WPSEO_Options::get( 'stripcategorybase' ) === true ) {
+			// Constructor has side effects so this registers all hooks.
+			$GLOBALS['wpseo_rewrite'] = new WPSEO_Rewrite();
+		}
+		add_action( 'shutdown', 'flush_rewrite_rules' );
+	}
+
+	WPSEO_Options::set( 'indexing_reason', 'first_install' );
+	WPSEO_Options::set( 'first_time_install', true );
+	if ( ! defined( 'WP_CLI' ) || ! WP_CLI ) {
+		WPSEO_Options::set( 'should_redirect_after_install_free', true );
+	}
+	else {
+		WPSEO_Options::set( 'activation_redirect_timestamp_free', time() );
 	}
 
 	// Reset tracking to be disabled by default.
-	if ( ! WPSEO_Utils::is_yoast_seo_premium() ) {
+	if ( ! YoastSEO()->helpers->product->is_premium() && WPSEO_Options::get( 'toggled_tracking' ) !== true ) {
 		WPSEO_Options::set( 'tracking', false );
 	}
-
 	do_action( 'wpseo_register_roles' );
 	WPSEO_Role_Manager_Factory::get()->add();
 
@@ -197,12 +234,9 @@ function _wpseo_activate() {
 	// Clear cache so the changes are obvious.
 	WPSEO_Utils::clear_cache();
 
-	// Schedule cronjob when it doesn't exists on activation.
-	$wpseo_ryte = new WPSEO_Ryte();
-	$wpseo_ryte->activate_hooks();
-
 	do_action( 'wpseo_activate' );
 }
+
 /**
  * On deactivation, flush the rewrite rules so XML sitemaps stop working.
  */
@@ -210,7 +244,7 @@ function _wpseo_deactivate() {
 	require_once WPSEO_PATH . 'inc/wpseo-functions.php';
 
 	if ( is_multisite() && ms_is_switched() ) {
-		delete_option( 'rewrite_rules' );
+		update_option( 'rewrite_rules', '' );
 	}
 	else {
 		add_action( 'shutdown', 'flush_rewrite_rules' );
@@ -250,7 +284,7 @@ function wpseo_on_activate_blog( $blog_id ) {
 		$blog_id = (int) $blog_id->blog_id;
 	}
 
-	if ( is_plugin_active_for_network( plugin_basename( WPSEO_FILE ) ) ) {
+	if ( is_plugin_active_for_network( WPSEO_BASENAME ) ) {
 		switch_to_blog( $blog_id );
 		wpseo_activate( false );
 		restore_current_blog();
@@ -290,6 +324,7 @@ function wpseo_init() {
 
 	if ( version_compare( WPSEO_Options::get( 'version', 1 ), WPSEO_VERSION, '<' ) ) {
 		if ( function_exists( 'opcache_reset' ) ) {
+			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- Prevent notices when opcache.restrict_api is set.
 			@opcache_reset();
 		}
 
@@ -318,13 +353,6 @@ function wpseo_init() {
 	foreach ( $integrations as $integration ) {
 		$integration->register_hooks();
 	}
-
-	// Loading Ryte integration.
-	$wpseo_ryte = new WPSEO_Ryte();
-	$wpseo_ryte->register_hooks();
-
-	// Initializes the Yoast indexables for the first time.
-	YoastSEO();
 }
 
 /**
@@ -337,16 +365,11 @@ function wpseo_init_rest_api() {
 	}
 
 	// Boot up REST API.
-	$configuration_service = new WPSEO_Configuration_Service();
-	$configuration_service->initialize();
-
 	$statistics_service = new WPSEO_Statistics_Service( new WPSEO_Statistics() );
 
 	$endpoints   = [];
-	$endpoints[] = new WPSEO_Endpoint_Indexable( new WPSEO_Indexable_Service() );
 	$endpoints[] = new WPSEO_Endpoint_File_Size( new WPSEO_File_Size_Service() );
 	$endpoints[] = new WPSEO_Endpoint_Statistics( $statistics_service );
-	$endpoints[] = new WPSEO_Endpoint_MyYoast_Connect();
 
 	foreach ( $endpoints as $endpoint ) {
 		$endpoint->register();
@@ -358,53 +381,6 @@ function wpseo_init_rest_api() {
  */
 function wpseo_admin_init() {
 	new WPSEO_Admin_Init();
-}
-
-/**
- * Initialize the WP-CLI integration.
- *
- * The WP-CLI integration needs PHP 5.3 support, which should be automatically
- * enforced by the check for the WP_CLI constant. As WP-CLI itself only runs
- * on PHP 5.3+, the constant should only be set when requirements are met.
- */
-function wpseo_cli_init() {
-	if ( WPSEO_Utils::is_yoast_seo_premium() ) {
-		WP_CLI::add_command(
-			'yoast redirect list',
-			'WPSEO_CLI_Redirect_List_Command',
-			[ 'before_invoke' => 'WPSEO_CLI_Premium_Requirement::enforce' ]
-		);
-
-		WP_CLI::add_command(
-			'yoast redirect create',
-			'WPSEO_CLI_Redirect_Create_Command',
-			[ 'before_invoke' => 'WPSEO_CLI_Premium_Requirement::enforce' ]
-		);
-
-		WP_CLI::add_command(
-			'yoast redirect update',
-			'WPSEO_CLI_Redirect_Update_Command',
-			[ 'before_invoke' => 'WPSEO_CLI_Premium_Requirement::enforce' ]
-		);
-
-		WP_CLI::add_command(
-			'yoast redirect delete',
-			'WPSEO_CLI_Redirect_Delete_Command',
-			[ 'before_invoke' => 'WPSEO_CLI_Premium_Requirement::enforce' ]
-		);
-
-		WP_CLI::add_command(
-			'yoast redirect has',
-			'WPSEO_CLI_Redirect_Has_Command',
-			[ 'before_invoke' => 'WPSEO_CLI_Premium_Requirement::enforce' ]
-		);
-
-		WP_CLI::add_command(
-			'yoast redirect follow',
-			'WPSEO_CLI_Redirect_Follow_Command',
-			[ 'before_invoke' => 'WPSEO_CLI_Premium_Requirement::enforce' ]
-		);
-	}
 }
 
 /* ***************************** BOOTSTRAP / HOOK INTO WP *************************** */
@@ -436,8 +412,12 @@ if ( ! wp_installing() && ( $spl_autoload_exists && $filter_exists ) ) {
 			// Plugin conflict ajax hooks.
 			new Yoast_Plugin_Conflict_Ajax();
 
-			if ( filter_input( INPUT_POST, 'action' ) === 'inline-save' ) {
-				add_action( 'plugins_loaded', 'wpseo_admin_init', 15 );
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Reason: We are not processing form information but only loading the admin init class.
+			if ( isset( $_POST['action'] ) && is_string( $_POST['action'] ) ) {
+				// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Reason: We are not processing form information but only loading the admin init class, We are strictly comparing only.
+				if ( wp_unslash( $_POST['action'] ) === 'inline-save' ) {
+					add_action( 'plugins_loaded', 'wpseo_admin_init', 15 );
+				}
 			}
 		}
 		else {
@@ -447,26 +427,22 @@ if ( ! wp_installing() && ( $spl_autoload_exists && $filter_exists ) ) {
 
 	add_action( 'plugins_loaded', 'load_yoast_notifications' );
 
-	if ( defined( 'WP_CLI' ) && WP_CLI ) {
-		add_action( 'plugins_loaded', 'wpseo_cli_init', 20 );
-	}
-
 	add_action( 'init', [ 'WPSEO_Replace_Vars', 'setup_statics_once' ] );
+
+	// Initializes the Yoast indexables for the first time.
+	YoastSEO();
+
+	/**
+	 * Action called when the Yoast SEO plugin file has loaded.
+	 */
+	do_action( 'wpseo_loaded' );
 }
 
 // Activation and deactivation hook.
 register_activation_hook( WPSEO_FILE, 'wpseo_activate' );
 register_deactivation_hook( WPSEO_FILE, 'wpseo_deactivate' );
 
-// Wpmu_new_blog has been deprecated in 5.1 and replaced by wp_insert_site.
-global $wp_version;
-if ( version_compare( $wp_version, '5.1', '<' ) ) {
-	add_action( 'wpmu_new_blog', 'wpseo_on_activate_blog' );
-}
-else {
-	add_action( 'wp_initialize_site', 'wpseo_on_activate_blog', 99 );
-}
-
+add_action( 'wp_initialize_site', 'wpseo_on_activate_blog', 99 );
 add_action( 'activate_blog', 'wpseo_on_activate_blog' );
 
 // Registers SEO capabilities.
@@ -561,6 +537,7 @@ function yoast_wpseo_missing_filter_notice() {
  * @param string $message Message string.
  */
 function yoast_wpseo_activation_failed_notice( $message ) {
+	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- This function is only called in 3 places that are safe.
 	echo '<div class="error"><p>' . esc_html__( 'Activation failed:', 'wordpress-seo' ) . ' ' . strip_tags( $message, '<a>' ) . '</p></div>';
 }
 
@@ -572,33 +549,11 @@ function yoast_wpseo_self_deactivate() {
 
 	if ( $is_deactivated === null ) {
 		$is_deactivated = true;
-		deactivate_plugins( plugin_basename( WPSEO_FILE ) );
+		deactivate_plugins( WPSEO_BASENAME );
 		if ( isset( $_GET['activate'] ) ) {
 			unset( $_GET['activate'] );
 		}
 	}
-}
-
-/* ********************* DEPRECATED METHODS ********************* */
-
-/**
- * Instantiate the different social classes on the frontend.
- *
- * @deprecated 14.0
- * @codeCoverageIgnore
- */
-function wpseo_frontend_head_init() {
-	_deprecated_function( __METHOD__, 'WPSEO 14.0' );
-}
-
-/**
- * Used to load the required files on the plugins_loaded hook, instead of immediately.
- *
- * @deprecated 14.0
- * @codeCoverageIgnore
- */
-function wpseo_frontend_init() {
-	_deprecated_function( __METHOD__, 'WPSEO 14.0' );
 }
 
 /**

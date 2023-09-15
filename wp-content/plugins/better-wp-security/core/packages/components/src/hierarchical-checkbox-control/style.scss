@@ -4,10 +4,15 @@
 
 ul.components-hierarchical-checkbox-control__group {
     padding-left: 1em;
+    margin: 0;
 }
 
 .components-hierarchical-checkbox-control__group .components-hierarchical-checkbox-control__option {
     list-style-type: none;
+
+    &:last-child {
+        margin-bottom: 0;
+    }
 }
 
 .components-hierarchical-checkbox-control__option--has-children {

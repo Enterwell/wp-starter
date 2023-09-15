@@ -1,48 +1,48 @@
 <?php
 
-final class ITSEC_Global_Settings_New extends ITSEC_Settings {
-	public function get_id() {
-		return 'global';
+use iThemesSecurity\Config_Settings;
+
+final class ITSEC_Global_Settings extends Config_Settings {
+	public function get_default( $setting, $default = null ) {
+		$default = parent::get_default( $setting, $default );
+
+		switch ( $setting ) {
+			case 'nginx_file':
+				return ABSPATH . 'nginx.conf';
+			case 'log_location':
+				return ITSEC_Core::get_storage_dir( 'logs' );
+			case 'enable_remote_help';
+				return ITSEC_Core::is_pro() ? true : $default;
+			case 'proxy':
+				$proxies = ITSEC_Lib_IP_Detector::get_proxy_types();
+
+				return isset( $proxies['security-check'] ) ? 'security-check' : $default;
+			default:
+				return $default;
+		}
 	}
 
-	public function get_defaults() {
-		return array(
-			'lockout_message'           => __( 'error', 'better-wp-security' ),
-			'user_lockout_message'      => __( 'You have been locked out due to too many invalid login attempts.', 'better-wp-security' ),
-			'community_lockout_message' => __( 'Your IP address has been flagged as a threat by the iThemes Security network.', 'better-wp-security' ),
-			'blacklist'                 => true,
-			'blacklist_count'           => 3,
-			'blacklist_period'          => 7,
-			'lockout_period'            => 15,
-			'lockout_white_list'        => array(),
-			'log_rotation'              => 60,
-			'file_log_rotation'         => 180,
-			'log_type'                  => 'database',
-			'log_location'              => ITSEC_Core::get_storage_dir( 'logs' ),
-			'log_info'                  => '',
-			'allow_tracking'            => false,
-			'write_files'               => true,
-			'nginx_file'                => ABSPATH . 'nginx.conf',
-			'infinitewp_compatibility'  => false,
-			'did_upgrade'               => false,
-			'lock_file'                 => false,
-			'proxy'                     => 'automatic',
-			'proxy_header'              => 'HTTP_X_FORWARDED_FOR',
-			'hide_admin_bar'            => false,
-			'show_error_codes'          => false,
-			'show_security_check'       => true,
-			'build'                     => 0,
-			'initial_build'             => 0,
-			'activation_timestamp'      => 0,
-			'cron_status'               => - 1,
-			'use_cron'                  => true,
-			'cron_test_time'            => 0,
-			'enable_grade_report'       => false,
-			'server_ips'                => array(),
-			'feature_flags'             => array(),
-			'manage_group'              => array(),
-			'licensed_hostname_prompt'  => false,
-		);
+	public function get_settings_schema() {
+		$schema = parent::get_settings_schema();
+
+		$schema['properties']['proxy']['enum']      = array_keys( ITSEC_Lib_IP_Detector::get_proxy_types() );
+		$schema['properties']['proxy']['enumNames'] = array_values( ITSEC_Lib_IP_Detector::get_proxy_types() );
+
+		$schema['properties']['proxy_header']['enum']      = ITSEC_Lib_IP_Detector::get_proxy_headers();
+		$schema['properties']['proxy_header']['enumNames'] = array_map( static function ( $header ) {
+			if ( 0 === strpos( $header, 'HTTP_' ) ) {
+				$header = substr( $header, 5 );
+			}
+
+			$header = str_replace( '_', '-', $header );
+			$header = strtolower( $header );
+			$header = ucwords( $header, '-' );
+			$header = str_replace( [ 'Ip', 'Cf' ], [ 'IP', 'CF' ], $header );
+
+			return $header;
+		}, ITSEC_Lib_IP_Detector::get_proxy_headers() );
+
+		return $schema;
 	}
 
 	protected function handle_settings_changes( $old_settings ) {
@@ -55,17 +55,6 @@ final class ITSEC_Global_Settings_New extends ITSEC_Settings {
 
 		if ( $this->settings['use_cron'] !== $old_settings['use_cron'] ) {
 			$this->handle_cron_change( $this->settings['use_cron'] );
-		}
-
-		if ( $this->settings['enable_grade_report'] && ! $old_settings['enable_grade_report'] ) {
-			update_site_option( 'itsec-enable-grade-report', true );
-			ITSEC_Modules::load_module_file( 'activate.php', 'grade-report' );
-			ITSEC_Response::flag_new_notifications_available();
-			ITSEC_Response::refresh_page();
-		} elseif ( ! $this->settings['enable_grade_report'] && $old_settings['enable_grade_report'] ) {
-			update_site_option( 'itsec-enable-grade-report', false );
-			ITSEC_Modules::load_module_file( 'deactivate.php', 'grade-report' );
-			ITSEC_Response::refresh_page();
 		}
 	}
 
@@ -110,4 +99,6 @@ final class ITSEC_Global_Settings_New extends ITSEC_Settings {
 	}
 }
 
-ITSEC_Modules::register_settings( new ITSEC_Global_Settings_New() );
+ITSEC_Modules::register_settings( new ITSEC_Global_Settings( ITSEC_Modules::get_config( 'global' ) ) );
+
+class_alias( ITSEC_Global_Settings::class, 'ITSEC_Global_Settings_New' );

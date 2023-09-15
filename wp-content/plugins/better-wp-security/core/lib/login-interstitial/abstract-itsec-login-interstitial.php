@@ -29,6 +29,15 @@ abstract class ITSEC_Login_Interstitial {
 	}
 
 	/**
+	 * Only show this interstitial after the user has been authenticated.
+	 *
+	 * @return bool
+	 */
+	public function show_after_authentication(): bool {
+		return false;
+	}
+
+	/**
 	 * Render the interstitial.
 	 *
 	 * @param ITSEC_Login_Interstitial_Session $session

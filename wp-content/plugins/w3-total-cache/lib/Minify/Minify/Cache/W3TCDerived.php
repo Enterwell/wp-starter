@@ -1,4 +1,5 @@
 <?php
+namespace W3TCL\Minify;
 /**
  * Class Minify_Cache_APC
  * @package Minify
@@ -6,11 +7,11 @@
 
 /**
  * APC-based cache class for Minify
- * 
+ *
  * <code>
  * Minify::setCache(new Minify_Cache_APC());
  * </code>
- * 
+ *
  * @package Minify
  * @author Chris Edwards
  **/
@@ -35,7 +36,7 @@ class Minify_Cache_W3TCDerived {
      */
     public function store($id, $data)
     {
-        $data['created_time'] = $_SERVER['REQUEST_TIME'];
+        $data['created_time'] = isset( $_SERVER['REQUEST_TIME'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_TIME'] ) ) : '';
         return $this->_cache->set($id, $data);
     }
 
@@ -84,8 +85,9 @@ class Minify_Cache_W3TCDerived {
     public function display($id)
     {
         $v = $this->fetch($id);
-        if (isset($v['content']))
-            echo $v['content'];
+		if ( isset( $v['content'] ) ) {
+			echo $v['content'];
+		}
     }
 
     private $loaded_id = null;

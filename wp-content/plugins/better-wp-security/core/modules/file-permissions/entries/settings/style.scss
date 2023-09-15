@@ -1,0 +1,50 @@
+
+.itsec-check-file-permissions-results {
+    margin-bottom: 1rem;
+    position: relative;
+    overflow: auto;
+
+    border: 1px solid #c3c4c7;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+
+    table {
+        border: none;
+        box-shadow: none;
+    }
+
+    th:first-of-type {
+        position: sticky;
+        left: 0;
+    }
+
+    thead th:first-of-type,
+    tfoot th:first-of-type {
+        background-color: $white;
+    }
+
+    tbody > tr:nth-child(even) th {
+        background-color: $white;
+    }
+
+    tbody > tr:nth-child(odd) th {
+        background-color: #f6f7f7;
+    }
+}
+
+.itsec-check-file-permissions-status {
+    vertical-align: middle;
+}
+
+.itsec-check-file-permissions-status div {
+    border: 1px solid #E2E2E2;
+    width: 80px;
+    height: 1rem;
+}
+
+.itsec-check-file-permissions-status--ok div {
+    background: $alert-green;
+}
+
+.itsec-check-file-permissions-status--warning div {
+    background: $alert-orange;
+}

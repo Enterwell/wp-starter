@@ -1,0 +1,156 @@
+{
+  "id": "hide-backend",
+  "status": "always-active",
+  "type": "advanced",
+  "title": "Hide Backend",
+  "description": "Change the login URL of your site.",
+  "help": "The Hide Backend feature isn’t fool proof, and your new login URL could still be exposed by WordPress Core, Plugins, or Themes when printing links to the login page. For example Privacy Request Confirmations or front-end login forms. We recommend using more robust security features like Two-Factor Authentication to secure your WordPress login page.",
+  "settings": {
+    "type": "object",
+    "properties": {
+      "enabled": {
+        "type": "boolean",
+        "default": false,
+        "title": "Hide Backend",
+        "description": "Enable the hide backend feature."
+      },
+      "slug": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 64,
+        "pattern": "^(?!(login|admin|wp-login\\.php|dashboard|wp-admin)$)[\\w\\-?&=#%]+$",
+        "default": "wplogin",
+        "title": "Login Slug",
+        "description": "The login url slug cannot be “login”, “admin”, “dashboard”, or “wp-login.php” as these are use by default in WordPress."
+      },
+      "register": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 64,
+        "pattern": "^(wp-signup\\.php|[\\w\\-?&=#%]+)$",
+        "default": "wp-signup.php",
+        "title": "Register Slug"
+      },
+      "theme_compat": {
+        "type": "boolean",
+        "default": true,
+        "title": "Enable Redirection",
+        "description": "Redirect users to a custom location on your site, instead of throwing a 403 (forbidden) error."
+      },
+      "theme_compat_slug": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 64,
+        "pattern": "^[\\w\\-?&=#%]+$",
+        "default": "not_found",
+        "title": "Redirection Slug",
+        "description": "The slug to redirect users to when they attempt to access wp-admin while not logged in."
+      },
+      "post_logout_slug": {
+        "type": "string",
+        "maxLength": 64,
+        "pattern": "^[\\w\\-%]*$",
+        "default": "",
+        "title": "Custom Login Action",
+        "description": "WordPress uses the “action” variable to handle many login and logout functions. By default this plugin can handle the normal ones but some plugins and themes may utilize a custom action (such as logging out of a private post). If you need a custom action please enter it here."
+      }
+    },
+    "uiSchema": {
+      "ui:sections": [
+        {
+          "title": "URLs",
+          "fields": [
+            "slug",
+            "register"
+          ]
+        },
+        {
+          "title": "Redirection",
+          "fields": [
+            "theme_compat",
+            "theme_compat_slug"
+          ]
+        },
+        {
+          "title": "Advanced",
+          "fields": [
+            "post_logout_slug"
+          ]
+        }
+      ]
+    }
+  },
+  "conditional-settings": {
+    "slug": {
+      "settings": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          }
+        }
+      }
+    },
+    "register": {
+      "settings": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          }
+        }
+      }
+    },
+    "theme_compat": {
+      "settings": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          }
+        }
+      }
+    },
+    "theme_compat_slug": {
+      "settings": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          },
+          "theme_compat": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          }
+        }
+      }
+    },
+    "post_logout_slug": {
+      "settings": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "enum": [
+              true
+            ]
+          }
+        }
+      }
+    }
+  }
+}

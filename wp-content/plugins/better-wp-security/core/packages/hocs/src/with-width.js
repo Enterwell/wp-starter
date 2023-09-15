@@ -24,14 +24,18 @@ const withWidth = createHigherOrderComponent( ( WrappedComponent ) => {
 			this.mounted = true;
 
 			window.addEventListener( 'resize', this.onWindowResize );
-			document.getElementById( 'collapse-button' ).addEventListener( 'click', this.onWindowResize );
+			document
+				.getElementById( 'collapse-button' )
+				.addEventListener( 'click', this.onWindowResize );
 			this.onWindowResize();
 		}
 
 		componentWillUnmount() {
 			this.mounted = false;
 			window.removeEventListener( 'resize', this.onWindowResize );
-			document.getElementById( 'collapse-button' ).removeEventListener( 'click', this.onWindowResize );
+			document
+				.getElementById( 'collapse-button' )
+				.removeEventListener( 'click', this.onWindowResize );
 		}
 
 		onWindowResize = () => {
@@ -52,11 +56,16 @@ const withWidth = createHigherOrderComponent( ( WrappedComponent ) => {
 			const { measureBeforeMount, ...rest } = this.props;
 			if ( measureBeforeMount && ! this.mounted ) {
 				return (
-					<div className={ this.props.className } style={ this.props.style } />
+					<div
+						className={ this.props.className }
+						style={ this.props.style }
+					/>
 				);
 			}
 
-			return <WrappedComponent { ...rest } width={ this.state.width + 20 } />;
+			return (
+				<WrappedComponent { ...rest } width={ this.state.width + 20 } />
+			);
 		}
 	};
 }, 'withWidth' );

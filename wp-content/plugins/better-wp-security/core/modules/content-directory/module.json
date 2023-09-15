@@ -1,0 +1,8 @@
+{
+  "id": "content-directory",
+  "type": "tool",
+  "status": "default-inactive",
+  "deprecated": "8.0.0",
+  "title": "Change Content Directory",
+  "description": "Advanced feature to rename the wp-content directory to a different name."
+}

@@ -1,13 +1,11 @@
-@import "colors.scss";
-@import "breakpoints.scss";
+@mixin table($spacing: 1em) {
+    --itsec-table-spacing: #{$spacing};
 
-@mixin sticky-table($spacing: 1em) {
+    border-spacing: 0;
+
     & thead th {
-        position: sticky;
-        top: 0;
-        padding-top: $spacing;
-        padding-bottom: $spacing;
-        background: white;
+        padding-top: var(--itsec-table-spacing);
+        padding-bottom: var(--itsec-table-spacing);
         color: $dark-gray-500;
         text-transform: uppercase;
         font-weight: normal;
@@ -18,18 +16,21 @@
     & th,
     & td {
         text-align: left;
-        padding: $spacing;
-
-        &:first-child {
-        }
-
-        &:last-child {
-            text-align: right;
-        }
+        padding: var(--itsec-table-spacing);
     }
 
     & tbody th {
         font-weight: normal;
+    }
+}
+
+@mixin sticky-table($spacing: 1em) {
+    @include table($spacing);
+
+    & thead th {
+        position: sticky;
+        top: 0;
+        background: white;
     }
 }
 
@@ -80,6 +81,12 @@
  * Breakpoint mixins
  */
 
+@mixin break-min-width( $width ) {
+    @media (min-width: #{ ($width) }) {
+        @content;
+    }
+}
+
 @mixin break-huge() {
     @media (min-width: #{ ($break-huge) }) {
         @content;
@@ -126,4 +133,38 @@
     @media (min-width: #{ ($break-zoomed-in) }) {
         @content;
     }
+}
+
+@mixin dashicon($unicode: none, $size: 20px) {
+    content: $unicode;
+    font-family: dashicons;
+    display: inline-block;
+    line-height: 1;
+    font-weight: 400;
+    font-style: normal;
+    speak: never;
+    text-decoration: inherit;
+    text-transform: none;
+    text-rendering: auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    width: $size;
+    height: $size;
+    font-size: $size;
+    vertical-align: top;
+    text-align: center;
+    transition: color 0.1s ease-in;
+}
+
+@mixin recommended-icon($size: 20px) {
+    $size: #{var(--itsec-recommended-icon-size, $size)};
+
+    --itsec-recommended-icon-padding: calc(#{$size} / 5);
+    @include dashicon('\f155', #{$size});
+    font-size: calc(#{$size} - (var(--itsec-recommended-icon-padding) * 2));
+    border-radius: 50%;
+    padding: var(--itsec-recommended-icon-padding);
+    padding-left: calc(var(--itsec-recommended-icon-padding) + 0.5px);
+    background: $main-blue;
+    color: $white;
 }

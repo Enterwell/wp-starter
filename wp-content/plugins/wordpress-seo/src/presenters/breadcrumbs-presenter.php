@@ -1,16 +1,11 @@
 <?php
-/**
- * Presenter class for the breadcrumbs.
- *
- * @package Yoast\YoastSEO\Presenters
- */
 
 namespace Yoast\WP\SEO\Presenters;
 
 use Yoast\WP\SEO\Presentations\Indexable_Presentation;
 
 /**
- * Class Breadcrumbs_Presenter
+ * Presenter class for the breadcrumbs.
  */
 class Breadcrumbs_Presenter extends Abstract_Indexable_Presenter {
 
@@ -144,24 +139,20 @@ class Breadcrumbs_Presenter extends Abstract_Indexable_Presenter {
 			$link      .= '<' . $this->get_element() . '>';
 			$title_attr = isset( $breadcrumb['title'] ) ? ' title="' . \esc_attr( $breadcrumb['title'] ) . '"' : '';
 			$link      .= '<a href="' . \esc_url( $breadcrumb['url'] ) . '"' . $title_attr . '>' . $text . '</a>';
+			$link      .= '</' . $this->get_element() . '>';
 		}
 		elseif ( $index === ( $total - 1 ) ) {
 			// If it's the last element.
-			$inner_elm = 'span';
+
 			if ( $this->helpers->options->get( 'breadcrumbs-boldlast' ) === true ) {
-				$inner_elm = 'strong';
+				$text = '<strong>' . $text . '</strong>';
 			}
 
-			$link .= '<' . $inner_elm . ' class="breadcrumb_last" aria-current="page">' . $text . '</' . $inner_elm . '>';
-			// This is the last element, now close all previous elements.
-			while ( $index > 0 ) {
-				$link .= '</' . $this->get_element() . '>';
-				--$index;
-			}
+			$link .= '<' . $this->get_element() . ' class="breadcrumb_last" aria-current="page">' . $text . '</' . $this->get_element() . '>';
 		}
 		else {
 			// It's not the last element and has no url.
-			$link .= '<span>' . $text . '</span>';
+			$link .= '<' . $this->get_element() . '>' . $text . '</' . $this->get_element() . '>';
 		}
 
 		/**
@@ -171,7 +162,6 @@ class Breadcrumbs_Presenter extends Abstract_Indexable_Presenter {
 		 *
 		 * @api string $link_output The output string.
 		 */
-
 		return \apply_filters( 'wpseo_breadcrumb_single_link', $link, $breadcrumb );
 	}
 

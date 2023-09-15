@@ -1,30 +1,25 @@
 <?php
-/**
- * Presenter class for the Baidu Webmaster Tools verification setting.
- *
- * @package Yoast\YoastSEO\Presenters\Webmaster
- */
 
 namespace Yoast\WP\SEO\Presenters\Webmaster;
 
 use Yoast\WP\SEO\Presenters\Abstract_Indexable_Tag_Presenter;
 
 /**
- * Class Baidu_Presenter
+ * Presenter class for the Baidu Webmaster Tools verification setting.
  */
 class Baidu_Presenter extends Abstract_Indexable_Tag_Presenter {
 
 	/**
-	 * The tag format including placeholders.
+	 * The tag key name.
 	 *
 	 * @var string
 	 */
-	protected $tag_format = '<meta name="baidu-site-verification" content="%s" />';
+	protected $key = 'baidu-site-verification';
 
 	/**
 	 * Retrieves the webmaster tool site verification value from the settings.
 	 *
-	 * @return string $verification_value The webmaster tool site verification value.
+	 * @return string The webmaster tool site verification value.
 	 */
 	public function get() {
 		return $this->helpers->options->get( 'baiduverify', '' );

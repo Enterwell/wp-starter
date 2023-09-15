@@ -1,9 +1,38 @@
-.itsec-user-groups-group-tab__row--edit-fields > .components-base-control:first-child {
-    margin-bottom: 16px;
-}
 
-.itsec-user-groups-group-tab__row--edit-fields .components-base-control__label {
-    font-weight: 600;
-    margin-bottom: 1em;
-    font-size: 1.2em;
+.itsec-user-groups-group-tab__edit-fields {
+    > .components-base-control {
+        display: grid;
+        grid-template-columns: [label fields] minmax(0, 1fr);
+        grid-template-rows: auto;
+        grid-gap: .5rem 0;
+
+        @include break-small {
+            grid-template-columns: [label] 10rem [fields] minmax(0, 1fr);
+        }
+
+        &:nth-child(n + 2) {
+            border-top: 1px solid $border-color;
+            margin-top: 1rem;
+            padding-top: 1rem;
+        }
+
+        > .components-base-control__field {
+            display: contents;
+
+            > .components-base-control__label {
+                grid-column: label;
+                font-size: 1rem;
+            }
+        }
+
+        > .components-base-control__help,
+        > .components-base-control__field > .components-base-control__help {
+            grid-column: fields;
+            margin: 0;
+        }
+
+        > * {
+            grid-column: fields;
+        }
+    }
 }

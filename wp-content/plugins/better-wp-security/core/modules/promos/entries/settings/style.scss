@@ -1,0 +1,134 @@
+.itsec-promo.itsec-promo-pro-upgrade {
+    background-color: #002338;
+    border-color: #002338;
+    color: $white;
+
+    .components-card__body {
+        display: flex;
+        flex-direction: column;
+
+        & > * {
+            margin-top: 0.33rem;
+            margin-bottom: 0.33rem;
+
+            &:first-child {
+                margin-top: 0;
+            }
+
+            &:last-child {
+                margin-bottom: 0;
+            }
+        }
+    }
+
+    header:after {
+        clear: both;
+        content: '';
+        display: table;
+    }
+
+    h2 {
+        color: #7DBFEB;
+        margin: 0;
+    }
+
+    svg {
+        width: 2rem;
+        float: right;
+        margin-left: .5rem;
+    }
+
+    p {
+        color: $white;
+    }
+
+    .itsec-tab-panel {
+        .components-tab-panel__tabs {
+            padding: 8px 0;
+        }
+
+        .itsec-tab-panel__tab.components-button {
+            color: $white;
+        }
+
+        @include break-small {
+            .components-tab-panel__tabs {
+                padding: 0;
+            }
+
+            .itsec-tab-panel__tab.components-button {
+                color: #DCEBF3;
+                margin-left: .5rem;
+                margin-right: 0;
+                text-transform: none;
+                padding-top: 0;
+
+                &:first-child {
+                    margin-left: 0;
+                }
+            }
+        }
+
+        .components-tab-panel__tab-content {
+            display: grid;
+            grid-template-columns: 2fr 3fr;
+            place-items: center;
+            margin-top: .5rem;
+            grid-gap: .5rem;
+        }
+    }
+
+    .itsec-promo-pro-upgrade__price {
+        color: #7DBFEB;
+        font-size: 2rem;
+        font-weight: 500;
+    }
+
+    a.itsec-promo-pro-upgrade__details {
+        color: $white;
+
+        &:hover {
+            color: #7DBFEB;
+        }
+    }
+}
+
+.itsec-promo-vulnerability-report .components-card__body {
+    display: flex;
+    flex-direction: column;
+
+    & > * {
+        margin-top: 0.33rem;
+        margin-bottom: 0.33rem;
+
+        &:first-child {
+            margin-top: 0;
+        }
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+
+    svg {
+        width: 100%;
+        height: auto;
+    }
+
+    h2 {
+        color: $main-blue;
+        font-weight: 300;
+    }
+
+    p {
+        color: $medium-text;
+    }
+}
+
+.components-button.itsec-promo-pro-upgrade__button,
+.components-button.itsec-promo-vulnerability-report__button {
+    align-self: center;
+    padding: 12px 24px;
+    height: auto;
+    font-weight: 500;
+}

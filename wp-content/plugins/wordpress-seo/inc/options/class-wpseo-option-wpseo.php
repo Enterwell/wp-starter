@@ -27,21 +27,22 @@ class WPSEO_Option_Wpseo extends WPSEO_Option {
 	protected $defaults = [
 		// Non-form fields, set via (ajax) function.
 		'tracking'                                 => null,
+		'toggled_tracking'                         => false,
 		'license_server_version'                   => false,
 		'ms_defaults_set'                          => false,
 		'ignore_search_engines_discouraged_notice' => false,
-		'ignore_indexation_warning'                => false,
-		'indexation_warning_hide_until'            => false,
-		'indexation_started'                       => false,
-		'indexables_indexation_reason'             => '',
-		'indexables_indexation_completed'          => false,
+		'indexing_first_time'                      => true,
+		'indexing_started'                         => null,
+		'indexing_reason'                          => '',
+		'indexables_indexing_completed'            => false,
+		'index_now_key'                            => '',
 		// Non-form field, should only be set via validation routine.
 		'version'                                  => '', // Leave default as empty to ensure activation/upgrade works.
 		'previous_version'                         => '',
 		// Form fields.
 		'disableadvanced_meta'                     => true,
 		'enable_headless_rest_endpoints'           => true,
-		'ryte_indexability'                        => true,
+		'ryte_indexability'                        => false,
 		'baiduverify'                              => '', // Text field.
 		'googleverify'                             => '', // Text field.
 		'msverify'                                 => '', // Text field.
@@ -51,10 +52,13 @@ class WPSEO_Option_Wpseo extends WPSEO_Option {
 		'environment_type'                         => '',
 		'content_analysis_active'                  => true,
 		'keyword_analysis_active'                  => true,
+		'inclusive_language_analysis_active'       => false,
 		'enable_admin_bar_menu'                    => true,
 		'enable_cornerstone_content'               => true,
 		'enable_xml_sitemap'                       => true,
 		'enable_text_link_counter'                 => true,
+		'enable_index_now'                         => true,
+		'enable_ai_generator'                      => false,
 		'show_onboarding_notice'                   => false,
 		'first_activated_on'                       => false,
 		'myyoast-oauth'                            => [
@@ -64,6 +68,78 @@ class WPSEO_Option_Wpseo extends WPSEO_Option {
 			],
 			'access_tokens' => [],
 		],
+		'semrush_integration_active'               => true,
+		'semrush_tokens'                           => [],
+		'semrush_country_code'                     => 'us',
+		'permalink_structure'                      => '',
+		'home_url'                                 => '',
+		'dynamic_permalinks'                       => false,
+		'category_base_url'                        => '',
+		'tag_base_url'                             => '',
+		'custom_taxonomy_slugs'                    => [],
+		'enable_enhanced_slack_sharing'            => true,
+		'zapier_integration_active'                => false,
+		'zapier_subscription'                      => [],
+		'zapier_api_key'                           => '',
+		'enable_metabox_insights'                  => true,
+		'enable_link_suggestions'                  => true,
+		'algolia_integration_active'               => false,
+		'import_cursors'                           => [],
+		'workouts_data'                            => [ 'configuration' => [ 'finishedSteps' => [] ] ],
+		'configuration_finished_steps'             => [],
+		'dismiss_configuration_workout_notice'     => false,
+		'dismiss_premium_deactivated_notice'       => false,
+		'importing_completed'                      => [],
+		'wincher_integration_active'               => true,
+		'wincher_tokens'                           => [],
+		'wincher_automatically_add_keyphrases'     => false,
+		'wincher_website_id'                       => '',
+		'wordproof_integration_active'             => false,
+		'wordproof_integration_changed'            => false,
+		'first_time_install'                       => false,
+		'should_redirect_after_install_free'       => false,
+		'activation_redirect_timestamp_free'       => 0,
+		'remove_feed_global'                       => false,
+		'remove_feed_global_comments'              => false,
+		'remove_feed_post_comments'                => false,
+		'remove_feed_authors'                      => false,
+		'remove_feed_categories'                   => false,
+		'remove_feed_tags'                         => false,
+		'remove_feed_custom_taxonomies'            => false,
+		'remove_feed_post_types'                   => false,
+		'remove_feed_search'                       => false,
+		'remove_atom_rdf_feeds'                    => false,
+		'remove_shortlinks'                        => false,
+		'remove_rest_api_links'                    => false,
+		'remove_rsd_wlw_links'                     => false,
+		'remove_oembed_links'                      => false,
+		'remove_generator'                         => false,
+		'remove_emoji_scripts'                     => false,
+		'remove_powered_by_header'                 => false,
+		'remove_pingback_header'                   => false,
+		'clean_campaign_tracking_urls'             => false,
+		'clean_permalinks'                         => false,
+		'clean_permalinks_extra_variables'         => '',
+		'search_cleanup'                           => false,
+		'search_cleanup_emoji'                     => false,
+		'search_cleanup_patterns'                  => false,
+		'search_character_limit'                   => 50,
+		'deny_search_crawling'                     => false,
+		'deny_wp_json_crawling'                    => false,
+		'deny_adsbot_crawling'                     => false,
+		'redirect_search_pretty_urls'              => false,
+		'least_readability_ignore_list'            => [],
+		'least_seo_score_ignore_list'              => [],
+		'most_linked_ignore_list'                  => [],
+		'least_linked_ignore_list'                 => [],
+		'indexables_page_reading_list'             => [ false, false, false, false, false ],
+		'indexables_overview_state'                => 'dashboard-not-visited',
+		'last_known_public_post_types'             => [],
+		'last_known_public_taxonomies'             => [],
+		'last_known_no_unindexed'                  => [],
+		'new_post_types'                           => [],
+		'new_taxonomies'                           => [],
+		'show_new_content_type_notification'       => false,
 	];
 
 	/**
@@ -102,6 +178,7 @@ class WPSEO_Option_Wpseo extends WPSEO_Option {
 	 */
 	protected $environment_types = [
 		'',
+		'local',
 		'production',
 		'staging',
 		'development',
@@ -128,7 +205,6 @@ class WPSEO_Option_Wpseo extends WPSEO_Option {
 	/**
 	 * Add the actions and filters for the option.
 	 *
-	 * @return \WPSEO_Option_Wpseo
 	 * @todo [JRF => testers] Check if the extra actions below would run into problems if an option
 	 *       is updated early on and if so, change the call to schedule these for a later action on add/update
 	 *       instead of running them straight away.
@@ -245,12 +321,19 @@ class WPSEO_Option_Wpseo extends WPSEO_Option {
 					$clean[ $key ] = WPSEO_VERSION;
 					break;
 				case 'previous_version':
+				case 'semrush_country_code':
 				case 'license_server_version':
+				case 'home_url':
+				case 'zapier_api_key':
+				case 'index_now_key':
+				case 'wincher_website_id':
+				case 'clean_permalinks_extra_variables':
+				case 'indexables_overview_state':
 					if ( isset( $dirty[ $key ] ) ) {
 						$clean[ $key ] = $dirty[ $key ];
 					}
 					break;
-				case 'indexables_indexation_reason':
+				case 'indexing_reason':
 					if ( isset( $dirty[ $key ] ) ) {
 						$clean[ $key ] = sanitize_text_field( $dirty[ $key ] );
 					}
@@ -301,8 +384,8 @@ class WPSEO_Option_Wpseo extends WPSEO_Option {
 					break;
 
 				case 'first_activated_on':
-				case 'indexation_started':
-				case 'indexation_warning_hide_until':
+				case 'indexing_started':
+				case 'activation_redirect_timestamp_free':
 					$clean[ $key ] = false;
 					if ( isset( $dirty[ $key ] ) ) {
 						if ( $dirty[ $key ] === false || WPSEO_Utils::validate_int( $dirty[ $key ] ) ) {
@@ -311,35 +394,127 @@ class WPSEO_Option_Wpseo extends WPSEO_Option {
 					}
 					break;
 
+				case 'tracking':
+					$clean[ $key ] = ( isset( $dirty[ $key ] ) ? WPSEO_Utils::validate_bool( $dirty[ $key ] ) : null );
+					break;
+
 				case 'myyoast_oauth':
+				case 'semrush_tokens':
+				case 'custom_taxonomy_slugs':
+				case 'zapier_subscription':
+				case 'wincher_tokens':
+				case 'workouts_data':
+				case 'configuration_finished_steps':
+				case 'least_readability_ignore_list':
+				case 'least_seo_score_ignore_list':
+				case 'most_linked_ignore_list':
+				case 'least_linked_ignore_list':
+				case 'indexables_page_reading_list':
+				case 'last_known_public_post_types':
+				case 'last_known_public_taxonomies':
+				case 'new_post_types':
+				case 'new_taxonomies':
 					$clean[ $key ] = $old[ $key ];
 
 					if ( isset( $dirty[ $key ] ) ) {
-						$myyoast_oauth = $dirty[ $key ];
-						if ( ! is_array( $myyoast_oauth ) ) {
-							$myyoast_oauth = json_decode( $dirty[ $key ], true );
+						$items = $dirty[ $key ];
+						if ( ! is_array( $items ) ) {
+							$items = json_decode( $dirty[ $key ], true );
 						}
 
-						if ( is_array( $myyoast_oauth ) ) {
+						if ( is_array( $items ) ) {
 							$clean[ $key ] = $dirty[ $key ];
 						}
 					}
 
 					break;
 
-				case 'tracking':
-					$clean[ $key ] = ( isset( $dirty[ $key ] ) ? WPSEO_Utils::validate_bool( $dirty[ $key ] ) : null );
+				case 'permalink_structure':
+				case 'category_base_url':
+				case 'tag_base_url':
+					if ( isset( $dirty[ $key ] ) ) {
+						$clean[ $key ] = sanitize_option( $key, $dirty[ $key ] );
+					}
+					break;
+
+				case 'search_character_limit':
+					if ( isset( $dirty[ $key ] ) ) {
+						$clean[ $key ] = (int) $dirty[ $key ];
+					}
+					break;
+
+				case 'import_cursors':
+				case 'importing_completed':
+					if ( isset( $dirty[ $key ] ) && is_array( $dirty[ $key ] ) ) {
+						$clean[ $key ] = $dirty[ $key ];
+					}
+					break;
+
+				case 'wordproof_integration_active':
+					$clean[ $key ] = ( isset( $dirty[ $key ] ) ? WPSEO_Utils::validate_bool( $dirty[ $key ] ) : false );
+					// If the setting has changed, record it.
+					if ( $old[ $key ] !== $clean[ $key ] ) {
+						$clean['wordproof_integration_changed'] = true;
+					}
+					break;
+				case 'last_known_no_unindexed':
+					$clean[ $key ] = $old[ $key ];
+
+					if ( isset( $dirty[ $key ] ) ) {
+						$items = $dirty[ $key ];
+
+						if ( is_array( $items ) ) {
+							foreach ( $items as $item_key => $item ) {
+								if ( ! \is_string( $item_key ) || ! \is_numeric( $item ) ) {
+									unset( $items[ $item_key ] );
+								}
+							}
+							$clean[ $key ] = $items;
+						}
+					}
+
 					break;
 
 				/*
 				 * Boolean (checkbox) fields.
-				 */
-
-				/*
+				 *
 				 * Covers:
 				 *  'disableadvanced_meta'
 				 *  'enable_headless_rest_endpoints'
 				 *  'yoast_tracking'
+				 *  'dynamic_permalinks'
+				 *  'indexing_first_time'
+				 *  'first_time_install'
+				 *  'remove_feed_global'
+				 *  'remove_feed_global_comments'
+				 *  'remove_feed_post_comments'
+				 *  'remove_feed_authors'
+				 *  'remove_feed_categories'
+				 *  'remove_feed_tags'
+				 *  'remove_feed_custom_taxonomies'
+				 *  'remove_feed_post_types'
+				 *  'remove_feed_search'
+				 *  'remove_atom_rdf_feeds'
+				 *  'remove_shortlinks'
+				 *  'remove_rest_api_links'
+				 *  'remove_rsd_wlw_links'
+				 *  'remove_oembed_links'
+				 *  'remove_generator'
+				 *  'remove_emoji_scripts'
+				 *  'remove_powered_by_header'
+				 *  'remove_pingback_header'
+				 *  'clean_campaign_tracking_urls'
+				 *  'clean_permalinks'
+				 *  'clean_permalinks_extra_variables'
+				 *  'search_cleanup'
+				 *  'search_cleanup_emoji'
+				 *  'search_cleanup_patterns'
+				 *  'deny_wp_json_crawling'
+				 *  'deny_adsbot_crawling'
+				 *  'redirect_search_pretty_urls'
+				 *  'should_redirect_after_install_free'
+				 *  'show_new_content_type_notification'
+				 *  and most of the feature variables.
 				 */
 				default:
 					$clean[ $key ] = ( isset( $dirty[ $key ] ) ? WPSEO_Utils::validate_bool( $dirty[ $key ] ) : false );
@@ -364,15 +539,50 @@ class WPSEO_Option_Wpseo extends WPSEO_Option {
 
 		// For the feature variables, set their values to off in case they are disabled.
 		$feature_vars = [
-			'disableadvanced_meta'           => false,
-			'ryte_indexability'              => false,
-			'content_analysis_active'        => false,
-			'keyword_analysis_active'        => false,
-			'enable_admin_bar_menu'          => false,
-			'enable_cornerstone_content'     => false,
-			'enable_xml_sitemap'             => false,
-			'enable_text_link_counter'       => false,
-			'enable_headless_rest_endpoints' => false,
+			'disableadvanced_meta'               => false,
+			'ryte_indexability'                  => false,
+			'content_analysis_active'            => false,
+			'keyword_analysis_active'            => false,
+			'inclusive_language_analysis_active' => false,
+			'enable_admin_bar_menu'              => false,
+			'enable_cornerstone_content'         => false,
+			'enable_xml_sitemap'                 => false,
+			'enable_text_link_counter'           => false,
+			'enable_metabox_insights'            => false,
+			'enable_link_suggestions'            => false,
+			'enable_headless_rest_endpoints'     => false,
+			'tracking'                           => false,
+			'enable_enhanced_slack_sharing'      => false,
+			'semrush_integration_active'         => false,
+			'zapier_integration_active'          => false,
+			'wincher_integration_active'         => false,
+			'remove_feed_global'                 => false,
+			'remove_feed_global_comments'        => false,
+			'remove_feed_post_comments'          => false,
+			'enable_index_now'                   => false,
+			'enable_ai_generator'                => false,
+			'remove_feed_authors'                => false,
+			'remove_feed_categories'             => false,
+			'remove_feed_tags'                   => false,
+			'remove_feed_custom_taxonomies'      => false,
+			'remove_feed_post_types'             => false,
+			'remove_feed_search'                 => false,
+			'remove_atom_rdf_feeds'              => false,
+			'remove_shortlinks'                  => false,
+			'remove_rest_api_links'              => false,
+			'remove_rsd_wlw_links'               => false,
+			'remove_oembed_links'                => false,
+			'remove_generator'                   => false,
+			'remove_emoji_scripts'               => false,
+			'remove_powered_by_header'           => false,
+			'remove_pingback_header'             => false,
+			'clean_campaign_tracking_urls'       => false,
+			'clean_permalinks'                   => false,
+			'search_cleanup'                     => false,
+			'search_cleanup_emoji'               => false,
+			'search_cleanup_patterns'            => false,
+			'redirect_search_pretty_urls'        => false,
+			'algolia_integration_active'         => false,
 		];
 
 		// We can reuse this logic from the base class with the above defaults to parse with the correct feature values.
@@ -413,12 +623,12 @@ class WPSEO_Option_Wpseo extends WPSEO_Option {
 	/**
 	 * Clean a given option value.
 	 *
-	 * @param array  $option_value          Old (not merged with defaults or filtered) option value to
-	 *                                      clean according to the rules for this option.
-	 * @param string $current_version       Optional. Version from which to upgrade, if not set,
-	 *                                      version specific upgrades will be disregarded.
-	 * @param array  $all_old_option_values Optional. Only used when importing old options to have
-	 *                                      access to the real old values, in contrast to the saved ones.
+	 * @param array       $option_value          Old (not merged with defaults or filtered) option value to
+	 *                                           clean according to the rules for this option.
+	 * @param string|null $current_version       Optional. Version from which to upgrade, if not set,
+	 *                                           version specific upgrades will be disregarded.
+	 * @param array|null  $all_old_option_values Optional. Only used when importing old options to have
+	 *                                           access to the real old values, in contrast to the saved ones.
 	 *
 	 * @return array Cleaned option.
 	 */
@@ -435,7 +645,7 @@ class WPSEO_Option_Wpseo extends WPSEO_Option {
 
 		foreach ( $value_change as $key ) {
 			if ( isset( $option_value[ $key ] )
-				 && in_array( $option_value[ $key ], $target_values, true )
+				&& in_array( $option_value[ $key ], $target_values, true )
 			) {
 				$option_value[ $key ] = true;
 			}

@@ -2,8 +2,7 @@
  * WordPress dependencies
  */
 import { setLocaleData } from '@wordpress/i18n';
-import { render } from '@wordpress/element';
-import domReady from '@wordpress/dom-ready';
+import { registerPlugin } from '@wordpress/plugins';
 
 // Silence warnings until JS i18n is stable.
 setLocaleData( { '': {} }, 'ithemes-security-pro' );
@@ -13,25 +12,8 @@ setLocaleData( { '': {} }, 'ithemes-security-pro' );
  */
 import App from './settings/app.js';
 
-domReady( () => {
-	init();
-
-	if ( window.itsecSettingsPage ) {
-		window.itsecSettingsPage.events.on( 'modulesReloaded', init );
-		window.itsecSettingsPage.events.on( 'moduleReloaded', function( _, module ) {
-			if ( 'user-groups' === module ) {
-				init();
-			}
-		} );
-	}
+registerPlugin( 'itsec-user-groups', {
+	render() {
+		return <App />;
+	},
 } );
-
-function init() {
-	const containerEl = document.getElementById( 'itsec-user-groups-settings-root' );
-	const noticeEl = document.getElementById( 'itsec-module-messages-container-user-groups' );
-
-	return render(
-		<App noticeEl={ noticeEl } />,
-		containerEl,
-	);
-}

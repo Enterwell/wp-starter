@@ -22,12 +22,15 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
+ *
+ * Modified using Strauss.
+ * @see https://github.com/BrianHenryIE/strauss
  */
 
-namespace Pimple\Psr11;
+namespace iThemesSecurity\Strauss\Pimple\Psr11;
 
-use Pimple\Container as PimpleContainer;
-use Psr\Container\ContainerInterface;
+use iThemesSecurity\Strauss\Pimple\Container as PimpleContainer;
+use iThemesSecurity\Strauss\Psr\Container\ContainerInterface;
 
 /**
  * PSR-11 compliant wrapper.
@@ -43,12 +46,12 @@ final class Container implements ContainerInterface
         $this->pimple = $pimple;
     }
 
-    public function get($id)
+    public function get(string $id)
     {
         return $this->pimple[$id];
     }
 
-    public function has($id)
+    public function has(string $id): bool
     {
         return isset($this->pimple[$id]);
     }

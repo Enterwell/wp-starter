@@ -1,16 +1,11 @@
 <?php
-/**
- * A helper object for blocks.
- *
- * @package Yoast\WP\SEO\Helpers
- */
 
 namespace Yoast\WP\SEO\Helpers;
 
 use WP_Block_Parser_Block;
 
 /**
- * Class Blocks_Helper
+ * A helper object for blocks.
  */
 class Blocks_Helper {
 
@@ -86,6 +81,10 @@ class Blocks_Helper {
 	 */
 	private function collect_blocks( $blocks, $collection ) {
 		foreach ( $blocks as $block ) {
+			if ( empty( $block['blockName'] ) ) {
+				continue;
+			}
+
 			if ( ! isset( $collection[ $block['blockName'] ] ) || ! \is_array( $collection[ $block['blockName'] ] ) ) {
 				$collection[ $block['blockName'] ] = [];
 			}

@@ -1,0 +1,154 @@
+.itsec-help-list-section {
+    &.components-surface > div,
+    &:not(.components-surface) {
+        @include break-small {
+            display: grid;
+            grid-template-columns: 165px auto;
+            min-height: 200px;
+        }
+    }
+
+    header {
+        z-index: 2;
+
+        a {
+            padding: 1rem;
+            color: $medium-text;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            border-bottom: 1px solid $border-color;
+
+            @include break-small {
+                padding: .5rem;
+                flex-direction: column;
+                border-bottom: none;
+                border-right: 1px solid $border-color;
+            }
+
+            .itsec-help-list-section__icon {
+                color: $light-text;
+                font-size: 40px;
+                height: auto;
+                width: auto;
+                padding: 1rem;
+                border: 1px solid $medium-text;
+                border-radius: 10px;
+            }
+
+            h3 {
+                margin: 0 auto 0 .5rem;
+                color: $medium-text;
+                text-transform: uppercase;
+                font-weight: 700;
+                font-size: 1rem;
+
+                @include break-small {
+                    margin: .5rem 0;
+                }
+            }
+
+            .itsec-help-list-section__more {
+                color: $light-text;
+            }
+
+            &:hover {
+                text-decoration: none;
+            }
+        }
+    }
+
+    &.itsec-help-list-section--has-content {
+        header a {
+            color: $main-blue;
+            box-shadow: $popover-shadow;
+
+            .itsec-help-list-section__icon {
+                color: $main-blue;
+                border-color: $main-blue;
+            }
+
+            h3 {
+                color: $dark-text;
+            }
+
+            .itsec-help-list-section__more {
+                color: $main-blue;
+            }
+
+            &:hover {
+                .itsec-help-list-section__icon {
+                    color: $white;
+                    background: $main-blue;
+                }
+            }
+        }
+    }
+
+    section {
+        article:not(:last-child) {
+            a {
+                border-bottom: 1px solid $border-color;
+            }
+        }
+
+        a {
+            padding: 1rem;
+            display: block;
+            text-decoration: none;
+
+            h4 {
+                color: $main-blue;
+                font-weight: 400;
+                text-transform: none;
+            }
+
+            p {
+                margin-top: .5rem;
+            }
+
+            &:hover,
+            &:focus {
+                background: $focused-blue;
+                outline: none;
+                box-shadow: none;
+
+                h4 {
+                    color: $main-blue;
+                }
+            }
+        }
+    }
+
+    &:not(.itsec-help-list-section--has-content) {
+        section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            p {
+                color: $medium-text;
+                font-size: 1rem;
+                font-weight: 300;
+                padding: 1rem 0;
+            }
+        }
+    }
+}
+
+.itsec-help-list__enable-modal {
+    footer {
+        margin: 24px -24px -24px;
+        padding: 12px 24px;
+        border-top: 1px solid #ddd;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+
+        .components-button {
+            margin-left: 1rem;
+        }
+    }
+}

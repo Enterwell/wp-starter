@@ -25,11 +25,11 @@ class WPSEO_Post_Metabox_Formatter implements WPSEO_Metabox_Formatter_Interface 
 	private $permalink;
 
 	/**
-	 * The date helper.
+	 * Whether we must return social templates values.
 	 *
-	 * @var WPSEO_Date_Helper
+	 * @var bool
 	 */
-	protected $date;
+	private $use_social_templates = false;
 
 	/**
 	 * Constructor.
@@ -41,7 +41,17 @@ class WPSEO_Post_Metabox_Formatter implements WPSEO_Metabox_Formatter_Interface 
 	public function __construct( $post, array $options, $structure ) {
 		$this->post      = $post;
 		$this->permalink = $structure;
-		$this->date      = new WPSEO_Date_Helper();
+
+		$this->use_social_templates = $this->use_social_templates();
+	}
+
+	/**
+	 * Determines whether the social templates should be used.
+	 *
+	 * @return bool Whether the social templates should be used.
+	 */
+	public function use_social_templates() {
+		return WPSEO_Options::get( 'opengraph', false ) === true;
 	}
 
 	/**
@@ -50,27 +60,42 @@ class WPSEO_Post_Metabox_Formatter implements WPSEO_Metabox_Formatter_Interface 
 	 * @return array
 	 */
 	public function get_values() {
+
 		$values = [
 			'search_url'          => $this->search_url(),
 			'post_edit_url'       => $this->edit_url(),
 			'base_url'            => $this->base_url_for_js(),
 			'metaDescriptionDate' => '',
-
 		];
 
 		if ( $this->post instanceof WP_Post ) {
+			$keyword_usage = $this->get_focus_keyword_usage();
+
 			$values_to_set = [
-				'keyword_usage'       => $this->get_focus_keyword_usage(),
-				'title_template'      => $this->get_title_template(),
-				'metadesc_template'   => $this->get_metadesc_template(),
-				'metaDescriptionDate' => $this->get_metadesc_date(),
-				'first_content_image' => $this->get_image_url(),
+				'keyword_usage'               => $keyword_usage,
+				'keyword_usage_post_types'    => $this->get_post_types_for_all_ids( $keyword_usage ),
+				'title_template'              => $this->get_title_template(),
+				'title_template_no_fallback'  => $this->get_title_template( false ),
+				'metadesc_template'           => $this->get_metadesc_template(),
+				'metaDescriptionDate'         => $this->get_metadesc_date(),
+				'first_content_image'         => $this->get_image_url(),
+				'social_title_template'       => $this->get_social_title_template(),
+				'social_description_template' => $this->get_social_description_template(),
+				'social_image_template'       => $this->get_social_image_template(),
+				'isInsightsEnabled'           => $this->is_insights_enabled(),
 			];
 
 			$values = ( $values_to_set + $values );
 		}
 
-		return $values;
+		/**
+		 * Filter: 'wpseo_post_edit_values' - Allows changing the values Yoast SEO uses inside the post editor.
+		 *
+		 * @api array $values The key-value map Yoast SEO uses inside the post editor.
+		 *
+		 * @param WP_Post $post The post opened in the editor.
+		 */
+		return \apply_filters( 'wpseo_post_edit_values', $values, $this->post );
 	}
 
 	/**
@@ -79,14 +104,7 @@ class WPSEO_Post_Metabox_Formatter implements WPSEO_Metabox_Formatter_Interface 
 	 * @return string|null The image URL for the social preview.
 	 */
 	protected function get_image_url() {
-		$post_id = $this->post->ID;
-
-		if ( has_post_thumbnail( $post_id ) ) {
-			$featured_image_info = wp_get_attachment_image_src( get_post_thumbnail_id( $post_id ), 'thumbnail' );
-			return isset( $featured_image_info[0] ) ? $featured_image_info[0] : null;
-		}
-
-		return WPSEO_Image_Utils::get_first_usable_content_image_for_post( $post_id );
+		return WPSEO_Image_Utils::get_first_usable_content_image_for_post( $this->post->ID );
 	}
 
 	/**
@@ -127,6 +145,11 @@ class WPSEO_Post_Metabox_Formatter implements WPSEO_Metabox_Formatter_Interface 
 			$base_url = preg_replace( '#%postname%/?$#', '', $this->permalink );
 		}
 
+		// If %pagename% is the last tag, just strip it and use that as a base.
+		if ( preg_match( '#%pagename%/?$#', $this->permalink ) === 1 ) {
+			$base_url = preg_replace( '#%pagename%/?$#', '', $this->permalink );
+		}
+
 		return $base_url;
 	}
 
@@ -139,34 +162,29 @@ class WPSEO_Post_Metabox_Formatter implements WPSEO_Metabox_Formatter_Interface 
 		$keyword = WPSEO_Meta::get_value( 'focuskw', $this->post->ID );
 		$usage   = [ $keyword => $this->get_keyword_usage_for_current_post( $keyword ) ];
 
-		if ( WPSEO_Utils::is_yoast_seo_premium() ) {
-			return $this->get_premium_keywords( $usage );
-		}
-
-		return $usage;
+		/**
+		 * Allows enhancing the array of posts' that share their focus keywords with the post's related keywords.
+		 *
+		 * @param array $usage   The array of posts' ids that share their focus keywords with the post.
+		 * @param int   $post_id The id of the post we're finding the usage of related keywords for.
+		 */
+		return apply_filters( 'wpseo_posts_for_related_keywords', $usage, $this->post->ID );
 	}
 
 	/**
-	 * Retrieves the additional keywords from Premium, that are associated with the post.
+	 * Retrieves the post types for the given post IDs.
 	 *
-	 * @param array $usage The original keyword usage for the main keyword.
-	 *
-	 * @return array The keyword usage, including the additional keywords.
+	 * @param array $post_ids_per_keyword An associative array with keywords as keys and an array of post ids where those keywords are used.
+	 * @return array The post types for the given post IDs.
 	 */
-	protected function get_premium_keywords( $usage ) {
-		$additional_keywords = json_decode( WPSEO_Meta::get_value( 'focuskeywords', $this->post->ID ), true );
+	private function get_post_types_for_all_ids( $post_ids_per_keyword ) {
 
-		if ( empty( $additional_keywords ) ) {
-			return $usage;
+		$post_type_per_keyword_result = [];
+		foreach ( $post_ids_per_keyword as $keyword => $post_ids ) {
+			$post_type_per_keyword_result[ $keyword ] = WPSEO_Meta::post_types_for_ids( $post_ids );
 		}
 
-		foreach ( $additional_keywords as $additional_keyword ) {
-			$keyword = $additional_keyword['keyword'];
-
-			$usage[ $keyword ] = $this->get_keyword_usage_for_current_post( $keyword );
-		}
-
-		return $usage;
+		return $post_type_per_keyword_result;
 	}
 
 	/**
@@ -183,13 +201,15 @@ class WPSEO_Post_Metabox_Formatter implements WPSEO_Metabox_Formatter_Interface 
 	/**
 	 * Retrieves the title template.
 	 *
+	 * @param bool $fallback Whether to return the hardcoded fallback if the template value is empty.
+	 *
 	 * @return string The title template.
 	 */
-	private function get_title_template() {
+	private function get_title_template( $fallback = true ) {
 		$title = $this->get_template( 'title' );
 
-		if ( $title === '' ) {
-			return '%%title%% %%sep%% %%sitename%%';
+		if ( $title === '' && $fallback === true ) {
+			return '%%title%% %%page%% %%sep%% %%sitename%%';
 		}
 
 		return $title;
@@ -198,16 +218,55 @@ class WPSEO_Post_Metabox_Formatter implements WPSEO_Metabox_Formatter_Interface 
 	/**
 	 * Retrieves the metadesc template.
 	 *
-	 * @return string
+	 * @return string The metadesc template.
 	 */
 	private function get_metadesc_template() {
 		return $this->get_template( 'metadesc' );
 	}
 
 	/**
+	 * Retrieves the social title template.
+	 *
+	 * @return string The social title template.
+	 */
+	private function get_social_title_template() {
+		if ( $this->use_social_templates ) {
+			return $this->get_social_template( 'title' );
+		}
+
+		return '';
+	}
+
+	/**
+	 * Retrieves the social description template.
+	 *
+	 * @return string The social description template.
+	 */
+	private function get_social_description_template() {
+		if ( $this->use_social_templates ) {
+			return $this->get_social_template( 'description' );
+		}
+
+		return '';
+	}
+
+	/**
+	 * Retrieves the social image template.
+	 *
+	 * @return string The social description template.
+	 */
+	private function get_social_image_template() {
+		if ( $this->use_social_templates ) {
+			return $this->get_social_template( 'image-url' );
+		}
+
+		return '';
+	}
+
+	/**
 	 * Retrieves a template.
 	 *
-	 * @param String $template_option_name The name of the option in which the template you want to get is saved.
+	 * @param string $template_option_name The name of the option in which the template you want to get is saved.
 	 *
 	 * @return string
 	 */
@@ -222,11 +281,38 @@ class WPSEO_Post_Metabox_Formatter implements WPSEO_Metabox_Formatter_Interface 
 	}
 
 	/**
+	 * Retrieves a social template.
+	 *
+	 * @param string $template_option_name The name of the option in which the template you want to get is saved.
+	 *
+	 * @return string
+	 */
+	private function get_social_template( $template_option_name ) {
+		/**
+		 * Filters the social template value for a given post type.
+		 *
+		 * @param string $template             The social template value, defaults to empty string.
+		 * @param string $template_option_name The subname of the option in which the template you want to get is saved.
+		 * @param string $post_type            The name of the post type.
+		 */
+		return \apply_filters( 'wpseo_social_template_post_type', '', $template_option_name, $this->post->post_type );
+	}
+
+	/**
 	 * Determines the date to be displayed in the snippet preview.
 	 *
 	 * @return string
 	 */
 	private function get_metadesc_date() {
-		return $this->date->format_translated( $this->post->post_date, 'M j, Y' );
+		return YoastSEO()->helpers->date->format_translated( $this->post->post_date, 'M j, Y' );
+	}
+
+	/**
+	 * Determines whether the insights feature is enabled for this post.
+	 *
+	 * @return bool
+	 */
+	protected function is_insights_enabled() {
+		return WPSEO_Options::get( 'enable_metabox_insights', false );
 	}
 }

@@ -572,17 +572,12 @@ class ITSEC_Lib_Distributed_Storage_Cursor implements Iterator {
 		$this->data    = $data;
 	}
 
-	/**
-	 * @inheritDoc
-	 */
+	#[ReturnTypeWillChange]
 	public function current() {
 		return current( $this->data );
 	}
 
-	/**
-	 * @inheritDoc
-	 */
-	public function next() {
+	public function next(): void {
 
 		if ( $this->iterated_count === count( $this->data ) - 1 ) {
 			$data = $this->storage->_load_chunk( $this->key, $this->chunk + 1 );
@@ -600,24 +595,16 @@ class ITSEC_Lib_Distributed_Storage_Cursor implements Iterator {
 		next( $this->data );
 	}
 
-	/**
-	 * @inheritDoc
-	 */
+	#[ReturnTypeWillChange]
 	public function key() {
 		return key( $this->data );
 	}
 
-	/**
-	 * @inheritDoc
-	 */
-	public function valid() {
+	public function valid(): bool {
 		return $this->iterated_count < count( $this->data );
 	}
 
-	/**
-	 * @inheritDoc
-	 */
-	public function rewind() {
+	public function rewind(): void {
 
 		$this->iterated_count = 0;
 

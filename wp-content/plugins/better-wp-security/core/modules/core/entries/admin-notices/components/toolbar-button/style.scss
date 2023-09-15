@@ -1,0 +1,39 @@
+.itsec-admin-bar-admin-notices__trigger.components-button::after {
+    content: '';
+    background: #d8514f;
+    height: 10px;
+    width: 10px;
+    border-radius: 5px;
+    vertical-align: middle;
+    border: 1px solid #f1f1f1;
+    z-index: 1;
+    position: absolute;
+    left: 8px;
+    top: 0;
+    opacity: 0;
+    transition: opacity 1000ms ease-in-out;
+}
+
+.itsec-admin-bar-admin-notices__trigger--has-notices.components-button::after {
+    opacity: 1;
+}
+
+.itsec-admin-bar-admin-notices__content .components-popover__content {
+    box-shadow: rgba(0, 0, 0, 0.19) 0 4px 5px;
+}
+
+@media screen and (max-width: $small) {
+    .itsec-admin-bar .itsec-admin-bar__admin-notices {
+        margin-left: 0;
+    }
+}
+
+.itsec-admin-bar-admin-notices__content.is-expanded {
+    .components-popover__content {
+        overflow-y: scroll;
+    }
+
+    .itsec-admin-notice-panel {
+        width: 100%;
+    }
+}

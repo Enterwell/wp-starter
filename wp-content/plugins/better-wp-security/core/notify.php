@@ -24,7 +24,7 @@ class ITSEC_Notify {
 	public function register_notification( $notifications ) {
 		$notifications['digest'] = array(
 			'slug'             => 'digest',
-			'recipient'        => ITSEC_Notification_Center::R_USER_LIST_ADMIN_UPGRADE,
+			'recipient'        => ITSEC_Notification_Center::R_USER_LIST,
 			'schedule'         => array(
 				'min' => ITSEC_Notification_Center::S_DAILY,
 				'max' => ITSEC_Notification_Center::S_WEEKLY,
@@ -45,9 +45,9 @@ class ITSEC_Notify {
 		$description = esc_html__( 'During periods of heavy attack, iThemes Security can generate a LOT of email.', 'better-wp-security' );
 
 		if ( ITSEC_Core::is_pro() ) {
-			$features = esc_html__( 'The Security Digest reduces the number of emails sent so you can receive a summary of lockouts, file change detection scans, and privilege escalations.' );
+			$features = esc_html__( 'The Security Digest reduces the number of emails sent so you can receive a summary of lockouts, file change detection scans, and privilege escalations.', 'better-wp-security' );
 		} else {
-			$features = esc_html__( 'The Security Digest reduces the number of emails sent so you can receive a summary of lockouts and file change detection scans.' );
+			$features = esc_html__( 'The Security Digest reduces the number of emails sent so you can receive a summary of lockouts and file change detection scans.', 'better-wp-security' );
 		}
 
 		return array(
@@ -124,8 +124,12 @@ class ITSEC_Notify {
 
 		$data_proxy = new ITSEC_Notify_Data_Proxy( $data );
 
+		$tracking_link = ITSEC_Core::is_pro()
+			? 'https://go.solidwp.com/security-digest-email-ithemes-becoming-solidwp'
+			: 'https://go.solidwp.com/security-free-digest-email-ithemes-becoming-solidwp';
+
 		$mail = $nc->mail( 'digest' );
-		$mail->add_header( $title, $banner_title );
+		$mail->add_header( $title, $banner_title, false, $tracking_link );
 		$mail->start_group( 'intro' );
 		$mail->add_info_box( sprintf( esc_html__( 'The following is a summary of security related activity on your site: %s', 'better-wp-security' ), '<b>' . $mail->get_display_url() . '</b>' ) );
 		$mail->end_group();
@@ -205,13 +209,6 @@ class ITSEC_Notify {
 			'<a href="' . ITSEC_Mail::filter_admin_page_url( ITSEC_Core::get_logs_page_url() ) . '"><b>',
 			'</b></a>'
 		) );
-
-		if ( apply_filters( 'itsec_security_digest_include_security_check', true ) ) {
-			$mail->add_divider();
-			$mail->add_large_text( esc_html__( 'Is your site as secure as it could be?', 'better-wp-security' ) );
-			$mail->add_text( esc_html__( 'Ensure your site is using recommended settings and features with a security check.', 'better-wp-security' ) );
-			$mail->add_button( esc_html__( 'Run a Security Check ✓', 'better-wp-security' ), ITSEC_Mail::filter_admin_page_url( ITSEC_Core::get_security_check_page_url() ) );
-		}
 
 		$mail->add_footer();
 

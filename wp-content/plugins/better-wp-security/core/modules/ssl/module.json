@@ -1,0 +1,47 @@
+{
+  "id": "ssl",
+  "status": "default-inactive",
+  "type": "utility",
+  "title": "Enforce SSL",
+  "description": "Enforces that all connections to the website are made over SSL/TLS.",
+  "settings": {
+    "type": "object",
+    "properties": {
+      "require_ssl": {
+        "type": "string",
+        "enum": [
+          "disabled",
+          "enabled",
+          "advanced"
+        ],
+        "default": "disabled",
+        "title": "Require SSL",
+        "description": "Redirect All HTTP Page Requests to HTTPS"
+      },
+      "frontend": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 2,
+        "default": 0,
+        "title": "Front End SSL Mode",
+        "description": "Enables secure SSL connection for the front-end (public parts of your site). Turning this off will disable front-end SSL control, turning this on \"Per Content\" will place a checkbox on the edit page for all posts and pages (near the publish settings) allowing you to turn on SSL for selected pages or posts. Selecting \"Whole Site\" will force the whole site to use SSL."
+      },
+      "admin": {
+        "type": "boolean",
+        "default": false,
+        "title": "SSL for Dashboard",
+        "description": "Forces all dashboard access to be served only over an SSL connection."
+      }
+    }
+  },
+  "deprecated-settings": [
+    "require_ssl",
+    "frontend",
+    "admin"
+  ],
+  "requirements": {
+    "ssl": {
+      "validate": "activate"
+    }
+  }
+}

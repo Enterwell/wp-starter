@@ -705,7 +705,7 @@ class ITSEC_Fingerprint implements JsonSerializable {
 	 *
 	 * @return array
 	 */
-	public function jsonSerialize() {
+	public function jsonSerialize(): ?array {
 		if ( $this->_id ) {
 			return null;
 		}

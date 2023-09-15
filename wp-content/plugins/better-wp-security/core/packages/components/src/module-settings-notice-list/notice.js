@@ -18,33 +18,63 @@ function Notice( {
 	isDismissible = true,
 	actions = [],
 } ) {
-	const classes = classnames( className, 'notice', 'notice-alt', 'notice-' + status, {
-		'is-dismissible': isDismissible,
-	} );
+	const classes = classnames(
+		className,
+		'notice',
+		'notice-alt',
+		'notice-' + status,
+		{
+			'is-dismissible': isDismissible,
+		}
+	);
 
 	return (
 		<div className={ classes }>
 			<p>
 				{ children }
-				{ actions.map( ( { className: buttonCustomClasses, label, onClick, url, isLink = false }, index ) => (
-					<Button
-						key={ index }
-						href={ url }
-						isSmall={ ! isLink && ! url }
-						isLink={ isLink || url }
-						onClick={ url ? undefined : () => {
-							onRemove();
-							onClick();
-						} }
-						className={ classnames(	'notice__action', buttonCustomClasses ) }
-					>
-						{ label }
-					</Button>
-				) ) }
+				{ actions.map(
+					(
+						{
+							className: buttonCustomClasses,
+							label,
+							onClick,
+							url,
+							isLink = false,
+						},
+						index
+					) => (
+						<Button
+							key={ index }
+							href={ url }
+							isSmall={ ! isLink && ! url }
+							variant={ ( url || isLink ) && 'link' }
+							onClick={
+								url
+									? undefined
+									: () => {
+										onRemove();
+										onClick();
+									}
+							}
+							className={ classnames(
+								'notice__action',
+								buttonCustomClasses
+							) }
+						>
+							{ label }
+						</Button>
+					)
+				) }
 			</p>
 			{ isDismissible && (
-				<button type="button" className="notice-dismiss" onClick={ onRemove }>
-					<span className="screen-reader-text">{ __( 'Dismiss this notice', 'better-wp-security' ) }</span>
+				<button
+					type="button"
+					className="notice-dismiss"
+					onClick={ onRemove }
+				>
+					<span className="screen-reader-text">
+						{ __( 'Dismiss this notice', 'better-wp-security' ) }
+					</span>
 				</button>
 			) }
 		</div>

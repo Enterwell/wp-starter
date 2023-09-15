@@ -1,9 +1,4 @@
 <?php
-/**
- * Head route for indexables.
- *
- * @package Yoast\WP\SEO\Routes\Routes
- */
 
 namespace Yoast\WP\SEO\Routes;
 
@@ -14,7 +9,7 @@ use Yoast\WP\SEO\Conditionals\Headless_Rest_Endpoints_Enabled_Conditional;
 use Yoast\WP\SEO\Main;
 
 /**
- * Indexable_Reindexing_Route class.
+ * Head route for indexables.
  */
 class Indexables_Head_Route implements Route_Interface {
 
@@ -49,14 +44,18 @@ class Indexables_Head_Route implements Route_Interface {
 	}
 
 	/**
-	 * @inheritDoc
+	 * Returns the conditionals based in which this loadable should be active.
+	 *
+	 * @return array
 	 */
 	public static function get_conditionals() {
 		return [ Headless_Rest_Endpoints_Enabled_Conditional::class ];
 	}
 
 	/**
-	 * @inheritDoc
+	 * Registers routes with WordPress.
+	 *
+	 * @return void
 	 */
 	public function register_routes() {
 		$route_args = [
@@ -81,7 +80,7 @@ class Indexables_Head_Route implements Route_Interface {
 	 * @return WP_REST_Response The response.
 	 */
 	public function get_head( WP_REST_Request $request ) {
-		$url  = \esc_url_raw( $request['url'] );
+		$url  = \esc_url_raw( \utf8_uri_encode( $request['url'] ) );
 		$data = $this->head_action->for_url( $url );
 
 		return new WP_REST_Response( $data, $data->status );
@@ -92,10 +91,10 @@ class Indexables_Head_Route implements Route_Interface {
 	 *
 	 * @param string $url The url to check.
 	 *
-	 * @return boolean Whether or not the url is valid.
+	 * @return bool Whether or not the url is valid.
 	 */
 	public function is_valid_url( $url ) {
-		if ( \filter_var( $url, \FILTER_VALIDATE_URL ) === false ) {
+		if ( \filter_var( \utf8_uri_encode( $url ), \FILTER_VALIDATE_URL ) === false ) {
 			return false;
 		}
 		return true;

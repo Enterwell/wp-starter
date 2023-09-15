@@ -60,11 +60,11 @@ final class ITSEC_Lib_JWT {
 		$allow_unsecured = in_array( 'none', $allowed_algs, true );
 
 		if ( $allow_unsecured && 'unsecure' !== $confirm_unsecure ) {
-			return new \WP_Error( 'jwt_unsecure_not_confirmed', __( 'Did not confirm that "none" is an allowed algorithm.', 'oauth2' ) );
+			return new \WP_Error( 'jwt_unsecure_not_confirmed', __( 'Did not confirm that "none" is an allowed algorithm.', 'better-wp-security' ) );
 		}
 
 		if ( empty( $key ) && ! $allow_unsecured ) {
-			return new \WP_Error( 'jwt_empty_key', __( 'Key may not be empty', 'oauth2' ) );
+			return new \WP_Error( 'jwt_empty_key', __( 'Key may not be empty', 'better-wp-security' ) );
 		}
 
 		$parsed = self::parse_jwt( $jwt );
@@ -76,27 +76,27 @@ final class ITSEC_Lib_JWT {
 		list( $header, $payload, $sig, $headb64, $bodyb64 ) = $parsed;
 
 		if ( empty( $header->alg ) ) {
-			return new \WP_Error( 'jwt_invalid_format', __( 'Empty algorithm', 'oauth2' ) );
+			return new \WP_Error( 'jwt_invalid_format', __( 'Empty algorithm', 'better-wp-security' ) );
 		}
 
 		if ( 'none' !== $header->alg || ! $allow_unsecured ) {
 			if ( empty( static::$supported_algs[ $header->alg ] ) ) {
-				return new \WP_Error( 'jwt_unsupported_algorithm', __( 'Algorithm not supported', 'oauth2' ) );
+				return new \WP_Error( 'jwt_unsupported_algorithm', __( 'Algorithm not supported', 'better-wp-security' ) );
 			}
 
 			if ( ! in_array( $header->alg, $allowed_algs, true ) ) {
-				return new \WP_Error( 'jwt_disallowed_algorithm', __( 'Algorithm not allowed', 'oauth2' ) );
+				return new \WP_Error( 'jwt_disallowed_algorithm', __( 'Algorithm not allowed', 'better-wp-security' ) );
 			}
 
 			if ( is_array( $key ) || $key instanceof \ArrayAccess ) {
 				if ( isset( $header->kid ) ) {
 					if ( ! isset( $key[ $header->kid ] ) ) {
-						return new \WP_Error( 'jwt_invalid_key', __( '"kid" invalid, unable to lookup correct key', 'oauth2' ) );
+						return new \WP_Error( 'jwt_invalid_key', __( '"kid" invalid, unable to lookup correct key', 'better-wp-security' ) );
 					}
 
 					$key = $key[ $header->kid ];
 				} else {
-					return new \WP_Error( 'jwt_invalid_key', __( '"kid" empty, unable to lookup correct key', 'oauth2' ) );
+					return new \WP_Error( 'jwt_invalid_key', __( '"kid" empty, unable to lookup correct key', 'better-wp-security' ) );
 				}
 			}
 
@@ -108,7 +108,7 @@ final class ITSEC_Lib_JWT {
 			}
 
 			if ( true !== $verified ) {
-				return new \WP_Error( 'jwt_invalid_signature', __( 'Signature verification failed', 'oauth2' ) );
+				return new \WP_Error( 'jwt_invalid_signature', __( 'Signature verification failed', 'better-wp-security' ) );
 			}
 		}
 
@@ -119,7 +119,7 @@ final class ITSEC_Lib_JWT {
 				'jwt_before_valid',
 				sprintf(
 				/* translators: %s Date/Time the JWT is valid. */
-					__( 'Cannot handle token prior to %s.', 'oauth2' ),
+					__( 'Cannot handle token prior to %s.', 'better-wp-security' ),
 					wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $payload->nbf )
 				),
 				array( 'nbf' => $payload->nbf )
@@ -134,7 +134,7 @@ final class ITSEC_Lib_JWT {
 				'jwt_before_valid',
 				sprintf(
 				/* translators: %s Date/Time the JWT is valid. */
-					__( 'Cannot handle token prior to %s.', 'oauth2' ),
+					__( 'Cannot handle token prior to %s.', 'better-wp-security' ),
 					wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $payload->iat )
 				),
 				array( 'iat' => $payload->iat )
@@ -143,7 +143,7 @@ final class ITSEC_Lib_JWT {
 
 		// Check if this token has expired.
 		if ( isset( $payload->exp ) && ( $timestamp - static::$leeway ) >= $payload->exp ) {
-			return new \WP_Error( 'jwt_expired', __( 'Expired token', 'oauth2' ), array( 'exp' => $payload->exp ) );
+			return new \WP_Error( 'jwt_expired', __( 'Expired token', 'better-wp-security' ), array( 'exp' => $payload->exp ) );
 		}
 
 		return $payload;
@@ -160,21 +160,21 @@ final class ITSEC_Lib_JWT {
 		$tks = explode( '.', $jwt );
 
 		if ( 3 !== count( $tks ) ) {
-			return new \WP_Error( 'jwt_invalid_format', __( 'Wrong number of segments', 'oauth2' ) );
+			return new \WP_Error( 'jwt_invalid_format', __( 'Wrong number of segments', 'better-wp-security' ) );
 		}
 
 		list( $headb64, $bodyb64, $cryptob64 ) = $tks;
 
 		if ( null === ( $header = static::json_decode( static::url_safe_b64_decode( $headb64 ) ) ) ) {
-			return new \WP_Error( 'jwt_invalid_format', __( 'Invalid header encoding', 'oauth2' ) );
+			return new \WP_Error( 'jwt_invalid_format', __( 'Invalid header encoding', 'better-wp-security' ) );
 		}
 
 		if ( null === $payload = static::json_decode( static::url_safe_b64_decode( $bodyb64 ) ) ) {
-			return new \WP_Error( 'jwt_invalid_format', __( 'Invalid claims encoding', 'oauth2' ) );
+			return new \WP_Error( 'jwt_invalid_format', __( 'Invalid claims encoding', 'better-wp-security' ) );
 		}
 
 		if ( false === ( $sig = static::url_safe_b64_decode( $cryptob64 ) ) ) {
-			return new \WP_Error( 'jwt_invalid_format', __( 'Invalid signature encoding', 'oauth2' ) );
+			return new \WP_Error( 'jwt_invalid_format', __( 'Invalid signature encoding', 'better-wp-security' ) );
 		}
 
 		return array( $header, $payload, $sig, $headb64, $bodyb64, $cryptob64 );
@@ -245,7 +245,7 @@ final class ITSEC_Lib_JWT {
 	 */
 	protected static function sign( $msg, $key, $alg = 'HS256' ) {
 		if ( empty( static::$supported_algs[ $alg ] ) ) {
-			return new \WP_Error( 'jwt_unsupported_algorithm', __( 'Algorithm not supported', 'oauth2' ) );
+			return new \WP_Error( 'jwt_unsupported_algorithm', __( 'Algorithm not supported', 'better-wp-security' ) );
 		}
 
 		list( $function, $algorithm ) = static::$supported_algs[ $alg ];
@@ -258,13 +258,13 @@ final class ITSEC_Lib_JWT {
 				$success   = openssl_sign( $msg, $signature, $key, $algorithm );
 
 				if ( ! $success ) {
-					return new \WP_Error( 'jwt_openssl_error', __( 'OpenSSL unable to sign data', 'oauth2' ) );
+					return new \WP_Error( 'jwt_openssl_error', __( 'OpenSSL unable to sign data', 'better-wp-security' ) );
 				}
 
 				return $signature;
 		}
 
-		return new \WP_Error( 'jwt_unsupported_algorithm', __( 'Algorithm not supported', 'oauth2' ) );
+		return new \WP_Error( 'jwt_unsupported_algorithm', __( 'Algorithm not supported', 'better-wp-security' ) );
 	}
 
 	/**
@@ -280,7 +280,7 @@ final class ITSEC_Lib_JWT {
 	 */
 	protected static function verify( $msg, $signature, $key, $alg ) {
 		if ( empty( static::$supported_algs[ $alg ] ) ) {
-			return new \WP_Error( 'jwt_unsupported_algorithm', __( 'Algorithm not supported', 'oauth2' ) );
+			return new \WP_Error( 'jwt_unsupported_algorithm', __( 'Algorithm not supported', 'better-wp-security' ) );
 		}
 
 		list( $function, $algorithm ) = static::$supported_algs[ $alg ];

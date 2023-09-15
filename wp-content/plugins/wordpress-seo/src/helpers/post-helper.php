@@ -1,18 +1,12 @@
 <?php
-/**
- * A helper object for post related things.
- *
- * @package Yoast\YoastSEO\Helpers
- */
 
 namespace Yoast\WP\SEO\Helpers;
 
 use WP_Post;
-use Yoast\WP\Lib\Model;
 use Yoast\WP\SEO\Repositories\Indexable_Repository;
 
 /**
- * Class Redirect_Helper
+ * A helper object for post related things.
  */
 class Post_Helper {
 
@@ -24,6 +18,13 @@ class Post_Helper {
 	private $string;
 
 	/**
+	 * Holds the Post_Type_Helper instance.
+	 *
+	 * @var Post_Type_Helper
+	 */
+	private $post_type;
+
+	/**
 	 * Represents the indexables repository.
 	 *
 	 * @var Indexable_Repository
@@ -33,20 +34,25 @@ class Post_Helper {
 	/**
 	 * Post_Helper constructor.
 	 *
-	 * @param String_Helper $string The string helper.
-	 *
 	 * @codeCoverageIgnore It only sets dependencies.
+	 *
+	 * @param String_Helper    $string_helper    The string helper.
+	 * @param Post_Type_Helper $post_type_helper The string helper.
 	 */
-	public function __construct( String_Helper $string ) {
-		$this->string = $string;
+	public function __construct(
+		String_Helper $string_helper,
+		Post_Type_Helper $post_type_helper
+	) {
+		$this->string    = $string_helper;
+		$this->post_type = $post_type_helper;
 	}
 
 	/**
 	 * Sets the indexable repository. Done to avoid circular dependencies.
 	 *
-	 * @param Indexable_Repository $repository The indexable repository.
-	 *
 	 * @required
+	 *
+	 * @param Indexable_Repository $repository The indexable repository.
 	 */
 	public function set_indexable_repository( Indexable_Repository $repository ) {
 		$this->repository = $repository;
@@ -55,9 +61,9 @@ class Post_Helper {
 	/**
 	 * Removes all shortcode tags from the given content.
 	 *
-	 * @param string $content Content to remove all the shortcode tags from.
-	 *
 	 * @codeCoverageIgnore It only wraps a WordPress function.
+	 *
+	 * @param string $content Content to remove all the shortcode tags from.
 	 *
 	 * @return string Content without shortcode tags.
 	 */
@@ -68,9 +74,9 @@ class Post_Helper {
 	/**
 	 * Retrieves the post excerpt (without tags).
 	 *
-	 * @param int $post_id Post ID.
-	 *
 	 * @codeCoverageIgnore It only wraps another helper method.
+	 *
+	 * @param int $post_id Post ID.
 	 *
 	 * @return string Post excerpt (without tags).
 	 */
@@ -81,9 +87,9 @@ class Post_Helper {
 	/**
 	 * Retrieves the post type of the current post.
 	 *
-	 * @param WP_Post $post The post.
-	 *
 	 * @codeCoverageIgnore It only wraps a WordPress function.
+	 *
+	 * @param WP_Post|null $post The post.
 	 *
 	 * @return string|false Post type on success, false on failure.
 	 */
@@ -110,9 +116,9 @@ class Post_Helper {
 	/**
 	 * Retrieves post data given a post ID.
 	 *
-	 * @param int $post_id Post ID.
-	 *
 	 * @codeCoverageIgnore It wraps a WordPress function.
+	 *
+	 * @param int $post_id Post ID.
 	 *
 	 * @return WP_Post|null The post.
 	 */
@@ -127,10 +133,10 @@ class Post_Helper {
 	 * - The attachment has a post parent.
 	 * - The attachment inherits the post status.
 	 *
+	 * @codeCoverageIgnore It relies too much on dependencies.
+	 *
 	 * @param int $post_parent      Post ID.
 	 * @param int $has_public_posts Whether the parent is public.
-	 *
-	 * @codeCoverageIgnore It relies too much on dependencies.
 	 *
 	 * @return bool Whether the update was successful.
 	 */
@@ -160,5 +166,61 @@ class Post_Helper {
 			->update_many();
 
 		return $updated !== false;
+	}
+
+	/**
+	 * Determines if the post can be indexed.
+	 *
+	 * @param int $post_id Post ID to check.
+	 *
+	 * @return bool True if the post can be indexed.
+	 */
+	public function is_post_indexable( $post_id ) {
+		// Don't index posts which are not public (i.e. viewable).
+		$post_type = \get_post_type( $post_id );
+
+		if ( ! $this->post_type->is_of_indexable_post_type( $post_type ) ) {
+			return false;
+		}
+
+		// Don't index excluded post statuses.
+		if ( \in_array( \get_post_status( $post_id ), $this->get_excluded_post_statuses(), true ) ) {
+			return false;
+		}
+
+		// Don't index revisions of posts.
+		if ( \wp_is_post_revision( $post_id ) ) {
+			return false;
+		}
+
+		// Don't index autosaves that are not caught by the auto-draft check.
+		if ( \wp_is_post_autosave( $post_id ) ) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Retrieves the list of excluded post statuses.
+	 *
+	 * @return array The excluded post statuses.
+	 */
+	public function get_excluded_post_statuses() {
+		return [ 'auto-draft' ];
+	}
+
+	/**
+	 * Retrieves the list of public posts statuses.
+	 *
+	 * @return array The public post statuses.
+	 */
+	public function get_public_post_statuses() {
+		/**
+		 * Filter: 'wpseo_public_post_statuses' - List of public post statuses.
+		 *
+		 * @api array $post_statuses Post status list, defaults to array( 'publish' ).
+		 */
+		return \apply_filters( 'wpseo_public_post_statuses', [ 'publish' ] );
 	}
 }

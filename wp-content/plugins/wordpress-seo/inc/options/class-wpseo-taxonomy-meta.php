@@ -51,27 +51,28 @@ class WPSEO_Taxonomy_Meta extends WPSEO_Option {
 	 * @var array
 	 */
 	public static $defaults_per_term = [
-		'wpseo_title'                 => '',
-		'wpseo_desc'                  => '',
-		'wpseo_canonical'             => '',
-		'wpseo_bctitle'               => '',
-		'wpseo_noindex'               => 'default',
-		'wpseo_focuskw'               => '',
-		'wpseo_linkdex'               => '',
-		'wpseo_content_score'         => '',
-		'wpseo_focuskeywords'         => '[]',
-		'wpseo_keywordsynonyms'       => '[]',
-		'wpseo_is_cornerstone'        => '0',
+		'wpseo_title'                    => '',
+		'wpseo_desc'                     => '',
+		'wpseo_canonical'                => '',
+		'wpseo_bctitle'                  => '',
+		'wpseo_noindex'                  => 'default',
+		'wpseo_focuskw'                  => '',
+		'wpseo_linkdex'                  => '',
+		'wpseo_content_score'            => '',
+		'wpseo_inclusive_language_score' => '',
+		'wpseo_focuskeywords'            => '[]',
+		'wpseo_keywordsynonyms'          => '[]',
+		'wpseo_is_cornerstone'           => '0',
 
 		// Social fields.
-		'wpseo_opengraph-title'       => '',
-		'wpseo_opengraph-description' => '',
-		'wpseo_opengraph-image'       => '',
-		'wpseo_opengraph-image-id'    => '',
-		'wpseo_twitter-title'         => '',
-		'wpseo_twitter-description'   => '',
-		'wpseo_twitter-image'         => '',
-		'wpseo_twitter-image-id'      => '',
+		'wpseo_opengraph-title'          => '',
+		'wpseo_opengraph-description'    => '',
+		'wpseo_opengraph-image'          => '',
+		'wpseo_opengraph-image-id'       => '',
+		'wpseo_twitter-title'            => '',
+		'wpseo_twitter-description'      => '',
+		'wpseo_twitter-image'            => '',
+		'wpseo_twitter-image-id'         => '',
 	];
 
 	/**
@@ -100,10 +101,6 @@ class WPSEO_Taxonomy_Meta extends WPSEO_Option {
 		parent::__construct();
 
 		self::$name = $this->option_name;
-
-		/* On succesfull update/add of the option, flush the W3TC cache. */
-		add_action( 'add_option_' . $this->option_name, [ 'WPSEO_Utils', 'flush_w3tc_cache' ] );
-		add_action( 'update_option_' . $this->option_name, [ 'WPSEO_Utils', 'flush_w3tc_cache' ] );
 	}
 
 	/**
@@ -129,60 +126,6 @@ class WPSEO_Taxonomy_Meta extends WPSEO_Option {
 			self::$defaults_per_term = array_merge( $extra_defaults_per_term, self::$defaults_per_term );
 		}
 	}
-
-	/**
-	 * Helper method - Combines a fixed array of default values with an options array
-	 * while filtering out any keys which are not in the defaults array.
-	 *
-	 * @param string $option_key Option name of the option we're doing the merge for.
-	 * @param array  $options    Optional. Current options. If not set, the option defaults
-	 *                           for the $option_key will be returned.
-	 *
-	 * @return array Combined and filtered options array.
-	 */
-
-	/*
-	Public function array_filter_merge( $option_key, $options = null ) {
-
-			$defaults = $this->get_defaults( $option_key );
-
-			if ( ! isset( $options ) || $options === false ) {
-				return $defaults;
-			}
-
-			/ *
-			{@internal Adding the defaults to all taxonomy terms each time the option is retrieved
-			will be quite inefficient if there are a lot of taxonomy terms.
-			As long as taxonomy_meta is only retrieved via methods in this class, we shouldn't need this.}}
-
-			$options  = (array) $options;
-			$filtered = array();
-
-			if ( $options !== array() ) {
-				foreach ( $options as $taxonomy => $terms ) {
-					if ( is_array( $terms ) && $terms !== array() ) {
-						foreach ( $terms as $id => $term_meta ) {
-							foreach ( self::$defaults_per_term as $name => $default ) {
-								if ( isset( $options[ $taxonomy ][ $id ][ $name ] ) ) {
-									$filtered[ $taxonomy ][ $id ][ $name ] = $options[ $taxonomy ][ $id ][ $name ];
-								}
-								else {
-									$filtered[ $name ] = $default;
-								}
-							}
-						}
-					}
-				}
-				unset( $taxonomy, $terms, $id, $term_meta, $name, $default );
-			}
-			// end of may be remove.
-
-			return $filtered;
-			* /
-
-			return (array) $options;
-		}
-	*/
 
 	/**
 	 * Validate the option.
@@ -360,12 +303,12 @@ class WPSEO_Taxonomy_Meta extends WPSEO_Option {
 	 * - Convert old option values to new
 	 * - Fixes strings which were escaped (should have been sanitized - escaping is for output)
 	 *
-	 * @param array  $option_value          Old (not merged with defaults or filtered) option value to
-	 *                                      clean according to the rules for this option.
-	 * @param string $current_version       Optional. Version from which to upgrade, if not set,
-	 *                                      version specific upgrades will be disregarded.
-	 * @param array  $all_old_option_values Optional. Only used when importing old options to have
-	 *                                      access to the real old values, in contrast to the saved ones.
+	 * @param array       $option_value          Old (not merged with defaults or filtered) option value to
+	 *                                           clean according to the rules for this option.
+	 * @param string|null $current_version       Optional. Version from which to upgrade, if not set,
+	 *                                           version specific upgrades will be disregarded.
+	 * @param array|null  $all_old_option_values Optional. Only used when importing old options to have
+	 *                                           access to the real old values, in contrast to the saved ones.
 	 *
 	 * @return array Cleaned option.
 	 */
@@ -431,14 +374,14 @@ class WPSEO_Taxonomy_Meta extends WPSEO_Option {
 	/**
 	 * Retrieve a taxonomy term's meta value(s).
 	 *
-	 * @param mixed  $term     Term to get the meta value for
-	 *                         either (string) term name, (int) term id or (object) term.
-	 * @param string $taxonomy Name of the taxonomy to which the term is attached.
-	 * @param string $meta     Optional. Meta value to get (without prefix).
+	 * @param mixed       $term     Term to get the meta value for
+	 *                              either (string) term name, (int) term id or (object) term.
+	 * @param string      $taxonomy Name of the taxonomy to which the term is attached.
+	 * @param string|null $meta     Optional. Meta value to get (without prefix).
 	 *
-	 * @return mixed|bool Value for the $meta if one is given, might be the default.
-	 *                    If no meta is given, an array of all the meta data for the term.
-	 *                    False if the term does not exist or the $meta provided is invalid.
+	 * @return mixed Value for the $meta if one is given, might be the default.
+	 *               If no meta is given, an array of all the meta data for the term.
+	 *               False if the term does not exist or the $meta provided is invalid.
 	 */
 	public static function get_term_meta( $term, $taxonomy, $meta = null ) {
 		/* Figure out the term id. */
@@ -466,7 +409,6 @@ class WPSEO_Taxonomy_Meta extends WPSEO_Option {
 			return $tax_meta;
 		}
 
-
 		if ( isset( $tax_meta[ 'wpseo_' . $meta ] ) ) {
 			return $tax_meta[ 'wpseo_' . $meta ];
 		}
@@ -479,7 +421,7 @@ class WPSEO_Taxonomy_Meta extends WPSEO_Option {
 	 *
 	 * @param string $meta The meta field that is needed.
 	 *
-	 * @return bool|mixed
+	 * @return mixed
 	 */
 	public static function get_meta_without_term( $meta ) {
 		$term = $GLOBALS['wp_query']->get_queried_object();
@@ -533,7 +475,6 @@ class WPSEO_Taxonomy_Meta extends WPSEO_Option {
 	 */
 	public static function get_keyword_usage( $keyword, $current_term_id, $current_taxonomy ) {
 		$tax_meta = self::get_tax_meta();
-
 
 		$found = [];
 		// @todo Check for terms of all taxonomies, not only the current taxonomy.

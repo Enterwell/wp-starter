@@ -12,26 +12,38 @@ import { withSelect, withDispatch } from '@wordpress/data';
 import { compose } from '@wordpress/compose';
 
 function CompositeNoticeList( { notices, onRemove } ) {
-	const dismissibleNotices = filter( notices, ( notice ) => notice.isDismissible && ( ! notice.type || notice.type === 'default' ) );
-	const nonDismissibleNotices = filter( notices, ( notice ) => ! notice.isDismissible && ( ! notice.type || notice.type === 'default' ) );
-	const snackbarNotices = SnackbarList ? filter( notices, {
-		type: 'snackbar',
-	} ) : [];
+	const dismissibleNotices = filter(
+		notices,
+		( notice ) =>
+			notice.isDismissible &&
+			( ! notice.type || notice.type === 'default' )
+	);
+	const nonDismissibleNotices = filter(
+		notices,
+		( notice ) =>
+			! notice.isDismissible &&
+			( ! notice.type || notice.type === 'default' )
+	);
+	const snackbarNotices = filter( notices, { type: 'snackbar' } );
 
 	return (
 		<Fragment>
 			<NoticeList
 				notices={ nonDismissibleNotices }
-				className="components-editor-notices__pinned" />
+				className="components-editor-notices__pinned"
+			/>
 			<NoticeList
 				notices={ dismissibleNotices }
 				className="components-editor-notices__dismissible"
-				onRemove={ onRemove } />
-			{ SnackbarList && <SnackbarList
-				notices={ snackbarNotices }
-				className="components-editor-notices__snackbar"
-				onRemove={ onRemove } />
-			}
+				onRemove={ onRemove }
+			/>
+			{ SnackbarList && (
+				<SnackbarList
+					notices={ snackbarNotices }
+					className="components-editor-notices__snackbar"
+					onRemove={ onRemove }
+				/>
+			) }
 		</Fragment>
 	);
 }

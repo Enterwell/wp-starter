@@ -7,7 +7,7 @@ use WP_User;
 use ITSEC_Lib;
 use ITSEC_Lib_Canonical_Roles;
 
-final class User_Group implements Matchable {
+final class User_Group implements Matchable, \JsonSerializable {
 
 	/** @var string */
 	private $id;
@@ -432,5 +432,17 @@ final class User_Group implements Matchable {
 	 */
 	public function __toString() {
 		return $this->get_label();
+	}
+
+	public function jsonSerialize(): array {
+		return [
+			'id'          => $this->get_id(),
+			'label'       => $this->get_label(),
+			'description' => $this->get_description(),
+			'users'       => wp_list_pluck( $this->get_users(), 'ID' ),
+			'roles'       => $this->get_roles(),
+			'canonical'   => $this->get_canonical_roles(),
+			'min_role'    => $this->get_min_role(),
+		];
 	}
 }

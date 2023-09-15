@@ -18,17 +18,24 @@ function GroupLabel( { label, edit, disabled = false } ) {
 			value={ label }
 			maxLength={ 50 }
 			disabled={ disabled }
-			onChange={ ( newLabel ) => edit( { label: newLabel } ) } />
+			onChange={ ( newLabel ) => edit( { label: newLabel } ) }
+		/>
 	);
 }
 
 export default compose( [
 	withSelect( ( select, { groupId } ) => ( {
-		label: select( 'ithemes-security/user-groups-editor' ).getEditedGroupAttribute( groupId, 'label' ) || '',
+		label:
+			select(
+				'ithemes-security/user-groups-editor'
+			).getEditedGroupAttribute( groupId, 'label' ) || '',
 	} ) ),
 	withDispatch( ( dispatch, { groupId } ) => ( {
 		edit( edit ) {
-			return dispatch( 'ithemes-security/user-groups-editor' ).editGroup( groupId, edit );
+			return dispatch( 'ithemes-security/user-groups-editor' ).editGroup(
+				groupId,
+				edit
+			);
 		},
 	} ) ),
 ] )( GroupLabel );

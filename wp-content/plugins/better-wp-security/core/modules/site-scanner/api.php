@@ -48,7 +48,7 @@ class ITSEC_Site_Scanner_API {
 		}
 
 		if ( self::is_temporary_server_error( $response ) ) {
-			$response->add( 'itsec-temporary-server-error', __( 'Site Scanning is temporarily unavailable, please try again later.' ) );
+			$response->add( 'itsec-temporary-server-error', __( 'Site Scanning is temporarily unavailable, please try again later.', 'better-wp-security' ) );
 		}
 
 		$log_data = [ 'results' => $response, 'cached' => $cached ];
@@ -96,50 +96,40 @@ class ITSEC_Site_Scanner_API {
 	 * @return array
 	 */
 	private static function scan_main_site( array $pid ) {
-
 		if ( ! function_exists( 'get_plugins' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 
-		$body = array();
+		if ( ! ITSEC_Core::is_licensed() && ! self::has_registered_site_key() ) {
+			$registered = self::register_site();
 
-		if ( ITSEC_Core::is_licensed() ) {
-			$plugins = $themes = array();
-
-			list( $wp_version ) = explode( '-', $GLOBALS['wp_version'] );
-
-			foreach ( get_plugins() as $file => $data ) {
-				if ( ! empty( $data['Version'] ) ) {
-					$plugins[ dirname( $file ) ] = $data['Version'];
-				}
+			if ( is_wp_error( $registered ) ) {
+				return [ 'cached' => false, 'response' => $registered ];
 			}
-
-			foreach ( wp_get_themes() as $theme ) {
-				$themes[ $theme->get_stylesheet() ] = $theme->get( 'Version' );
-			}
-
-			$body['wordpress']   = $wp_version;
-			$body['plugins']     = $plugins;
-			$body['themes']      = $themes;
-			$body['mutedIssues'] = wp_list_pluck( ITSEC_Site_Scanner_Util::get_muted_issues(), 'id' );
-		} else {
-			$key_pair = self::generate_key_pair();
-
-			if ( is_wp_error( $key_pair ) ) {
-				return array(
-					'cached'   => false,
-					'response' => $key_pair,
-				);
-			}
-
-			$body['scan'] = array(
-				'url'          => self::clean_url( network_home_url() ),
-				'keyPair'      => $key_pair,
-				'verifyTarget' => rest_url( 'ithemes-security/v1/site-scanner/verify-scan' ),
-			);
 		}
 
-		return self::make_request( 'api/scan', 'POST', $body, $pid );
+		$plugins = $themes = [];
+
+		list( $wp_version ) = explode( '-', $GLOBALS['wp_version'] );
+
+		foreach ( get_plugins() as $file => $data ) {
+			if ( ! empty( $data['Version'] ) ) {
+				$plugins[ dirname( $file ) ] = $data['Version'];
+			}
+		}
+
+		foreach ( wp_get_themes() as $theme ) {
+			$themes[ $theme->get_stylesheet() ] = $theme->get( 'Version' );
+		}
+
+		$body = [
+			'wordpress'   => $wp_version,
+			'plugins'     => $plugins,
+			'themes'      => $themes,
+			'mutedIssues' => wp_list_pluck( ITSEC_Site_Scanner_Util::get_muted_issues(), 'id' ),
+		];
+
+		return self::make_request( get_main_site_id(), 'api/scan', 'POST', $body, $pid );
 	}
 
 	/**
@@ -150,69 +140,105 @@ class ITSEC_Site_Scanner_API {
 	 *
 	 * @return array
 	 */
-	private static function scan_sub_site( array $pid, $site_id ) {
+	private static function scan_sub_site( array $pid, int $site_id ) {
+		if ( ! self::has_registered_site_key( $site_id ) ) {
+			$registered = self::register_site( $site_id );
+
+			if ( is_wp_error( $registered ) ) {
+				return [ 'cached' => false, 'response' => $registered ];
+			}
+		}
+
+		return self::make_request( $site_id, 'api/scan', 'POST', [
+			'scan' => [
+				'url' => self::clean_url( get_home_url( $site_id ) ),
+			]
+		], $pid );
+	}
+
+	/**
+	 * Registers a site with the Site Scanner API.
+	 *
+	 * This is not meant to be used by licensed iThemes Security users.
+	 *
+	 * @param int $site_id The site ID to register.
+	 *
+	 * @return array|mixed|WP_Error
+	 */
+	public static function register_site( int $site_id = 0 ) {
+		$site_id  = $site_id ?: get_main_site_id();
+		$pid      = ITSEC_Log::add_process_start( 'site-scanner', 'register-site', compact( 'site_id' ) );
 		$key_pair = self::generate_key_pair();
 
 		if ( is_wp_error( $key_pair ) ) {
-			return array(
-				'cached'   => false,
-				'response' => $key_pair,
-			);
+			ITSEC_Log::add_process_stop( $pid, $key_pair );
+
+			return $key_pair;
 		}
 
-		return self::make_request( 'api/scan', 'POST', array(
-			'scan' => array(
-				'url'          => self::clean_url( get_home_url( $site_id ) ),
-				'keyPair'      => $key_pair,
-				'verifyTarget' => get_rest_url( $site_id, 'ithemes-security/v1/site-scanner/verify-scan' ),
-			)
-		), $pid );
+		$url      = self::clean_url( get_home_url( $site_id ) );
+		$response = self::make_request( $site_id, 'api/register-site', 'POST', [
+			'url'          => $url,
+			'keyPair'      => $key_pair,
+			'verifyTarget' => get_rest_url( $site_id, 'ithemes-security/v1/site-scanner/verify-scan' ),
+		], $pid )['response'];
+
+		if ( is_wp_error( $response ) ) {
+			ITSEC_Log::add_process_stop( $pid, $response );
+
+			return $response;
+		}
+
+		$key = $response['key'];
+
+		self::set_registered_site_key( $site_id, $key );
+		ITSEC_Log::add_process_stop( $pid, $response );
+
+		return $key;
 	}
 
 	/**
 	 * Make a request to the site scanner API.
 	 *
-	 * @param string $route  Route to call.
-	 * @param string $method HTTP method to use.
-	 * @param array  $body   Data to be encoded as json.
-	 * @param array  $pid    Process ID to continue making log updates.
+	 * @param int    $site_id The site ID being operated on.
+	 * @param string $route   Route to call.
+	 * @param string $method  HTTP method to use.
+	 * @param array  $body    Data to be encoded as json.
+	 * @param array  $pid     Process ID to continue making log updates.
 	 *
 	 * @return array Array of response and cache status.
 	 */
-	private static function make_request( $route, $method, array $body, array $pid = null ) {
-		$json      = wp_json_encode( $body );
-		$headers   = array(
+	private static function make_request( int $site_id, string $route, string $method, array $body, array $pid = null ) {
+		$json          = wp_json_encode( $body );
+		$headers       = [
 			'Content-Type' => 'application/json',
 			'Accept'       => self::ACCEPT,
-		);
-		$signature = self::generate_signature( $json );
+		];
+		$authorization = self::get_authorization_header( $site_id, $json );
 
-		if ( is_wp_error( $signature ) ) {
-			if ( $signature->get_error_code() !== 'non_active_license' ) {
-				return array(
-					'cached'   => false,
-					'response' => $signature,
-				);
-			}
-		} else {
-			$headers['Authorization'] = $signature;
+		if ( is_wp_error( $authorization ) ) {
+			return [ 'cached' => false, 'response' => $authorization ];
+		}
+
+		if ( is_string( $authorization ) ) {
+			$headers['Authorization'] = $authorization;
 		}
 
 		if ( $pid ) {
 			ITSEC_Log::add_process_update( $pid, compact( 'route', 'method', 'body', 'headers' ) );
 		}
 
-		$cache_key = self::build_cache_key( $route, $method, $body );
+		$cache_key = self::build_cache_key( $site_id, $route, $method, $body );
 		$cached    = true;
 
 		if ( ( $parsed = get_site_transient( $cache_key ) ) === false ) {
 			$cached   = false;
-			$response = self::call_api( $route, array(), array(
+			$response = self::call_api( $route, [], [
 				'body'    => $json,
 				'method'  => $method,
 				'timeout' => 300,
 				'headers' => $headers,
-			) );
+			] );
 
 			if ( is_wp_error( $response ) ) {
 				return compact( 'cached', 'response' );
@@ -222,7 +248,37 @@ class ITSEC_Site_Scanner_API {
 			self::maybe_cache( $pid, $cache_key, $response, $parsed );
 		}
 
-		return array( 'cached' => $cached, 'response' => $parsed );
+		return [ 'cached' => $cached, 'response' => $parsed ];
+	}
+
+	/**
+	 * Gets the Authorization header for a request.
+	 *
+	 * @param int    $site_id The site id being operated on.
+	 * @param string $json    The serialized request body.
+	 *
+	 * @return string|WP_Error|null The authorization header, a WP_Error if generation failed, null if none is available.
+	 */
+	private static function get_authorization_header( int $site_id, string $json ) {
+		if ( is_main_site( $site_id ) ) {
+			$signature = self::generate_signature( $json );
+
+			if ( ! is_wp_error( $signature ) ) {
+				return $signature;
+			}
+
+			if ( 'non_active_license' !== $signature->get_error_code() ) {
+				return $signature;
+			}
+		}
+
+		$key = self::get_registered_site_key( $site_id );
+
+		if ( ! $key ) {
+			return null;
+		}
+
+		return 'X-SiteRegistration ' . $key;
 	}
 
 	/**
@@ -244,7 +300,7 @@ class ITSEC_Site_Scanner_API {
 		require_once( $GLOBALS['ithemes_updater_path'] . '/keys.php' );
 		require_once( $GLOBALS['ithemes_updater_path'] . '/packages.php' );
 
-		$keys = Ithemes_Updater_Keys::get( array( 'ithemes-security-pro' ) );
+		$keys = Ithemes_Updater_Keys::get( [ 'ithemes-security-pro' ] );
 
 		if ( empty( $keys['ithemes-security-pro'] ) ) {
 			return new WP_Error( 'non_active_license', __( 'iThemes Security Pro is not activated.', 'better-wp-security' ) );
@@ -300,9 +356,9 @@ class ITSEC_Site_Scanner_API {
 			}
 
 			return new WP_Error(
-				isset( $parsed['code'] ) ? $parsed['code'] : 'unknown_error',
-				isset( $parsed['message'] ) ? $parsed['message'] : __( 'Unknown Error', 'better-wp-security' ),
-				isset( $parsed['data'] ) ? $parsed['data'] : array()
+				$parsed['code'] ?? 'unknown_error',
+				$parsed['message'] ?? __( 'Unknown Error', 'better-wp-security' ),
+				$parsed['data'] ?? []
 			);
 		}
 
@@ -345,20 +401,15 @@ class ITSEC_Site_Scanner_API {
 	/**
 	 * Builds the cache key based on the selected route.
 	 *
+	 * @param int    $site_id
 	 * @param string $route
 	 * @param string $method
 	 * @param array  $body
 	 *
 	 * @return string
 	 */
-	private static function build_cache_key( $route, $method, array $body ) {
-		switch ( $route ) {
-			case 'api/scan':
-				unset( $body['scan']['keyPair'] );
-				break;
-		}
-
-		return 'itsec-site-scanner-' . md5( $route . $method . wp_json_encode( $body ) );
+	private static function build_cache_key( int $site_id, string $route, string $method, array $body ) {
+		return 'itsec-site-scanner-' . md5( $site_id . $route . $method . wp_json_encode( $body ) );
 	}
 
 	/**
@@ -378,7 +429,7 @@ class ITSEC_Site_Scanner_API {
 
 		$keywords = array_map( 'trim', explode( ',', $cache_control ) );
 
-		$mapped = array();
+		$mapped = [];
 
 		foreach ( $keywords as $keyword ) {
 			if ( false === strpos( $keyword, '=' ) ) {
@@ -393,9 +444,9 @@ class ITSEC_Site_Scanner_API {
 			$cached = set_site_transient( $cache_key, $cache, (int) $mapped['max-age'] );
 
 			if ( $cached ) {
-				ITSEC_Log::add_process_update( $pid, array( 'action' => 'caching-response', 'mapped' => $mapped, 'cache_key' => $cache_key ) );
+				ITSEC_Log::add_process_update( $pid, [ 'action' => 'caching-response', 'mapped' => $mapped, 'cache_key' => $cache_key ] );
 			} else {
-				ITSEC_Log::add_process_update( $pid, array( 'action' => 'caching-response-failed', 'mapped' => $mapped ) );
+				ITSEC_Log::add_process_update( $pid, [ 'action' => 'caching-response-failed', 'mapped' => $mapped ] );
 			}
 		}
 	}
@@ -448,7 +499,7 @@ class ITSEC_Site_Scanner_API {
 	 * @return string|WP_Error
 	 */
 	public static function get_public_key( $secret_key ) {
-		$token = \ITSEC_Lib_Opaque_Tokens::verify_and_get_token_data(
+		$token = ITSEC_Lib_Opaque_Tokens::verify_and_get_token_data(
 			self::VERIFY_TOKEN,
 			$secret_key,
 			15 * MINUTE_IN_SECONDS
@@ -468,6 +519,54 @@ class ITSEC_Site_Scanner_API {
 	 */
 	public static function clear_key_pair( $secret_key ) {
 		ITSEC_Lib_Opaque_Tokens::delete_token( $secret_key );
+	}
+
+	/**
+	 * Checks if the site has a registered site key.
+	 *
+	 * @param int $site_id
+	 *
+	 * @return bool
+	 */
+	public static function has_registered_site_key( int $site_id = 0 ): bool {
+		$site_id   = $site_id ?: get_main_site_id();
+		$site_keys = ITSEC_Modules::get_setting( 'site-scanner', 'registered_sites' );
+
+		if ( ! isset( $site_keys[ $site_id ] ) ) {
+			return false;
+		}
+
+		return $site_keys[ $site_id ]['url'] === self::clean_url( get_home_url( $site_id ) );
+	}
+
+	/**
+	 * Gets the registered site ID for a site.
+	 *
+	 * @param int $site_id The site id to get the key for. Defaults to the current site.
+	 *
+	 * @return string|null The registered site key if it exists, null otherwise.
+	 */
+	public static function get_registered_site_key( int $site_id = 0 ) {
+		$site_id   = $site_id ?: get_main_site_id();
+		$site_keys = ITSEC_Modules::get_setting( 'site-scanner', 'registered_sites' );
+
+		return $site_keys[ $site_id ]['key'] ?? null;
+	}
+
+	/**
+	 * Sets the registered site key for a site.
+	 *
+	 * @param int    $site_id
+	 * @param string $key
+	 */
+	public static function set_registered_site_key( int $site_id, string $key ) {
+		$registered_sites = ITSEC_Modules::get_setting( 'site-scanner', 'registered_sites' );
+
+		$registered_sites[ $site_id ] = [
+			'url' => self::clean_url( get_home_url( $site_id ) ),
+			'key' => $key,
+		];
+		ITSEC_Modules::set_setting( 'site-scanner', 'registered_sites', $registered_sites );
 	}
 
 	/**

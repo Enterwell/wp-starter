@@ -1,9 +1,4 @@
 <?php
-/**
- * The meta tags context memoizer.
- *
- * @package Yoast\YoastSEO\Memoizers
- */
 
 namespace Yoast\WP\SEO\Memoizers;
 
@@ -14,7 +9,7 @@ use Yoast\WP\SEO\Models\Indexable;
 use Yoast\WP\SEO\Repositories\Indexable_Repository;
 
 /**
- * Class Meta_Tags_Context_Memoizer
+ * The meta tags context memoizer.
  */
 class Meta_Tags_Context_Memoizer {
 
@@ -23,42 +18,42 @@ class Meta_Tags_Context_Memoizer {
 	 *
 	 * @var Blocks_Helper
 	 */
-	private $blocks;
+	protected $blocks;
 
 	/**
 	 * The current page helper.
 	 *
 	 * @var Current_Page_Helper
 	 */
-	private $current_page;
+	protected $current_page;
 
 	/**
 	 * The indexable repository.
 	 *
 	 * @var Indexable_Repository
 	 */
-	private $repository;
+	protected $repository;
 
 	/**
 	 * The meta tags context.
 	 *
 	 * @var Meta_Tags_Context
 	 */
-	private $context_prototype;
+	protected $context_prototype;
 
 	/**
 	 * The presentation memoizer.
 	 *
 	 * @var Presentation_Memoizer
 	 */
-	private $presentation_memoizer;
+	protected $presentation_memoizer;
 
 	/**
 	 * The meta tags context.
 	 *
 	 * @var Meta_Tags_Context[]
 	 */
-	private $cache = [];
+	protected $cache = [];
 
 	/**
 	 * Meta_Tags_Context_Memoizer constructor.
@@ -91,9 +86,37 @@ class Meta_Tags_Context_Memoizer {
 	 */
 	public function for_current_page() {
 		if ( ! isset( $this->cache['current_page'] ) ) {
-			$indexable                   = $this->repository->for_current_page();
-			$page_type                   = $this->current_page->get_page_type();
+			// First reset the query to ensure we actually have the current page.
+			global $wp_query, $post;
+
+			$old_wp_query = $wp_query;
+			$old_post     = $post;
+			// phpcs:ignore WordPress.WP.DiscouragedFunctions.wp_reset_query_wp_reset_query -- Reason: The recommended function, wp_reset_postdata, doesn't reset wp_query.
+			\wp_reset_query();
+
+			$indexable = $this->repository->for_current_page();
+			$page_type = $this->current_page->get_page_type();
+
+			if ( $page_type === 'Fallback' ) {
+				// Do not cache the context if it's a fallback page.
+				// The likely cause for this is that this function was called before the query was loaded.
+				$context = $this->get( $indexable, $page_type );
+
+				// Restore the previous query.
+				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Reason: we have to restore the query.
+				$GLOBALS['wp_query'] = $old_wp_query;
+				// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Reason: we have to restore the post.
+				$GLOBALS['post'] = $old_post;
+
+				return $context;
+			}
 			$this->cache['current_page'] = $this->get( $indexable, $page_type );
+
+			// Restore the previous query.
+			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Reason: we have to restore the query.
+			$GLOBALS['wp_query'] = $old_wp_query;
+			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Reason: we have to restore the post.
+			$GLOBALS['post'] = $old_post;
 		}
 
 		return $this->cache['current_page'];
@@ -137,8 +160,7 @@ class Meta_Tags_Context_Memoizer {
 	/**
 	 * Clears the memoization of either a specific indexable or all indexables.
 	 *
-	 * @param Indexable|int|string $indexable Optional. The indexable or indexable id to clear the memoization of.
-	 *                                        "current-page" clears the current-page context.
+	 * @param Indexable|int|string|null $indexable Optional. The indexable or indexable id to clear the memoization of.
 	 */
 	public function clear( $indexable = null ) {
 		if ( $indexable instanceof Indexable ) {

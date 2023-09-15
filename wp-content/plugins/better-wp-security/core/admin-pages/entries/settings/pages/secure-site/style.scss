@@ -1,0 +1,51 @@
+@keyframes itsec-animation-fade-in-constant {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.itsec-secure-site-steps {
+    .itsec-accordion__header-icon {
+        color: $main-blue;
+    }
+}
+
+.itsec-secure-site-end-graphic {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+
+    svg {
+        max-width: 40rem;
+    }
+}
+
+.itsec-secure-site-end-content {
+    text-align: center;
+    max-width: 40rem;
+    font-size: 1.25rem;
+    color: $medium-text;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.itsec-page--secure-site {
+    h2.itsec-secure-site-overview {
+        color: $dark-text;
+        font-weight: 500;
+    }
+
+    .itsec-spinner,
+    .itsec-accordion__header-icon {
+        animation: itsec-animation-fade-in-constant 400ms;
+    }
+
+    .itsec-accordion__header .itsec-spinner {
+        margin-right: 2px;
+        transform: scale(25/30);
+    }
+}

@@ -1,0 +1,66 @@
+.itsec-admin-bar {
+    padding: 20px 20px 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .itsec-admin-bar__primary,
+    .itsec-admin-bar__secondary {
+        display: flex;
+        align-items: center;
+    }
+
+    .itsec-admin-bar__url {
+        color: $medium-text;
+    }
+
+    @media screen and (max-width: $small) {
+        flex-direction: column;
+        height: auto;
+        align-items: center;
+        justify-items: center;
+
+        & .itsec-admin-bar__edit-cards,
+        & .itsec-admin-bar__admin-notices {
+            margin-left: 0;
+        }
+
+        & > * {
+            margin: 1em 0;
+
+            &:first-child {
+                margin-top: 0;
+            }
+
+            &:last-child {
+                margin-bottom: 0;
+            }
+        }
+
+        & .itsec-admin-bar__share {
+            margin: 1em 0;
+        }
+
+        .itsec-app-page--create-dashboard & .itsec-admin-bar__title {
+            margin-bottom: 0;
+        }
+    }
+}
+
+.itsec-admin-bar-edit-cards__content,
+.itsec-admin-bar-manage-dashboards__content {
+    .components-popover__content {
+        box-shadow: $popover-shadow;
+    }
+
+    &.is-expanded {
+        .components-popover__content {
+            overflow-y: scroll;
+        }
+
+        .itsec-edit-cards,
+        .itsec-manage-dashboards {
+            width: 100%;
+        }
+    }
+}

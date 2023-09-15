@@ -1,9 +1,4 @@
 <?php
-/**
- * WPSEO plugin file.
- *
- * @package Yoast\WP\SEO\Integrations\Front_End
- */
 
 namespace Yoast\WP\SEO\Integrations\Front_End;
 
@@ -13,7 +8,7 @@ use Yoast\WP\SEO\Integrations\Integration_Interface;
 use Yoast\WP\SEO\Wrappers\WP_Query_Wrapper;
 
 /**
- * Class Force_Rewrite_Title
+ * Class Force_Rewrite_Title.
  */
 class Force_Rewrite_Title implements Integration_Interface {
 
@@ -52,15 +47,22 @@ class Force_Rewrite_Title implements Integration_Interface {
 	}
 
 	/**
-	 * @inheritDoc
+	 * Returns the conditionals based in which this loadable should be active.
+	 *
+	 * @return array
 	 */
 	public static function get_conditionals() {
 		return [ Front_End_Conditional::class ];
 	}
 
 	/**
+	 * Initializes the integration.
+	 *
+	 * This is the place to register hooks and filters.
+	 *
 	 * @codeCoverageIgnore
-	 * @inheritDoc
+	 *
+	 * @return void
 	 */
 	public function register_hooks() {
 		// When the option is disabled.
@@ -80,6 +82,8 @@ class Force_Rewrite_Title implements Integration_Interface {
 	/**
 	 * Used in the force rewrite functionality this retrieves the output, replaces the title with the proper SEO
 	 * title and then flushes the output.
+	 *
+	 * @return bool
 	 */
 	public function flush_cache() {
 		if ( $this->ob_started !== true ) {
@@ -99,8 +103,10 @@ class Force_Rewrite_Title implements Integration_Interface {
 			unset( $matches );
 		}
 
+		// phpcs:ignore WordPress.WP.GlobalVariablesOverride -- The query gets reset here with the original query.
 		$GLOBALS['wp_query'] = $old_wp_query;
 
+		// phpcs:ignore WordPress.Security.EscapeOutput -- The output should already have been escaped, we are only filtering it.
 		echo $content;
 
 		return true;

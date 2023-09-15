@@ -1,0 +1,242 @@
+@import "css-vars";
+
+body.security_page_itsec {
+    background-color: $background-blue;
+}
+
+#wpcontent {
+    padding-left: 0;
+}
+
+.auto-fold #wpcontent {
+    padding-left: 0;
+}
+
+.wp-responsive-open #wpbody {
+    right: calc(-16em + 20px);
+}
+
+
+#wpbody-content {
+    padding-bottom: 0;
+}
+
+#wpfooter {
+    display: none;
+}
+
+#adminmenuback {
+    z-index: 5;
+}
+
+ul#adminmenu #toplevel_page_itsec a.wp-has-current-submenu:after,
+ul#adminmenu > li.current#toplevel_page_itsec > a.current:after {
+    border-right-color: #fff;
+}
+
+@include break-small {
+    #itsec-settings-root {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+    }
+}
+
+.itsec-settings {
+    position: relative;
+    display: flex;
+    align-items: stretch;
+    height: 100%;
+    min-height: calc(100vh - 46px);
+    overflow: auto;
+    --wp-admin-theme-color: #{$main-blue};
+    --wp-admin-theme-color-darker-10: #{darken($main-blue, 10)};
+    --wp-admin-theme-color-darker-20: #{darken($main-blue, 20)};
+
+    @include break-small {
+    }
+
+    @include break-medium {
+        min-height: calc(100vh - 32px);
+    }
+
+    @media screen and (width: $small) {
+        min-height: 100vh;
+        margin-top: 46px;
+    }
+}
+
+.itsec-settings *,
+.itsec-settings *::before,
+.itsec-settings *::after {
+    box-sizing: border-box;
+}
+
+:where(.itsec-settings) h1 {
+    font-weight: 600;
+    font-size: 1.6rem;
+    line-height: 1;
+    margin: .75rem 0;
+}
+
+:where(.itsec-settings) h2 {
+    color: $medium-text;
+    font-weight: normal;
+    font-size: 1.25rem;
+    line-height: 1.3;
+    margin: .75rem 0;
+}
+
+:where(.itsec-settings) h3 {
+    font-size: 1rem;
+    font-weight: 400;
+    margin: .5rem 0;
+}
+
+:where(.itsec-settings) h4 {
+    font-size: 1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin: .5rem 0;
+}
+
+:where(.itsec-settings) p,
+:where(.itsec-settings) ul,
+:where(.itsec-settings) ol,
+:where(.itsec-settings) dl {
+    color: $medium-text;
+}
+
+:where(.itsec-settings) h1:first-child,
+:where(.itsec-settings) h2:first-child,
+:where(.itsec-settings) h3:first-child,
+:where(.itsec-settings) h4:first-child,
+:where(.itsec-settings) h5:first-child,
+:where(.itsec-settings) h6:first-child {
+    margin-top: 0;
+}
+
+:where(.itsec-settings) p:first-child {
+    margin-top: 0;
+}
+
+:where(.itsec-settings) p:last-child {
+    margin-bottom: 0;
+}
+
+:where(.itsec-settings) label,
+:where(.itsec-settings) legend {
+    color: $dark-text;
+}
+
+:where(.itsec-settings) .components-checkbox-control__input-container {
+    margin-right: 8px;
+}
+
+.itsec-entity-select-control-as__input input[type="text"]:focus {
+    box-shadow: none;
+    outline: none;
+}
+
+.itsec-settings .components-snackbar-list {
+    width: auto;
+    position: fixed;
+    bottom: 0;
+}
+
+.itsec-settings .components-notice {
+    margin-left: 0;
+    margin-right: 0;
+
+    &.is-dismissible {
+        padding-right: 12px;
+    }
+}
+
+.form-group > .components-base-control:last-child > .components-base-control__field:last-child {
+    margin-bottom: 0;
+}
+
+.itsec-settings .components-base-control__label,
+.itsec-settings .components-base-control__field {
+    margin-bottom: 4px;
+}
+
+.itsec-settings .components-base-control__help {
+    margin-top: 4px;
+}
+
+.itsec-settings .components-textarea-control__input {
+    margin-bottom: 0;
+}
+
+.itsec-settings .components-text-control__input[type="search"]:focus {
+    border-color: var(--wp-admin-theme-color);
+    box-shadow: 0 0 0 1px var(--wp-admin-theme-color);
+    outline: 2px solid transparent;
+}
+
+.itsec-settings select.components-select-control__input {
+    max-width: none;
+
+    &:focus ~ .components-input-control__backdrop {
+        border-color: var(--wp-admin-theme-color);
+        box-shadow: 0 0 0 1px var(--wp-admin-theme-color);
+    }
+}
+
+:where(.itsec-settings) .components-button.has-icon.has-text {
+    padding: 6px 12px;
+}
+
+.itsec-button-icon-right.components-button.has-icon {
+    padding: 6px 12px;
+
+    .dashicon {
+        margin-left: 10px;
+        margin-right: 2px;
+    }
+}
+
+:where(.itsec-settings) a,
+:where(.itsec-settings) .components-button.is-link {
+    color: var(--wp-admin-theme-color);
+
+    &:hover {
+        color: var(--wp-admin-theme-color-darker-20);
+    }
+}
+
+:where(.itsec-settings) .dashicon {
+    transition: none;
+}
+
+@media (max-width: $break-large - 1) and (min-width: $break-medium + 1) {
+    .itsec-settings-main {
+        // Size of the sidebar.
+        margin-left: calc(30px + 2rem);
+    }
+}
+
+@media (max-width: $break-medium) {
+    .itsec-settings-toolbar {
+        padding-left: calc(20px + 2rem);
+        position: fixed;
+        width: 100%;
+        min-height: calc(40px + 1rem);
+        z-index: 2;
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
+
+        .itsec-search {
+            margin-right: 0;
+        }
+    }
+}
+
+@media (max-width: $break-small) {
+    .itsec-settings-toolbar {
+        position: initial;
+    }
+}

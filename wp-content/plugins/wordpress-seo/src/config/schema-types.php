@@ -1,9 +1,4 @@
 <?php
-/**
- * Yoast SEO Plugin File.
- *
- * @package Yoast\YoastSEO\Config
- */
 
 namespace Yoast\WP\SEO\Config;
 
@@ -43,6 +38,7 @@ class Schema_Types {
 	 */
 	const ARTICLE_TYPES = [
 		'Article'                  => '',
+		'BlogPosting'              => '',
 		'SocialMediaPosting'       => '',
 		'NewsArticle'              => '',
 		'AdvertiserContentArticle' => '',
@@ -61,51 +57,51 @@ class Schema_Types {
 	public function get_page_type_options() {
 		return [
 			[
-				'name'  => __( 'Web Page', 'wordpress-seo' ),
+				'name'  => \__( 'Web Page', 'wordpress-seo' ),
 				'value' => 'WebPage',
 			],
 			[
-				'name'  => __( 'Item Page', 'wordpress-seo' ),
+				'name'  => \__( 'Item Page', 'wordpress-seo' ),
 				'value' => 'ItemPage',
 			],
 			[
-				'name'  => __( 'About Page', 'wordpress-seo' ),
+				'name'  => \__( 'About Page', 'wordpress-seo' ),
 				'value' => 'AboutPage',
 			],
 			[
-				'name'  => __( 'FAQ Page', 'wordpress-seo' ),
+				'name'  => \__( 'FAQ Page', 'wordpress-seo' ),
 				'value' => 'FAQPage',
 			],
 			[
-				'name'  => __( 'QA Page', 'wordpress-seo' ),
+				'name'  => \__( 'QA Page', 'wordpress-seo' ),
 				'value' => 'QAPage',
 			],
 			[
-				'name'  => __( 'Profile Page', 'wordpress-seo' ),
+				'name'  => \__( 'Profile Page', 'wordpress-seo' ),
 				'value' => 'ProfilePage',
 			],
 			[
-				'name'  => __( 'Contact Page', 'wordpress-seo' ),
+				'name'  => \__( 'Contact Page', 'wordpress-seo' ),
 				'value' => 'ContactPage',
 			],
 			[
-				'name'  => __( 'Medical Web Page', 'wordpress-seo' ),
+				'name'  => \__( 'Medical Web Page', 'wordpress-seo' ),
 				'value' => 'MedicalWebPage',
 			],
 			[
-				'name'  => __( 'Collection Page', 'wordpress-seo' ),
+				'name'  => \__( 'Collection Page', 'wordpress-seo' ),
 				'value' => 'CollectionPage',
 			],
 			[
-				'name'  => __( 'Checkout Page', 'wordpress-seo' ),
+				'name'  => \__( 'Checkout Page', 'wordpress-seo' ),
 				'value' => 'CheckoutPage',
 			],
 			[
-				'name'  => __( 'Real Estate Listing', 'wordpress-seo' ),
+				'name'  => \__( 'Real Estate Listing', 'wordpress-seo' ),
 				'value' => 'RealEstateListing',
 			],
 			[
-				'name'  => __( 'Search Results Page', 'wordpress-seo' ),
+				'name'  => \__( 'Search Results Page', 'wordpress-seo' ),
 				'value' => 'SearchResultsPage',
 			],
 		];
@@ -117,43 +113,77 @@ class Schema_Types {
 	 * @return array[] The schema article type options.
 	 */
 	public function get_article_type_options() {
-		return [
+		/**
+		 * Filter: 'wpseo_schema_article_types_labels' - Allow developers to filter the available article types and their labels.
+		 *
+		 * Make sure when you filter this to also filter `wpseo_schema_article_types`.
+		 *
+		 * @api array $schema_article_types_labels The available schema article types and their labels.
+		 */
+		return \apply_filters(
+			'wpseo_schema_article_types_labels',
 			[
-				'name'  => __( 'Article', 'wordpress-seo' ),
-				'value' => 'Article',
-			],
-			[
-				'name'  => __( 'Social Media Posting', 'wordpress-seo' ),
-				'value' => 'SocialMediaPosting',
-			],
-			[
-				'name'  => __( 'News Article', 'wordpress-seo' ),
-				'value' => 'NewsArticle',
-			],
-			[
-				'name'  => __( 'Advertiser Content Article', 'wordpress-seo' ),
-				'value' => 'AdvertiserContentArticle',
-			],
-			[
-				'name'  => __( 'Satirical Article', 'wordpress-seo' ),
-				'value' => 'SatiricalArticle',
-			],
-			[
-				'name'  => __( 'Scholary Article', 'wordpress-seo' ),
-				'value' => 'ScholarlyArticle',
-			],
-			[
-				'name'  => __( 'Tech Article', 'wordpress-seo' ),
-				'value' => 'TechArticle',
-			],
-			[
-				'name'  => __( 'Report', 'wordpress-seo' ),
-				'value' => 'Report',
-			],
-			[
-				'name'  => __( 'None', 'wordpress-seo' ),
-				'value' => 'None',
-			],
-		];
+				[
+					'name'  => \__( 'Article', 'wordpress-seo' ),
+					'value' => 'Article',
+				],
+				[
+					'name'  => \__( 'Blog Post', 'wordpress-seo' ),
+					'value' => 'BlogPosting',
+				],
+				[
+					'name'  => \__( 'Social Media Posting', 'wordpress-seo' ),
+					'value' => 'SocialMediaPosting',
+				],
+				[
+					'name'  => \__( 'News Article', 'wordpress-seo' ),
+					'value' => 'NewsArticle',
+				],
+				[
+					'name'  => \__( 'Advertiser Content Article', 'wordpress-seo' ),
+					'value' => 'AdvertiserContentArticle',
+				],
+				[
+					'name'  => \__( 'Satirical Article', 'wordpress-seo' ),
+					'value' => 'SatiricalArticle',
+				],
+				[
+					'name'  => \__( 'Scholarly Article', 'wordpress-seo' ),
+					'value' => 'ScholarlyArticle',
+				],
+				[
+					'name'  => \__( 'Tech Article', 'wordpress-seo' ),
+					'value' => 'TechArticle',
+				],
+				[
+					'name'  => \__( 'Report', 'wordpress-seo' ),
+					'value' => 'Report',
+				],
+				[
+					'name'  => \__( 'None', 'wordpress-seo' ),
+					'value' => 'None',
+				],
+			]
+		);
+	}
+
+	/**
+	 * Gets the values of the article type options.
+	 *
+	 * @deprecated 19.12
+	 * @codeCoverageIgnore
+	 *
+	 * @return array[] The values of the Schema article type options.
+	 */
+	public function get_article_type_options_values() {
+		\_deprecated_function( __METHOD__, 'Yoast SEO 19.12' );
+		$article_types       = $this->get_article_type_options();
+		$article_type_values = [];
+
+		foreach ( $article_types as $type ) {
+			$article_type_values[] = $type['value'];
+		}
+
+		return $article_type_values;
 	}
 }

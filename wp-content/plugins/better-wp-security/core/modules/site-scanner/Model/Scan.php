@@ -111,11 +111,11 @@ final class Scan implements \Countable {
 			return Status::WARN;
 		}
 
-		if ( $this->count( Status::CLEAN ) ) {
-			return Status::CLEAN;
+		if ( $this->get_errors() ) {
+			return Status::ERROR;
 		}
 
-		return Status::ERROR;
+		return Status::CLEAN;
 	}
 
 	/**
@@ -197,7 +197,7 @@ final class Scan implements \Countable {
 	 *
 	 * @return int
 	 */
-	public function count( $status = '' ) {
+	public function count( string $status = '' ): int {
 		$i = 0;
 
 		foreach ( $this->get_entries() as $entry ) {

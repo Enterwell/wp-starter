@@ -2,23 +2,24 @@
 
 namespace EwStarter;
 
-use Twig_Extension;
-use Twig_SimpleFunction;
+use Twig\Extension\AbstractExtension;
+use Twig\TwigFunction;
 
 /**
  * Class Ew_Twig_Extension_Block_Attributes
  * @package EwStarter
  */
-class Ew_Twig_Extension_Block_Attributes extends Twig_Extension {
+class Ew_Twig_Extension_Block_Attributes extends AbstractExtension {
 
 	/**
 	 * Get functions.
 	 *
-	 * @return array|Twig_SimpleFunction[]
+	 * @return array
 	 */
-	public function getFunctions() {
+	public function getFunctions(): array
+	{
 		return [
-			new Twig_SimpleFunction( 'get_attr', [ $this, 'get_component_attr' ] ),
+			new TwigFunction( 'get_attr', [ $this, 'get_component_attr' ] ),
 		];
 	}
 
@@ -29,7 +30,8 @@ class Ew_Twig_Extension_Block_Attributes extends Twig_Extension {
      * @param $attributes object/array Attributes array
      * @return mixed
      */
-	public function get_component_attr( $prefix, $attribute, $attributes ) {
+	public function get_component_attr( $prefix, $attribute, $attributes ): mixed
+	{
 	    $capitalized_attribute = ucfirst($attribute);
 	    return $attributes["$prefix$capitalized_attribute"] ?? null;
 	}

@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { lazy, Suspense } from 'react';
-import ErrorBoundary from 'react-error-boundary';
+import { ErrorBoundary } from 'react-error-boundary';
 
 /**
  * WordPress dependencies
@@ -13,10 +13,10 @@ import { __ } from '@wordpress/i18n';
 /**
  * Async dependencies
  */
-const Select = lazy( () => import( 'react-select/Async' ) );
+const Select = lazy( () => import( 'react-select/async' ) );
 
 function LoadError() {
-	return ( <span>{ __( 'Error when loading. Please refresh.', 'better-wp-security' ) }</span> );
+	return <span>{ __( 'Error when loading. Please refresh.', 'better-wp-security' ) }</span>;
 }
 
 export default function AsyncSelect( { addErrorBoundary = true, ...rest } ) {
@@ -26,5 +26,9 @@ export default function AsyncSelect( { addErrorBoundary = true, ...rest } ) {
 		</Suspense>
 	);
 
-	return ( addErrorBoundary ? <ErrorBoundary FallbackComponent={ LoadError }>{ s }</ErrorBoundary> : s );
+	return addErrorBoundary ? (
+		<ErrorBoundary FallbackComponent={ LoadError }>{ s }</ErrorBoundary>
+	) : (
+		s
+	);
 }

@@ -33,6 +33,10 @@ final class ITSEC_System_Tweaks {
 	}
 
 	public function add_hooks() {
+		if ( ITSEC_Core::is_temp_disable_modules_set() ) {
+			return;
+		}
+
 		if ( $this->hooks_added ) {
 			return;
 		}
@@ -41,10 +45,6 @@ final class ITSEC_System_Tweaks {
 		add_filter( 'itsec_filter_nginx_server_config_modification', array( $this, 'filter_nginx_server_config_modification' ) );
 		add_filter( 'itsec_filter_litespeed_server_config_modification', array( $this, 'filter_litespeed_server_config_modification' ) );
 
-		if ( ITSEC_Modules::get_setting( 'system-tweaks', 'long_url_strings' ) ) {
-			add_action( 'itsec_initialized', array( $this, 'block_long_urls' ) );
-		}
-
 		$this->hooks_added = true;
 	}
 
@@ -52,8 +52,6 @@ final class ITSEC_System_Tweaks {
 		remove_filter( 'itsec_filter_apache_server_config_modification', array( $this, 'filter_apache_server_config_modification' ) );
 		remove_filter( 'itsec_filter_nginx_server_config_modification', array( $this, 'filter_nginx_server_config_modification' ) );
 		remove_filter( 'itsec_filter_litespeed_server_config_modification', array( $this, 'filter_litespeed_server_config_modification' ) );
-
-		remove_action( 'itsec_initialized', array( $this, 'block_long_urls' ) );
 
 		$this->hooks_added = false;
 	}
@@ -74,42 +72,6 @@ final class ITSEC_System_Tweaks {
 		require_once( dirname( __FILE__ ) . '/config-generators.php' );
 
 		return ITSEC_System_Tweaks_Config_Generators::filter_litespeed_server_config_modification( $modification );
-	}
-
-	/**
-	 * Block long URLs very early in the request cycle on the front-end.
-	 */
-	public function block_long_urls() {
-		if ( strlen( $_SERVER['REQUEST_URI'] ) <= 255 ) {
-			return;
-		}
-
-		if ( is_admin() ) {
-			return;
-		}
-
-		if ( defined( 'WP_CLI' ) && WP_CLI ) {
-			return;
-		}
-
-		if ( ITSEC_Core::is_iwp_call() ) {
-			return;
-		}
-
-		if ( strpos( $_SERVER['REQUEST_URI'], 'infinity=scrolling&action=infinite_scroll' ) ) {
-			return;
-		}
-
-		if ( $_SERVER['REQUEST_METHOD'] === 'GET' && isset( $GLOBALS['pagenow'], $_GET['action'] ) && 'wp-login.php' === $GLOBALS['pagenow'] ) {
-			return;
-		}
-
-		@header( 'HTTP/1.1 414 Request-URI Too Long' );
-		@header( 'Status: 414 Request-URI Too Long' );
-		@header( 'Cache-Control: no-cache, must-revalidate' );
-		@header( 'Expires: Thu, 22 Jun 1978 00:28:00 GMT' );
-		@header( 'Connection: Close' );
-		@exit;
 	}
 }
 

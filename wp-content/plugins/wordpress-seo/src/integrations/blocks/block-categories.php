@@ -1,31 +1,26 @@
 <?php
-/**
- * WPSEO plugin file.
- *
- * @package Yoast\WP\SEO\Integrations\Blocks
- */
 
 namespace Yoast\WP\SEO\Integrations\Blocks;
 
 use Yoast\WP\SEO\Integrations\Integration_Interface;
 
 /**
- * Dynamic blocks category class
+ * Internal_Linking_Category block class.
  */
 class Internal_Linking_Category implements Integration_Interface {
 
 	/**
-	 * @inheritDoc
+	 * {@inheritDoc}
 	 */
 	public static function get_conditionals() {
 		return [];
 	}
 
 	/**
-	 * @inheritDoc
+	 * {@inheritDoc}
 	 */
 	public function register_hooks() {
-		\add_filter( 'block_categories', [ $this, 'add_block_categories' ] );
+		\add_filter( 'block_categories_all', [ $this, 'add_block_categories' ] );
 	}
 
 	/**

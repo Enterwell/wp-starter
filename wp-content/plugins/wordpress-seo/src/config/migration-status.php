@@ -1,14 +1,11 @@
 <?php
-/**
- * Yoast SEO Plugin File.
- *
- * @package Yoast\YoastSEO\Config
- */
 
 namespace Yoast\WP\SEO\Config;
 
 /**
- * Migration_Status class. Used to validate whether or not migrations have been run and whether or not they should be run again.
+ * Migration_Status class.
+ *
+ * Used to validate whether or not migrations have been run and whether or not they should be run again.
  */
 class Migration_Status {
 
@@ -29,11 +26,12 @@ class Migration_Status {
 	/**
 	 * Checks if a given migration should be run.
 	 *
-	 * @param string $name The name of the migration.
+	 * @param string $name    The name of the migration.
+	 * @param string $version The current version.
 	 *
 	 * @return bool Whether or not the migration should be run.
 	 */
-	public function should_run_migration( $name ) {
+	public function should_run_migration( $name, $version = \WPSEO_VERSION ) {
 		$migration_status = $this->get_migration_status( $name );
 
 		// Check if we've attempted to run this migration in the past 10 minutes. If so, it may still be running.
@@ -44,7 +42,7 @@ class Migration_Status {
 		}
 
 		// Is the migration version less than the current version.
-		return \version_compare( $migration_status['version'], \WPSEO_VERSION, '<' );
+		return \version_compare( $migration_status['version'], $version, '<' );
 	}
 
 	/**
@@ -83,15 +81,16 @@ class Migration_Status {
 	 *
 	 * @param string $name    The name of the migration.
 	 * @param string $message Message explaining the reason for the error.
+	 * @param string $version The current version.
 	 *
 	 * @return void
 	 */
-	public function set_error( $name, $message ) {
+	public function set_error( $name, $message, $version = \WPSEO_VERSION ) {
 		$migration_status = $this->get_migration_status( $name );
 
 		$migration_status['error'] = [
 			'time'    => \strtotime( 'now' ),
-			'version' => \WPSEO_VERSION,
+			'version' => $version,
 			'message' => $message,
 		];
 
@@ -101,15 +100,16 @@ class Migration_Status {
 	/**
 	 * Updates the migration version to the latest version.
 	 *
-	 * @param string $name The name of the migration.
+	 * @param string $name    The name of the migration.
+	 * @param string $version The current version.
 	 *
 	 * @return void
 	 */
-	public function set_success( $name ) {
+	public function set_success( $name, $version = \WPSEO_VERSION ) {
 		$migration_status = $this->get_migration_status( $name );
 		unset( $migration_status['lock'] );
 		unset( $migration_status['error'] );
-		$migration_status['version'] = \WPSEO_VERSION;
+		$migration_status['version'] = $version;
 		$this->set_migration_status( $name, $migration_status );
 	}
 

@@ -7,7 +7,6 @@
 		},
 
 		bindEvents: function() {
-			$( document ).on( 'click', '#itsec-site-scanner-start', this.startScan );
 			$( document ).on( 'click', '.itsec-site-scan-toggle-details', this.toggleDetails );
 		},
 
@@ -24,24 +23,6 @@
 				$( this ).text( wp.i18n.__( 'Hide Details', 'better-wp-security' ) ).attr( 'aria-expanded', true );
 				$details.show();
 			}
-		},
-
-		startScan: function( e ) {
-			e.preventDefault();
-
-			$( this ).prop( 'disabled', true ).val( wp.i18n.__( 'Scanning...', 'better-wp-security' ) );
-			itsecUtil.sendWidgetAJAXRequest( 'site-scanner', { action: 'run-scan' }, itsecSiteScanner.handleResponse );
-		},
-
-		handleResponse: function( results ) {
-			$( '#itsec-site-scanner-start' ).hide();
-			var $wrapper = $( '.itsec-site-scanner-scan-results-wrapper' );
-
-			if ( results.response && results.response.length ) {
-				$wrapper.html( results.response );
-			}
-
-			itsecUtil.displayNotices( results, $wrapper, true );
 		},
 	};
 

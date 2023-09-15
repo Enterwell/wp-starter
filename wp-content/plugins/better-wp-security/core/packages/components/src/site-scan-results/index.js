@@ -13,7 +13,11 @@ import SystemErrorDetails from './system-error-details';
 import Entry from './entry';
 import './style.scss';
 
-function SiteScanResults( { results, showSiteUrl = true, showErrorDetails = true } ) {
+function SiteScanResults( {
+	results,
+	showSiteUrl = true,
+	showErrorDetails = true,
+} ) {
 	const siteUrl = results.url;
 	let error;
 
@@ -25,9 +29,22 @@ function SiteScanResults( { results, showSiteUrl = true, showErrorDetails = true
 
 	return (
 		<div className="itsec-site-scan-results">
-			{ showSiteUrl && siteUrl && <h4>{ sprintf( __( 'Site: %s', 'better-wp-security' ), siteUrl ) }</h4> }
+			{ showSiteUrl && siteUrl && (
+				<h4>
+					{ sprintf(
+						/* translators: 1. The site URL. */
+						__( 'Site: %s', 'better-wp-security' ),
+						siteUrl
+					) }
+				</h4>
+			) }
 
-			{ error ? <WPErrorDetails results={ error } showErrorDetails={ showErrorDetails } /> : (
+			{ error ? (
+				<WPErrorDetails
+					results={ error }
+					showErrorDetails={ showErrorDetails }
+				/>
+			) : (
 				<Fragment>
 					<SystemErrorDetails results={ results } />
 					{ results.entries.map( ( entry, i ) => (

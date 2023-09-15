@@ -104,11 +104,10 @@ class Yoast_Dashboard_Widget implements WPSEO_WordPress_Integration {
 			return;
 		}
 
-		wp_localize_script( WPSEO_Admin_Asset_Manager::PREFIX . 'dashboard-widget', 'wpseoDashboardWidgetL10n', $this->localize_dashboard_script() );
-		$yoast_components_l10n = new WPSEO_Admin_Asset_Yoast_Components_L10n();
-		$yoast_components_l10n->localize_script( WPSEO_Admin_Asset_Manager::PREFIX . 'dashboard-widget' );
+		$this->asset_manager->localize_script( 'dashboard-widget', 'wpseoDashboardWidgetL10n', $this->localize_dashboard_script() );
 		$this->asset_manager->enqueue_script( 'dashboard-widget' );
 		$this->asset_manager->enqueue_style( 'wp-dashboard' );
+		$this->asset_manager->enqueue_style( 'monorepo' );
 	}
 
 	/**
@@ -118,14 +117,14 @@ class Yoast_Dashboard_Widget implements WPSEO_WordPress_Integration {
 	 */
 	public function localize_dashboard_script() {
 		return [
-			'feed_header'      => sprintf(
+			'feed_header'          => sprintf(
 				/* translators: %1$s resolves to Yoast.com */
 				__( 'Latest blog posts on %1$s', 'wordpress-seo' ),
 				'Yoast.com'
 			),
-			'feed_footer'      => __( 'Read more like this on our SEO blog', 'wordpress-seo' ),
-			'wp_version'       => substr( $GLOBALS['wp_version'], 0, 3 ) . '-' . ( is_plugin_active( 'classic-editor/classic-editor.php' ) ? '1' : '0' ),
-			'php_version'      => PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION,
+			'feed_footer'          => __( 'Read more like this on our SEO blog', 'wordpress-seo' ),
+			'wp_version'           => substr( $GLOBALS['wp_version'], 0, 3 ) . '-' . ( is_plugin_active( 'classic-editor/classic-editor.php' ) ? '1' : '0' ),
+			'php_version'          => PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION,
 		];
 	}
 

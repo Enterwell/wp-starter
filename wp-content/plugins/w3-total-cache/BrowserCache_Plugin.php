@@ -69,6 +69,10 @@ class BrowserCache_Plugin {
 			array( $this, 'w3tc_minify_http2_preload_url' ), 4000 );
 		add_filter( 'w3tc_cdn_config_headers',
 			array( $this, 'w3tc_cdn_config_headers' ) );
+
+		if ( Util_Admin::is_w3tc_admin_page() ) {
+			add_action( 'admin_notices', array( $this, 'admin_notices' ) );
+		}
 	}
 
 	private function url_clean_enabled() {
@@ -143,8 +147,8 @@ class BrowserCache_Plugin {
 		/**
 		 * Check User Agent
 		 */
-		if ( isset( $_SERVER['HTTP_USER_AGENT'] ) &&
-			stristr( $_SERVER['HTTP_USER_AGENT'], W3TC_POWERED_BY ) !== false ) {
+		$http_user_agent = isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '';
+		if ( stristr( $http_user_agent, W3TC_POWERED_BY ) !== false ) {
 			return false;
 		}
 
@@ -167,6 +171,15 @@ class BrowserCache_Plugin {
 				')?(/[^\'"/][^\'"]*\.([a-z-_]+)([\?#][^\'"]*)?))[\'"]~Ui', array(
 					$this,
 					'link_replace_callback'
+				), $buffer );
+
+			// without quotes
+			$buffer = preg_replace_callback(
+				'~(href|src|action|extsrc|asyncsrc)=((' .
+				$domain_url_regexp .
+				')?(/[^\\s>][^\\s>]*\.([a-z-_]+)([\?#][^\\s>]*)?))([\\s>])~Ui', array(
+					$this,
+					'link_replace_callback_noquote'
 				), $buffer );
 		}
 
@@ -191,6 +204,24 @@ class BrowserCache_Plugin {
 		if ( $attr != 'w3tc_load_js(' )
 			return $attr . '=' . $quote . $url . $quote;
 		return sprintf( '%s\'%s\'', $attr, $url );
+	}
+
+	/**
+	 * Link replace callback when no quote arount attribute value
+	 *
+	 * @param string  $matches
+	 * @return string
+	 */
+	function link_replace_callback_noquote( $matches ) {
+		list ( $match, $attr, $url, , , , , $extension, , $delimiter ) = $matches;
+
+		$ops = $this->_get_url_mutation_operations( $url, $extension );
+		if ( is_null( $ops ) )
+			return $match;
+
+		$url = $this->mutate_url( $url, $ops, !$this->browsercache_rewrite );
+
+		return $attr . '=' . $url . $delimiter;
 	}
 
 	/**
@@ -346,7 +377,7 @@ class BrowserCache_Plugin {
 			$menu_items['20190.browsercache'] = array(
 				'id' => 'w3tc_flush_browsercache',
 				'parent' => 'w3tc_flush',
-				'title' => __( 'Browser Cache: Update Media Query String', 'w3-total-cache' ),
+				'title' => __( 'Browser Cache', 'w3-total-cache' ),
 				'href' => wp_nonce_url( admin_url(
 						'admin.php?page=w3tc_dashboard&amp;w3tc_flush_browser_cache' ),
 					'w3tc' )
@@ -439,5 +470,25 @@ class BrowserCache_Plugin {
 		if ( !empty( $wp->query_vars['feed'] ) )
 			unset( $headers['ETag'] );
 		return $headers;
+	}
+
+	/**
+	 * Admin notice for Content-Security-Policy-Report-Only that displays if the feature is enabled and the report-uri/to isn't defined.
+	 *
+	 * @since 2.2.13
+	 */
+	public function admin_notices() {
+		if ( $this->_config->get_boolean( 'browsercache.security.cspro' ) && empty( $this->_config->get_string( 'browsercache.security.cspro.reporturi' ) ) && empty( $this->_config->get_string( 'browsercache.security.cspro.reportto' ) ) ) {
+			$message = '<p>' . sprintf(
+				// translators: 1 opening HTML a tag to Browser Cache CSP-Report-Only settings, 2 closing HTML a tag.
+				esc_html__(
+					'The Content Security Policy - Report Only requires the "report-uri" and/or "report-to" directives. Please define one or both of these directives %1$shere%2$s.',
+					'w3-total-cache'
+				),
+				'<a href="' . Util_Ui::admin_url( 'admin.php?page=w3tc_browsercache#browsercache__security__cspro' ) . '" target="_blank" alt="' . esc_attr__( 'Browser Cache Content-Security-Policy-Report-Only Settings', 'w3-total-cache' ) . '">',
+				'</a>'
+			);
+			Util_Ui::error_box( $message );
+		}
 	}
 }

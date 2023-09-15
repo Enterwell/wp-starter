@@ -8,3 +8,7 @@
 	Fixed issue with admin menu icons not functioning properly on sites that have an ABSPATH or WP_CONTENT_DIR of "/".
 1.2.0 - 2014-09-11 - Cody Smith
 	Add support for ContactBuddy
+1.2.1 - 2021-06-22 - Timothy Jacobs
+	Add support for additional iThemes Security top level pages.
+1.2.2 - 2022-07-15 - Lew Ayotte
+	Fixed bug where $url can be undefined in certain configurations

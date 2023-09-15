@@ -1,0 +1,11 @@
+{
+  "id": "database-prefix",
+  "type": "tool",
+  "status": "always-active",
+  "title": "Change Database Table Prefix",
+  "description": "Changes the database table prefix that WordPress uses.",
+  "help": "By default, WordPress assigns the prefix wp_ to all tables in the database where your content, users, and objects exist. For potential attackers, this means it is easier to write scripts that can target WordPress databases as all the important table names for 95% of sites are already known. Changing the wp_ prefix makes it more difficult for tools that are trying to take advantage of vulnerabilities in other places to affect the database of your site. Before using this tool, we strongly recommend creating a backup of your database.",
+  "tools": {
+    "change-database-prefix": {}
+  }
+}

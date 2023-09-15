@@ -1,9 +1,4 @@
 <?php
-/**
- * Presenter class for the Twitter description.
- *
- * @package Yoast\YoastSEO\Presenters|Twitter
- */
 
 namespace Yoast\WP\SEO\Presenters\Twitter;
 
@@ -11,16 +6,16 @@ use Yoast\WP\SEO\Presentations\Indexable_Presentation;
 use Yoast\WP\SEO\Presenters\Abstract_Indexable_Tag_Presenter;
 
 /**
- * Class Description_Presenter
+ * Presenter class for the Twitter description.
  */
 class Description_Presenter extends Abstract_Indexable_Tag_Presenter {
 
 	/**
-	 * The tag format including placeholders.
+	 * The tag key name.
 	 *
 	 * @var string
 	 */
-	protected $tag_format = '<meta name="twitter:description" content="%s" />';
+	protected $key = 'twitter:description';
 
 	/**
 	 * Run the Twitter description through replace vars and the `wpseo_twitter_description` filter.

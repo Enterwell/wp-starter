@@ -1,0 +1,11 @@
+.itsec-go-pro-pricing.components-flex {
+    align-items: center;
+
+    .it-ui-callout {
+        max-width: 1060px;
+    }
+
+    .itsec-go-pro-card-grid:empty + * {
+        display: none;
+    }
+}

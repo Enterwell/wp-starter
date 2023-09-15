@@ -8,12 +8,11 @@ trigger:
   - main
 
 pool:
-  # ubuntu-latest for PHP8.1, ubuntu-20.04 for PHP7.4 or 8.0
-  vmImage: ubuntu-20.04
+  vmImage: ubuntu-latest
 
 variables:
-  phpVersion: '8.0'
-  nodeVersion: '16.13.1'
+  phpVersion: '8.1'
+  nodeVersion: '18.x'
   rootFolder: $(System.DefaultWorkingDirectory)
   pluginFolder: $(rootFolder)/wp-content/plugins/ewplugin
   themeFolder: $(rootFolder)/wp-content/themes/ew-theme

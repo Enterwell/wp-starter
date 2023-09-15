@@ -19,6 +19,21 @@ class ITSEC_Lib_Login {
 	}
 
 	/**
+	 * Get an identifier for accepted lookup field type.
+	 *
+	 * @param WP_User $user
+	 *
+	 * @return string
+	 */
+	public static function get_identifier_for_user( \WP_User $user ): string {
+		foreach ( self::get_user_lookup_fields() as $field ) {
+			return $user->get( 'user_' . $field );
+		}
+
+		throw new DomainException( __( 'Could not determine an identifier for the user.', 'better-wp-security' ) );
+	}
+
+	/**
 	 * Get the fields a user can provide to identify their user account.
 	 *
 	 * @return array
@@ -54,5 +69,25 @@ class ITSEC_Lib_Login {
 		}
 
 		return esc_html__( 'Username', 'better-wp-security' );
+	}
+
+	/**
+	 * Gets an error message indicating that the requested
+	 * user could not be found.
+	 *
+	 * @return string
+	 */
+	public static function get_not_found_error_message(): string {
+		$fields = self::get_user_lookup_fields();
+
+		if ( count( $fields ) === 2 ) {
+			return __( 'Could not find a user with that username or email address', 'better-wp-security' );
+		}
+
+		if ( 'email' === $fields[0] ) {
+			return __( 'Could not find a user with that email address', 'better-wp-security' );
+		}
+
+		return __( 'Could not find a user with that username', 'better-wp-security' );
 	}
 }

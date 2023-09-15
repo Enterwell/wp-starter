@@ -1,0 +1,52 @@
+{
+  "id": "brute-force",
+  "status": "default-active",
+  "type": "lockout",
+  "onboard": true,
+  "title": "Local Brute Force",
+  "description": "Protect your site against attackers that try to randomly guess login details to your site.",
+  "help": "If one had unlimited time and wanted to try an unlimited number of password combinations to get into your site they eventually would, right? This method of attack, known as a brute force attack, is something that WordPress is acutely susceptible to as, by default, the system doesn’t care how many attempts a user makes to login. It will always let you try again. Enabling login limits will ban the host user from attempting to login again after the specified bad login threshold has been reached.",
+  "settings": {
+    "type": "object",
+    "properties": {
+      "auto_ban_admin": {
+        "type": "boolean",
+        "default": false,
+        "title": "Automatically ban “admin” user",
+        "description": "Immediately ban a host that attempts to login using the “admin” username."
+      },
+      "max_attempts_host": {
+        "type": "integer",
+        "minimum": 0,
+        "default": 5,
+        "title": "Max Login Attempts Per Host",
+        "description": "The number of login attempts a user has before their host or computer is locked out of the system. Set to 0 to record bad login attempts without locking out the host."
+      },
+      "max_attempts_user": {
+        "type": "integer",
+        "minimum": 0,
+        "default": 10,
+        "title": "Max Login Attempts Per User",
+        "description": "The number of login attempts a user has before their username is locked out of the system. Note that this is different from hosts in case an attacker is using multiple computers. In addition, if they are using your login name you could be locked out yourself. Set to 0 to log bad login attempts per user without ever locking the user out (this is not recommended)."
+      },
+      "check_period": {
+        "type": "integer",
+        "minimum": 1,
+        "default": 5,
+        "title": "Minutes to Remember Bad Login (check period)",
+        "description": "The number of minutes in which bad logins should be remembered."
+      }
+    },
+    "uiSchema": {
+      "ui:sections": [
+        {
+          "title": "Login Attempts",
+          "fields": [
+            "max_attempts_host",
+            "max_attempts_user"
+          ]
+        }
+      ]
+    }
+  }
+}

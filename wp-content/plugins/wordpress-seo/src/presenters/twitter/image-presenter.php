@@ -1,9 +1,4 @@
 <?php
-/**
- * Presenter class for the Twitter image.
- *
- * @package Yoast\YoastSEO\Presenters\Twitter
- */
 
 namespace Yoast\WP\SEO\Presenters\Twitter;
 
@@ -11,23 +6,23 @@ use Yoast\WP\SEO\Presentations\Indexable_Presentation;
 use Yoast\WP\SEO\Presenters\Abstract_Indexable_Tag_Presenter;
 
 /**
- * Class Image_Presenter
+ * Presenter class for the Twitter image.
  */
 class Image_Presenter extends Abstract_Indexable_Tag_Presenter {
 
 	/**
-	 * The tag format including placeholders.
+	 * The tag key name.
 	 *
 	 * @var string
 	 */
-	protected $tag_format = '<meta name="twitter:image" content="%s" />';
+	protected $key = 'twitter:image';
 
 	/**
 	 * The method of escaping to use.
 	 *
 	 * @var string
 	 */
-	protected $escaping = 'attribute';
+	protected $escaping = 'url';
 
 	/**
 	 * Run the Twitter image value through the `wpseo_twitter_image` filter.

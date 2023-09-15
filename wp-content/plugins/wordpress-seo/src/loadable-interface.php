@@ -1,9 +1,4 @@
 <?php
-/**
- * Integration interface definition.
- *
- * @package Yoast\YoastSEO\WordPress
- */
 
 namespace Yoast\WP\SEO;
 
@@ -13,7 +8,7 @@ namespace Yoast\WP\SEO;
 interface Loadable_Interface {
 
 	/**
-	 * Returns the conditionals based in which this loadable should be active.
+	 * Returns the conditionals based on which this loadable should be active.
 	 *
 	 * @return array
 	 */

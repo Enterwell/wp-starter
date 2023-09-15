@@ -1,0 +1,176 @@
+{
+  "id": "notification-center",
+  "type": "custom",
+  "status": "always-active",
+  "title": "Notification Center",
+  "description": "Manage and configure email notifications sent by iThemes Security related to various settings modules.",
+  "help": "Using the Notification Center, you can set the default recipients, enable the security digest email, customize email notifications, and more.",
+  "settings": {
+    "type": "object",
+    "properties": {
+      "last_sent": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "default": {},
+        "readonly": true
+      },
+      "resend_at": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "default": {},
+        "readonly": true
+      },
+      "data": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "object"
+        },
+        "default": {},
+        "readonly": true
+      },
+      "last_mail_error": {
+        "type": "string",
+        "default": "",
+        "readonly": true
+      },
+      "from_email": {
+        "type": "string",
+        "oneOf": [
+          {
+            "format": "email"
+          },
+          {
+            "enum": [
+              ""
+            ]
+          }
+        ],
+        "default": "",
+        "title": "From Email",
+        "description": "iThemes Security will send notifications from this email address. Leave blank to use the WordPress default."
+      },
+      "default_recipients": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "user_list"
+        ],
+        "properties": {
+          "user_list": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "oneOf": [
+                {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                {
+                  "type": "string",
+                  "pattern": "^role:\\S+$"
+                }
+              ]
+            }
+          }
+        },
+        "default": {
+          "user_list": [
+            "role:administrator"
+          ]
+        },
+        "title": "Default Recipients",
+        "description": "Set the default recipients for any admin-facing notifications."
+      },
+      "notifications": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "subject": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "message": {
+              "type": [
+                "null",
+                "string"
+              ],
+              "format": "html"
+            },
+            "schedule": {
+              "type": "string"
+            },
+            "recipient_type": {
+              "type": "string",
+              "enum": [
+                "default",
+                "custom"
+              ]
+            },
+            "user_list": {
+              "type": "array",
+              "items": {
+                "oneOf": [
+                  {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  {
+                    "type": "string",
+                    "pattern": "^role:\\S+$"
+                  }
+                ]
+              }
+            },
+            "previous_emails": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "email"
+              }
+            }
+          }
+        },
+        "default": {}
+      },
+      "admin_emails": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "format": "email"
+        },
+        "default": [],
+        "readonly": true
+      }
+    }
+  },
+  "onboard-settings": [
+    "default_recipients"
+  ],
+  "import-export": {
+    "import-settings": [
+      "from_email",
+      "default_recipients"
+    ],
+    "exclude-settings": [
+      "last_sent",
+      "resend_at",
+      "data",
+      "last_mail_error",
+      "default_recipients.user_list.*",
+      "notifications.*.user_list.*"
+    ]
+  }
+}

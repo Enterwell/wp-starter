@@ -129,6 +129,22 @@ class ITSEC_Notification_Center_Setup {
 			$this->old_version = $itsec_old_version;
 			add_action( 'itsec_initialized', array( $this, 'fire_continue_upgrade' ) );
 		}
+
+		if ( $itsec_old_version < 4123 ) {
+			$notifications = ITSEC_Modules::get_setting( 'notification-center', 'notifications' );
+
+			foreach ( $notifications as $id => $notification ) {
+				if ( isset( $notification['subject'] ) && '' === $notification['subject'] ) {
+					$notifications[ $id ]['subject'] = null;
+				}
+
+				if ( isset( $notification['message'] ) && '' === $notification['message'] ) {
+					$notifications[ $id ]['message'] = null;
+				}
+			}
+
+			ITSEC_Modules::set_setting( 'notification-center', 'notifications', $notifications );
+		}
 	}
 
 	public function fire_continue_upgrade() {

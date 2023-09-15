@@ -43,16 +43,9 @@ class WPSEO_Replace_Vars {
 	/**
 	 * Current post/page/cpt information.
 	 *
-	 * @var object
+	 * @var stdClass
 	 */
 	protected $args;
-
-	/**
-	 * The date helper.
-	 *
-	 * @var WPSEO_Date_Helper
-	 */
-	protected $date;
 
 	/**
 	 * Help texts for use in WPSEO -> Search appearance tabs.
@@ -67,13 +60,6 @@ class WPSEO_Replace_Vars {
 	 * @var array
 	 */
 	protected static $external_replacements = [];
-
-	/**
-	 * Constructor.
-	 */
-	public function __construct() {
-		$this->date = new WPSEO_Date_Helper();
-	}
 
 	/**
 	 * Setup the help texts and external replacements as statics so they will be available to all instances.
@@ -99,7 +85,7 @@ class WPSEO_Replace_Vars {
 	 *
 	 * @see wpseo_register_var_replacement() for a usage example.
 	 *
-	 * @param string $var              The name of the variable to replace, i.e. '%%var%%'.
+	 * @param string $var_to_replace   The name of the variable to replace, i.e. '%%var%%'.
 	 *                                 Note: the surrounding %% are optional.
 	 * @param mixed  $replace_function Function or method to call to retrieve the replacement value for the variable.
 	 *                                 Uses the same format as add_filter/add_action function parameter and
@@ -109,22 +95,22 @@ class WPSEO_Replace_Vars {
 	 *
 	 * @return bool Whether the replacement function was succesfully registered.
 	 */
-	public static function register_replacement( $var, $replace_function, $type = 'advanced', $help_text = '' ) {
+	public static function register_replacement( $var_to_replace, $replace_function, $type = 'advanced', $help_text = '' ) {
 		$success = false;
 
-		if ( is_string( $var ) && $var !== '' ) {
-			$var = self::remove_var_delimiter( $var );
+		if ( is_string( $var_to_replace ) && $var_to_replace !== '' ) {
+			$var_to_replace = self::remove_var_delimiter( $var_to_replace );
 
-			if ( preg_match( '`^[A-Z0-9_-]+$`i', $var ) === false ) {
+			if ( preg_match( '`^[A-Z0-9_-]+$`i', $var_to_replace ) === false ) {
 				trigger_error( esc_html__( 'A replacement variable can only contain alphanumeric characters, an underscore or a dash. Try renaming your variable.', 'wordpress-seo' ), E_USER_WARNING );
 			}
-			elseif ( strpos( $var, 'cf_' ) === 0 || strpos( $var, 'ct_' ) === 0 ) {
+			elseif ( strpos( $var_to_replace, 'cf_' ) === 0 || strpos( $var_to_replace, 'ct_' ) === 0 ) {
 				trigger_error( esc_html__( 'A replacement variable can not start with "%%cf_" or "%%ct_" as these are reserved for the WPSEO standard variable variables for custom fields and custom taxonomies. Try making your variable name unique.', 'wordpress-seo' ), E_USER_WARNING );
 			}
-			elseif ( ! method_exists( __CLASS__, 'retrieve_' . $var ) ) {
-				if ( $var !== '' && ! isset( self::$external_replacements[ $var ] ) ) {
-					self::$external_replacements[ $var ] = $replace_function;
-					$replacement_variable                = new WPSEO_Replacement_Variable( $var, $var, $help_text );
+			elseif ( ! method_exists( __CLASS__, 'retrieve_' . $var_to_replace ) ) {
+				if ( $var_to_replace !== '' && ! isset( self::$external_replacements[ $var_to_replace ] ) ) {
+					self::$external_replacements[ $var_to_replace ] = $replace_function;
+					$replacement_variable                           = new WPSEO_Replacement_Variable( $var_to_replace, $var_to_replace, $help_text );
 					self::register_help_text( $type, $replacement_variable );
 					$success = true;
 				}
@@ -143,28 +129,28 @@ class WPSEO_Replace_Vars {
 	/**
 	 * Replace `%%variable_placeholders%%` with their real value based on the current requested page/post/cpt/etc.
 	 *
-	 * @param string $string The string to replace the variables in.
-	 * @param array  $args   The object some of the replacement values might come from,
-	 *                       could be a post, taxonomy or term.
-	 * @param array  $omit   Variables that should not be replaced by this function.
+	 * @param string $text The string to replace the variables in.
+	 * @param array  $args The object some of the replacement values might come from,
+	 *                     could be a post, taxonomy or term.
+	 * @param array  $omit Variables that should not be replaced by this function.
 	 *
 	 * @return string
 	 */
-	public function replace( $string, $args, $omit = [] ) {
+	public function replace( $text, $args, $omit = [] ) {
 
-		$string = wp_strip_all_tags( $string );
+		$text = wp_strip_all_tags( $text );
 
 		// Let's see if we can bail super early.
-		if ( strpos( $string, '%%' ) === false ) {
-			return WPSEO_Utils::standardize_whitespace( $string );
+		if ( strpos( $text, '%%' ) === false ) {
+			return YoastSEO()->helpers->string->standardize_whitespace( $text );
 		}
 
 		$args = (array) $args;
 		if ( isset( $args['post_content'] ) && ! empty( $args['post_content'] ) ) {
-			$args['post_content'] = WPSEO_Utils::strip_shortcode( $args['post_content'] );
+			$args['post_content'] = YoastSEO()->helpers->string->strip_shortcode( $args['post_content'] );
 		}
 		if ( isset( $args['post_excerpt'] ) && ! empty( $args['post_excerpt'] ) ) {
-			$args['post_excerpt'] = WPSEO_Utils::strip_shortcode( $args['post_excerpt'] );
+			$args['post_excerpt'] = YoastSEO()->helpers->string->strip_shortcode( $args['post_excerpt'] );
 		}
 		$this->args = (object) wp_parse_args( $args, $this->defaults );
 
@@ -174,7 +160,7 @@ class WPSEO_Replace_Vars {
 		}
 
 		$replacements = [];
-		if ( preg_match_all( '`%%([^%]+(%%single)?)%%?`iu', $string, $matches ) ) {
+		if ( preg_match_all( '`%%([^%]+(%%single)?)%%?`iu', $text, $matches ) ) {
 			$replacements = $this->set_up_replacements( $matches, $omit );
 		}
 
@@ -190,11 +176,11 @@ class WPSEO_Replace_Vars {
 
 		// Do the actual replacements.
 		if ( is_array( $replacements ) && $replacements !== [] ) {
-			$string = str_replace(
+			$text = str_replace(
 				array_keys( $replacements ),
 				// Make sure to exclude replacement values that are arrays e.g. coming from a custom field serialized value.
 				array_filter( array_values( $replacements ), 'is_scalar' ),
-				$string
+				$text
 			);
 		}
 
@@ -210,19 +196,76 @@ class WPSEO_Replace_Vars {
 			// Remove non-replaced variables.
 			$remove = array_diff( $matches[1], $omit ); // Make sure the $omit variables do not get removed.
 			$remove = array_map( [ __CLASS__, 'add_var_delimiter' ], $remove );
-			$string = str_replace( $remove, '', $string );
+			$text   = str_replace( $remove, '', $text );
 		}
 
 		// Undouble separators which have nothing between them, i.e. where a non-replaced variable was removed.
 		if ( isset( $replacements['%%sep%%'] ) && ( is_string( $replacements['%%sep%%'] ) && $replacements['%%sep%%'] !== '' ) ) {
-			$q_sep  = preg_quote( $replacements['%%sep%%'], '`' );
-			$string = preg_replace( '`' . $q_sep . '(?:\s*' . $q_sep . ')*`u', $replacements['%%sep%%'], $string );
+			$q_sep = preg_quote( $replacements['%%sep%%'], '`' );
+			$text  = preg_replace( '`' . $q_sep . '(?:\s*' . $q_sep . ')*`u', $replacements['%%sep%%'], $text );
 		}
 
 		// Remove superfluous whitespace.
-		$string = WPSEO_Utils::standardize_whitespace( $string );
+		$text = YoastSEO()->helpers->string->standardize_whitespace( $text );
 
-		return $string;
+		return $text;
+	}
+
+	/**
+	 * Register a new replacement variable if it has not been registered already.
+	 *
+	 * @param string $var_to_replace   The name of the variable to replace, i.e. '%%var%%'.
+	 *                                 Note: the surrounding %% are optional.
+	 * @param mixed  $replace_function Function or method to call to retrieve the replacement value for the variable.
+	 *                                 Uses the same format as add_filter/add_action function parameter and
+	 *                                 should *return* the replacement value. DON'T echo it.
+	 * @param string $type             Type of variable: 'basic' or 'advanced', defaults to 'advanced'.
+	 * @param string $help_text        Help text to be added to the help tab for this variable.
+	 *
+	 * @return bool `true` if the replace var has been registered, `false` if not.
+	 */
+	public function safe_register_replacement( $var_to_replace, $replace_function, $type = 'advanced', $help_text = '' ) {
+		if ( ! $this->has_been_registered( $var_to_replace ) ) {
+			return self::register_replacement( $var_to_replace, $replace_function, $type, $help_text );
+		}
+		return false;
+	}
+
+	/**
+	 * Checks whether the given replacement variable has already been registered or not.
+	 *
+	 * @param string $replacement_variable The replacement variable to check, including the variable delimiter (e.g. `%%var%%`).
+	 *
+	 * @return bool `true` if the replacement variable has already been registered.
+	 */
+	public function has_been_registered( $replacement_variable ) {
+		$replacement_variable = self::remove_var_delimiter( $replacement_variable );
+
+		return isset( self::$external_replacements[ $replacement_variable ] );
+	}
+
+	/**
+	 * Returns the list of hidden replace vars.
+	 *
+	 * E.g. the replace vars that should work, but are not advertised.
+	 *
+	 * @return string[] The list of hidden replace vars.
+	 */
+	public function get_hidden_replace_vars() {
+		return [
+			'currentdate',
+			'currentyear',
+			'currentmonth',
+			'currentday',
+			'post_year',
+			'post_month',
+			'post_day',
+			'author_first_name',
+			'author_last_name',
+			'permalink',
+			'post_content',
+			'category_title',
+		];
 	}
 
 	/**
@@ -254,13 +297,15 @@ class WPSEO_Replace_Vars {
 				$replacement = $this->retrieve_ct_desc_custom_tax_name( $var );
 			}
 			elseif ( strpos( $var, 'ct_' ) === 0 ) {
-				$single      = ( isset( $matches[2][ $k ] ) && $matches[2][ $k ] !== '' ) ? true : false;
+				$single      = ( isset( $matches[2][ $k ] ) && $matches[2][ $k ] !== '' );
 				$replacement = $this->retrieve_ct_custom_tax_name( $var, $single );
-			} // Deal with non-variable variable names.
+			}
+			// Deal with non-variable variable names.
 			elseif ( method_exists( $this, 'retrieve_' . $var ) ) {
 				$method_name = 'retrieve_' . $var;
 				$replacement = $this->$method_name();
-			} // Deal with externally defined variable names.
+			}
+			// Deal with externally defined variable names.
 			elseif ( isset( self::$external_replacements[ $var ] ) && ! is_null( self::$external_replacements[ $var ] ) ) {
 				$replacement = call_user_func( self::$external_replacements[ $var ], $var, $this->args );
 			}
@@ -319,7 +364,7 @@ class WPSEO_Replace_Vars {
 
 		if ( $this->args->post_date !== '' ) {
 			// Returns a string.
-			$replacement = $this->date->format_translated( $this->args->post_date, get_option( 'date_format' ) );
+			$replacement = YoastSEO()->helpers->date->format_translated( $this->args->post_date, get_option( 'date_format' ) );
 		}
 		else {
 			if ( get_query_var( 'day' ) && get_query_var( 'day' ) !== '' ) {
@@ -349,6 +394,10 @@ class WPSEO_Replace_Vars {
 	 */
 	private function retrieve_excerpt() {
 		$replacement = null;
+		$locale      = \get_locale();
+
+		// Japanese doesn't have a jp_JP variant in WP.
+		$limit = ( $locale === 'ja' ) ? 80 : 156;
 
 		// The check `post_password_required` is because excerpt must be hidden for a post with a password.
 		if ( ! empty( $this->args->ID ) && ! post_password_required( $this->args->ID ) ) {
@@ -359,14 +408,16 @@ class WPSEO_Replace_Vars {
 				$content = strip_shortcodes( $this->args->post_content );
 				$content = wp_strip_all_tags( $content );
 
-				if ( strlen( utf8_decode( $content ) ) <= 156 ) {
+				if ( mb_strlen( $content ) <= $limit ) {
 					return $content;
 				}
 
-				$replacement = wp_html_excerpt( $content, 156 );
+				$replacement = wp_html_excerpt( $content, $limit );
 
-				// Trim the auto-generated string to a word boundary.
-				$replacement = substr( $replacement, 0, strrpos( $replacement, ' ' ) );
+				// Check if the description has space and trim the auto-generated string to a word boundary.
+				if ( strrpos( $replacement, ' ' ) ) {
+					$replacement = substr( $replacement, 0, strrpos( $replacement, ' ' ) );
+				}
 			}
 		}
 
@@ -400,9 +451,10 @@ class WPSEO_Replace_Vars {
 	private function retrieve_parent_title() {
 		$replacement = null;
 
-		if ( ( is_singular() || is_admin() ) && isset( $GLOBALS['post'] ) ) {
-			if ( isset( $GLOBALS['post']->post_parent ) && $GLOBALS['post']->post_parent !== 0 ) {
-				$replacement = get_the_title( $GLOBALS['post']->post_parent );
+		if ( ! empty( $this->args->ID ) ) {
+			$parent_id = wp_get_post_parent_id( $this->args->ID );
+			if ( $parent_id ) {
+				$replacement = get_the_title( $parent_id );
 			}
 		}
 
@@ -428,10 +480,10 @@ class WPSEO_Replace_Vars {
 	/**
 	 * Retrieve the separator for use as replacement string.
 	 *
-	 * @return string
+	 * @return string Retrieves the title separator.
 	 */
 	private function retrieve_sep() {
-		return WPSEO_Utils::get_title_separator();
+		return YoastSEO()->helpers->options->get_title_separator();
 	}
 
 	/**
@@ -484,7 +536,7 @@ class WPSEO_Replace_Vars {
 	private function retrieve_tag() {
 		$replacement = null;
 
-		if ( isset( $this->args->ID ) ) {
+		if ( ! empty( $this->args->ID ) ) {
 			$tags = $this->get_terms( $this->args->ID, 'post_tag' );
 			if ( $tags !== '' ) {
 				$replacement = $tags;
@@ -511,7 +563,7 @@ class WPSEO_Replace_Vars {
 	private function retrieve_term_description() {
 		$replacement = null;
 
-		if ( isset( $this->args->term_id ) && ! empty( $this->args->taxonomy ) ) {
+		if ( ! empty( $this->args->term_id ) && ! empty( $this->args->taxonomy ) ) {
 			$term_desc = get_term_field( 'description', $this->args->term_id, $this->args->taxonomy );
 			if ( $term_desc !== '' ) {
 				$replacement = wp_strip_all_tags( $term_desc );
@@ -702,27 +754,25 @@ class WPSEO_Replace_Vars {
 	/**
 	 * Retrieve a post/page/cpt's custom field value for use as replacement string.
 	 *
-	 * @param string $var The complete variable to replace which includes the name of
-	 *                    the custom field which value is to be retrieved.
+	 * @param string $var_to_replace The complete variable to replace which includes the name of
+	 *                               the custom field which value is to be retrieved.
 	 *
 	 * @return string|null
 	 */
-	private function retrieve_cf_custom_field_name( $var ) {
-		global $post;
+	private function retrieve_cf_custom_field_name( $var_to_replace ) {
 		$replacement = null;
 
-		if ( is_string( $var ) && $var !== '' ) {
-			$field = substr( $var, 3 );
-			if ( ( is_singular() || is_admin() ) && ( is_object( $post ) && isset( $post->ID ) ) ) {
+		if ( is_string( $var_to_replace ) && $var_to_replace !== '' ) {
+			$field = substr( $var_to_replace, 3 );
+			if ( ! empty( $this->args->ID ) ) {
 				// Post meta can be arrays and in this case we need to exclude them.
-				$name = get_post_meta( $post->ID, $field, true );
+				$name = get_post_meta( $this->args->ID, $field, true );
 				if ( $name !== '' && ! is_array( $name ) ) {
 					$replacement = $name;
 				}
 			}
-			elseif ( is_category() || is_tag() || is_tax() ) {
-				$term = $GLOBALS['wp_query']->get_queried_object();
-				$name = get_term_meta( $term->term_id, $field, true );
+			elseif ( ! empty( $this->args->term_id ) ) {
+				$name = get_term_meta( $this->args->term_id, $field, true );
 				if ( $name !== '' ) {
 					$replacement = $name;
 				}
@@ -735,17 +785,17 @@ class WPSEO_Replace_Vars {
 	/**
 	 * Retrieve a post/page/cpt's custom taxonomies for use as replacement string.
 	 *
-	 * @param string $var    The complete variable to replace which includes the name of
-	 *                       the custom taxonomy which value(s) is to be retrieved.
-	 * @param bool   $single Whether to retrieve only the first or all values for the taxonomy.
+	 * @param string $var_to_replace The complete variable to replace which includes the name of
+	 *                               the custom taxonomy which value(s) is to be retrieved.
+	 * @param bool   $single         Whether to retrieve only the first or all values for the taxonomy.
 	 *
 	 * @return string|null
 	 */
-	private function retrieve_ct_custom_tax_name( $var, $single = false ) {
+	private function retrieve_ct_custom_tax_name( $var_to_replace, $single = false ) {
 		$replacement = null;
 
-		if ( ( is_string( $var ) && $var !== '' ) && ! empty( $this->args->ID ) ) {
-			$tax  = substr( $var, 3 );
+		if ( ( is_string( $var_to_replace ) && $var_to_replace !== '' ) && ! empty( $this->args->ID ) ) {
+			$tax  = substr( $var_to_replace, 3 );
 			$name = $this->get_terms( $this->args->ID, $tax, $single );
 			if ( $name !== '' ) {
 				$replacement = $name;
@@ -758,19 +808,18 @@ class WPSEO_Replace_Vars {
 	/**
 	 * Retrieve a post/page/cpt's custom taxonomies description for use as replacement string.
 	 *
-	 * @param string $var The complete variable to replace which includes the name of
-	 *                    the custom taxonomy which description is to be retrieved.
+	 * @param string $var_to_replace The complete variable to replace which includes the name of
+	 *                               the custom taxonomy which description is to be retrieved.
 	 *
 	 * @return string|null
 	 */
-	private function retrieve_ct_desc_custom_tax_name( $var ) {
-		global $post;
+	private function retrieve_ct_desc_custom_tax_name( $var_to_replace ) {
 		$replacement = null;
 
-		if ( is_string( $var ) && $var !== '' ) {
-			$tax = substr( $var, 8 );
-			if ( is_object( $post ) && isset( $post->ID ) ) {
-				$terms = get_the_terms( $post->ID, $tax );
+		if ( is_string( $var_to_replace ) && $var_to_replace !== '' ) {
+			$tax = substr( $var_to_replace, 8 );
+			if ( ! empty( $this->args->ID ) ) {
+				$terms = get_the_terms( $this->args->ID, $tax );
 				if ( is_array( $terms ) && $terms !== [] ) {
 					$term      = current( $terms );
 					$term_desc = get_term_field( 'description', $term->term_id, $tax );
@@ -926,7 +975,7 @@ class WPSEO_Replace_Vars {
 		$replacement = null;
 
 		if ( ! empty( $this->args->post_modified ) ) {
-			$replacement = $this->date->format_translated( $this->args->post_modified, get_option( 'date_format' ) );
+			$replacement = YoastSEO()->helpers->date->format_translated( $this->args->post_modified, get_option( 'date_format' ) );
 		}
 
 		return $replacement;
@@ -952,7 +1001,7 @@ class WPSEO_Replace_Vars {
 	/**
 	 * Retrieve the post/page/cpt author's users description for use as a replacement string.
 	 *
-	 * @return null|string
+	 * @return string|null
 	 */
 	private function retrieve_user_description() {
 		$replacement = null;
@@ -1089,6 +1138,141 @@ class WPSEO_Replace_Vars {
 		return $replacement;
 	}
 
+	/**
+	 * Retrieve the post/page/cpt's published year for use as replacement string.
+	 *
+	 * @return string|null
+	 */
+	private function retrieve_post_year() {
+		if ( empty( $this->args->ID ) ) {
+			return null;
+		}
+
+		return \get_the_date( 'Y', $this->args->ID );
+	}
+
+	/**
+	 * Retrieve the post/page/cpt's published month for use as replacement string.
+	 *
+	 * @return string|null
+	 */
+	private function retrieve_post_month() {
+		if ( empty( $this->args->ID ) ) {
+			return null;
+		}
+
+		return \get_the_date( 'F', $this->args->ID );
+	}
+
+	/**
+	 * Retrieve the post/page/cpt's published day for use as replacement string.
+	 *
+	 * @return string|null
+	 */
+	private function retrieve_post_day() {
+		if ( empty( $this->args->ID ) ) {
+			return null;
+		}
+
+		return \get_the_date( 'd', $this->args->ID );
+	}
+
+	/**
+	 * Retrieve the post/page/cpt author's first name for use as replacement string.
+	 *
+	 * @return string|null
+	 */
+	private function retrieve_author_first_name() {
+		$replacement = null;
+
+		$user_id = (int) $this->retrieve_userid();
+		$name    = get_the_author_meta( 'first_name', $user_id );
+		if ( $name !== '' ) {
+			$replacement = $name;
+		}
+
+		return $replacement;
+	}
+
+	/**
+	 * Retrieve the post/page/cpt author's last name for use as replacement string.
+	 *
+	 * @return string|null
+	 */
+	private function retrieve_author_last_name() {
+		$replacement = null;
+
+		$user_id = (int) $this->retrieve_userid();
+		$name    = get_the_author_meta( 'last_name', $user_id );
+		if ( $name !== '' ) {
+			$replacement = $name;
+		}
+
+		return $replacement;
+	}
+
+	/**
+	 * Retrieve the post/page/cpt permalink for use as replacement string.
+	 *
+	 * @return string|null
+	 */
+	private function retrieve_permalink() {
+		if ( empty( $this->args->ID ) ) {
+			return null;
+		}
+
+		return \get_permalink( $this->args->ID );
+	}
+
+	/**
+	 * Retrieve the post/page/cpt content for use as replacement string.
+	 *
+	 * @return string|null
+	 */
+	private function retrieve_post_content() {
+		$replacement = null;
+
+		// The check `post_password_required` is because content must be hidden for a post with a password.
+		if ( ! empty( $this->args->ID ) && $this->args->post_content !== '' && ! post_password_required( $this->args->ID ) ) {
+			$content     = strip_shortcodes( $this->args->post_content );
+			$replacement = wp_strip_all_tags( $content );
+		}
+
+		return $replacement;
+	}
+
+	/**
+	 * Retrieve the current or first category title. To be used for import data from AIOSEO.
+	 * The code derives from AIOSEO's way of dealing with that var, so we can ensure 100% seamless transition.
+	 *
+	 * @return string|null
+	 */
+	private function retrieve_category_title() {
+		if ( empty( $this->args ) || empty( $this->args->ID ) ) {
+			return null;
+		}
+		$post_id = $this->args->ID;
+
+		$post       = get_post( $post_id );
+		$taxonomies = get_object_taxonomies( $post, 'objects' );
+
+		foreach ( $taxonomies as $taxonomy_slug => $taxonomy ) {
+			if ( ! $taxonomy->hierarchical ) {
+				continue;
+			}
+			$post_terms = get_the_terms( $post_id, $taxonomy_slug );
+			if ( is_array( $post_terms ) && count( $post_terms ) > 0 ) {
+				// AiOSEO takes the name of whatever the first hierarchical taxonomy is.
+				$term = $post_terms[0];
+				if ( $term ) {
+					return $term->name;
+				}
+			}
+		}
+
+		return null;
+	}
+
 	/* *********************** HELP TEXT RELATED ************************** */
 
 	/**
@@ -1105,6 +1289,44 @@ class WPSEO_Replace_Vars {
 		) {
 			self::$help_texts[ $type ][ $identifier ] = $replacement_variable;
 		}
+	}
+
+	/**
+	 * Generates a list of replacement variables based on the help texts.
+	 *
+	 * @return array List of replace vars.
+	 */
+	public function get_replacement_variables_with_labels() {
+		self::setup_statics_once();
+
+		$custom_variables = [];
+		foreach ( array_merge( WPSEO_Custom_Fields::get_custom_fields(), WPSEO_Custom_Taxonomies::get_custom_taxonomies() ) as $custom_variable ) {
+			$custom_variables[ $custom_variable ] = new WPSEO_Replacement_Variable( $custom_variable, $this->get_label( $custom_variable ), '' );
+		}
+
+		$replacement_variables = array_filter(
+			array_merge( self::$help_texts['basic'], self::$help_texts['advanced'] ),
+			[ $this, 'is_not_prefixed' ],
+			ARRAY_FILTER_USE_KEY
+		);
+
+		$hidden = $this->get_hidden_replace_vars();
+
+		return array_values(
+			array_map(
+				static function ( WPSEO_Replacement_Variable $replacement_variable ) use ( $hidden ) {
+					$name = $replacement_variable->get_variable();
+
+					return [
+						'name'   => $name,
+						'value'  => '',
+						'label'  => $replacement_variable->get_label(),
+						'hidden' => in_array( $name, $hidden, true ),
+					];
+				},
+				array_merge( $replacement_variables, $custom_variables )
+			)
+		);
 	}
 
 	/**
@@ -1262,6 +1484,18 @@ class WPSEO_Replace_Vars {
 			new WPSEO_Replacement_Variable( 'searchphrase', __( 'Search phrase', 'wordpress-seo' ), __( 'Replaced with the current search phrase', 'wordpress-seo' ) ),
 			new WPSEO_Replacement_Variable( 'term_hierarchy', __( 'Term hierarchy', 'wordpress-seo' ), __( 'Replaced with the term ancestors hierarchy', 'wordpress-seo' ) ),
 			new WPSEO_Replacement_Variable( 'sep', __( 'Separator', 'wordpress-seo' ), $separator_description ),
+			new WPSEO_Replacement_Variable( 'currentdate', __( 'Current date', 'wordpress-seo' ), __( 'Replaced with the current date', 'wordpress-seo' ) ),
+			new WPSEO_Replacement_Variable( 'currentyear', __( 'Current year', 'wordpress-seo' ), __( 'Replaced with the current year', 'wordpress-seo' ) ),
+			new WPSEO_Replacement_Variable( 'currentmonth', __( 'Current month', 'wordpress-seo' ), __( 'Replaced with the current month', 'wordpress-seo' ) ),
+			new WPSEO_Replacement_Variable( 'currentday', __( 'Current day', 'wordpress-seo' ), __( 'Replaced with the current day', 'wordpress-seo' ) ),
+			new WPSEO_Replacement_Variable( 'post_year', __( 'Post year', 'wordpress-seo' ), __( 'Replaced with the year the post was published', 'wordpress-seo' ) ),
+			new WPSEO_Replacement_Variable( 'post_month', __( 'Post month', 'wordpress-seo' ), __( 'Replaced with the month the post was published', 'wordpress-seo' ) ),
+			new WPSEO_Replacement_Variable( 'post_day', __( 'Post day', 'wordpress-seo' ), __( 'Replaced with the day the post was published', 'wordpress-seo' ) ),
+			new WPSEO_Replacement_Variable( 'author_first_name', __( 'Author first name', 'wordpress-seo' ), __( 'Replaced with the first name of the author', 'wordpress-seo' ) ),
+			new WPSEO_Replacement_Variable( 'author_last_name', __( 'Author last name', 'wordpress-seo' ), __( 'Replaced with the last name of the author', 'wordpress-seo' ) ),
+			new WPSEO_Replacement_Variable( 'permalink', __( 'Permalink', 'wordpress-seo' ), __( 'Replaced with the permalink', 'wordpress-seo' ) ),
+			new WPSEO_Replacement_Variable( 'post_content', __( 'Post Content', 'wordpress-seo' ), __( 'Replaced with the post content', 'wordpress-seo' ) ),
+			new WPSEO_Replacement_Variable( 'category_title', __( 'Category Title', 'wordpress-seo' ), __( 'Current or first category title', 'wordpress-seo' ) ),
 		];
 
 		foreach ( $replacement_variables as $replacement_variable ) {
@@ -1280,7 +1514,7 @@ class WPSEO_Replace_Vars {
 			new WPSEO_Replacement_Variable( 'id', __( 'ID', 'wordpress-seo' ), __( 'Replaced with the post/page ID', 'wordpress-seo' ) ),
 			new WPSEO_Replacement_Variable( 'name', __( 'Name', 'wordpress-seo' ), __( 'Replaced with the post/page author\'s \'nicename\'', 'wordpress-seo' ) ),
 			new WPSEO_Replacement_Variable( 'user_description', __( 'User description', 'wordpress-seo' ), __( 'Replaced with the post/page author\'s \'Biographical Info\'', 'wordpress-seo' ) ),
-			new WPSEO_Replacement_Variable( 'page', __( 'Page number', 'wordpress-seo' ), __( 'Replaced with the current page number with context (i.e. page 2 of 4)', 'wordpress-seo' ) ),
+			new WPSEO_Replacement_Variable( 'page', __( 'Page', 'wordpress-seo' ), __( 'Replaced with the current page number with context (i.e. page 2 of 4)', 'wordpress-seo' ) ),
 			new WPSEO_Replacement_Variable( 'pagetotal', __( 'Pagetotal', 'wordpress-seo' ), __( 'Replaced with the current page total', 'wordpress-seo' ) ),
 			new WPSEO_Replacement_Variable( 'pagenumber', __( 'Pagenumber', 'wordpress-seo' ), __( 'Replaced with the current page number', 'wordpress-seo' ) ),
 			new WPSEO_Replacement_Variable( 'caption', __( 'Caption', 'wordpress-seo' ), __( 'Attachment caption', 'wordpress-seo' ) ),
@@ -1301,23 +1535,23 @@ class WPSEO_Replace_Vars {
 	/**
 	 * Remove the '%%' delimiters from a variable string.
 	 *
-	 * @param string $string Variable string to be cleaned.
+	 * @param string $text Variable string to be cleaned.
 	 *
 	 * @return string
 	 */
-	private static function remove_var_delimiter( $string ) {
-		return trim( $string, '%' );
+	private static function remove_var_delimiter( $text ) {
+		return trim( $text, '%' );
 	}
 
 	/**
 	 * Add the '%%' delimiters to a variable string.
 	 *
-	 * @param string $string Variable string to be delimited.
+	 * @param string $text Variable string to be delimited.
 	 *
 	 * @return string
 	 */
-	private static function add_var_delimiter( $string ) {
-		return '%%' . $string . '%%';
+	private static function add_var_delimiter( $text ) {
+		return '%%' . $text . '%%';
 	}
 
 	/**
@@ -1330,13 +1564,11 @@ class WPSEO_Replace_Vars {
 	 * @return string Either a single term or a comma delimited string of terms.
 	 */
 	public function get_terms( $id, $taxonomy, $return_single = false ) {
-
 		$output = '';
 
 		// If we're on a specific tag, category or taxonomy page, use that.
-		if ( is_category() || is_tag() || is_tax() ) {
-			$term   = $GLOBALS['wp_query']->get_queried_object();
-			$output = $term->name;
+		if ( ! empty( $this->args->term_id ) ) {
+			$output = $this->args->name;
 		}
 		elseif ( ! empty( $id ) && ! empty( $taxonomy ) ) {
 			$terms = get_the_terms( $id, $taxonomy );
@@ -1398,7 +1630,7 @@ class WPSEO_Replace_Vars {
 	private function retrieve_term_hierarchy() {
 		$replacement = null;
 
-		if ( isset( $this->args->term_id ) && ! empty( $this->args->taxonomy ) ) {
+		if ( ! empty( $this->args->term_id ) && ! empty( $this->args->taxonomy ) ) {
 			$hierarchy = $this->get_term_hierarchy();
 
 			if ( $hierarchy !== '' ) {

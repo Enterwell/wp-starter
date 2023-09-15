@@ -1,13 +1,41 @@
 /**
  * External dependencies
  */
-import { get, isPlainObject } from 'lodash';
+import { get, isPlainObject, cloneDeep, pick } from 'lodash';
+
+/**
+ * WordPress dependencies
+ */
+import { createContext, useContext } from '@wordpress/element';
+import { addQueryArgs, getQueryArgs, removeQueryArgs } from '@wordpress/url';
 
 /**
  * Internal dependencies
  */
 import WPError from './wp-error';
 import ErrorResponse from './error-response';
+import getParamHistory from './param-history';
+
+export { WPError, getParamHistory };
+export Result from './result';
+
+export const GlobalNavigationContext = createContext( {
+	getUrl( page ) {
+		page = page === 'settings' ? 'itsec' : 'itsec-' + page;
+		const href = removeQueryArgs(
+			document.location.href,
+			...Object.keys( getQueryArgs( document.location.href ) )
+		);
+
+		return addQueryArgs( href, { page } );
+	},
+} );
+
+export function useGlobalNavigationUrl( page ) {
+	const { getUrl } = useContext( GlobalNavigationContext );
+
+	return getUrl( page );
+}
 
 export function makeUrlRelative( baseUrl, target ) {
 	let rel = target.replace( baseUrl, '' );
@@ -25,7 +53,7 @@ export function shortenNumber( number ) {
 	}
 
 	if ( number <= 9999 ) {
-		const dec = ( number / 1000 ),
+		const dec = number / 1000,
 			fixed = dec.toFixed( 1 );
 
 		if ( fixed.charAt( fixed.length - 1 ) === '0' ) {
@@ -44,7 +72,7 @@ export function shortenNumber( number ) {
 	}
 
 	if ( number <= 9999999 ) {
-		const dec = ( number / 1000000 ),
+		const dec = number / 1000000,
 			fixed = dec.toFixed( 1 );
 
 		if ( fixed.charAt( fixed.length - 1 ) === '0' ) {
@@ -63,7 +91,7 @@ export function shortenNumber( number ) {
 	}
 
 	if ( number <= 9999999999 ) {
-		const dec = ( number / 1000000000 ),
+		const dec = number / 1000000000,
 			fixed = dec.toFixed( 1 );
 
 		if ( fixed.charAt( fixed.length - 1 ) === '0' ) {
@@ -111,7 +139,11 @@ export function isApiError( object ) {
 		return false;
 	}
 
-	return keys.includes( 'code' ) && keys.includes( 'message' ) && keys.includes( 'data' );
+	return (
+		keys.includes( 'code' ) &&
+		keys.includes( 'message' ) &&
+		keys.includes( 'data' )
+	);
 }
 
 /**
@@ -121,6 +153,10 @@ export function isApiError( object ) {
  * @return {WPError} WPError instance.
  */
 export function castWPError( object ) {
+	if ( object instanceof WPError ) {
+		return object;
+	}
+
 	if ( isWPError( object ) ) {
 		return WPError.fromPHPObject( object );
 	}
@@ -135,7 +171,7 @@ export function castWPError( object ) {
 /**
  * Convert an entries iterator to an object.
  *
- * @param {iterator} entries
+ * @param {Iterable} entries
  *
  * @return {Object} Object with entry[0] as the key and entry[1] as the value.
  */
@@ -151,9 +187,10 @@ export function entriesToObject( entries ) {
 
 /**
  * Splits a list into two arrays, with items that pass the filter in the first array, and ones that fail in the second.
- * @param {Array} array
+ *
+ * @param {Array}    array
  * @param {Function} filter
- * @return {[][]}
+ * @return {Array<Array>} Split array.
  */
 export function bifurcate( array, filter ) {
 	const bifurcated = [ [], [] ];
@@ -178,13 +215,30 @@ export function responseToError( response ) {
 	throw new ErrorResponse( response );
 }
 
-export const MYSTERY_MAN_AVATAR = 'https://secure.gravatar.com/avatar/d7a973c7dab26985da5f961be7b74480?s=96&d=mm&f=y&r=g';
+export const MYSTERY_MAN_AVATAR =
+	'https://secure.gravatar.com/avatar/d7a973c7dab26985da5f961be7b74480?s=96&d=mm&f=y&r=g';
+
+/**
+ * Gets a targetHint from an object.
+ *
+ * @param {Object}  object
+ * @param {string}  header
+ * @param {boolean} undefinedIfEmpty
+ * @return {Array<string>|undefined} The target hint value.
+ */
+export function getTargetHint( object, header, undefinedIfEmpty = true ) {
+	return get(
+		object,
+		[ '_links', 'self', 0, 'targetHints', header ],
+		undefinedIfEmpty ? undefined : []
+	);
+}
 
 /**
  * Get the "self" link for a REST API object.
  *
  * @param {Object} object
- * @return {string|undefined}
+ * @return {string|undefined} The self link.
  */
 export function getSelf( object ) {
 	return getLink( object, 'self' );
@@ -195,7 +249,7 @@ export function getSelf( object ) {
  *
  * @param {Object} object
  * @param {string} rel
- * @return {string|undefined}
+ * @return {string|undefined} The link.
  */
 export function getLink( object, rel ) {
 	return get( object, [ '_links', rel, 0, 'href' ] );
@@ -207,7 +261,7 @@ export function getLink( object, rel ) {
  * @param {Object} schema
  * @param {string} rel
  *
- * @return {Object|undefined}
+ * @return {Object|undefined} The schema link.
  */
 export function getSchemaLink( schema, rel ) {
 	if ( ! schema || ! schema.links ) {
@@ -219,4 +273,62 @@ export function getSchemaLink( schema, rel ) {
 			return link;
 		}
 	}
+}
+
+/**
+ * Modifies a schema by its ui schema.
+ *
+ * This will remove any hidden fields from the actual schema document.
+ *
+ * @param {Object} schema
+ * @param {Object} uiSchema
+ * @return {Object} The modified schema.
+ */
+export function modifySchemaByUiSchema( schema, uiSchema ) {
+	if ( schema.type !== 'object' ) {
+		return schema;
+	}
+
+	let modified;
+
+	for ( const property in uiSchema ) {
+		if ( ! uiSchema.hasOwnProperty( property ) ) {
+			continue;
+		}
+
+		if ( uiSchema[ property ][ 'ui:widget' ] === 'hidden' ) {
+			if ( ! modified ) {
+				modified = cloneDeep( schema );
+			}
+
+			delete modified.properties[ property ];
+		}
+	}
+
+	return modified || schema;
+}
+
+/**
+ * Transform an API error to a list of messages.
+ *
+ * @param {Object} error
+ * @return {string[]} The list of error messages.
+ */
+export function transformApiErrorToList( error ) {
+	let messages = [];
+
+	if ( ! error ) {
+		return messages;
+	}
+
+	const wpError =
+		error instanceof WPError
+			? error
+			: castWPError( pick( error, [ 'code', 'message', 'data' ] ) );
+
+	if ( wpError.getErrorCode() === 'rest_invalid_param' ) {
+		messages = Object.values( wpError.getErrorData().params );
+	}
+
+	return [ ...wpError.getAllErrorMessages(), ...messages ];
 }

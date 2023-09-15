@@ -2,10 +2,9 @@
 
 namespace EwStarter;
 
-use Twig_Loader_Filesystem;
-use Twig_Environment;
-use Twig_SimpleFunction;
-use Twig_Extension_Debug;
+use Twig\Loader\FilesystemLoader;
+use Twig\Environment;
+use Twig\Extension\DebugExtension;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -30,21 +29,21 @@ class Ew_Twig {
 
 	/**
 	 * Twig.
-	 * @var \Twig\Environment
+	 * @var Environment
 	 */
-	protected $twig;
+	protected Environment $twig;
 
 	/**
 	 * Loader.
-	 * @var Twig_Loader_Filesystem
+	 * @var FilesystemLoader
 	 */
-	protected $loader;
+	protected FilesystemLoader $loader;
 
     /**
      * Script and link entry renderer
      * @var EntryFilesTwigExtension
      */
-	public $entry_renderer;
+	public EntryFilesTwigExtension $entry_renderer;
 
 	/**
 	 * Ew_Twig constructor.
@@ -52,58 +51,46 @@ class Ew_Twig {
 	public function __construct() {
 
 		// Init loader
-		$this->loader = new Twig_Loader_Filesystem( [
+		$this->loader = new FilesystemLoader( [
 			THEME_DIR . static::TEMPLATES_DIR,
 			THEME_DIR . '/assets'
 		] );
 
 		// Init twig.
-		$this->twig = new Twig_Environment( $this->loader, array(
+		$this->twig = new Environment( $this->loader, [
 			'cache' => false,
 			'debug' => true
-		) );
+		]);
 
 		// Init script renderer
         $this->entry_renderer = new EntryFilesTwigExtension(THEME_DIR . '/assets/dist/entrypoints.json');
-
-		// Add twig functions.
-		add_action( 'init', [ $this, 'add_twig_functions' ] );
 
 		// Add twig extensions
 		add_action( 'init', [ $this, 'add_twig_extensions' ] );
 	}
 
-    /**
-     * Render template.
-     *
-     * @param string $path
-     * @param array $context
-     *
-     * @throws \Twig\Error\LoaderError
-     * @throws \Twig\Error\RuntimeError
-     * @throws \Twig\Error\SyntaxError
-     */
-	public function render( $path, $context ) {
-
+	/**
+	 * Render template.
+	 *
+	 * @param string $path
+	 * @param array $context
+	 * @throws \Twig\Error\LoaderError
+	 * @throws \Twig\Error\RuntimeError
+	 * @throws \Twig\Error\SyntaxError
+	 */
+	public function render( $path, $context ): void
+	{
 		// Display template
 		$this->twig->display( $path, $context );
 	}
 
 	/**
-	 * Add twig functions.
-	 */
-	public function add_twig_functions() {
-
-		// Add function
-		$this->twig->addFunction( new Twig_SimpleFunction( 'function', [ $this, 'exec_function' ] ) );
-	}
-
-	/**
 	 * Add twig extensions.
 	 */
-	function add_twig_extensions() {
+	function add_twig_extensions(): void
+	{
 		// Add dump extension
-		$this->twig->addExtension( new Twig_Extension_Debug() );
+		$this->twig->addExtension( new DebugExtension() );
 		// Add svg extension
 		$this->twig->addExtension( new Ew_Twig_Extension_Svg() );
 		// Add image extension
@@ -116,32 +103,5 @@ class Ew_Twig {
         $this->twig->addExtension( new Ew_Twig_Extension_Block_Attributes() );
 		// Add encore entries extension
 		$this->twig->addExtension( $this->entry_renderer );
-	}
-
-	/**
-	 * Execute function.
-	 *
-	 * @param string $function_name
-	 *
-	 * @return mixed
-	 */
-	public function exec_function( $function_name ) {
-
-		// Get arguments
-		$args = func_get_args();
-
-		// Shift array
-		array_shift( $args );
-
-		// Is string
-		if ( is_string( $function_name ) ) {
-
-			// Trim function name
-			$function_name = trim( $function_name );
-
-		}
-
-		// Returns
-		return call_user_func_array( $function_name, ( $args ) );
 	}
 }

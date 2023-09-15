@@ -12,11 +12,11 @@ import { createHigherOrderComponent } from '@wordpress/compose';
 /**
  * Higher-order component that debounces an action.
  *
- * @Link https://github.com/deepsweet/hocs/tree/master/packages/debounce-handler (MIT)
+ * @license https://github.com/deepsweet/hocs/tree/master/packages/debounce-handler (MIT)
  *
- * @param {string} handlerName
+ * @param {string}          handlerName
  * @param {number|Function} wait
- * @param {Object} [options]
+ * @param {Object}          [options]
  * @return {WPComponent} Debounced component.
  */
 export default function withDebounceHandler( handlerName, wait, options = {} ) {

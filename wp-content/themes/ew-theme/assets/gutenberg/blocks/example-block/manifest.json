@@ -6,6 +6,7 @@
   "keywords": [],
   "styles": [],
   "description": "Example block for base development",
+  "supports": {},
   "attributes": {
     "customAttribute": {
       "type": "string",

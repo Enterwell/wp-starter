@@ -1,0 +1,35 @@
+{
+  "id": "admin-user",
+  "status": "always-active",
+  "type": "tool",
+  "title": "Admin User",
+  "description": "An advanced tool that removes users with a username of “admin” or a user ID of “1”.",
+  "tools": {
+    "change-admin-user": {
+      "title": "Change Admin User",
+      "description": "Changes the username of the “admin” user.",
+      "help": "Run this tool to change the username of a user with the “admin” username. This may prevent unsophisticated attacks that assume the “admin” user exists.",
+      "form": {
+        "type": "object",
+        "required": [
+          "new_username"
+        ],
+        "properties": {
+          "new_username": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "[\\w\\s\\-\\.\\@]+",
+            "default": "",
+            "title": "New Username",
+            "description": "Enter the new username for the “admin” user."
+          }
+        }
+      }
+    },
+    "change-id-1-user": {
+      "title": "Change User ID 1",
+      "description": "Changes the user ID for the first WordPress user.",
+      "help": "Run this tool to change the user ID of a user with a user ID of “1”. This may prevent unsophisticated attacks that assume the user with an ID of “1” is an administrator."
+    }
+  }
+}

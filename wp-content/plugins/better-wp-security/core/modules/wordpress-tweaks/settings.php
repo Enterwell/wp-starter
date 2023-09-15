@@ -1,27 +1,19 @@
 <?php
 
-final class ITSEC_Wordpress_Tweaks_Settings extends ITSEC_Settings {
-	public function get_id() {
-		return 'wordpress-tweaks';
-	}
+use iThemesSecurity\Config_Settings;
 
-	public function get_defaults() {
-		return array(
-			'wlwmanifest_header'          => false,
-			'edituri_header'              => false,
-			'comment_spam'                => false,
-			'file_editor'                 => true,
-			'disable_xmlrpc'              => 0,
-			'allow_xmlrpc_multiauth'      => false,
-			'rest_api'                    => 'default-access',
-			'login_errors'                => false,
-			'force_unique_nicename'       => false,
-			'disable_unused_author_pages' => false,
-			'block_tabnapping'            => false,
-			'valid_user_login_type'       => 'both',
-			'patch_thumb_file_traversal'  => true,
-		);
+final class ITSEC_Wordpress_Tweaks_Settings extends Config_Settings {
+	protected function handle_settings_changes( $old_settings ) {
+		parent::handle_settings_changes( $old_settings );
+
+		if ( $this->settings['file_editor'] !== $old_settings['file_editor'] ) {
+			ITSEC_Response::regenerate_wp_config();
+		}
+
+		if ( $this->settings['disable_xmlrpc'] !== $old_settings['disable_xmlrpc'] ) {
+			ITSEC_Response::regenerate_server_config();
+		}
 	}
 }
 
-ITSEC_Modules::register_settings( new ITSEC_WordPress_Tweaks_Settings() );
+ITSEC_Modules::register_settings( new ITSEC_WordPress_Tweaks_Settings( ITSEC_Modules::get_config( 'wordpress-tweaks' ) ) );

@@ -11,7 +11,7 @@ final class ITSEC_Global_Privacy {
 	}
 
 	public function get_privacy_policy_for_security_logs( $policy ) {
-		$suggested_text = '<strong class="privacy-policy-tutorial">' . __( 'Suggested text:' ) . ' </strong>';
+		$suggested_text = '<strong class="privacy-policy-tutorial">' . __( 'Suggested text:', 'better-wp-security' ) . ' </strong>';
 
 		$retention_days = $this->get_retention_days();
 
@@ -22,7 +22,7 @@ final class ITSEC_Global_Privacy {
 	}
 
 	public function get_privacy_policy_for_retention( $policy ) {
-		$suggested_text = '<strong class="privacy-policy-tutorial">' . __( 'Suggested text:' ) . ' </strong>';
+		$suggested_text = '<strong class="privacy-policy-tutorial">' . __( 'Suggested text:', 'better-wp-security' ) . ' </strong>';
 
 		$retention_days = $this->get_retention_days();
 

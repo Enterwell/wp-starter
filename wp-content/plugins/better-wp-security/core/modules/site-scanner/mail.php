@@ -13,17 +13,29 @@ class ITSEC_Site_Scanner_Mail {
 	 *
 	 * @return bool
 	 */
-	public static function send( $scan ) {
-		if ( ! $scan instanceof Scan ) {
-			_doing_it_wrong( __METHOD__, __( 'Must pass Scan instance.', 'better-wp-security' ), '5.8.1' );
+	public static function send( Scan $scan ) {
+		$nc   = ITSEC_Core::get_notification_center();
+		$mail = static::get_mail( $scan );
 
-			return false;
+		if ( ! $mail ) {
+			return true;
 		}
 
+		return $nc->send( 'malware-scheduling', $mail );
+	}
+
+	/**
+	 * Gets the configured Mail template for a Scan.
+	 *
+	 * @param Scan $scan
+	 *
+	 * @return ITSEC_Mail|null
+	 */
+	public static function get_mail( Scan $scan ) {
 		$code = $scan->get_code();
 
 		if ( 'clean' === $code ) {
-			return true;
+			return null;
 		}
 
 		$nc = ITSEC_Core::get_notification_center();
@@ -32,17 +44,24 @@ class ITSEC_Site_Scanner_Mail {
 		$mail->set_subject( static::get_scan_subject( $code ) );
 		$mail->set_recipients( $nc->get_recipients( 'malware-scheduling' ) );
 
+
+		$tracking_link = ITSEC_Core::is_pro()
+			? 'https://go.solidwp.com/security-site-scan-email-ithemes-becoming-solidwp'
+			: 'https://go.solidwp.com/security-free-site-scan-email-ithemes-becoming-solidwp';
+
 		$mail->add_header(
 			esc_html__( 'Site Scan', 'better-wp-security' ),
 			sprintf(
 				esc_html__( 'Site Scan for %s', 'better-wp-security' ),
 				'<b>' . ITSEC_Lib::date_format_i18n_and_local_timezone( $scan->get_time()->getTimestamp(), get_option( 'date_format' ) ) . '</b>'
-			)
+			),
+			false,
+			$tracking_link
 		);
 		static::format_scan_body( $mail, $scan );
-		$mail->add_footer();
+		$mail->add_footer( false );
 
-		return $nc->send( 'malware-scheduling', $mail );
+		return $mail;
 	}
 
 	/**
@@ -68,7 +87,7 @@ class ITSEC_Site_Scanner_Mail {
 					return wp_sprintf( esc_html__( 'Scheduled site scan report: %l', 'better-wp-security' ), $codes );
 				}
 
-				return wp_sprintf( esc_html__( 'Scheduled site scan found warnings', 'better-wp-security' ) );
+				return esc_html__( 'Scheduled site scan found warnings', 'better-wp-security' );
 		}
 	}
 
@@ -82,7 +101,7 @@ class ITSEC_Site_Scanner_Mail {
 		$log_url = '';
 
 		if ( $scan->get_id() ) {
-			$log_url = add_query_arg( 'id', $scan->get_id(), ITSEC_Core::get_logs_page_url() );
+			$log_url = ITSEC_Core::get_logs_page_url( [ 'id' => $scan->get_id() ] );
 			$log_url = ITSEC_Mail::filter_admin_page_url( $log_url );
 		}
 
@@ -163,6 +182,36 @@ class ITSEC_Site_Scanner_Mail {
 
 		if ( $log_url ) {
 			$mail->add_button( esc_html__( 'View Report', 'better-wp-security' ), $log_url );
+		}
+
+		$mail->add_divider();
+		$vulnerabilities = $scan->find_entry( 'vulnerabilities' );
+
+		if ( $vulnerabilities && $vulnerabilities->count() ) {
+			$mail->add_large_text( esc_html__( 'What Actions Should I Take?', 'better-wp-security' ) );
+			$mail->add_text(
+				esc_html__( 'Vulnerable WordPress plugins and themes are the #1 reason WordPress sites get hacked.', 'better-wp-security' ) .
+				' <b>' . esc_html__( 'Either quickly update the vulnerable theme, plugin or WordPress version immediately to the newest version or immediately deactivate and delete the plugin or theme from your WordPress installation until a fix is available.', 'better-wp-security' ) . '</b>',
+				'dark'
+			);
+
+			if ( $log_url ) {
+				$mail->add_section_heading( esc_html__( 'How to View the Report & See Available Updates', 'better-wp-security' ) );
+				$mail->add_123_box(
+					sprintf(
+						esc_html__( '%1$sView the Site Scan Report%2$s available now from your WordPress admin dashboard.', 'better-wp-security' ),
+						'<a href="' . esc_url( $log_url ) . '">',
+						'</a>'
+					),
+					esc_html__( 'In the Known Vulnerabilities section of the report, click “Show Details.” If a security fix is available, the report will indicate the latest version number.', 'better-wp-security' ),
+					esc_html__( 'If a security fix is available, update the vulnerable plugin or theme as soon as possible from Your WordPress admin dashboard > Updates page.', 'better-wp-security' ) .
+					' <a href="' . esc_url( ITSEC_Mail::filter_admin_page_url( admin_url( 'update-core.php' ) ) ) . '">' . esc_html__( 'Log in now to update.', 'better-wp-security' ) . '</a>'
+				);
+			}
+		}
+
+		if ( ! ITSEC_Core::is_pro() ) {
+			$mail->add_site_scanner_pro_callout();
 		}
 	}
 }

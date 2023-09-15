@@ -5,7 +5,10 @@ import { __ } from '@wordpress/i18n';
 
 export default class ErrorResponse extends Error {
 	constructor( response, ...args ) {
-		super( response.message || __( 'An unknown error occurred.', 'better-wp-security' ), ...args );
+		super(
+			response.message || __( 'An unknown error occurred.', 'better-wp-security' ),
+			...args
+		);
 
 		if ( Error.captureStackTrace ) {
 			Error.captureStackTrace( this, ErrorResponse );

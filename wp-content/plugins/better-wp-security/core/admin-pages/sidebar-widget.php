@@ -13,7 +13,7 @@ class ITSEC_Settings_Page_Sidebar_Widget {
 	 * @var string
 	 */
 	protected $id = '';
-	
+
 	/**
 	 * User-friendly display title for the widget.
 	 *
@@ -21,7 +21,7 @@ class ITSEC_Settings_Page_Sidebar_Widget {
 	 * @var string
 	 */
 	protected $title = '';
-	
+
 	/**
 	 * Array of default values for the form inputs.
 	 *
@@ -29,7 +29,7 @@ class ITSEC_Settings_Page_Sidebar_Widget {
 	 * @var array
 	 */
 	protected $defaults = array();
-	
+
 	/**
 	 * Array of WP_Error objects.
 	 *
@@ -39,7 +39,7 @@ class ITSEC_Settings_Page_Sidebar_Widget {
 	 * @var array
 	 */
 	protected $errors = array();
-	
+
 	/**
 	 * Array or status or update messages.
 	 *
@@ -76,6 +76,8 @@ class ITSEC_Settings_Page_Sidebar_Widget {
 	 * @access public
 	 */
 	public function __construct() {
+		_deprecated_function( __METHOD__, '7.0.1' );
+
 		add_action( 'itsec-settings-page-register-widgets', array( $this, 'register' ), $this->priority );
 		add_action( 'itsec-logs-page-register-widgets', array( $this, 'register' ), $this->priority );
 	}
@@ -111,18 +113,18 @@ class ITSEC_Settings_Page_Sidebar_Widget {
 				trigger_error( get_class( $this ) . " has not set the $name variable.", E_USER_ERROR );
 			}
 		}
-		
+
 		do_action( 'itsec-settings-page-register-widget', $this );
 		do_action( 'itsec-logs-page-register-widget', $this );
 	}
-	
+
 	/**
 	 * Allow the widget to enqueue widget-specific scripts and styles.
 	 *
 	 * @access public
 	 */
 	public function enqueue_scripts_and_styles() {}
-	
+
 	/**
 	 * Allow a widget to process an AJAX request.
 	 *
@@ -136,7 +138,7 @@ class ITSEC_Settings_Page_Sidebar_Widget {
 	 * @param array $data Array of data sent by the AJAX request.
 	 */
 	public function handle_ajax_request( $data ) {}
-	
+
 	/**
 	 * Return the default settings for the widget.
 	 *
@@ -150,7 +152,7 @@ class ITSEC_Settings_Page_Sidebar_Widget {
 	public function get_defaults() {
 		return $this->defaults;
 	}
-	
+
 	/**
 	 * Render the settings form.
 	 *
@@ -161,7 +163,7 @@ class ITSEC_Settings_Page_Sidebar_Widget {
 	 * @param object ITSEC_Form object used to create inputs.
 	 */
 	public function render( $form ) {}
-	
+
 	/**
 	 * Process form input by calling validate and save member functions.
 	 *
@@ -174,12 +176,12 @@ class ITSEC_Settings_Page_Sidebar_Widget {
 	 */
 	public function handle_form_post( $data ) {
 		$data = $this->validate( $data );
-		
+
 		if ( ! is_null( $data ) ) {
 			$this->save( $data );
 		}
 	}
-	
+
 	/**
 	 * Validate form input data.
 	 *
@@ -197,7 +199,7 @@ class ITSEC_Settings_Page_Sidebar_Widget {
 	protected function validate( $data ) {
 		return $data;
 	}
-	
+
 	/**
 	 * Save the validated form input data.
 	 *
@@ -211,7 +213,7 @@ class ITSEC_Settings_Page_Sidebar_Widget {
 	protected function save( $data ) {
 		ITSEC_Storage::set( $this->id, $data );
 	}
-	
+
 	/**
 	 * Returns the errors array.
 	 *
@@ -224,7 +226,7 @@ class ITSEC_Settings_Page_Sidebar_Widget {
 	public function get_errors() {
 		return $this->errors;
 	}
-	
+
 	/**
 	 * Returns the messages array.
 	 *

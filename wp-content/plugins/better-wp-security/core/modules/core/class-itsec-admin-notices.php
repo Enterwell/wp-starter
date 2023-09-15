@@ -13,14 +13,6 @@ class ITSEC_Admin_Notices {
 		if ( isset( $_GET['action'] ) && self::ACTION === $_GET['action'] ) {
 			add_action( 'admin_init', array( $this, 'handle_admin_action' ) );
 		}
-
-		if ( ITSEC_Modules::get_setting( 'global', 'hide_admin_bar' ) || version_compare( get_bloginfo( 'version' ), '5.0', '<' ) ) {
-			if ( is_multisite() ) {
-				add_action( 'network_admin_notices', array( $this, 'display_notices' ) );
-			} else {
-				add_action( 'admin_notices', array( $this, 'display_notices' ) );
-			}
-		}
 	}
 
 	public function rest_api_init() {
@@ -50,7 +42,7 @@ class ITSEC_Admin_Notices {
 
 		$nonce = wp_create_nonce( self::ACTION );
 
-		wp_enqueue_script( 'itsec-admin-notices', plugin_dir_url( __FILE__ ) . 'js/admin-notices.js', array( 'jquery', 'wp-util' ) );
+		wp_enqueue_script( 'itsec-admin-notices', plugin_dir_url( __FILE__ ) . 'js/admin-notices.js', array( 'jquery', 'wp-util' ), 2 );
 		wp_localize_script( 'itsec-admin-notices', 'ITSECAdminNotices', array(
 			'nonce' => $nonce,
 		) );
@@ -72,7 +64,7 @@ class ITSEC_Admin_Notices {
 			}
 
 			echo '<div class="' . implode( ' ', $classes ) . '"' . $data . '>';
-			$html = trim( $notice->get_title() . ' ' . $notice->get_message() );
+			$html = $this->format_message( trim( $notice->get_title() . ' ' . $notice->get_message() ), $notice );
 
 			foreach ( $notice->get_actions() as $slug => $action ) {
 				if ( ITSEC_Admin_Notice_Action::S_CLOSE === $action->get_style() ) {
@@ -130,6 +122,26 @@ class ITSEC_Admin_Notices {
 
 			echo '</div>';
 		}
+	}
+
+	/**
+	 * Formats a message replacing action variables.
+	 *
+	 * @param string             $message
+	 * @param ITSEC_Admin_Notice $notice
+	 *
+	 * @return string
+	 */
+	private function format_message( $message, $notice ) {
+		foreach ( $notice->get_actions() as $slug => $action ) {
+			if ( ! $action->get_uri() ) {
+				continue;
+			}
+
+			$message = str_replace( "{{ \$${slug} }}", $action->get_uri(), $message );
+		}
+
+		return $message;
 	}
 
 	public function handle_ajax() {

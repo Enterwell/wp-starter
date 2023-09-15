@@ -1,0 +1,88 @@
+@import "mixins";
+
+.itsec-rjsf-file-tree__controls {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-gap: 1rem;
+
+    .itsec-tree {
+        [role="tree"] {
+            flex: 1;
+            border: 1px solid #757575;
+            height: 300px;
+            min-height: 300px;
+            max-height: 300px;
+            padding: 6px 8px;
+            overflow-y: scroll;
+
+            &:focus, &:focus-within {
+                border-color: var(--wp-admin-theme-color);
+                box-shadow: 0 0 0 1px var(--wp-admin-theme-color);
+                outline: 2px solid transparent;
+            }
+
+            li {
+                > span {
+                    display: flex;
+                    align-items: center;
+                    padding: .5rem 1rem;
+                    width: 100%;
+                    word-break: break-all;
+
+                    &::before {
+                        margin-right: .5rem;
+                    }
+                }
+
+                &[aria-expanded="false"]:not(.itsec-tree__item--loading) > span::before {
+                    @include dashicon('\f318');
+                }
+
+                &[aria-expanded="true"]:not(.itsec-tree__item--loading) > span::before {
+                    @include dashicon('\f18f');
+                }
+
+                &:not([aria-expanded]):not(.itsec-tree__item--loading) > span::before {
+                    @include dashicon('\f498');
+                }
+
+                &.itsec-tree__item--loading > span::before {
+                    content: '';
+                    box-sizing: border-box;
+                    width: 20px;
+                    height: 20px;
+                    border-radius: 50%;
+                    border: 2px solid #ccc;
+                    border-top-color: #000;
+                    animation: rotate .6s linear infinite;
+                }
+            }
+        }
+    }
+
+    .itsec-rjsf-file-tree__list,
+    .itsec-tree {
+        .components-base-control__field {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            margin-bottom: 0;
+        }
+
+        .components-textarea-control__input,
+        [role="tree"] {
+            flex: 1;
+            margin: 0;
+        }
+    }
+
+    .itsec-rjsf-file-tree__select {
+        margin-top: 8px;
+    }
+}
+
+@keyframes rotate {
+    to {
+        transform: rotate(360deg);
+    }
+}

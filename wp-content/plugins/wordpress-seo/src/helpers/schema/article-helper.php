@@ -1,23 +1,16 @@
 <?php
-/**
- * WPSEO plugin file.
- *
- * @package Yoast\WP\SEO\Helpers\Schema
- */
 
 namespace Yoast\WP\SEO\Helpers\Schema;
 
 /**
- * Class Article_Helper
- *
- * @package Yoast\WP\SEO\Helpers
+ * Class Article_Helper.
  */
 class Article_Helper {
 
 	/**
 	 * Determines whether a given post type should have Article schema.
 	 *
-	 * @param string $post_type Post type to check.
+	 * @param string|null $post_type Post type to check.
 	 *
 	 * @return bool True if it has Article schema, false if not.
 	 */
@@ -26,14 +19,7 @@ class Article_Helper {
 			$post_type = \get_post_type();
 		}
 
-		/**
-		 * Filter: 'wpseo_schema_article_post_types' - Allow changing for which post types we output Article schema.
-		 *
-		 * @api string[] $post_types The post types for which we output Article.
-		 */
-		$post_types = \apply_filters( 'wpseo_schema_article_post_types', [ 'post' ] );
-
-		return \in_array( $post_type, $post_types, true );
+		return $this->is_author_supported( $post_type );
 	}
 
 	/**

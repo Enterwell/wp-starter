@@ -50,7 +50,7 @@ const PATHS = {
 const MY_IP = getLocalIp();
 const WebpackDevServerSettings = {
   port: themeConfig.webpackPort,
-  host: '0.0.0.0',
+  host: '127.0.0.1',
   address: 'http://' + MY_IP + ':' + themeConfig.webpackPort + '/',
 };
 

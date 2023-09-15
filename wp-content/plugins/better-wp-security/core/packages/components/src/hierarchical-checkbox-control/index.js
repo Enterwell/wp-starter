@@ -33,7 +33,8 @@ class Node {
 
 	/**
 	 * Get the parent node.
-	 * @return {Node|null}
+	 *
+	 * @return {Node|null} The parent node.
 	 */
 	getParent() {
 		if ( ! this.parent ) {
@@ -46,7 +47,7 @@ class Node {
 	/**
 	 * Get all parents of an option.
 	 *
-	 * @return {[string]}
+	 * @return {Array<string>} Parent ids.
 	 */
 	getAllParents() {
 		const all = [];
@@ -67,7 +68,7 @@ class Node {
 	/**
 	 * Get all children.
 	 *
-	 * @return {[string]}
+	 * @return {Array<string>} The children ids.
 	 */
 	getAllChildren() {
 		const all = [];
@@ -85,9 +86,10 @@ class Node {
 
 	/**
 	 * Iterator over all children of the node.
-	 * @yields {Node}
+	 *
+	 * @yield {Node}
 	 */
-	*[Symbol.iterator]() {
+	*[ Symbol.iterator ]() {
 		for ( let i = 0; i < this.children.length; i++ ) {
 			const name = this.children[ i ];
 			yield this.tree.nodes[ name ];
@@ -118,7 +120,7 @@ class Tree {
 		}
 	}
 
-	*[Symbol.iterator]() {
+	*[ Symbol.iterator ]() {
 		for ( let i = 0; i < this.ordered.length; i++ ) {
 			const name = this.ordered[ i ];
 
@@ -157,8 +159,9 @@ class HierarchicalCheckboxControl extends Component {
 
 	/**
 	 * Is the given option checked.
+	 *
 	 * @param {Node|null} value
-	 * @return {boolean}
+	 * @return {boolean} True if checked.
 	 */
 	isChecked( value ) {
 		if ( ! value ) {
@@ -166,16 +169,23 @@ class HierarchicalCheckboxControl extends Component {
 		}
 
 		if ( isArray( this.props.value ) ) {
-			return this.props.value.includes( value.name ) || this.isChecked( value.getParent() );
+			return (
+				this.props.value.includes( value.name ) ||
+				this.isChecked( value.getParent() )
+			);
 		}
 
-		return this.props.value[ value.name ] || this.isChecked( value.getParent() );
+		return (
+			this.props.value[ value.name ] ||
+			this.isChecked( value.getParent() )
+		);
 	}
 
 	/**
 	 * Does this option have an indeterminate value.
+	 *
 	 * @param {Node} option
-	 * @return {boolean}
+	 * @return {boolean} True if indeterminate.
 	 */
 	isIndeterminate( option ) {
 		if ( ! option.hasChildren() ) {
@@ -205,15 +215,22 @@ class HierarchicalCheckboxControl extends Component {
 			if ( checked ) {
 				changed = [ ...this.props.value, ...values ];
 			} else {
-				changed = this.props.value.filter( ( maybeValue ) => ! values.includes( maybeValue ) && ! parents.includes( maybeValue ) );
+				changed = this.props.value.filter(
+					( maybeValue ) =>
+						! values.includes( maybeValue ) &&
+						! parents.includes( maybeValue )
+				);
 			}
 
 			this.props.onChange( changed );
 		} else {
 			this.props.onChange( {
 				...this.props.value,
-				...values.reduce( ( acc, key ) => acc[ key ] = checked, {} ),
-				...parents.reduce( ( acc, key ) => acc[ key ] = false, {} ),
+				...values.reduce(
+					( acc, key ) => ( acc[ key ] = checked ),
+					{}
+				),
+				...parents.reduce( ( acc, key ) => ( acc[ key ] = false ), {} ),
 			} );
 		}
 	}
@@ -223,22 +240,29 @@ class HierarchicalCheckboxControl extends Component {
 		const tree = toTree( options );
 
 		return (
-			<fieldset className="components-base-control">
+			<div className="components-base-control">
 				<div className="components-base-control__field">
-					<legend className="components-base-control__label">{ label }</legend>
-					{ help && <p className="components-base-control__help">{ help }</p> }
+					<div className="components-base-control__label">
+						{ label }
+					</div>
+					{ help && (
+						<p className="components-base-control__help">
+							{ help }
+						</p>
+					) }
 				</div>
 				<ul className="components-hierarchical-checkbox-control__group">
 					{ Array.from( tree, this.renderOption ) }
 				</ul>
-			</fieldset>
+			</div>
 		);
 	}
 
 	/**
 	 * Render a single option and its children.
+	 *
 	 * @param {Node} option
-	 * @return {*}
+	 * @return {JSX} The option component.
 	 */
 	renderOption( option ) {
 		const { value, selectable = true, ...rest } = option.data;
@@ -246,14 +270,24 @@ class HierarchicalCheckboxControl extends Component {
 		const indeterminate = ! checked && this.isIndeterminate( option );
 
 		return (
-			<li key={ value } className={ classnames( 'components-hierarchical-checkbox-control__option', {
-				'components-hierarchical-checkbox-control__option--has-children': option.hasChildren(),
-			} ) }>
-				<CheckboxControl { ...rest }
+			<li
+				key={ value }
+				className={ classnames(
+					'components-hierarchical-checkbox-control__option',
+					{
+						'components-hierarchical-checkbox-control__option--has-children': option.hasChildren(),
+					}
+				) }
+			>
+				<CheckboxControl
+					{ ...rest }
 					checked={ selectable ? checked : false }
 					disabled={ ! selectable || this.props.disabled }
 					indeterminate={ indeterminate }
-					onChange={ ( newChecked ) => this.onChange( option, newChecked ) } />
+					onChange={ ( newChecked ) =>
+						this.onChange( option, newChecked )
+					}
+				/>
 				{ option.hasChildren() && (
 					<ul className="components-hierarchical-checkbox-control__group">
 						{ Array.from( option, this.renderOption ) }

@@ -898,3 +898,119 @@
 	Bug Fix: PHP warning when checking opaque tokens.
 	Bug Fix: PHP warning after successfully connecting a site to iThemes Sync via the login connection flow.
 	Bug Fix: File Change Security Message would not appear for new installs.
+7.9.0 - 2020-10-13 - Timothy Jacobs
+	Important: iThemes Security requires WordPress 5.4 or later.
+	Enhancement: Add a setting for configuring the number of bans added to the server config files (.htaccess/nginx.conf).
+	Enhancement: Store the time a ban was added, and the lockout module responsible for the ban.
+	Enhancement: Overwrite Restrict Content Pro's detected IP address with the IP detected by iThemes Security.
+	Tweak: Disable SSL verification when performing the Security Check Loopback test. Some hosts can't properly verify loopback requests. This verification is unnecessary in this circumstance, and disabling SSL verification aligns iThemes Security with default WordPress loopback behavior.
+	Bug Fix: PHP warnings when invalid entries are stored in the WordPress Cron storage.
+	Bug Fix: Update the list of tables added to wpdb.
+	Bug Fix: Remove default value for text columns. This caused an issue on MySQL 8 and is unnecessary.
+	Bug Fix: Missing borders in the sidebar widgets on WordPress 5.5.
+	Bug Fix: Notice actions didn't trigger when "Hide Admin Bar" is enabled.
+	Bug Fix: Some users would be force to choose a strong password twice in a row.
+	Bug Fix: Warning when saving the Ban Users module outside of the Settings Page without passing the legacy host_list setting.
+	Bug Fix: Passwords Requirements compatibility with Restrict Content Pro.
+	Bug Fix: PHP warnings that may occur when initializing default user groups on a new installation.
+7.9.1 - 2021-04-14 - Timothy Jacobs
+	Security: Fix Hide Backend Bypass, thanks to Julio Potier for reporting the issue.
+	Tweak: Add filters to short-circuit lock APIs.
+	Tweak: Remove non-SSL fallbacks for Security Check Pro and Version Management.
+	Bug Fix: Tweak checkbox styles.
+	Bug Fix: Improved compatibility with WP Engine.
+	Bug Fix: Pass the `WP_Error` object to the `wp_login_failed` hook.
+	Bug Fix: Prevent wp_no_robots deprecation warning on WordPress 5.7.
+8.0.0 - 2021-07-28 - Timothy Jacobs
+	Important: iThemes Security now requires WordPress 5.7 and PHP 7.0 or later.
+	New: iThemes Security gets a redesigned interface focused on making it easier to configure and find what you're looking for. Read More: https://ithemes.com/?p=65086.
+	New: Instantly search over everything in iThemes Security with a new instant search feature.
+	New: Security Tools have been grouped into their own page. "Identify Server IPs" and "Security Check Pro" can be run manually without using Debug Mode.
+	New: Relevant content from the Help Center, iThemes Blog, and iThemes YouTube channel is surfaced in a new Help area based on the current page. Click the "Help" button in the toolbar or the "Info" icon next to the page title to access it.
+	New: The settings UI is now fully responsive and works great across mobile, tablet, and desktop devices.
+	New: Two-Factor is now part of the core iThemes Security plugin.
+	Enhancement: Improved keyboard and screen reader support.
+	Enhancement: The Banned Users Card can add multiple bans at once.
+	Tweak: Add a new Global setting to control "Automatically Temporarily Authorize Hosts".
+	Tweak: When the Global setting "Hide Security Menu in Admin Bar" is enabled, notices will no longer be printed on non-iThemes Security pages. Instead, you can access the Message Center from the Settings or Dashbaord toolbars.
+	Tweak: The Database Backups module is no longer available if you have BackupBuddy installed. If this behavior isn't desired, enable the "ITSEC_ENABLE_BACKUPS" constant.
+	Tweak: The Geolocation API configuration used by Trusted Devices has been moved into it's own dedicated "Geolocation" module.
+	Tweak: Move "Have I Been Pwned" integration to the Core plugin.
+	Tweak: Reduce filename length and complexity for built CSS and JS files.
+	Removed: The following modules have been removed: 404 Detection, Away Mode, Change Content Directory, and Multisite Tweaks.
+	Removed: The following WordPress and System Tweaks have been removed: Remove Windows Live Writer Header, EditURI Header, Comment Spam, Mitigate Attachment File Traversal Attack, Protect Against Tabnapping, Filter Long URL Strings, Filter Non-English Characters, Filter Request Methods, Remove File Writing Permissions.
+	Removed: The "Backup Full Database" setting has been removed from the Backups module.
+	Removed: The "Require SSL", "Front End SSL Mode", and "SSL for Dashboard" settings have been removed from the SSL module.
+	Bug Fix: Fix fatal errors when using PHP 8.
+	Bug Fix: Fix infinite loop when restricting who can use App Passwords on multisite installs.
+	Bug Fix: Ensure the ITSEC_Setup class does not exist before trying to load it. Display schema errors on multisite in the Network Admin.
+	Bug Fix: Labels for Disable PHP Execution in Plugins and Themes were reversed.
+	Bug Fix: Add missing constants to the debug page.
+	Bug Fix: Remove deleted recipients when saving notifications.
+	Bug Fix: Correct Site Scan statuses for scans with no issues.
+	Dev Note: Modules are now based on a module.json configuration file. If you are registering custom iThemes Security module, you should update it to include a module.json file that adheres to the core/module-schema.json JSON Schema.
+	Dev Note: The Network Brute Force module had it's folder updated to "network-brute-force" from "ipcheck".
+	Dev Note: New Object Oriented API for creating Password Requirements.
+	Dev Note: New Settings and Modules REST API endpoints.
+	Dev Note: New RPC REST API namespace. There is no backward compatibility promise for these API endpoints.
+8.0.1 - 2021-07-29 - Timothy Jacobs
+	Bug Fix: Sites that did not support HTTPS, but had the SSL module active, but not configured, on upgrade would get redirected to the HTTPS version of the site.
+	Bug Fix: Unregister the iThemes Security Two-Factor module when the Two-Factor Feature Plugin is enabled.
+	Bug Fix: Allow activation on WordPress 5.7.0.
+	Bug Fix: Add missing textdomains.
+8.0.2 - 2021-08-11 - Timothy Jacobs
+	Enhancement: Reintroduce Feature Flags management UI.
+	Tweak: Reposition "Advanced" and "Tools" menu items to be more readable on lengthy screens.
+	Bug Fix: When the Change Admin User tool is run, update any User Groups referencing the old user id.
+	Bug Fix: WordPress footer would appear in the middle of the logs page.
+	Bug Fix: Add missing translation strings file.
+8.1.0 - 2022-03-22 - Timothy Jacobs
+	Important: iThemes Security now requires WordPress 5.8 or later.
+	New Feature: Include the full iThemes Security Site Scanner in iThemes Security Free. Scheduled scans are disabled by default.
+	Tweak: Add new "Go Pro" page that includes an overview of features in iThemes Security Pro.
+	Bug Fix: Scroll to top of window when navigating.
+	Bug Fix: Allow searching for Password Requirements.
+	Bug Fix: Don't load WordPress and System Tweaks modules when the `ITSEC_DISABLE_MODULES` constant is enabled.
+	Bug Fix: Prevent incidentally loading the Two-Factor module when it is unregistered.
+	Bug Fix: Conditionally display the NGINX File Path setting.
+	Bug Fix: Allow saving Notifications when "default recipients must contain at least 1 item" error is present.
+	Bug Fix: Help styling on WordPress 5.9.
+	Bug Fix: Compatibility with plugins that expected a logged-in user during lockouts.
+8.1.1 - 2022-04-14 - Timothy Jacobs, Lisa Canini
+	Bug Fix: Error when visiting the Notifications page after activating a module with notifications for the first time.
+	Bug Fix: Update deprecated withState usages to useState.
+8.1.2 - 2022-04-26 - Timothy Jacobs, Lisa Canini
+	Tweak: Require a Title when creating a new Dashboard.
+	Bug Fix: Don't attempt to send a Site Scan notification for Clean scans preventing a fatal error after scheduled site scans.
+8.1.3 - 2022-10-12 - Timothy Jacobs, Lisa Canini, Jared Hill
+	Important: iThemes Security now requires PHP 7.3 and WordPress 5.9 or later.
+	Security: Add support for encrypting Two-Factor Mobile App secrets. Enable via Tools -> Set Encryption Key.
+	Security: Deprecate Automatic Proxy Detection. Instead, manually configure Proxy Detection or use Security Check. Fix IP spoofing attacks.
+	Enhancement: Add "Ban Lockout" button to the Active Lockouts card.
+	Bug Fix: File Logs not rotating.
+	Bug Fix: PHP warning when loading Icon Fonts in certain configurations.
+	Bug Fix: Don't attempt to Hide Backend when a Cron request is being processed.
+	Bug Fix: Prevent entering invalid date values when selecting a custom date range in the Security Dashboard.
+	Bug Fix: File Change "notify_admin" settings validation error.
+	Bug Fix: Preliminary PHP 8.1 compatibility.
+
+	Thanks to Calvin Alkan for reporting the security issues fixed in this release.
+8.1.4 - 2022-12-01 - Timothy Jacobs, Lisa Canini, Jared Hill
+	Tweak: Add "All" tab to the Features page.
+	Tweak: Don't show "Ban" buttons in Security Dashboard if the user won't be able to create a ban.
+	Bug Fix: Prevent Headers Already Sent warning when a lockout occurs during a WP Cron request on some server setups.
+	Bug Fix: Manually load Sodium Polyfill for servers that have an older version of libsodium installed.
+	Bug Fix: Error when saving the File Change settings when the "notify_admin" setting was set.
+	Bug Fix: Prevent a redirect loop when logging in on sites that take more than 5 seconds to load the Dashboard.
+8.1.5 - 2023-03-23 - Timothy Jacobs, Lisa Canini, Jared Hill
+	Security Hardening: Prevent open redirects attacks against the Enforce SSL module. This attack requires spoofing the Host header which requires additional conditions to exploit. Thanks to nlpro for reporting the issue.
+	Bug Fix: Update Password Strength library to the latest version. This fixes discrepancies between the realtime password strength estimation and the enforced password strength.
+8.1.6 - 2023-04-20 - Timothy Jacobs, Lisa Canini, Jared Hill
+	Bug Fix: Fallback to the homepage when Enforce SSL encounters a non-safelisted redirect destination.
+	Bug Fix: IP Detection on sites behind Load Balancers that appended their IP address to X-Forwarded-For and did not provide a Real IP header.
+8.1.7 - 2023-07-18 - Timothy Jacobs, Lisa Canini, Jared Hill
+	Important: Enforce encryption for Two-Factor secrets.
+	Tweak: Add Stellar and Solid banners.
+	Bug Fix: Don't require "Write to Files" to be enabled to use the "Rotate Encryption Key" tool.
+8.1.8 - 2023-08-31 - Timothy Jacobs, Lisa Canini, Jared Hill
+	News: iThemes Security is becoming Solid Security soon. Learn More: https://go.solidwp.com/security-free-notice-ithemes-becoming-solidwp

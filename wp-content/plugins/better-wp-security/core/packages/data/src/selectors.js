@@ -1,16 +1,72 @@
 /**
+ * External dependencies
+ */
+import createSelector from 'rememo';
+import { merge, cloneDeep } from 'lodash';
+
+/**
  * WordPress dependencies
  */
-import { select } from '@wordpress/data';
+import { createRegistrySelector } from '@wordpress/data';
+
+/**
+ * Internal dependencies
+ */
+import { MODULES_STORE_NAME } from './';
 
 /**
  * Get a WP User by its ID.
+ *
  * @param {Object} state
  * @param {number} userId
- * @return {Object}
+ * @return {Object} User data.
  */
-export function getUser( state, userId ) {
-	return state.users.byId[ userId ];
+export const getUser = createSelector(
+	( state, userId ) => state.users.optimisticEdits[ userId ]
+		? merge( cloneDeep( state.users.byId[ userId ] ), state.users.optimisticEdits[ userId ] )
+		: state.users.byId[ userId ],
+	( state, userId ) => [ state.users.byId[ userId ], state.users.optimisticEdits[ userId ] ]
+);
+
+/**
+ * Get the current user.
+ *
+ * @param {Object} state The store state.
+ * @return {Object} The current user object.
+ */
+export function getCurrentUser( state ) {
+	return getUser( state, getCurrentUserId( state ) );
+}
+
+/**
+ * Get the current user id.
+ *
+ * @param {Object} state The store state.
+ * @return {number} The current user id.
+ */
+export function getCurrentUserId( state ) {
+	return state.users.currentId;
+}
+
+/**
+ * Is the given user being updated.
+ *
+ * @param {Object} state  The store state.
+ * @param {number} userId The user id to query.
+ * @return {boolean} True if saving.
+ */
+export function isSavingUser( state, userId ) {
+	return state.users.saving.includes( userId );
+}
+
+/**
+ * Is the current user being updated.
+ *
+ * @param {Object} state The store state.
+ * @return {boolean} True if saving.
+ */
+export function isSavingCurrentUser( state ) {
+	return isSavingUser( state, state.users.currentId );
 }
 
 export function getIndex( state ) {
@@ -19,12 +75,13 @@ export function getIndex( state ) {
 
 /**
  * Get a schema from the root index.
+ *
  * @param {Object} state
  * @param {string} schemaId The full schema ID like ithemes-security-user-group
- * @return {Object|null}
+ * @return {Object|null} The schema.
  */
 export function getSchema( state, schemaId ) {
-	const index = select( 'ithemes-security/core' ).getIndex();
+	const index = state.index;
 
 	if ( ! index ) {
 		return null;
@@ -45,12 +102,37 @@ export function getSchema( state, schemaId ) {
 	return null;
 }
 
-export function getRoles() {
-	const index = select( 'ithemes-security/core' ).getIndex();
+export function getRoles( state ) {
+	return state.index?.roles || null;
+}
 
-	if ( ! index ) {
-		return null;
+export function getRequirementsInfo( state ) {
+	return state.index?.requirements_info || null;
+}
+
+export function getActorTypes( state ) {
+	return state.actors.types;
+}
+
+export function getActors( state, type ) {
+	return state.actors.byType[ type ];
+}
+
+export function getSiteInfo( state ) {
+	return state.siteInfo;
+}
+
+export const getFeatureFlags = createRegistrySelector(
+	( select ) => ( state ) => {
+		const setting = select( MODULES_STORE_NAME ).getSetting(
+			'feature-flags',
+			'enabled'
+		);
+
+		return setting || state.featureFlags;
 	}
+);
 
-	return index.roles;
+export function getBatchMaxItems( state ) {
+	return state.batchMaxItems;
 }

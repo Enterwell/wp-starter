@@ -9,6 +9,7 @@
 final class ITSEC_Setup {
 	private static $protected = [
 		4117,
+		4121,
 	];
 
 	/**
@@ -35,7 +36,7 @@ final class ITSEC_Setup {
 			return;
 		}
 
-		if ( defined( 'ITSEC_DEVELOPMENT' ) && ITSEC_DEVELOPMENT ) {
+		if ( ITSEC_Core::is_development() && defined( 'ITSEC_FORCE_UNINSTALL' ) && ITSEC_FORCE_UNINSTALL ) {
 			// Set this in wp-config.php to run the uninstall routine on deactivate.
 			self::deactivate();
 			self::uninstall();
@@ -140,6 +141,15 @@ final class ITSEC_Setup {
 
 		if ( empty( $build ) ) {
 			ITSEC_Lib::schedule_cron_test();
+
+			if ( ITSEC_Files::can_write_to_files() ) {
+				try {
+					$secret = ITSEC_Lib_Encryption::generate_secret();
+					ITSEC_Lib_Encryption::save_secret_key( $secret );
+				} catch ( RuntimeException $e ) {
+
+				}
+			}
 		} else {
 			// Existing install. Perform data upgrades.
 
@@ -207,14 +217,11 @@ final class ITSEC_Setup {
 			ITSEC_Files::regenerate_server_config( false );
 		}
 
-		if ( null === get_site_option( 'itsec-enable-grade-report', null ) ) {
-			update_site_option( 'itsec-enable-grade-report', ITSEC_Modules::get_setting( 'global', 'enable_grade_report' ) );
-		}
-
 		ITSEC_Core::get_scheduler()->register_events();
 
 		// Update stored build number.
 		ITSEC_Modules::set_setting( 'global', 'build', ITSEC_Core::get_plugin_build() );
+		self::record_extended_settings();
 		ITSEC_Storage::save();
 
 		if ( $mutex ) {
@@ -222,6 +229,26 @@ final class ITSEC_Setup {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Records the setting names that are provided by extended modules.
+	 */
+	private static function record_extended_settings() {
+		$extended = [];
+
+		foreach ( ITSEC_Modules::get_available_modules() as $module ) {
+			if ( ( ! $config = ITSEC_Modules::get_config( $module ) ) || ! $config->get_extends() || ! $config->get_settings() ) {
+				continue;
+			}
+
+			$extended[ $config->get_extends() ] = array_merge(
+				$extended[ $config->get_extends() ] ?? [],
+				array_keys( $config->get_settings()['properties'] )
+			);
+		}
+
+		ITSEC_Storage::set( '__extended', $extended );
 	}
 
 	/**
@@ -304,15 +331,11 @@ final class ITSEC_Setup {
 		die;
 	}
 
-	private static function deactivate() {
-
-		$itsec_modules = ITSEC_Modules::get_instance();
-		$itsec_modules->run_deactivation();
-
-		$itsec_files = ITSEC_Core::get_itsec_files();
-		$itsec_files->do_deactivate();
-
+	public static function deactivate() {
+		ITSEC_Modules::get_instance()->run_deactivation();
+		ITSEC_Core::get_itsec_files()->do_deactivate();
 		ITSEC_Core::get_scheduler()->uninstall();
+		self::record_extended_settings();
 
 		delete_site_option( 'itsec_temp_whitelist_ip' );
 		delete_site_transient( 'itsec_notification_running' );
@@ -337,10 +360,9 @@ final class ITSEC_Setup {
 		}
 
 		ITSEC_Lib::clear_caches();
-
 	}
 
-	private static function uninstall() {
+	public static function uninstall() {
 		require_once( ITSEC_Core::get_core_dir() . '/lib/schema.php' );
 		require_once( ITSEC_Core::get_core_dir() . '/lib/class-itsec-lib-directory.php' );
 
@@ -349,14 +371,13 @@ final class ITSEC_Setup {
 		$itsec_files = ITSEC_Core::get_itsec_files();
 		$itsec_files->do_deactivate();
 
-		delete_site_option( 'itsec-storage' );
+		ITSEC_Storage::reset();
 		delete_site_option( 'itsec_active_modules' );
 		delete_site_option( 'itsec-enable-grade-report' );
 
 		ITSEC_Schema::remove_database_tables();
 		ITSEC_Lib_Directory::remove( ITSEC_Core::get_storage_dir() );
 		ITSEC_Lib::clear_caches();
-
 	}
 
 	private static function get_version_being_uninstalled() {

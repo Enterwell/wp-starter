@@ -29,9 +29,7 @@ export default function adminNotices( state = DEFAULT_STATE, action ) {
 		case RECEIVE_NOTICES:
 			return {
 				...state,
-				notices: [
-					...action.notices,
-				],
+				notices: [ ...action.notices ],
 			};
 		case START_NOTICE_ACTION:
 			return {
@@ -50,7 +48,9 @@ export default function adminNotices( state = DEFAULT_STATE, action ) {
 				...state,
 				doingActions: {
 					...state.doingActions,
-					[ action.noticeId ]: ( state.doingActions[ action.noticeId ] || [] ).filter( ( actionId ) => actionId !== action.actionId ),
+					[ action.noticeId ]: (
+						state.doingActions[ action.noticeId ] || []
+					).filter( ( actionId ) => actionId !== action.actionId ),
 				},
 			};
 		case RECEIVE_MUTED_HIGHLIGHTS:
@@ -69,7 +69,10 @@ export default function adminNotices( state = DEFAULT_STATE, action ) {
 		case FINISH_UPDATE_MUTED_HIGHLIGHT:
 			return {
 				...state,
-				mutedHighlightUpdatesInFlight: omit( state.mutedHighlightUpdatesInFlight, action.slug ),
+				mutedHighlightUpdatesInFlight: omit(
+					state.mutedHighlightUpdatesInFlight,
+					action.slug
+				),
 				mutedHighlights: {
 					...state.mutedHighlights,
 					[ action.slug ]: action.mute,
@@ -78,7 +81,10 @@ export default function adminNotices( state = DEFAULT_STATE, action ) {
 		case FAILED_UPDATE_MUTED_HIGHLIGHT:
 			return {
 				...state,
-				mutedHighlightUpdatesInFlight: omit( state.mutedHighlightUpdatesInFlight, action.slug ),
+				mutedHighlightUpdatesInFlight: omit(
+					state.mutedHighlightUpdatesInFlight,
+					action.slug
+				),
 			};
 		default:
 			return state;

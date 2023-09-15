@@ -77,6 +77,9 @@ class Settings extends \WP_REST_Controller {
 				],
 			],
 			'show_in_index' => false,
+			'allow_batch'   => [
+				'v1' => true,
+			],
 		] );
 	}
 

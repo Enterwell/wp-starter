@@ -1,9 +1,14 @@
 <?php
 /**
- * @license http://www.opensource.org/licenses/mit-license.php MIT (see the LICENSE file)
+ * @license MIT
+ *
+ * Modified using Strauss.
+ * @see https://github.com/BrianHenryIE/strauss
  */
 
-namespace Psr\Container;
+declare(strict_types=1);
+
+namespace iThemesSecurity\Strauss\Psr\Container;
 
 /**
  * Describes the interface of a container that exposes methods to read its entries.
@@ -20,7 +25,7 @@ interface ContainerInterface
      *
      * @return mixed Entry.
      */
-    public function get($id);
+    public function get(string $id);
 
     /**
      * Returns true if the container can return an entry for the given identifier.
@@ -33,5 +38,5 @@ interface ContainerInterface
      *
      * @return bool
      */
-    public function has($id);
+    public function has(string $id): bool;
 }

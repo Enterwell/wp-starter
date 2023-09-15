@@ -11,7 +11,22 @@ final class ITSEC_Schema {
 		'itsec_opaque_tokens',
 		'itsec_user_groups',
 		'itsec_mutexes',
+		'itsec_bans',
+		'itsec_dashboard_events',
 	];
+
+	const PRO_TABLES = [
+		'itsec_webauthn_users',
+		'itsec_webauthn_credentials',
+	];
+
+	public static function get_table_names(): array {
+		if ( ITSEC_Core::is_pro() ) {
+			return array_merge( self::TABLES, self::PRO_TABLES );
+		} else {
+			return self::TABLES;
+		}
+	}
 
 	/**
 	 * Creates appropriate database tables.
@@ -27,13 +42,13 @@ final class ITSEC_Schema {
 
 		$charset_collate = $wpdb->get_charset_collate();
 
-		$tables = "
+		$sql = "
 CREATE TABLE {$wpdb->base_prefix}itsec_logs (
 	id bigint(20) unsigned NOT NULL auto_increment,
 	parent_id bigint(20) unsigned NOT NULL default '0',
 	module varchar(50) NOT NULL default '',
 	code varchar(100) NOT NULL default '',
-	data longtext NOT NULL default '',
+	data longtext NOT NULL,
 	type varchar(20) NOT NULL default 'notice',
 	timestamp datetime NOT NULL default '0000-00-00 00:00:00',
 	init_timestamp datetime NOT NULL default '0000-00-00 00:00:00',
@@ -55,7 +70,7 @@ CREATE TABLE {$wpdb->base_prefix}itsec_logs (
 
 CREATE TABLE {$wpdb->base_prefix}itsec_lockouts (
 	lockout_id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
-	lockout_type varchar(20) NOT NULL,
+	lockout_type varchar(25) NOT NULL,
 	lockout_start datetime NOT NULL,
 	lockout_start_gmt datetime NOT NULL,
 	lockout_expire datetime NOT NULL,
@@ -75,7 +90,7 @@ CREATE TABLE {$wpdb->base_prefix}itsec_lockouts (
 
 CREATE TABLE {$wpdb->base_prefix}itsec_temp (
 	temp_id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
-	temp_type varchar(20) NOT NULL,
+	temp_type varchar(25) NOT NULL,
 	temp_date datetime NOT NULL,
 	temp_date_gmt datetime NOT NULL,
 	temp_host varchar(40),
@@ -130,39 +145,91 @@ CREATE TABLE {$wpdb->base_prefix}itsec_fingerprints (
 ) $charset_collate;
 
 CREATE TABLE {$wpdb->base_prefix}itsec_opaque_tokens (
-    token_id char(64) NOT NULL,
-    token_hashed char(64) NOT NULL,
-    token_type VARCHAR(32) NOT NULL,
-    token_data TEXT NOT NULL,
-    token_created_at DATETIME NOT NULL,
-    PRIMARY KEY  (token_id),
-    UNIQUE KEY token_hashed (token_hashed)
+	token_id char(64) NOT NULL,
+	token_hashed char(64) NOT NULL,
+	token_type VARCHAR(32) NOT NULL,
+	token_data TEXT NOT NULL,
+	token_created_at DATETIME NOT NULL,
+	PRIMARY KEY  (token_id),
+	UNIQUE KEY token_hashed (token_hashed)
 ) $charset_collate;
 
 CREATE TABLE {$wpdb->base_prefix}itsec_user_groups (
-    group_id char(36) NOT NULL,
-    group_label varchar(255) NOT NULL default '',
-    group_roles TEXT,
-    group_canonical TEXT,
-    group_users TEXT,
-    group_min_role varchar(255),
-    group_created_at DATETIME,
-    PRIMARY KEY  (group_id)
+	group_id char(36) NOT NULL,
+	group_label varchar(255) NOT NULL default '',
+	group_roles TEXT,
+	group_canonical TEXT,
+	group_users TEXT,
+	group_min_role varchar(255),
+	group_created_at DATETIME,
+	PRIMARY KEY  (group_id)
 ) $charset_collate;
 
 CREATE TABLE {$wpdb->base_prefix}itsec_mutexes (
-    mutex_id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
-    mutex_name varchar(100) NOT NULL,
-    mutex_expires int(11) UNSIGNED NOT NULL,
-    PRIMARY KEY  (mutex_id),
-    UNIQUE KEY mutex_name (mutex_name)
+	mutex_id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+	mutex_name varchar(100) NOT NULL,
+	mutex_expires int(11) UNSIGNED NOT NULL,
+	PRIMARY KEY  (mutex_id),
+	UNIQUE KEY mutex_name (mutex_name)
+) $charset_collate;
+
+CREATE TABLE {$wpdb->base_prefix}itsec_bans (
+	id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+	host varchar(64) NOT NULL,
+	type varchar(20) NOT NULL default 'ip',
+	created_at datetime NOT NULL,
+	actor_type varchar(20),
+	actor_id varchar(128),
+	comment varchar(255) NOT NULL default '',
+	PRIMARY KEY  (id),
+	UNIQUE KEY host (host),
+	KEY actor (actor_type,actor_id)
+) $charset_collate;
+
+CREATE TABLE {$wpdb->base_prefix}itsec_dashboard_events (
+	event_id int(11) unsigned NOT NULL AUTO_INCREMENT,
+	event_slug varchar(128) NOT NULL DEFAULT '',
+	event_time datetime NOT NULL,
+	event_count int(11) unsigned NOT NULL DEFAULT '1',
+	event_consolidated tinyint(1) NOT NULL DEFAULT '0',
+	PRIMARY KEY  (`event_id`),
+	UNIQUE KEY `event_slug__time__consolidated` (event_slug,event_time,event_consolidated)
 ) $charset_collate;
 ";
 
-		$wp_error = new WP_Error();
-		ITSEC_Lib::add_to_wp_error( $wp_error, ITSEC_Lib::db_delta_with_error_handling( $tables ) );
+		if ( ITSEC_Core::is_pro() ) {
+			$sql .= "
+CREATE TABLE {$wpdb->base_prefix}itsec_webauthn_users (
+	user_id bigint(20) unsigned NOT NULL,
+	webauthn_id CHAR(44) NOT NULL,
+	PRIMARY KEY  (`user_id`)
+) $charset_collate;
 
-		foreach ( self::TABLES as $table ) {
+CREATE TABLE {$wpdb->base_prefix}itsec_webauthn_credentials (
+	ref char(64) CHARACTER SET latin1 COLLATE latin1_bin,
+	id varchar(1024) NOT NULL,
+	type varchar(40) NOT NULL,
+	transports text NOT NULL,
+	public_key text NOT NULL,
+	sign_count bigint unsigned NOT NULL,
+	backup_eligible tinyint(1) unsigned NOT NULL,
+	backed_up tinyint(1) unsigned NOT NULL,
+	webauthn_user char(44) NOT NULL,
+	created_at datetime NOT NULL,
+	last_used datetime default NULL,
+	trashed_at datetime default NULL,
+	label varchar(255) NOT NULL,
+	status varchar(20) NOT NULL,
+	PRIMARY KEY  (`ref`),
+	KEY `webauthn_user__status` (`webauthn_user`, `status`)
+) $charset_collate;
+";
+		}
+
+		$wp_error = new WP_Error();
+		ITSEC_Lib::add_to_wp_error( $wp_error, ITSEC_Lib::db_delta_with_error_handling( $sql ) );
+
+		foreach ( self::get_table_names() as $table ) {
 			if ( ! count( $wpdb->get_results( "SHOW TABLES LIKE '{$wpdb->base_prefix}{$table}'" ) ) ) {
 				$wp_error->add(
 					'missing_table',
@@ -188,14 +255,10 @@ CREATE TABLE {$wpdb->base_prefix}itsec_mutexes (
 	public static function remove_database_tables() {
 		global $wpdb;
 
-		$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->base_prefix}itsec_logs;" );
+		foreach ( self::get_table_names() as $table ) {
+			$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->base_prefix}{$table};" );
+		}
+
 		$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->base_prefix}itsec_log;" );
-		$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->base_prefix}itsec_lockouts;" );
-		$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->base_prefix}itsec_temp;" );
-		$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->base_prefix}itsec_distributed_storage;" );
-		$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->base_prefix}itsec_geolocation_cache;" );
-		$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->base_prefix}itsec_fingerprints;" );
-		$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->base_prefix}itsec_user_groups;" );
-		$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->base_prefix}itsec_mutexes;" );
 	}
 }

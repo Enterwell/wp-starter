@@ -1,0 +1,115 @@
+.itsec-settings .itsec-primary-schema-form.rjsf {
+    .itsec-rjsf-object-fieldset {
+        display: grid;
+        grid-template-columns: [label fields] minmax(0, 1fr);
+        grid-template-rows: auto;
+        grid-gap: .5rem 0;
+
+        @include break-small {
+            grid-template-columns: [label] 10rem [fields] minmax(0, 1fr);
+        }
+    }
+
+    .itsec-rjsf-section-description {
+        margin-top: 0;
+        grid-column: fields;
+    }
+
+    > .field-object > .itsec-rjsf-object-fieldset {
+        & > .itsec-rjsf-title-field,
+        & > .itsec-rjsf-section-title {
+            grid-column: label;
+            font-size: 1rem;
+            padding-right: 1rem;
+            margin-bottom: 0;
+
+            &:not(:first-child) {
+                border-top: 1px solid $border-color;
+                margin-top: .5rem;
+                padding-top: 1rem;
+
+                @include break-small {
+                    & + * {
+                        border-top: 1px solid $border-color;
+                        margin-top: .5rem;
+                        padding-top: 1rem;
+                    }
+                }
+            }
+        }
+
+        & > .form-group:not(.field-object) {
+            grid-column: label / fields-end;
+        }
+
+        & > .itsec-rjsf-section-title ~ .form-group {
+            grid-column: fields;
+        }
+
+        & > .field-object {
+            grid-column: label / fields-end;
+        }
+
+        & > .field-description {
+            margin-top: 0;
+        }
+    }
+
+    .itsec-rjsf-object-fieldset > * > .itsec-rjsf-object-fieldset {
+        & > .itsec-rjsf-title-field {
+            grid-column: label;
+            font-size: 1rem;
+            padding-right: 1rem;
+        }
+
+        & > .form-group {
+            grid-column: fields;
+        }
+
+        & > .field-description {
+            grid-column: fields;
+            margin-top: 0;
+        }
+    }
+
+    .components-base-control__label,
+    .components-input-control__label,
+    label,
+    caption,
+    legend {
+        color: $dark-text;
+    }
+
+    .itsec-highlighted-search-result {
+        .components-base-control__label,
+        .components-input-control__label,
+        label,
+        caption {
+            border-bottom: 3px solid $main-blue;
+            padding-bottom: 3px;
+            margin-bottom: 6px;
+        }
+
+        .components-base-control__field {
+            margin-bottom: 12px;
+        }
+    }
+
+    .field-object:not(:first-child):not(:empty) {
+        border-top: 1px solid $border-color;
+        margin-top: 1rem;
+        padding-top: 1rem;
+    }
+
+    .field-object:empty {
+        display: none;
+    }
+
+    .itsec-rjsf-title-field + .field-object:not(:first-child),
+    .itsec-rjsf-section-description + .field-object:not(:first-child) {
+        border-top: none;
+        margin-top: 0;
+        padding-top: 0;
+    }
+}
+

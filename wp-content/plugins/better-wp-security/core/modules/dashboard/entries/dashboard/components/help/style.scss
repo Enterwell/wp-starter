@@ -1,0 +1,38 @@
+.itsec-dashboard-help {
+    max-width: 80rem;
+    margin: 0 auto;
+
+    .itsec-help-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 2em;
+    }
+
+    .itsec-help-header__title {
+        color: $main-blue;
+        display: block;
+        font-size: 1.6rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .itsec-help-header__back-link.components-button {
+        color: $main-blue;
+        height: auto;
+        margin: 0;
+
+        &:hover {
+            color: $dark-text;
+        }
+    }
+
+    .itsec-help-list-section {
+        margin-bottom: 2rem;
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+}
+

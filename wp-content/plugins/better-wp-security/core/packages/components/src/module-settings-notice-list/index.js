@@ -51,9 +51,11 @@ function ModuleSettingsNoticeList( { notices, onRemove } ) {
 	}, [ length, prevLength ] );
 
 	const createRemoveNotice = ( id ) => () => onRemove( id );
-	const snackbarNotices = SnackbarList ? filter( notices, {
-		type: 'snackbar',
-	} ) : [];
+	const snackbarNotices = SnackbarList
+		? filter( notices, {
+			type: 'snackbar',
+		} )
+		: [];
 
 	return (
 		<Fragment>
@@ -74,11 +76,13 @@ function ModuleSettingsNoticeList( { notices, onRemove } ) {
 					);
 				} ) }
 			</div>
-			{ SnackbarList && <SnackbarList
-				notices={ snackbarNotices }
-				className="components-editor-notices__snackbar"
-				onRemove={ onRemove } />
-			}
+			{ SnackbarList && (
+				<SnackbarList
+					notices={ snackbarNotices }
+					className="components-editor-notices__snackbar"
+					onRemove={ onRemove }
+				/>
+			) }
 		</Fragment>
 	);
 }
