@@ -20,12 +20,67 @@
 
     - name: Create nginx conf in sites-available
       template:
-        src: ../files/stage.nginx.conf.j2
+        src: ../files/nginx.conf.j2
         dest: "/etc/nginx/sites-available/{{ http_host }}"
         owner: root
         group: root
       become: true
       tags: [ nginx ]
+
+    - name: Check if varnish backend directive set
+      lineinfile:
+        state: absent
+        path: /etc/varnish/default.vcl
+        search_string: 'backend {{ http_host|replace(".", "_") }}'
+      check_mode: true
+      changed_when: false
+      register: check_backend
+      become: true
+      tags: [ varnish ]
+
+    - name: Add varnish conf backend entry
+      lineinfile:
+        state: present
+        path: /etc/varnish/default.vcl
+        insertafter: "^# Ansible backends"
+        firstmatch: true
+        line: 'backend {{ http_host|replace(".", "_") }} { .host = "{{ http_host }}"; .port = "8080"; }'
+      when: check_backend.found == 0
+      become: true
+      tags: [ varnish ]
+
+    - name: Check if varnish host directive set
+      lineinfile:
+        state: absent
+        path: /etc/varnish/default.vcl
+        search_string: 'if ( req.http.host == "^(?i){{ http_host }}"'
+      check_mode: true
+      changed_when: false
+      register: check_host
+      become: true
+      tags: [ varnish ]
+
+    - name: Add varnish conf host entry
+      lineinfile:
+        state: present
+        path: /etc/varnish/default.vcl
+        insertafter: "^# Ansible hosts"
+        firstmatch: true
+        line: 'if ( req.http.host == "^(?i){{ http_host }}" || req.http.host == "(?i)www.{{ http_host }}" ) { set req.backend_hint = {{ http_host|replace(".", "_") }}; }'
+      when: check_host.found == 0
+      become: true
+      tags: [ varnish ]
+
+    - name: Install SSL certificate
+      command: >
+        certbot --nginx -d {{http_host}} 
+        -m support@enterwell.net 
+        --agree-tos --noninteractive --redirect 
+        --post-hook "/bin/true"
+      register: certbot_output
+      changed_when: "'Running post-hook command' in certbot_output.stdout"
+      become: true
+      tags: [ ssl ]
 
     - name: Symlink nginx conf to sites-enabled
       file:
@@ -38,7 +93,12 @@
     - name: (re)Start nginx
       shell: service nginx restart
       become: true
-      tags: [ system ]
+      tags: [ system, nginx ]
+
+    - name: (re)Start varnish
+      shell: service varnish restart
+      become: true
+      tags: [ system, varnish ]
 
     - name: Install (mysql_db) database requirement package
       apt:
@@ -70,7 +130,7 @@
 
     - name: Create wp-config.php in project
       template:
-        src: ../files/stage.wp-config.php.j2
+        src: ../files/wp-config.php.j2
         dest: "{{ project_path }}/wp-config.php"
       become: true
       tags: [ project ]

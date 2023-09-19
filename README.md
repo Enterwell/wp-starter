@@ -1,8 +1,8 @@
 <h1 align="center">
   <a style="display: inline-block;" href="https://enterwell.net/" target="_blank">
     <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="http://dev.enterwell.space/EW_logo_white.svg">
-      <img width="128" height="128" alt="logo" src="http://dev.enterwell.space/EW_logo_black.svg">
+      <source media="(prefers-color-scheme: dark)" srcset="https://enterwell.net/wp-content/uploads/2023/05/ew-logomark-color-negative-128.x71089.svg">
+      <img width="128" height="128" alt="logo" src="https://enterwell.net/wp-content/uploads/2023/05/ew-logomark-color-positive-128.x71089.svg">
     </picture>
   </a>
   <p>Enterwell WP starter</p>
@@ -38,6 +38,9 @@
   </a>
   <a style="display: inline-block;" href="https://www.ansible.com/" target="_blank">
     <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/ansible/ansible-original-wordmark.svg" alt="ansible" width="30" />
+  </a>
+  <a style="display: inline-block;" href="https://varnish-cache.org/" target="_blank">
+    <img src="https://cdnlogo.com/logos/v/47/varnish.svg" alt="varnish" width="30" />
   </a>
 </div>
 

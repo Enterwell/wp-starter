@@ -1,0 +1,214 @@
+### Ansible playbook for prod environment
+
+- hosts: prod
+  vars_files:
+    - "../vars/default.yml"
+    - "../vars/production.yml"
+  tasks:
+    - name: Install nginx
+      apt:
+        name: nginx
+        state: present
+      become: true
+      tags: [ system ]
+
+    - name: Run nginx
+      service:
+        name: nginx
+        state: started
+        enabled: yes
+      become: true
+      tags: [ system ]
+
+    - name: Install varnish
+      apt:
+        name: varnish
+        state: present
+      become: true
+      tags: [ system ]
+
+    - name: Add Varnish default.vcl conf
+      template:
+        src: ../files/default.vcl.j2
+        dest: "/etc/varnish/default.vcl"
+      become: true
+      tags: [ varnish ]
+
+    - name: Install Python3 certbot for certbot
+      apt:
+        name: python3-certbot-nginx
+        state: present
+      become: true
+      tags: [ system, ssl ]
+
+    - name: Install Certbot
+      apt:
+        name: certbot
+        state: present
+      become: true
+      tags: [ system, ssl ]
+
+    - name: Install mysql and dependencies
+      package:
+        name: "{{ item }}"
+        state: present
+        update_cache: yes
+      loop:
+        - mysql-server
+        - python3-mysqldb
+      become: true
+      tags: [ system ]
+
+    - name: Run mysql server and enable
+      service:
+        name: mysql
+        state: started
+        enabled: yes
+      become: true
+      tags: [ system ]
+
+    - name: Create mysql user
+      mysql_user:
+        name: "{{ mysql_user }}"
+        password: "{{ mysql_password }}"
+        priv: '*.*:ALL'
+        host: "{{ mysql_host }}"
+        state: present
+      become: true
+      tags: [ mysql ]
+
+    - name: Create database
+      mysql_db:
+        name: "{{ mysql_db }}"
+        state: present
+        login_host: "{{ mysql_host }}"
+        login_user: "{{ mysql_user }}"
+        login_password: "{{ mysql_password }}"
+      become: true
+      tags: [ mysql ]
+
+    - name: Restart mysql
+      service:
+        name: mysql
+        state: restarted
+      become: true
+      tags: [ system ]
+
+    - name: Add distribution manage package
+      apt:
+        name: software-properties-common
+        state: present
+      become: true
+      tags: [ system ]
+
+    - name: Add Ondrej PPA
+      apt_repository:
+        repo: ppa:ondrej/php
+        state: present
+      become: true
+      tags: [ system ]
+
+    - name: Update repository cache
+      apt:
+        update_cache: yes
+      become: true
+      tags: [ system ]
+
+    - name: Install PHP
+      apt:
+        name: php{{ php_version }}
+        state: present
+      become: true
+      tags: [ system ]
+
+    - name: Install PHP packages
+      apt:
+        pkg:
+          - php{{ php_version }}-{{ item }}
+        state: present
+        update_cache: yes
+      loop: "{{ php_modules }}"
+      become: true
+      tags: [ system ]
+
+    - name: Restart PHP FPM
+      service:
+        name: php{{ php_version }}-fpm
+        state: restarted
+      become: true
+      tags: [ system ]
+
+    - name: Create project directory
+      file:
+        path: "{{ project_path }}"
+        state: directory
+        mode: '0755'
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+      become: true
+      tags: [ system ]
+
+    - name: Create nginx conf in sites-available
+      template:
+        src: ../files/nginx.conf.j2
+        dest: "/etc/nginx/sites-available/{{ http_host }}"
+        owner: root
+        group: root
+      become: true
+      tags: [ nginx ]
+
+    - name: Install SSL certificate
+      command: >
+        certbot --nginx -d {{http_host}} 
+        -m support@enterwell.net 
+        --agree-tos --noninteractive --redirect 
+        --post-hook "/bin/true"
+      register: certbot_output
+      changed_when: "'Running post-hook command' in certbot_output.stdout"
+      become: true
+      tags: [ ssl ]
+
+    - name: Symlink nginx conf to sites-enabled
+      file:
+        src: "/etc/nginx/sites-available/{{ http_host }}"
+        dest: "/etc/nginx/sites-enabled/{{ http_host }}"
+        state: link
+      become: true
+      tags: [ nginx ]
+
+    - name: (re)Start nginx
+      service:
+        name: nginx
+        state: restarted
+      become: true
+      tags: [ system ]
+
+    - name: (re)Start varnish
+      service:
+        name: varnish
+        state: restarted
+      become: true
+      tags: [ system ]
+
+    - name: Allow specific UFW rules
+      community.general.ufw:
+        rule: allow
+        name: "{{ item }}"
+      loop:
+        - "Nginx Full"
+        - "OpenSSH"
+      become: true
+      tags: [ firewall ]
+
+    - name: Enable UFW
+      community.general.ufw:
+        state: enabled
+      become: true
+      tags: [ firewall ]
+
+    - name: Create wp-config.php in project
+      template:
+        src: ../files/wp-config.php.j2
+        dest: "{{ project_path }}/wp-config.php"
+      become: true
+      tags: [ project ]
