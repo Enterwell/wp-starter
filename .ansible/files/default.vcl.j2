@@ -1,0 +1,243 @@
+#
+# It does not do anything by default, delegating control to the
+# builtin VCL. The builtin VCL is called when there is no explicit
+# return statement.
+#
+# See the VCL chapters in the Users Guide at https://www.varnish-cache.org/docs/
+# and https://www.varnish-cache.org/trac/wiki/VCLExamples for more examples.
+
+# Marker to tell the VCL compiler that this VCL has been adapted to the
+# new 4.0 format.
+vcl 4.0;
+
+import std;
+
+# Define ACL purge
+acl purge {
+    # ACL we'll use later to allow purges
+    "localhost";
+    "127.0.0.1";
+    "::1";
+}
+
+# Default backend definition. Set this to point to your content server.
+backend default {
+    .host = "{{ http_host }}";
+    .port = "8080";
+}
+
+sub vcl_recv {
+    # Normalize HOST
+    set req.http.Host = regsub(req.http.Host, ":[0-9]+", "");
+
+    # Unset proxy
+    unset req.http.proxy;
+
+    # This will check if cookie accepted info is stored in the cookie and set req header accordingly
+    # Useful when we decide weather to load marketing scripts based on user preference stored
+    # in the cookie, then we have 2 options for each cached page - one with marketing scripts
+    # included and one without. This way we can serve both pages from the cache.
+    # When enabling this we should pay attention to the cookie name and enable vcl_hash sub below
+    # if (req.http.Cookie ~ "(^|;\s*)(cookies-accepted=true)(;|$)"){
+    #     set req.http.x-accepted = "true";
+    # }else{
+    #     set req.http.x-accepted = "false";
+    # }
+
+    # Strip hash, server doesn't need it.
+    if (req.url ~ "\#") {
+      set req.url = regsub(req.url, "\#.*$", "");
+    }
+
+    # Strip a trailing ? if it exists
+    if (req.url ~ "\?$") {
+      set req.url = regsub(req.url, "\?$", "");
+    }
+
+    # Sorts query string parameters alphabetically for cache normalization purposes
+    set req.url = std.querysort(req.url);
+
+    # Pass real IP to the backend
+    if (req.restarts == 0) {
+        if (req.http.X-Forwarded-For) {
+           set req.http.X-Forwarded-For = req.http.X-Forwarded-For + ", " + client.ip;
+       } else {
+        set req.http.X-Forwarded-For = client.ip;
+       }
+    }
+
+    # HTTPS redirects
+    if ( (req.http.host ~ "^(?i){{ http_host }}") && req.http.X-Forwarded-Proto !~ "(?i)https") {
+      set req.http.x-redir = "https://" + req.http.host + req.url;
+      return (synth(750, ""));
+    }
+
+    # Allow PURGE only for certain IP addresses
+    if (req.method == "PURGE") {
+      if (!client.ip ~ purge) { # purge is the ACL defined at the begining
+        # Not from an allowed IP? Then die with an error.
+        return (synth(405, "This IP is not allowed to send PURGE requests."));
+      }
+      # If you got this stage (and didn't error out above), purge the cached result
+      return (purge);
+    }
+
+    # Deal with selective header types
+    if (req.method != "GET" &&
+        req.method != "HEAD" &&
+        req.method != "PUT" &&
+        req.method != "POST" &&
+        req.method != "TRACE" &&
+        req.method != "OPTIONS" &&
+        req.method != "PATCH" &&
+        req.method != "DELETE") {
+      return (pipe);
+    }
+
+    # Remove tracking query string parameters used by analytics tools
+    if (req.url ~ "(\?|&)(utm_source|utm_medium|utm_campaign|utm_content|gclid|cx|ie|cof|siteurl)=") {
+        set req.url = regsuball(req.url, "&(utm_source|utm_medium|utm_campaign|utm_content|gclid|cx|ie|cof|siteurl)=([A-z0-9_\-\.%25]+)", "");
+        set req.url = regsuball(req.url, "\?(utm_source|utm_medium|utm_campaign|utm_content|gclid|cx|ie|cof|siteurl)=([A-z0-9_\-\.%25]+)", "?");
+        set req.url = regsub(req.url, "\?&", "?");
+        set req.url = regsub(req.url, "\?$", "");
+    }
+
+    # Cache only GET and HEAD requests
+    if (req.method != "GET" && req.method != "HEAD") {
+      return (pass);
+    }
+
+    # Remove all cookies for static files
+    # A valid discussion could be held on this line: do you really need to cache static files that don't cause load? Only if you have memory left.
+    # Sure, there's disk I/O, but chances are your OS will already have these files in their buffers (thus memory).
+    # Before you blindly enable this, have a read here: https://ma.ttias.be/stop-caching-static-files/
+    # if (req.url ~ "^[^?]*\.(7z|avi|bmp|bz2|css|csv|doc|docx|eot|flac|flv|gif|gz|ico|jpeg|jpg|js|less|mka|mkv|mov|mp3|mp4|mpeg|mpg|odt|otf|ogg|ogm|opus|pdf|png|ppt|pptx|rar|rtf|svg|svgz|swf|tar|tbz|tgz|ttf|txt|txz|wav|webm|webp|woff|woff2|xls|xlsx|xml|xz|zip)(\?.*)?$") {
+    #   set req.http.X-Static-File = "true";
+    #   unset req.http.Cookie;
+    #   return (hash);
+    # }
+
+    # === DO NOT CACHE ===
+    # Don't cache HTTP authorization/authentication pages and pages with certain headers or cookies
+    if (
+        req.http.Authorization ||
+        req.http.Authenticate ||
+        req.http.X-Logged-In == "True" ||
+        req.http.Cookie ~ "wordpress_(?!test_)[a-zA-Z0-9_]+|wp-postpass|comment_author_[a-zA-Z0-9_]+|woocommerce_cart_hash|woocommerce_items_in_cart|wp_woocommerce_session_[a-zA-Z0-9]+|wordpress_logged_in_|comment_author|PHPSESSID" ||
+        req.url ~ "add_to_cart" ||
+        req.url ~ "edd_action" ||
+        req.url ~ "nocache" ||
+        req.url ~ "^/addons" ||
+        req.url ~ "^/bb-admin" ||
+        req.url ~ "^/bb-login.php" ||
+        req.url ~ "^/bb-reset-password.php" ||
+        req.url ~ "^/cart" ||
+        req.url ~ "^/checkout" ||
+        req.url ~ "^/control.php" ||
+        req.url ~ "^/login" ||
+        req.url ~ "^/logout" ||
+        req.url ~ "^/lost-password" ||
+        req.url ~ "^/my-account" ||
+        req.url ~ "^/product" ||
+        req.url ~ "^/register" ||
+        req.url ~ "^/register.php" ||
+        req.url ~ "^/server-status" ||
+        req.url ~ "^/signin" ||
+        req.url ~ "^/signup" ||
+        req.url ~ "^/stats" ||
+        req.url ~ "^/wc-api" ||
+        req.url ~ "^/wp-admin" ||
+        req.url ~ "^/wp-comments-post.php" ||
+        req.url ~ "^/wp-cron.php" ||
+        req.url ~ "^/wp-login.php" ||
+        req.url ~ "^/wp-activate.php" ||
+        req.url ~ "^/wp-mail.php" ||
+        req.url ~ "^/wp-login.php" ||
+        req.url ~ "^\?add-to-cart=" ||
+        req.url ~ "^\?wc-api=" ||
+        req.url ~ "^/preview=" ||
+        req.url ~ "^/\.well-known/acme-challenge/"
+    ) {
+        set req.http.X-Cacheable = "NO:Logged in/Got Sessions";
+	if(req.http.X-Requested-With == "XMLHttpRequest") {
+            set req.http.X-Cacheable = "NO:Ajax";
+	}
+        return (pass);
+    }
+
+    # Cookie manipulation - remove all other cookies
+    # This will cause varnish to ignore all other cookies
+    unset req.http.cookie;
+    return(hash);
+}
+
+# Used to have different pages cached based on cookie value
+# see vcl_recv sub above for more info
+# sub vcl_hash {
+#     hash_data(req.http.x-accepted);
+# }
+
+
+sub vcl_backend_response {
+    # Happens after we have read the response headers from the backend.
+    #
+    # Here you clean the response headers, removing silly Set-Cookie headers
+    # and other mistakes your backend does.
+
+    # Enable cache for static files
+    if (bereq.url ~ "^[^?]*\.(7z|avi|bmp|bz2|css|csv|doc|docx|eot|flac|flv|gif|gz|ico|jpeg|jpg|js|less|mka|mkv|mov|mp3|mp4|mpeg|mpg|odt|otf|ogg|ogm|opus|pdf|png|ppt|pptx|rar|rtf|svg|svgz|swf|tar|tbz|tgz|ttf|txt|txz|wav|webm|webp|woff|woff2|xls|xlsx|xml|xz|zip)(\?.*)?$") {
+      unset beresp.http.set-cookie;
+    }
+
+    # Varnish 4 fully supports Streaming, so use streaming here to avoid locking.
+    if (bereq.url ~ "^[^?]*\.(7z|avi|bz2|flac|flv|gz|mka|mkv|mov|mp3|mp4|mpeg|mpg|ogg|ogm|opus|rar|tar|tgz|tbz|txz|wav|webm|xz|zip)(\?.*)?$") {
+      unset beresp.http.set-cookie;
+      set beresp.do_stream = true;  # Check memory usage it'll grow in fetch_chunksize blocks (128k by default) if the backend doesn't send a Content-Length header, so only enable it for big objects
+    }
+
+    # To prevent accidental replace, we only filter the 301/302 redirects for now.
+    if (beresp.status == 301 || beresp.status == 302) {
+      set beresp.http.Location = regsub(beresp.http.Location, ":[0-9]+", "");
+    }
+
+    # Set 2min cache if unset for static files
+    if (beresp.ttl <= 0s || beresp.http.Set-Cookie || beresp.http.Vary == "*") {
+      set beresp.ttl = 120s; # Important, you shouldn't rely on this, SET YOUR HEADERS in the backend
+      set beresp.uncacheable = true;
+      return (deliver);
+    }
+
+    # Don't cache 50x responses
+    if (beresp.status == 500 || beresp.status == 502 || beresp.status == 503 || beresp.status == 504) {
+      return (abandon);
+    }
+
+    # Allow stale content, in case the backend goes down.
+    # make Varnish keep all objects for 6 hours beyond their TTL
+    set beresp.grace = 30m;
+    set beresp.ttl = 15m;
+    return (deliver);
+}
+
+sub vcl_deliver {
+    # Happens when we have all the pieces we need, and are about to send the
+    # response to the client.
+    #
+    # You can do accounting or modifying the final object here.
+
+    if (obj.hits > 0) { # Add debug header to see if it's a HIT/MISS and the number of hits, disable when not needed
+      set resp.http.X-Vch = "1";
+    } else {
+      set resp.http.X-Vch = "0";
+    }
+
+}
+
+# handles redirecting from http to https
+sub vcl_synth {
+  if (resp.status == 750) {
+    set resp.status = 301;
+    set resp.http.Location = req.http.x-redir;
+    return(deliver);
+  }
+}

@@ -4,8 +4,6 @@
 
 # MySQL Settings
 mysql_host: "localhost"
-mysql_root_user: "root"
-mysql_root_password: ""
 mysql_db: "wp_wp-starter"
 mysql_user: "wp_wp-starter_user" # Override this when calling ansible-playbook command
 mysql_password: "" # Override this when calling ansible-playbook command

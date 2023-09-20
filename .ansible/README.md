@@ -57,12 +57,12 @@ if we migrate or want to deploy the code to other environments, we can easily do
 ├─ inventory/
 │  ├─ hosts.yml
 ├─ tasks/
-│  ├─ local.playbook.yml
+│  ├─ prod.playbook.yml
 │  ├─ stage.playbook.yml
 │  ├─ ...
 ├─ vars/
 │  ├─ default.yml
-│  ├─ local.yml
+│  ├─ production.yml
 │  ├─ stage.yml
 │  ├─ ...
 ├─ README.md
