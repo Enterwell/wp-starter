@@ -55,6 +55,46 @@ server {
         log_not_found off;
     }
 
+    # Don't log favicon requests
+    location = /favicon.ico {
+        log_not_found off;
+        access_log off;
+    }
+
+    # Allow access to robots and don't log requests
+    location = /robots.txt {
+        allow all;
+        log_not_found off;
+        access_log off;
+    }
+
+    # Hide any hidden files (.envs, .gits...)
+    location ~ /\. {
+        deny all;
+        access_log off;
+        log_not_found off;
+    }
+
+    # Hide any backup, SQL dump files or logs that came here accidentally
+    location ~ ^.+\.(log|sql|bak|php~|php#|php.save|php.swp|php.swo)$ {
+        deny all;
+        access_log off;
+        log_not_found off;
+    }
+
+    # Hide the nginx version
+    server_tokens off;
+
+    # Hide the PHP version
+    fastcgi_hide_header X-Powered-By;
+    proxy_hide_header X-Powered-By;
+
+    # Prevent website loading in an iframe
+    add_header X-Frame-Options SAMEORIGIN;
+
+    # Turns off directory listing
+    autoindex off;
+
     # Include project specific configuration (usually updated by cache and security plugins)
     include {{project_path}}/*.conf;
 }
