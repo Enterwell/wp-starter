@@ -71,6 +71,19 @@
       become: true
       tags: [ varnish ]
 
+    - name: Symlink nginx conf to sites-enabled
+      file:
+        src: "/etc/nginx/sites-available/{{ http_host }}"
+        dest: "/etc/nginx/sites-enabled/{{ http_host }}"
+        state: link
+      become: true
+      tags: [ nginx ]
+
+    - name: (re)Start nginx
+      shell: service nginx restart
+      become: true
+      tags: [ system, nginx ]
+
     - name: Install SSL certificate
       command: >
         certbot --nginx -d {{http_host}} 
@@ -81,14 +94,6 @@
       changed_when: "'Running post-hook command' in certbot_output.stdout"
       become: true
       tags: [ ssl ]
-
-    - name: Symlink nginx conf to sites-enabled
-      file:
-        src: "/etc/nginx/sites-available/{{ http_host }}"
-        dest: "/etc/nginx/sites-enabled/{{ http_host }}"
-        state: link
-      become: true
-      tags: [ nginx ]
 
     - name: (re)Start nginx
       shell: service nginx restart
