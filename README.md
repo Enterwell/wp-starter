@@ -183,6 +183,10 @@ List of recommended (and tested) environment requirements:
 > ⛏ TODO: explain purpose of this starter, what can you do with it, short summary of its architecture and what does each part of it do, 
 > link to [Gutenberg documentation](wp-content/themes/ew-theme/assets/gutenberg/README.md) (and translate it to ENG)
 
+### Additional notes
+- User endpoint is disabled by default because of security reasons. Depending on the project needs, this can be enabled 
+[here](https://github.com/Enterwell/wp-starter/blob/master/wp-content/themes/ew-theme/classes/class-theme-hooks.php)
+
 ## 🏛 Project structure
 
 > ⛏ TODO: visualize project structure, where are files meant to be created and worked on
