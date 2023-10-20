@@ -9,14 +9,14 @@ import styled from '@emotion/styled';
 import { Button } from '@wordpress/components';
 
 /**
- * iThemes dependencies
+ * SolidWP dependencies
  */
-import { Heading } from '@ithemes/ui';
+import { Heading, Text } from '@ithemes/ui';
 
 /**
  * Internal dependencies
  */
-import { SolidLogo } from '@ithemes/security-style-guide';
+import { SolidLogoCropped } from '@ithemes/security-style-guide';
 
 export const StyledBanner = styled.aside`
 	position: relative;
@@ -33,15 +33,6 @@ export const StyledBanner = styled.aside`
 	@media screen and (min-width: ${ ( { theme } ) => theme.breaks.medium }px) {
 		flex-direction: row;
 	}
-`;
-
-export const StyledLogoContainer = styled.div`
-	display: flex;
-	margin-right: 1.5rem;
-`;
-
-export const StyledSolidLogo = styled( SolidLogo )`
-	margin-left: -1.5rem;
 `;
 
 export const StyledTextContainer = styled.section`
@@ -86,5 +77,83 @@ export const StyledStellarSaleDismiss = styled( Button )`
 	right: 0;
 	&:hover, &:active, &:focus {
 		color: #6817c5;
+	}
+`;
+
+export const StyledBFCMBanner = styled.aside`
+	display: flex;
+	flex-direction: column;
+	position: relative;
+	overflow: hidden;
+	margin: 1.25rem 1.25rem 0;
+	padding: 0 2.5rem 0 2.5rem;
+	background: linear-gradient(90deg, #00010C 0%, #8533FF 100%);
+	@media screen and (min-width: ${ ( { theme } ) => theme.breaks.small }px) {
+		flex-direction: row;
+		justify-content: space-between;
+		gap: 60px;
+	}
+`;
+
+export const StyledBFCMTextContainer = styled.div`
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	justify-content: center;
+	gap: 0.5rem;
+	margin-top: 2.5rem;
+	@media screen and (min-width: ${ ( { theme } ) => theme.breaks.small }px) {
+		margin-top: 0;
+	}
+`;
+
+export const StyledBFCMHeading = styled( Heading )`
+	font-size: 1.625rem;
+	font-family: 'PolySans', sans-serif;
+`;
+
+export const StyledBFCMText = styled( Text )`
+	font-size: 1.375rem;
+	line-height: 1.5rem;
+	font-family: 'PolySans', sans-serif;
+`;
+
+export const StyledBFCMButton = styled( Button )`
+	height: 47px;
+	width: 200px;
+	margin-top: 1.25rem;
+	padding: 15px 20px;
+	justify-content: center;
+	font-size: 1rem;
+	border-radius: 50px;
+	background: #F9FAF9;
+	color: #8533FF;
+`;
+
+export const StyledLogo = styled( SolidLogoCropped )`
+	max-width: 245px;
+	margin-top: 2rem;
+	margin-right: -1rem;
+	align-self: flex-end;
+	@media screen and (min-width: ${ ( { theme } ) => theme.breaks.medium }px) {
+		margin-top: 2rem;
+	}
+	@media screen and (min-width: ${ ( { theme } ) => theme.breaks.xlarge }px) {
+		margin-top: 1.25rem;
+		margin-right: 90px;
+	}
+`;
+
+export const StyledBFCMDismiss = styled( Button )`
+	position: absolute;
+	top: 2px;
+	right: 2px;
+	&:hover, &:active, &:focus {
+		color: #6817c5;
+	}
+	
+	& svg {
+		background: white;
+		border-radius: 25px;
 	}
 `;

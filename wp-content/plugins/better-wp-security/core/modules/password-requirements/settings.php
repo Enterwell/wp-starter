@@ -30,6 +30,16 @@ class ITSEC_Password_Requirements_Settings extends Config_Settings {
 		}
 	}
 
+	public function show_ui(): bool {
+		foreach ( ITSEC_Lib_Password_Requirements::get_registered() as $requirement ) {
+			if ( $requirement->get_settings_schema() ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	public function get_settings_schema() {
 		$schema = parent::get_settings_schema();
 

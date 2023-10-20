@@ -11,9 +11,7 @@
         }
 
         &:nth-child(n + 2) {
-            border-top: 1px solid $border-color;
-            margin-top: 1rem;
-            padding-top: 1rem;
+            margin-top: 1.25rem;
         }
 
         > .components-base-control__field {
@@ -21,7 +19,10 @@
 
             > .components-base-control__label {
                 grid-column: label;
-                font-size: 1rem;
+                color: $solid-wp-text-color-dark;
+                font-size: $solid-wp-text-size-normal;
+                font-weight: 600;
+                text-transform: none;
             }
         }
 

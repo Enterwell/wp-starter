@@ -1,136 +1,56 @@
 /**
- * External dependencies
- */
-import classnames from 'classnames';
-import { get, size } from 'lodash';
-/**
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { Button, FormToggle } from '@wordpress/components';
-import { compose } from '@wordpress/compose';
 import { useState } from '@wordpress/element';
-import { withSelect, withDispatch } from '@wordpress/data';
+import { cog as configureIcon } from '@wordpress/icons';
+
+/**
+ * iThemes dependencies
+ */
+import { Button, Heading, Text, Notice, TextWeight, TextSize, TextVariant } from '@ithemes/ui';
 
 /**
  * Internal dependencies
  */
 import NoticeList from '../notice-list';
-import './style.scss';
+import Highlights from '../highlights';
+import { StyledHeader, StyledHeaderText, StyledPanel } from './styles';
 
-function getAvailableHighlights() {
-	return [
-		{
-			slug: 'file-change-report',
-			label: __( 'File Change Report', 'better-wp-security' ),
-		},
-		{
-			slug: 'notification-center-send-failed',
-			label: __( 'Notification Center Errors', 'better-wp-security' ),
-		},
-		{
-			slug: 'malware-scan-report',
-			label: __( 'Malware Scan Report', 'better-wp-security' ),
-		},
-		{
-			slug: 'malware-scan-failed',
-			label: __( 'Malware Scan Failed', 'better-wp-security' ),
-		},
-		{
-			slug: 'site-scanner-report',
-			label: __( 'Site Scan Report', 'better-wp-security' ),
-		},
-	];
-}
-
-function Panel( {
-	notices,
-	loaded,
-	mutedHighlights,
-	mutedHighlightUpdatesInFlight,
-	updateMutedHighlight,
-} ) {
+export default function Panel( { notices, loaded } ) {
 	const [ isConfiguring, setIsConfiguring ] = useState( false );
 
 	return (
-		<div
-			className={ classnames( 'itsec-admin-notice-panel', {
-				'itsec-admin-notice-panel--is-configuring': isConfiguring,
-			} ) }
-		>
-			<Button
-				icon="admin-generic"
-				label={ __( 'Configure', 'better-wp-security' ) }
-				className="itsec-admin-notice-panel__configure-trigger"
-				style={ { opacity: size( mutedHighlights ) > 0 ? 1 : 0 } }
-				onClick={ () => setIsConfiguring( ! isConfiguring ) }
-			/>
-			<header className="itsec-admin-notice-panel__header">
-				<h3>{ __( 'Security Admin Messages', 'better-wp-security' ) }</h3>
-				<p>
-					{ __( 'Important notices from iThemes Security', 'better-wp-security' ) }
-				</p>
-			</header>
-			{ isConfiguring && (
-				<ul className="itsec-admin-notice-panel__configure-highlighted-logs">
-					{ getAvailableHighlights().map(
-						( { slug, label } ) =>
-							mutedHighlights[ slug ] !== undefined && (
-								<li>
-									<label
-										htmlFor={ `itsec-mute-highlight-${ slug }` }
-									>
-										{ label }
-									</label>
-									<FormToggle
-										id={ `itsec-mute-highlight-${ slug }` }
-										disabled={
-											! loaded ||
-											mutedHighlightUpdatesInFlight[
-												slug
-											]
-										}
-										checked={
-											! get(
-												mutedHighlightUpdatesInFlight,
-												[ slug, 'mute' ],
-												mutedHighlights[ slug ]
-											)
-										}
-										onChange={ () =>
-											updateMutedHighlight(
-												slug,
-												! mutedHighlights[ slug ]
-											)
-										}
-									/>
-								</li>
-							)
-					) }
-				</ul>
+		<StyledPanel>
+			<StyledHeader>
+				<StyledHeaderText>
+					<Heading
+						level={ 3 }
+						size={ TextSize.NORMAL }
+						variant={ TextVariant.ACCENT }
+						weight={ TextWeight.HEAVY }
+						text={ __( 'Security Admin Messages', 'better-wp-security' ) }
+					/>
+					<Text
+						as="p"
+						size={ TextSize.SMALL }
+						variant={ TextVariant.MUTED }
+						text={ __( 'Important notices from Solid Security', 'better-wp-security' ) }
+					/>
+				</StyledHeaderText>
+
+				<Button
+					icon={ configureIcon }
+					label={ __( 'Configure', 'better-wp-security' ) }
+					onClick={ () => setIsConfiguring( ! isConfiguring ) }
+					variant="tertiary"
+				/>
+			</StyledHeader>
+			<Highlights loaded={ loaded } isConfiguring={ isConfiguring } />
+			{ notices.length > 0 && <NoticeList notices={ notices } /> }
+			{ notices.length === 0 && loaded && (
+				<Notice text={ __( 'Keep up the good work! There are no security admin messages at this time.', 'better-wp-security' ) } />
 			) }
-			{ notices.length > 0 ? (
-				<NoticeList notices={ notices } />
-			) : (
-				loaded && (
-					<span>{ __( 'No notices at the moment.', 'better-wp-security' ) }</span>
-				)
-			) }
-		</div>
+		</StyledPanel>
 	);
 }
-
-export default compose( [
-	withSelect( ( select ) => ( {
-		mutedHighlights: select(
-			'ithemes-security/admin-notices'
-		).getMutedHighlights(),
-		mutedHighlightUpdatesInFlight: select(
-			'ithemes-security/admin-notices'
-		).getMutedHighlightUpdatesInFlight(),
-	} ) ),
-	withDispatch( ( dispatch ) => ( {
-		updateMutedHighlight: dispatch( 'ithemes-security/admin-notices' )
-			.updateMutedHighlight,
-	} ) ),
-] )( Panel );

@@ -6,7 +6,7 @@ import { set, castArray } from 'lodash';
 /**
  * WordPress dependencies
  */
-import { select, dispatch } from '@wordpress/data';
+import { select, dispatch, controls } from '@wordpress/data';
 import { addQueryArgs } from '@wordpress/url';
 import { __, sprintf } from '@wordpress/i18n';
 
@@ -185,6 +185,18 @@ export function failedQueryDashboardCard( cardId, error ) {
 		cardId,
 		error,
 	};
+}
+
+export function *addAvailableCardsToDashboard( dashboardId ) {
+	const cards = yield controls.select(
+		'ithemes-security/dashboard',
+		'getDashboardAddableCardLDOs',
+		dashboardId
+	);
+
+	for ( const card of cards ) {
+		yield* addDashboardCard( card.href, {} );
+	}
 }
 
 /**

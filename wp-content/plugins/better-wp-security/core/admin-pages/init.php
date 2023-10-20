@@ -34,12 +34,26 @@ final class ITSEC_Admin_Page_Loader {
 			add_menu_page( __( 'Setup', 'better-wp-security' ), __( 'Security', 'better-wp-security' ), $capability, $parent, array( $this, 'show_page' ) );
 		}
 
-		$page_refs[] = add_submenu_page( $parent, __( 'iThemes Security Settings', 'better-wp-security' ), $onboarded ? __( 'Settings', 'better-wp-security' ) : __( 'Setup', 'better-wp-security' ), $capability, 'itsec', array( $this, 'show_page' ) );
+		if ( $onboarded ) {
+			$page_refs[] = add_submenu_page( $parent, __( 'Site Scans', 'better-wp-security' ), __( 'Site Scans' ), $capability, 'itsec-site-scan', array( $this, 'show_page' ) );
+			$page_refs[] = add_submenu_page( $parent, __( 'Firewall', 'better-wp-security' ), __( 'Firewall' ), $capability, 'itsec-firewall', array( $this, 'show_page' ) );
+			$page_refs[] = add_submenu_page( $parent, __( 'Vulnerabilities', 'better-wp-security' ), __( 'Vulnerabilities' ), $capability, 'itsec-vulnerabilities', array( $this, 'show_page' ) );
+			$page_refs[] = add_submenu_page( $parent, __( 'User Security', 'better-wp-security' ), __( 'User Security' ), $capability, 'itsec-user-security', array( $this, 'show_page' ) );
+		}
+
+		$page_refs[] = add_submenu_page( $parent, __( 'Solid Security Settings', 'better-wp-security' ), $onboarded ? __( 'Settings', 'better-wp-security' ) : __( 'Setup', 'better-wp-security' ), $capability, 'itsec', array(
+			$this,
+			'show_page'
+		) );
+
+		if ( $onboarded ) {
+			$page_refs[] = add_submenu_page( $parent, __( 'Tools', 'better-wp-security' ), __( 'Tools' ), $capability, 'itsec-tools', array( $this, 'show_page' ) );
+		}
 
 		$page_refs = apply_filters( 'itsec-admin-page-refs', $page_refs, $capability, array( $this, 'show_page' ), $parent );
 
 		if ( $onboarded ) {
-			$page_refs[] = add_submenu_page( $parent, __( 'iThemes Security Logs', 'better-wp-security' ), __( 'Logs', 'better-wp-security' ), $capability, 'itsec-logs', array( $this, 'show_page' ) );
+			$page_refs[] = add_submenu_page( $parent, __( 'Solid Security Logs', 'better-wp-security' ), __( 'Logs', 'better-wp-security' ), $capability, 'itsec-logs', array( $this, 'show_page' ) );
 		}
 
 		if ( ! ITSEC_Core::is_pro() || ITSEC_Core::is_development() ) {
@@ -47,11 +61,12 @@ final class ITSEC_Admin_Page_Loader {
 		}
 
 		if ( defined( 'ITSEC_DEBUG' ) && ITSEC_DEBUG ) {
-			$page_refs[] = add_submenu_page( $parent, __( 'iThemes Security Debug', 'better-wp-security' ), __( 'Debug', 'better-wp-security' ), $capability, 'itsec-debug', array( $this, 'show_page' ) );
+			$page_refs[] = add_submenu_page( $parent, __( 'Solid Security Debug', 'better-wp-security' ), __( 'Debug', 'better-wp-security' ), $capability, 'itsec-debug', array( $this, 'show_page' ) );
 		}
 
 		foreach ( $page_refs as $page_ref ) {
 			add_action( "load-$page_ref", array( $this, 'load' ) );
+			add_action( "admin_print_scripts-$page_ref", array( $this, 'enqueue' ), 0 );
 		}
 	}
 
@@ -81,6 +96,34 @@ final class ITSEC_Admin_Page_Loader {
 
 	public function load() {
 		$this->load_file( 'page-%s.php' );
+	}
+
+	public function enqueue() {
+		foreach ( ITSEC_Modules::get_available_modules() as $module ) {
+			$handle = "itsec-{$module}-global";
+
+			if ( wp_script_is( $handle, 'registered' ) ) {
+				wp_enqueue_script( $handle );
+			}
+
+			if ( wp_style_is( $handle, 'registered' ) ) {
+				wp_enqueue_style( $handle );
+			}
+		}
+
+		ITSEC_Lib::preload_request_for_data_store(
+			'ithemes-security/core',
+			'receiveIndex',
+			'/ithemes-security/v1',
+			[ 'context' => 'help' ]
+		);
+
+		ITSEC_Lib::preload_request_for_data_store(
+			'ithemes-security/modules',
+			'receiveModules',
+			'/ithemes-security/v1/modules',
+			[ 'context' => 'edit', '_embed' => 1 ]
+		);
 	}
 
 	public function show_page() {

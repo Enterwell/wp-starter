@@ -10,13 +10,15 @@ export default function useSet( initialValue = [] ) {
 		items,
 		// Add
 		useCallback( ( item ) =>
-			setItems( ( latestItems ) => [ ...latestItems, item ] )
+			setItems( ( latestItems ) => [ ...latestItems, item ] ),
+		[]
 		),
 		// Remove
 		useCallback( ( item ) =>
 			setItems( ( latestItems ) =>
 				latestItems.filter( ( maybeItem ) => maybeItem !== item )
-			)
+			),
+		[]
 		),
 		setItems,
 	];

@@ -8,7 +8,7 @@
     "group": {
       "type": "multiple",
       "title": "Enable Dashboard Creation",
-      "description": "Allow users to create new iThemes Security Dashboards.",
+      "description": "Allow users to create new Solid Security Dashboards.",
       "default": "administrator"
     }
   },

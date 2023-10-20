@@ -14,6 +14,7 @@ import { createRegistrySelector } from '@wordpress/data';
  * Internal dependencies
  */
 import { MODULES_STORE_NAME } from '@ithemes/security.packages.data';
+import { STORE_NAME } from './constant';
 
 /**
  * Get the list of matchables.
@@ -116,7 +117,7 @@ export function getGroup( state, id ) {
  */
 export const getGroupAttribute = createRegistrySelector(
 	( select ) => ( state, id, attribute ) => {
-		const group = select( 'ithemes-security/user-groups' ).getGroup( id );
+		const group = select( STORE_NAME ).getGroup( id );
 
 		return group ? group[ attribute ] : undefined;
 	}
@@ -166,9 +167,7 @@ export function getGroupSettings( state, id ) {
  */
 export const getGroupSetting = createRegistrySelector(
 	( select ) => ( state, id, module, setting ) => {
-		const settings = select(
-			'ithemes-security/user-groups'
-		).getGroupSettings( id );
+		const settings = select( STORE_NAME ).getGroupSettings( id );
 
 		return get( settings, [ module, setting ] );
 	}

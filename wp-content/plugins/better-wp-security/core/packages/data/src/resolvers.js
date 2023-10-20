@@ -11,7 +11,7 @@ import { controls } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import { apiFetch, select } from './controls';
+import { apiFetch } from './controls';
 import {
 	receiveActors,
 	receiveActorTypes,
@@ -29,36 +29,29 @@ export function* getIndex() {
 	yield receiveIndex( index );
 }
 
-export const getSchema = {
-	*fulfill() {
-		yield controls.resolveSelect( 'ithemes-security/core', 'getIndex' );
-	},
-	isFulfilled( state ) {
-		return !! state.index;
-	},
-};
+export const getSchema = () => ( { resolveSelect } ) =>
+	resolveSelect.getIndex();
 
-export const getRoles = {
-	*fulfill() {
-		yield controls.resolveSelect( 'ithemes-security/core', 'getIndex' );
-	},
-	isFulfilled( state ) {
-		return !! state.index;
-	},
-};
+export const getRoles = () => ( { resolveSelect } ) =>
+	resolveSelect.getIndex();
 
-export const getRequirementsInfo = {
-	*fulfill() {
-		yield controls.resolveSelect( 'ithemes-security/core', 'getIndex' );
-	},
-	isFulfilled( state ) {
-		return !! state.index;
-	},
-};
+export const getRequirementsInfo = () => ( { resolveSelect } ) =>
+	resolveSelect.getIndex();
+
+export const getServerType = () => ( { resolveSelect } ) =>
+	resolveSelect.getIndex();
+
+export const getInstallType = () => ( { resolveSelect } ) =>
+	resolveSelect.getIndex();
+
+export const hasPatchstack = () => ( { resolveSelect } ) =>
+	resolveSelect.getIndex();
+
+export const isLiquidWebCustomer = () => ( { resolveSelect } ) => resolveSelect.getIndex();
 
 export const getUser = {
 	*fulfill( id ) {
-		const currentUserId = yield select( 'ithemes-security/core', 'getCurrentUserId' );
+		const currentUserId = yield controls.select( 'ithemes-security/core', 'getCurrentUserId' );
 		const user = yield apiFetch( {
 			path: `/wp/v2/users/${ id === currentUserId ? 'me' : id }?context=edit`,
 		} );
@@ -111,7 +104,7 @@ export const getActorTypes = {
 
 export const getActors = {
 	*fulfill() {
-		yield select( 'ithemes-security/core', 'getActorTypes' );
+		yield controls.select( 'ithemes-security/core', 'getActorTypes' );
 	},
 	isFulfilled( state, type ) {
 		return !! state.actors.byType[ type ];

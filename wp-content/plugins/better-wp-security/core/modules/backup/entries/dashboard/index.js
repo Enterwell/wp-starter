@@ -1,14 +1,20 @@
 /**
  * External dependencies.
  */
-import { take, isEmpty } from 'lodash';
+import styled from '@emotion/styled';
+import { isEmpty, take } from 'lodash';
 
 /**
  * WordPress dependencies.
  */
-import { __ } from '@wordpress/i18n';
+import { __, _n } from '@wordpress/i18n';
 import { dateI18n } from '@wordpress/date';
 import { withDispatch } from '@wordpress/data';
+
+/**
+ * iThemes dependencies
+ */
+import { Surface, Text, TextSize, TextVariant } from '@ithemes/ui';
 
 /**
  * Internal dependencies
@@ -21,6 +27,52 @@ import {
 import { shortenNumber } from '@ithemes/security-utils';
 import './style.scss';
 
+const StyledCardSurface = styled( Surface )`
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	height: 100%;
+	overflow: hidden;
+`;
+
+const StyledNoData = styled( Text )`
+	padding: 1rem;
+`;
+
+const StyledTotalContainer = styled.div`
+	flex-grow: 1;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: ${ ( { theme: { getSize } } ) => getSize( 0.5 ) }
+`;
+
+const StyledTotalSurface = styled( Surface )`
+	display: flex;
+	flex-direction: column;
+	flex-grow: 0;
+	flex-shrink: 0;
+	justify-content: center;
+	align-items: center;
+	border-radius: 50%;
+	height: 120px;
+	width: 120px;
+`;
+
+const StyledTotal = styled( Text )`
+	& sup {
+		position: absolute;
+		font-size: .5em;
+		line-height: 1;
+	}
+`;
+
+const StyledBackups = styled.section`
+	flex-shrink: 1;
+	overflow-y: auto;
+	position: relative;
+`;
+
 function DatabaseBackup( { card, config, addNotice } ) {
 	const onComplete = ( href, response ) => {
 		if ( href.endsWith( '/backup' ) ) {
@@ -28,113 +80,89 @@ function DatabaseBackup( { card, config, addNotice } ) {
 		}
 	};
 
-	if ( isEmpty( card.data ) ) {
-		return (
-			<div className="itsec-card--type-database-backup itsec-card-database-backup--no-data">
-				<CardHeader>
-					<CardHeaderTitle card={ card } config={ config } />
-				</CardHeader>
-				<section className="itsec-card-database-backup__no-data-message">
-					<p>
-						{ __(
-							'Enable database logging or file backups to see a history of completed backups.',
-							'better-wp-security'
-						) }
-					</p>
-				</section>
-				<CardFooterSchemaActions
-					card={ card }
-					onComplete={ onComplete }
-				/>
-			</div>
-		);
-	}
+	const label = _n( 'Backup', 'Backups', card.data.total, 'better-wp-security' );
 
 	return (
-		<div
-			className={ `itsec-card--type-database-backup itsec-card-database-backup--source-${ card.data.source }` }
-		>
+		<StyledCardSurface>
 			<CardHeader>
 				<CardHeaderTitle card={ card } config={ config } />
 			</CardHeader>
-			<section className="itsec-card-database-backup__total">
-				<span className="itsec-card-database-backup__total-count">
-					{ shortenNumber( card.data.total ) }
-					{ card.data.total === 100 && <sup>+</sup> }
-				</span>
-				<span className="itsec-card-database-backup__total-label">
-					{ __( 'Backups', 'better-wp-security' ) }
-				</span>
-			</section>
-			{ card.data.backups.length > 0 && (
-				<section
-					className="itsec-card-database-backup__recent-backups-section"
-					aria-label={ __( 'Recent Backups', 'better-wp-security' ) }
-				>
-					<table className="itsec-card-database-backup__recent-backups">
-						<thead>
-							<tr>
-								<th
-									scope="column"
-									className="itsec-card-database-backup__col-date"
-								>
-									{ __( 'Date', 'better-wp-security' ) }
-								</th>
-								<th
-									scope="column"
-									className="itsec-card-database-backup__col-size"
-								>
-									{ __( 'Size', 'better-wp-security' ) }
-								</th>
-								{ card.data.source === 'files' && (
-									<th
-										scope="column"
-										className="itsec-card-database-backup__col-actions"
-									>
-										<span className="screen-reader-text">
-											{ __( 'Download', 'better-wp-security' ) }
-										</span>
-									</th>
-								) }
-							</tr>
-						</thead>
-						<tbody>
-							{ take( card.data.backups, 50 ).map( ( backup ) => (
-								<tr key={ backup.url || backup.time }>
-									<th
-										scope="row"
-										className="itsec-card-database-backup__col-date"
-									>
-										<span className="itsec-card-database-backup__backup-date">
-											{ dateI18n(
-												'M d, Y',
-												backup.time
+
+			{ isEmpty( card.data )
+				? (
+					<StyledNoData
+						as="p"
+						text={ __( 'Enable database logging or file backups to see a history of completed backups', 'better-wp-security' ) } />
+				)
+				: (
+					<>
+						<StyledTotalContainer>
+							<StyledTotalSurface as="section" variant="secondary">
+								<StyledTotal size={ TextSize.GIGANTIC } variant={ TextVariant.DARK }>
+									{ shortenNumber( card.data.total ) }
+									{ card.data.total > 99 && <sup>+</sup> }
+								</StyledTotal>
+								<Text
+									size={ TextSize.LARGE }
+									variant={ TextVariant.DARK }
+									weight={ 600 }
+									text={ label }
+								/>
+							</StyledTotalSurface>
+						</StyledTotalContainer>
+						{ card.data.backups.length > 0 && (
+							<StyledBackups aria-label={ __( 'Recent Backups', 'better-wp-security' ) }>
+								<table className="itsec-card-database-backup__recent-backups">
+									<thead>
+										<tr>
+											<th scope="column">
+												{ __( 'Date', 'better-wp-security' ) }
+											</th>
+											<th scope="column">
+												{ __( 'Size', 'better-wp-security' ) }
+											</th>
+											{ card.data.source === 'files' && (
+												<th scope="column">
+													<span className="screen-reader-text">
+														{ __( 'Download', 'better-wp-security' ) }
+													</span>
+												</th>
 											) }
-										</span>{ ' ' }
-										<span className="itsec-card-database-backup__backup-time">
-											{ dateI18n( 'g:i A', backup.time ) }
-										</span>
-									</th>
-									<td className="itsec-card-database-backup__col-size">
-										{ backup.size_format }
-									</td>
-									{ card.data.source === 'files' && (
-										<td className="itsec-card-database-backup__col-actions">
-											{ backup.url && (
-												<a href={ backup.url } download>
-													{ __( 'Download', 'better-wp-security' ) }
-												</a>
-											) }
-										</td>
-									) }
-								</tr>
-							) ) }
-						</tbody>
-					</table>
-				</section>
-			) }
+										</tr>
+									</thead>
+									<tbody>
+										{ take( card.data.backups, 50 ).map( ( backup ) => (
+											<tr key={ backup.url || backup.time }>
+												<th scope="row">
+													<Text weight={ 600 } text={ dateI18n(
+														'M d, Y g:i A',
+														backup.time
+													) } />
+												</th>
+												<td>
+													<Text weight={ 600 } text={ backup.size_format } />
+												</td>
+												{ card.data.source === 'files' && (
+													<td>
+														{ backup.url && (
+															<a href={ backup.url } download>
+																{ __( 'Download', 'better-wp-security' ) }
+															</a>
+														) }
+													</td>
+												) }
+											</tr>
+										) ) }
+									</tbody>
+								</table>
+							</StyledBackups>
+						) }
+					</>
+				)
+			}
+
 			<CardFooterSchemaActions card={ card } onComplete={ onComplete } />
-		</div>
+		</StyledCardSurface>
 	);
 }
 
@@ -156,21 +184,4 @@ export const settings = {
 			);
 		},
 	} ) )( DatabaseBackup ),
-	elementQueries: [
-		{
-			type: 'width',
-			dir: 'max',
-			px: 300,
-		},
-		{
-			type: 'width',
-			dir: 'max',
-			px: 250,
-		},
-		{
-			type: 'height',
-			dir: 'max',
-			px: 300,
-		},
-	],
 };

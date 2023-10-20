@@ -16,15 +16,29 @@ final class ITSEC_Mail {
 		$this->name          = $name;
 	}
 
-	public function add_header( $title, $banner_title, $use_site_logo = false, $tracking_link = '' ) {
-		$header = $this->get_template( 'header.html' );
+	public function add_header( $title, $banner_title, $use_site_logo = false, $sub_title = '', $tracking_link = '' ) {
+		if ( strlen( $sub_title ) ) {
+			$header = $this->get_template( 'header-subtitle.html' );
+		} else {
+			$header = $this->get_template( 'header.html' );
+		}
 
 		if ( $use_site_logo ) {
 			$logo = $this->get_site_logo_url();
-		} elseif ( ITSEC_Core::is_pro() ) {
-			$logo = $this->get_image_url( 'pro_logo' );
+
+			if ( ! $logo ) {
+				if ( ITSEC_Core::is_pro() ) {
+					$logo = $this->get_image_url( 'solid_security_pro_logo' );
+				} else {
+					$logo = $this->get_image_url( 'solid_security_logo' );
+				}
+			}
 		} else {
-			$logo = $this->get_image_url( 'logo' );
+			if ( ITSEC_Core::is_pro() ) {
+				$logo = $this->get_image_url( 'solid_security_pro_logo' );
+			} else {
+				$logo = $this->get_image_url( 'solid_security_logo' );
+			}
 		}
 
 		$replacements = array(
@@ -35,10 +49,11 @@ final class ITSEC_Mail {
 			'logo'              => $logo,
 			'title'             => $title,
 			'icon_url'          => plugin_dir_url( ITSEC_Core::get_core_dir() . 'img/mail/index.php' ) . "rebrand_icon.png",
-			'branding_title'    => esc_html__( 'iThemes Security is becoming Solid Security', 'better-wp-security' ),
-			'text'              => esc_html__( 'We have been working hard for almost a year to bring you incredible new features in the form of our new and improved brand: SolidWP. Discover what’s coming very soon!', 'better-wp-security' ),
+			'branding_title'    => esc_html__( 'iThemes Security is now Solid Security', 'better-wp-security' ),
+			'text'              => esc_html__( 'We have been working hard for almost a year to bring you incredible new features in the form of our new and improved brand: SolidWP. Discover what’s new!', 'better-wp-security' ),
 			'link_href'         => $tracking_link,
 			'link_text'         => esc_html__( 'Learn More about Solid Security', 'better-wp-security' ),
+			'sub_title'         => $sub_title
 		);
 
 		$this->add_html( $this->replace_all( $header, $replacements ), 'header' );
@@ -46,15 +61,20 @@ final class ITSEC_Mail {
 
 	public function add_user_header( $title, $banner_title ) {
 		$header = $this->get_template( 'header-user.html' );
-		$logo = $this->get_site_logo_url();
+		$logoUrl   = $this->get_site_logo_url();
+		$logo = '';
+
+		if ( $logoUrl ) {
+			$logo = "<img src='{$logoUrl}' alt='Logo' style='display:block;border:0;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic;font-size:12px; max-width:312px; width:100%;' title='Logo'>";
+		}
 
 		$replacements = array(
-			'lang'              => esc_attr( get_bloginfo( 'language' ) ),
-			'charset'           => esc_attr( get_bloginfo( 'charset' ) ),
-			'title_tag'         => $title,
-			'banner_title'      => $banner_title,
-			'logo'              => $logo,
-			'title'             => $title,
+			'lang'         => esc_attr( get_bloginfo( 'language' ) ),
+			'charset'      => esc_attr( get_bloginfo( 'charset' ) ),
+			'title_tag'    => $title,
+			'banner_title' => $banner_title,
+			'title'        => $title,
+			'logo'         => $logo,
 		);
 
 		$this->add_html( $this->replace_all( $header, $replacements ), 'header' );
@@ -63,32 +83,32 @@ final class ITSEC_Mail {
 	public function add_footer( $add_divider = true ) {
 		$settings_link    = esc_url( self::filter_admin_page_url( ITSEC_Core::get_settings_page_url() ) );
 		$security_link    = ITSEC_Core::get_tracking_link(
-			'https://ithemes.com/security/',
+			'https://solidwp.com/security/',
 			'email',
 			'link'
 		);
 		$articles_link    = ITSEC_Core::get_tracking_link(
-			'https://ithemes.com/blog/category/wordpress-security/',
+			'https://go.solidwp.com/security-blog-category',
 			'email_footer',
 			'link'
 		);
 		$tutorials_link   = ITSEC_Core::get_tracking_link(
-			'https://ithemes.com/tutorial/category/ithemes-security/',
+			'https://go.solidwp.com/security-footer-tutorials-category',
 			'email_footer',
 			'link'
 		);
 		$vuln_report_link = ITSEC_Core::get_tracking_link(
-			'https://ithemes.com/wordpress-vulnerability-report/',
+			'https://go.solidwp.com/footer-vuln-report',
 			'email_footer',
 			'link'
 		);
 		$support_link     = ITSEC_Core::get_tracking_link(
-			'https://members.ithemes.com/panel/helpdesk.php',
+			'https://go.solidwp.com/footer-helpdesk',
 			'email_footer',
 			'link'
 		);
 		$sec_guide_link   = ITSEC_Core::get_tracking_link(
-			'https://ithemes.com/ebooks/wordpress-security/',
+			'https://go.solidwp.com/footer-security-pocket-guide',
 			'email_footer',
 			'link'
 		);
@@ -99,9 +119,11 @@ final class ITSEC_Mail {
 			$callout = $this->get_template( 'pro-callout.html' );
 
 			$replacements = array(
-				'two_factor' => esc_html__( 'Want two-factor authentication, scheduled site scanning, ticketed support and more?', 'better-wp-security' ),
-				'get_pro'    => esc_html__( 'Get iThemes Security Pro', 'better-wp-security' ),
-				'why_pro'    => sprintf( wp_kses( __( 'Why go Pro? <a href="%s">Check out the Free/Pro comparison chart.</a>', 'better-wp-security' ), array( 'a' => array( 'href' => array() ) ) ), $security_link ),
+				'two_factor'        => esc_html__( 'Want two-factor authentication, scheduled site scanning, ticketed support and more?', 'better-wp-security' ),
+				'get_pro'           => esc_html__( 'Get Solid Security Pro', 'better-wp-security' ),
+				'go_pro_link'       => $security_link,
+				'why_pro'           => esc_html__( 'Why Go Pro', 'better-wp-security' ),
+				'why_go_pro_image'  => $this->get_image_url(  'go-pro-shield' ),
 			);
 
 			$footer .= $this->replace_all( $callout, $replacements );
@@ -115,36 +137,47 @@ final class ITSEC_Mail {
 			'security_resources'     => esc_html__( 'More Website Security Resources', 'better-wp-security' ),
 			'articles'               => esc_html__( 'WordPress Security News', 'better-wp-security' ),
 			'articles_link'          => $articles_link,
-			'articles_content'       => sprintf(
-				wp_kses( __( 'Be the first to get the latest WordPress security news, tips, and updates on the <a href="%1$s">iThemes Blog</a>, including the <a href="%2$s">Weekly WordPress Vulnerability Report</a>.', 'better-wp-security' ), 'mail' ),
-				$articles_link,
-				$vuln_report_link
-			),
+			'articles_content'       =>
+				sprintf(
+					esc_html__(
+						'Be the first to get the latest WordPress security news, tips, and updates on the %1$sSolidWP Blog%3$s, including the %2$sWeekly WordPress Vulnerability Report.%3$s', 'better-wp-security'
+					),
+					"<a style=\"color: #3C1596; text-decoration: underline;\" href=\"{$articles_link}\">",
+					"<a style=\"color: #3C1596; text-decoration: underline;\" href=\"{$vuln_report_link}\">",
+					'</a>',
+				),
 			'tutorials'              => esc_html__( 'Tutorials', 'better-wp-security' ),
-			'tutorials_link'         => $tutorials_link,
-			'tutorials_content'      => sprintf(
-				wp_kses( __( 'Make sure you’re getting the most out of iThemes Security features to protect your site with our <a href="%s">free iThemes Security tutorials</a>.', 'better-wp-security' ), 'mail' ),
-				$tutorials_link
-			),
+			'tutorials_content'      => esc_html__( 'Vulnerable WordPress plugins and themes are the #1 reason WordPress sites get hacked. Either quickly update the vulnerable theme, plugin or WordPress version immediately to the newest version or immediately deactivate the plugin or theme until a fix is available.', 'better-wp-security' ),
 			'help_and_support'       => esc_html__( 'Help & Support', 'better-wp-security' ),
 			'documentation'          => esc_html__( 'Documentation', 'better-wp-security' ),
-			'documentation_content'  => sprintf(
-				wp_kses( __( 'Read iThemes Security documentation and Frequently Asked Questions on the <a href="%s">iThemes Help Center</a>.', 'better-wp-security' ), 'mail' ),
-				'https://help.ithemes.com/hc/en-us/categories/200147050'
-			),
-			'support'                => esc_html__( 'Support', 'better-wp-security' ),
-			'pro'                    => esc_html__( 'Pro', 'better-wp-security' ),
+			'documentation_content'  =>
+				sprintf(
+					esc_html__(
+						'Read Solid Security documentation and Frequently Asked Questions on the %1$sSolidWP Help Center.%2$s', 'better-wp-security'
+					), "<a style=\"color: #3C1596; text-decoration: underline;\" href=\"{$tutorials_link}\">", '</a>',
+				),
 			'support_link'           => $support_link,
-			'support_content'        => sprintf(
-				wp_kses( __( 'Pro customers have the best support team available as their security team. Contact the <a href="%s">iThemes Help Desk</a> for help when you need answers.', 'better-wp-security' ), 'mail' ),
-				$support_link
-			),
+			'support_content'        =>
+				sprintf(
+					esc_html__(
+						'Pro customers have the best support team available as their security team. Contact the %1$s SolidWP Help Desk%2$s for help when you need answers.', 'better-wp-security'
+					), "<a style=\"color: #3C1596; text-decoration: underline;\" href=\"{$support_link}\">", '</a>'
+				),
 			'security_settings_link' => $settings_link,
-			'unsubscribe_link_text'  => esc_html__( 'This email was generated by the iThemes Security plugin.', 'better-wp-security' ) . '<br>' . sprintf( esc_html__( 'To unsubscribe from these updates, visit the %1$sSettings page%2$s in the iThemes Security plugin menu.', 'better-wp-security' ), "<a href=\"{$settings_link}\" style=\"color: #0084CB\">", '</a>' ),
-			'security_guide'         => esc_html__( 'Free WordPress Security Guide', 'better-wp-security' ),
+			'unsubscribe_link_text'  =>
+				esc_html__( 'This email was generated by the Solid Security plugin.', 'better-wp-security' ) . '<br>' .
+				sprintf(
+					esc_html__(
+						'To unsubscribe from these updates, visit the %1$sSettings page%2$s in the Solid Security plugin menu.', 'better-wp-security'
+					), "<a href=\"{$settings_link}\" style=\"color: #32174D; text-decoration: underline;\">", '</a>'
+				),
+			'support'                => esc_html__( 'Support', 'better-wp-security' ),
+			'pro'                    => esc_html__( 'Pro Feature', 'better-wp-security' ),
+			'security_guide'         => esc_html__( 'Check Out Our Free WordPress Security Guide', 'better-wp-security' ),
 			'security_guide_content' => sprintf(
-				wp_kses( __( 'Learn simple WordPress security tips — including 3 kinds of security your site needs and 4 best security practices for keeping your WordPress site safe with our <a href="%s">free guide</a>.', 'better-wp-security' ), 'mail' ),
-				$sec_guide_link
+				esc_html__(
+					'Learn simple WordPress security tips — including 3 kinds of security your site needs and 4 best security practices for keeping your WordPress site safe with our %1$sfree guide.%2$s', 'better-wp-security'
+				), "<a style=\"color: #3C1596; text-decoration: underline;\" href=\"{$sec_guide_link}\">", '</a>'
 			),
 		);
 
@@ -159,10 +192,10 @@ final class ITSEC_Mail {
 
 	public function add_user_footer() {
 
-		$link_text = sprintf( esc_html__( 'This email was generated by the iThemes Security plugin on behalf of %s.', 'better-wp-security' ), get_bloginfo( 'name', 'display' ) ) . '<br>';
+		$link_text = sprintf( esc_html__( 'This email was generated by the Solid Security plugin on behalf of %s.', 'better-wp-security' ), get_bloginfo( 'name', 'display' ) ) . '<br>';
 		$link_text .= sprintf(
 			esc_html__( 'To unsubscribe from these notifications, please %1$scontact the site administrator%2$s.', 'better-wp-security' ),
-			'<a href="' . esc_url( site_url() ) . '" style="color: #0084CB">', '</a>'
+			'<a href="' . esc_url( site_url() ) . '" style="color: #3C1596; text-decoration: underline;">', '</a>'
 		);
 
 		$footer = $this->replace_all( $this->replace_images( $this->get_template( 'footer-user.html' ) ), array(
@@ -241,6 +274,13 @@ final class ITSEC_Mail {
 		return $module;
 	}
 
+	/**
+	 * @deprecated 8.0.0
+	 *
+	 * @param $content
+	 *
+	 * @return void
+	 */
 	public function add_large_code( $content ) {
 		$this->add_html( $this->get_large_code( $content ) );
 	}
@@ -268,15 +308,8 @@ final class ITSEC_Mail {
 	}
 
 	public function get_section_heading( $content, $icon_type = false ) {
-		if ( empty( $icon_type ) ) {
-			$heading = $this->get_template( 'section-heading.html' );
-			$heading = $this->replace_all( $heading, compact( 'content' ) );
-		} else {
-			$icon_url = $this->get_image_url( "icon_{$icon_type}" );
-
-			$heading = $this->get_template( 'section-heading-with-icon.html' );
-			$heading = $this->replace_all( $heading, compact( 'content', 'icon_url' ) );
-		}
+		$heading = $this->get_template( 'section-heading.html' );
+		$heading = $this->replace_all( $heading, compact( 'content' ) );
 
 		return $heading;
 	}
@@ -313,18 +346,30 @@ final class ITSEC_Mail {
 		$this->add_html( $lockouts, 'file-change-summary' );
 	}
 
-	public function add_button( $link_text, $href, $style = 'default' ) {
-		$this->add_html( $this->get_button( $link_text, $href, $style ) );
+	/**
+	 * @param $link_text
+	 * @param $href
+	 *
+	 * @return void
+	 */
+	public function add_button( $link_text, $href ) {
+		$this->add_html( $this->get_button( $link_text, $href ) );
 	}
 
-	public function get_button( $link_text, $href, $style = 'default' ) {
+	/**
+	 * @param $link_text
+	 * @param $href
+	 *
+	 * @return string
+	 */
+	public function get_button( $link_text, $href ) {
 
-		$module = $this->get_template( 'module-button.html' );
+		$module = $this->get_template( 'button.html' );
 		$module = $this->replace_all( $module, array(
 			'href'      => $href,
 			'link_text' => $link_text,
-			'bk_color'  => 'blue' === $style ? '#0085E0' : '#FFCD08',
-			'txt_color' => 'blue' === $style ? '#FFFFFF' : '#2E280E',
+			'bk_color'  => '#232323',
+			'txt_color' => '#FFFFFF',
 		) );
 
 		return $module;
@@ -334,6 +379,17 @@ final class ITSEC_Mail {
 		$this->add_html( $this->get_large_button( $link_text, $href, $style ) );
 	}
 
+	/**
+	 * Adds a large button
+	 *
+	 * @param string $link_text Content of link
+	 * @param string $href      Actual Link value
+	 * @param string $style     Additional Styling beyond baseline
+	 *
+	 * @deprecated 8.0.0
+	 *
+	 * @return string
+	 */
 	public function get_large_button( $link_text, $href, $style = 'default' ) {
 
 		$module = $this->get_template( 'large-button.html' );
@@ -359,8 +415,8 @@ final class ITSEC_Mail {
 				/* translators: 1: Username */
 				$lockout['description'] = sprintf( wp_kses( __( '<b>Username:</b> %1$s', 'better-wp-security' ), array( 'b' => array() ) ), $lockout['id'] );
 			} else {
-				/* translators: 1: Hostname */
-				$lockout['description'] = sprintf( wp_kses( __( '<b>Host:</b> %1$s', 'better-wp-security' ), array( 'b' => array() ) ), $lockout['id'] );
+				/* translators: 1: IP address */
+				$lockout['description'] = sprintf( wp_kses( __( '<b>IP:</b> %1$s', 'better-wp-security' ), array( 'b' => array() ) ), $lockout['id'] );
 			}
 
 			$entries .= $this->replace_all( $entry, $lockout );
@@ -369,8 +425,8 @@ final class ITSEC_Mail {
 		$table = $this->get_template( 'lockouts-table.html' );
 
 		$replacements = array(
-			'heading_types'  => __( 'Host/User', 'better-wp-security' ),
-			'heading_until'  => __( 'Lockout in Effect Until', 'better-wp-security' ),
+			'heading_types'  => __( 'IP/User', 'better-wp-security' ),
+			'heading_until'  => __( 'Locked Out Until', 'better-wp-security' ),
 			'heading_reason' => __( 'Reason', 'better-wp-security' ),
 			'entries'        => $entries,
 		);
@@ -476,16 +532,82 @@ final class ITSEC_Mail {
 		return $html;
 	}
 
+	public function add_file_change_table( $entries ) {
+		$this->add_html( $this->build_file_change_table( $entries ) );
+	}
+
+	private function build_file_change_table( $entries ) {
+		$template = $this->get_template( 'file-change-table.html' );
+		$html = '';
+
+		foreach ( $entries as $entry ) {
+			$html .= $this->build_file_change_row( $entry );
+		}
+
+		return $this->replace( $template, 'table_rows', $html );
+	}
+
+	private function build_file_change_row( $entry ) {
+		$table = $this->get_template( 'file-change-table-row.html' );
+
+		$replacements = array(
+			'entry_url'  => $entry[0],
+			'entry_date'  => $entry[1],
+			'entry_hash' => $entry[2],
+		);
+
+		return $this->replace_all( $table, $replacements );
+	}
+
+	/**
+	 * @param $items
+	 * @param $header
+	 *
+	 * @return void
+	 */
+	public function add_inactive_user_table( $items, $header = 'Username' ) {
+		foreach ( $items as $item ) {
+			$style = "Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:helvetica, 'helvetica neue', arial, verdana, sans-serif;line-height:21px;color:#333333;font-size:14px;padding:10px";
+
+			$html .= '<p style="' . $style . '">';
+			$html .= $item[0];
+			$html .= '</p>';
+			$html .= '<p style="' . $style . '">';
+			$html .= '<strong>Role: ' . $item[1] . '</strong>';
+			$html .= '</p>';
+			$html .= '<p style="' . $style . '">';
+			$html .= '<strong>Last Active: ' . $item[2] . '</strong>';
+			$html .= '</p>';
+		}
+
+		return $html;
+
+	}
+
 	/**
 	 * Add an HTML list to an email.
 	 *
 	 * @param string[] $items
-	 * @param bool     $bold_first Whether to emphasize the first item of the list.
+	 * @param bool     $bold_first     Whether to emphasize the first item of the list.
+	 * @param bool     $use_paragraphs Whether to use p tags instead of ul
+	 * @param string   $title          The entry title
 	 */
-	public function add_list( $items, $bold_first = false ) {
-		$this->add_html( $this->get_list( $items, $bold_first ) );
+	public function add_list( $items, $bold_first = false, $use_paragraphs = false, $title = '' ) {
+		if ( $use_paragraphs ) {
+			$this->add_html( $this->get_paragraph_list( $items, $title ) );
+		} else {
+			$this->add_section_heading( $title );
+			$this->add_html( $this->get_list( $items, $bold_first ) );
+		}
+
 	}
 
+	/**
+	 * @param string[] $items      Items to add to the list
+	 * @param bool     $bold_first Whether to emphasize the first item of the list
+	 *
+	 * @return string
+	 */
 	public function get_list( $items, $bold_first = false ) {
 
 		$template = $this->get_template( 'list.html' );
@@ -498,10 +620,37 @@ final class ITSEC_Mail {
 		return $this->replace( $template, 'html', $html );
 	}
 
+	/**
+	 * @param $items
+	 * @param $title
+	 *
+	 * @return string
+	 */
+	public function get_paragraph_list( $items, $title ) {
+		$template   = $this->get_template( 'list-paragraphs.html' );
+		$paragraphs = '';
+
+		foreach ( $items as $i => $item ) {
+			$paragraphs .= $this->build_list_item_paragraphs( $item );
+		}
+
+		$replacements = [
+			'content_title' => $title,
+			'content'       => $paragraphs,
+		];
+
+		return $this->replace_all( $template, $replacements );
+	}
+
+
 	private function build_list_item( $item, $bold = false ) {
 		$bold_tag = $bold ? 'font-weight: bold;' : '';
 
 		return "<li style=\"margin: 0; padding: 5px 10px;{$bold_tag}\">{$item}</li>";
+	}
+
+	private function build_list_item_paragraphs( $item ): string {
+		return "<p style=\"Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:helvetica, 'helvetica neue', arial, verdana, sans-serif;line-height:23px;color:#3c1596;font-size:15px\"><u>{$item}</u></p>";
 	}
 
 	/**
@@ -537,29 +686,33 @@ final class ITSEC_Mail {
 	public function get_site_scanner_pro_callout() {
 		$template = $this->get_template( 'site-scanner-pro-callout.html' );
 		$template = $this->replace_all( $template, array(
-			'title'      => esc_html__( 'Go Pro Now to Get Automatic Vulnerability Patching', 'better-wp-security' ),
-			'content'    =>
+			'title'             => esc_html__( 'Go Pro Now to Get Automatic Vulnerability Patching', 'better-wp-security' ),
+			'content'           =>
 				wp_kses(
-					__( 'iThemes Security Pro will <b>automatically update vulnerable plugins and themes for you</b> if a patch is available <b>so you don’t have to manually log in to update</b>.', 'better-wp-security' ),
+					__( 'Solid Security Pro will <b>automatically update vulnerable plugins and themes for you</b> if a patch is available <b>so you don’t have to manually log in to update</b>.', 'better-wp-security' ),
 					'mail'
 				) . ' ' .
-				esc_html__( 'Get your site patched by iThemes Security Pro before hackers discover vulnerabilities on your site, all without doing a thing.', 'better-wp-security' ) . '<br><br>' .
+				esc_html__( 'Get your site patched by Solid Security Pro before hackers discover vulnerabilities on your site, all without doing a thing.', 'better-wp-security' ) . '<br><br>' .
 				sprintf(
 					'<b>%s</b>',
 					sprintf(
 						esc_html__( 'Get all of this in the %1$sSite Scanner Pro%2$s:', 'better-wp-security' ),
-						'<a href="' . ITSEC_Core::get_tracking_link( 'https://ithemes.com/blog/ithemes-security-pro-feature-spotlight-site-scan/', 'sitescanemail', 'link' ) . '">',
+						'<a href="' . ITSEC_Core::get_tracking_link( 'https://go.solidwp.com/pro-feature-site-scan', 'sitescanemail', 'link' ) . '">',
 						'</a>'
 					)
 				),
-			'first_box'  => esc_html__( 'Save time when time is of the utmost importance to patch vulnerabilities before hackers and bots can find and exploit them.', 'better-wp-security' ),
-			'second_box' => esc_html__( 'Free your team from mundane updates by removing the need to manually log in to update plugins and themes.', 'better-wp-security' ),
-			'third_box'  => esc_html__( 'Automatically updates vulnerable plugins, themes, and WordPress core for you if it fixes a vulnerability that was found by the Site Scanner.', 'better-wp-security' ),
-			'fourth_box' => esc_html__( 'Hardens your website if you are running outdated software, including checks for old WordPress sites that could be used to compromise your server.', 'better-wp-security' ),
-			'href'       => ITSEC_Core::get_tracking_link( 'https://ithemes.com/security/', 'sitescanemail', 'button' ),
-			'link_text'  => __( 'Go Pro Now', 'better-wp-security' ),
-			'bk_color'   => '#0085E0',
-			'txt_color'  => '#FFFFFF',
+			'first_box_header'  => esc_html__( 'Save Time', 'better-wp-security' ),
+			'first_box'         => esc_html__( 'Save time when time is of the utmost importance to patch vulnerabilities before hackers and bots can find and exploit them.', 'better-wp-security' ),
+			'second_box_header' => esc_html__( 'More Freedom', 'better-wp-security' ),
+			'second_box'        => esc_html__( 'Free your team from mundane updates by removing the need to manually log in to update plugins and themes.', 'better-wp-security' ),
+			'third_box_header'  => esc_html__( 'Automatic Updates', 'better-wp-security' ),
+			'third_box'         => esc_html__( 'Automatically updates vulnerable plugins, themes, and WordPress core for you if it fixes a vulnerability that was found by the Site Scanner.', 'better-wp-security' ),
+			'fourth_box_header' => esc_html__( 'Increase Security', 'better-wp-security' ),
+			'fourth_box'        => esc_html__( 'Hardens your website if you are running outdated software, including checks for old WordPress sites that could be used to compromise your server.', 'better-wp-security' ),
+			'href'              => ITSEC_Core::get_tracking_link( 'https://go.solidwp.com/footer-site-scan', 'sitescanemail', 'button' ),
+			'link_text'         => __( 'Go Pro Now', 'better-wp-security' ),
+			'bk_color'          => '#772ecb',
+			'txt_color'         => '#FFFFFF',
 		) );
 
 		return $template;
@@ -682,7 +835,7 @@ final class ITSEC_Mail {
 	}
 
 	public function set_default_subject() {
-		return __( 'New Notification from iThemes Security', 'better-wp-security' );
+		return __( 'New Notification from Solid Security', 'better-wp-security' );
 	}
 
 	public function get_subject() {
@@ -790,11 +943,24 @@ final class ITSEC_Mail {
 			return '';
 		}
 
+		ITSEC_Log::add_notice( 'mail', 'mail-debugging', $matches );
+
+		if ( $matches[1] === 'footer_logo' ) {
+			return esc_url( $this->get_image_url( $matches[1], '.svg' ) );
+		}
+
 		return esc_url( $this->get_image_url( $matches[1] ) );
+
 	}
 
-	private function get_image_url( $name ) {
-		return plugin_dir_url( ITSEC_Core::get_core_dir() . 'img/mail/index.php' ) . "{$name}.png";
+	/**
+	 * @param string $name      Name of the image to get
+	 * @param string $extension File type extension
+	 *
+	 * @return string
+	 */
+	private function get_image_url( $name, $extension = '.png' ) {
+		return plugin_dir_url( ITSEC_Core::get_core_dir() . 'img/mail/index.php' ) . $name . $extension;
 	}
 
 	public static function filter_admin_page_url( $url ) {

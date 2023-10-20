@@ -54,7 +54,7 @@
         "type": "boolean",
         "default": true,
         "title": "Compress Backup Files",
-        "description": "By default, iThemes Security will zip backup files to reduce file size. You may need to turn this off if you are having problems with backups."
+        "description": "By default, Solid Security will zip backup files to reduce file size. You may need to turn this off if you are having problems with backups."
       },
       "exclude": {
         "type": "array",

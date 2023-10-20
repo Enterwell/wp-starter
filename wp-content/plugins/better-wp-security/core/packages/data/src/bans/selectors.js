@@ -5,7 +5,7 @@ import createSelector from 'rememo';
 import { find, get, isObject, filter } from 'lodash';
 
 /**
- * WordPres dependencies
+ * WordPress dependencies
  */
 import { createRegistrySelector } from '@wordpress/data';
 

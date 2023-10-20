@@ -232,7 +232,7 @@ final class ITSEC_WordPress_Tweaks {
 			$code = is_user_logged_in() ? 403 : 401;
 		}
 
-		$error = new WP_Error( 'itsec_rest_api_access_restricted', __( 'You do not have sufficient permission to access this endpoint. Access to REST API requests is restricted by iThemes Security settings.', 'better-wp-security' ), array(
+		$error = new WP_Error( 'itsec_rest_api_access_restricted', __( 'You do not have sufficient permission to access this endpoint. Access to REST API requests is restricted by Solid Security settings.', 'better-wp-security' ), array(
 			'status' => $code,
 		) );
 
@@ -365,7 +365,7 @@ final class ITSEC_WordPress_Tweaks {
 			$code = is_user_logged_in() ? 403 : 401;
 		}
 
-		$error = new WP_Error( 'itsec_rest_api_access_restricted', __( 'You do not have sufficient permission to access this endpoint. Access to REST API requests is restricted by iThemes Security settings.', 'better-wp-security' ), array(
+		$error = new WP_Error( 'itsec_rest_api_access_restricted', __( 'You do not have sufficient permission to access this endpoint. Access to REST API requests is restricted by Solid Security settings.', 'better-wp-security' ), array(
 			'status' => $code,
 		) );
 
@@ -504,7 +504,7 @@ final class ITSEC_WordPress_Tweaks {
 	 * @param string $output
 	 * @param string $show
 	 *
-	 * @return array
+	 * @return string
 	 */
 	function remove_pingback_url( $output, $show ) {
 

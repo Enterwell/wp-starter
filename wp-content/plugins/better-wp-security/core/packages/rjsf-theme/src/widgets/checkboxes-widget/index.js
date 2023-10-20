@@ -14,7 +14,7 @@ export default function CheckboxesWidget( props ) {
 		schema,
 		uiSchema = {},
 	} = props;
-	const { enumOptions, enumDisabled = [], enumDescriptions = [] } = options;
+	const { enumOptions, enumDisabled = [], enumDescriptions = [], style } = options;
 
 	const description = uiSchema[ 'ui:description' ] || schema.description;
 	const optionList = enumOptions.map( ( option, i ) => ( {
@@ -34,6 +34,7 @@ export default function CheckboxesWidget( props ) {
 			help={ <Markup noWrap content={ description } /> }
 			readOnly={ readonly }
 			disabled={ disabled }
+			style={ style }
 		/>
 	);
 }

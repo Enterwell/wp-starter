@@ -22,7 +22,7 @@ class ITSEC_Lib_Opaque_Tokens {
 		global $wpdb;
 
 		if ( $ttl > self::MAX_TTL ) {
-			_doing_it_wrong( __METHOD__, sprintf( 'Token ttl must not be greater than %d seconds.', self::MAX_TTL ), '5.3.0' );
+			_doing_it_wrong( __METHOD__, sprintf( 'Token TTL must not be greater than %d seconds.', self::MAX_TTL ), '5.3.0' );
 
 			return new WP_Error( self::E_INVALID, __( 'Invalid token.', 'better-wp-security' ) );
 		}

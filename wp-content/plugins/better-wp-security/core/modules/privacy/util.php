@@ -170,7 +170,7 @@ final class ITSEC_Privacy_Util {
 			} else if ( 'successful_authentication' === $code ) {
 				$event = __( 'Two-factor authentication validated successfully', 'better-wp-security' );
 			} else if ( 'sync_override' === $code ) {
-				$event = __( 'Overrode two-factor authentication using iThemes Sync', 'better-wp-security' );
+				$event = __( 'Overrode two-factor authentication using Solid Central', 'better-wp-security' );
 			}
 		} else if ( 'user_logging' === $log['module'] ) {
 			if ( 'post-status-changed' === $code ) {

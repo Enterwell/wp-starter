@@ -131,7 +131,7 @@ final class Factory {
 					continue;
 				}
 
-				$issues[] = new Vulnerability( $vulnerability, $issue['id'], $link );
+				$issues[] = new Vulnerability_Issue( $vulnerability, $issue['id'], $link );
 			}
 		}
 
@@ -151,7 +151,7 @@ final class Factory {
 
 		if ( $data && is_array( $data ) ) {
 			foreach ( $data as $details ) {
-				$issue    = new Blacklist( $details );
+				$issue    = new Blacklist_Issue( $details );
 				$issues[] = $issue;
 
 				if ( $issue->get_status() === Status::WARN ) {
@@ -178,7 +178,7 @@ final class Factory {
 		$issues = [];
 
 		foreach ( $data as $malware ) {
-			$issues[] = new Malware( $malware );
+			$issues[] = new Malware_Issue( $malware );
 		}
 
 		return new Entry( 'malware', __( 'Malware', 'better-wp-security' ), Status::WARN );

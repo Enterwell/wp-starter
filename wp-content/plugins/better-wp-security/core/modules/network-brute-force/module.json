@@ -5,7 +5,7 @@
   "onboard": true,
   "title": "Network Brute Force",
   "description": "Join a network of sites that reports and protects against bad actors on the internet.",
-  "help": "If one had unlimited time and wanted to try an unlimited number of password combinations to get into your site they eventually would, right? This method of attack, known as a brute force attack, is something that WordPress is acutely susceptible to as, by default, the system doesn’t care how many attempts a user makes to login. It will always let you try again. Enabling login limits will ban the host user from attempting to login again after the specified bad login threshold has been reached.",
+  "help": "If one had unlimited time and wanted to try an unlimited number of password combinations to get into your site they eventually would, right? This method of attack, known as a brute force attack, is something that WordPress is acutely susceptible to as, by default, the system doesn’t care how many attempts a user makes to login. It will always let you try again. Enabling login limits will ban login attempts from that IP address after the specified bad login threshold has been reached.",
   "settings": {
     "type": "object",
     "properties": {

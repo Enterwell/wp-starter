@@ -56,7 +56,7 @@ final class ITSEC_Debug_Page {
 		}
 
 		if ( false === check_ajax_referer( 'itsec-debug-page', 'nonce', false ) ) {
-			ITSEC_Response::add_error( new WP_Error( 'itsec-debug-page-failed-nonce', __( 'A nonce security check failed, preventing the request from completing as expected. Please try reloading the page and trying again.', 'better-wp-security' ) ) );
+			ITSEC_Response::add_error( new WP_Error( 'itsec-debug-page-failed-nonce', __( 'A security check failed, preventing the request from completing as expected. Please try reloading the page and trying again.', 'better-wp-security' ) ) );
 		} elseif ( ! ITSEC_Core::current_user_can_manage() ) {
 			ITSEC_Response::add_error( new WP_Error( 'itsec-debug-page-insufficient-privileges', __( 'A permissions security check failed, preventing the request from completing as expected. The currently logged in user does not have sufficient permissions to make this request. Please try reloading the page and trying again.', 'better-wp-security' ) ) );
 		} elseif ( empty( $method ) ) {
@@ -167,9 +167,9 @@ final class ITSEC_Debug_Page {
 		?>
 		<div class="wrap">
 			<h1>
-				<?php _e( 'iThemes Security', 'better-wp-security' ); ?>
+				<?php _e( 'Solid Security', 'better-wp-security' ); ?>
 				<a href="<?php echo esc_url( ITSEC_Core::get_settings_page_url() ); ?>" class="page-title-action"><?php _e( 'Manage Settings', 'better-wp-security' ); ?></a>
-				<a href="<?php echo esc_url( apply_filters( 'itsec_support_url', 'https://wordpress.org/support/plugin/better-wp-security' ) ); ?>" class="page-title-action">
+				<a href="<?php echo esc_url( apply_filters( 'itsec_support_url', 'https://go.solidwp.com/org-support' ) ); ?>" class="page-title-action">
 					<?php _e( 'Support', 'better-wp-security' ); ?>
 				</a>
 			</h1>
@@ -320,7 +320,7 @@ final class ITSEC_Debug_Page {
 
 		ITSEC_Lib::load( 'feature-flags' );
 
-		$info['iThemes Security'] = array(
+		$info['Solid Security'] = array(
 			'Build'       => ITSEC_Core::get_plugin_build(),
 			'Pro'         => ITSEC_Core::is_pro(),
 			'Modules'     => wp_sprintf( '%l', ITSEC_Modules::get_active_modules() ),
@@ -340,7 +340,7 @@ final class ITSEC_Debug_Page {
 					$value = 'Disabled';
 				}
 
-				$info['iThemes Security'][ $define ] = $value;
+				$info['Solid Security'][ $define ] = $value;
 			}
 		}
 

@@ -32,7 +32,7 @@ class ITSEC_REST_Core_Admin_Notices_Controller extends WP_REST_Controller {
 
 	public function get_items_permissions_check( $request ) {
 		if ( ! is_user_logged_in() ) {
-			return new WP_Error( 'not_logged_in', esc_html__( 'You must be logged-in to view notices.', 'better-wp-security' ), array(
+			return new WP_Error( 'not_logged_in', esc_html__( 'You must be logged in to view notices.', 'better-wp-security' ), array(
 				'status' => WP_Http::UNAUTHORIZED,
 			) );
 		}
@@ -111,7 +111,7 @@ class ITSEC_REST_Core_Admin_Notices_Controller extends WP_REST_Controller {
 
 	public function update_item_permissions_check( $request ) {
 		if ( ! is_user_logged_in() ) {
-			return new WP_Error( 'not_logged_in', esc_html__( 'You must be logged-in to view notices.', 'better-wp-security' ) );
+			return new WP_Error( 'not_logged_in', esc_html__( 'You must be logged in to view notices.', 'better-wp-security' ) );
 		}
 
 		if ( ! $notice = $this->get_notice_for_request( $request ) ) {

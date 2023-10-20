@@ -4,7 +4,7 @@
   "type": "lockout",
   "title": "Ban Users",
   "description": "Block specific IP addresses and user agents from accessing the site.",
-  "help": "iThemes Security automatically adds an IP to the ban list once it meets the Ban Threshold requirements. The Ban Threshold setting can be adjusted in the [Global Settings](itsec://settings/configure/global). You can manually add IPs to the ban list from the Security Dashboard using the Banned Users card.",
+  "help": "Solid Security automatically adds an IP to the ban list once it meets the Ban Threshold requirements. The Ban Threshold setting can be adjusted in the [Global Settings](itsec://settings/configure/global). You can manually add IPs to the ban list from the Security Dashboard using the Banned IPs card.",
   "keywords": [
     "blacklist"
   ],

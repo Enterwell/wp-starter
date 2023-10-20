@@ -81,10 +81,10 @@ class ITSEC_Lib_Upgrader {
 		$skin            = new ITSEC_Upgrader_Skin();
 		$plugin_upgrader = new Plugin_Upgrader( $skin );
 
-		$result = $plugin_upgrader->upgrade( $plugin, array( 'clear_update_cache' => false ) );
+		$result = $plugin_upgrader->bulk_upgrade( array( $plugin ) );
 
-		if ( is_wp_error( $result ) ) {
-			return $result;
+		if ( is_wp_error( $skin->result ) ) {
+			return $skin->result;
 		}
 
 		if ( $skin->errors ) {
@@ -96,11 +96,10 @@ class ITSEC_Lib_Upgrader {
 			) );
 		}
 
-		if ( false === $result ) {
+		if ( false === $result || ( isset( $result[ $plugin ] ) && false === $result[ $plugin ] ) ) {
 			return new WP_Error( 'itsec_updates_unknown_update_error', esc_html__( 'An unknown issue prevented the update from completing.', 'better-wp-security' ) );
 		}
 
-		wp_clean_plugins_cache();
 		wp_update_plugins();
 
 		return true;
@@ -121,7 +120,7 @@ class ITSEC_Lib_Upgrader {
 
 		$skin     = new ITSEC_Upgrader_Skin();
 		$upgrader = new Theme_Upgrader( $skin );
-		$result   = $upgrader->upgrade( $theme, array( 'clear_update_cache' => false ) );
+		$result   = $upgrader->upgrade( $theme );
 
 		if ( is_wp_error( $result ) ) {
 			return $result;
@@ -140,7 +139,6 @@ class ITSEC_Lib_Upgrader {
 			return new WP_Error( 'itsec_updates_unknown_update_error', esc_html__( 'An unknown issue prevented the update from completing.', 'better-wp-security' ) );
 		}
 
-		wp_clean_themes_cache();
 		wp_update_themes();
 
 		return true;

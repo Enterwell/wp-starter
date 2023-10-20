@@ -1,6 +1,9 @@
 <?php
 
-class ITSEC_Core_Admin {
+use iThemesSecurity\Contracts\Runnable;
+
+class ITSEC_Core_Admin implements Runnable {
+
 	public function run() {
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_notices' ) );
 		add_action( 'itsec_dashboard_enqueue_scripts', array( $this, 'enqueue_dashboard_notices_integration' ) );
@@ -87,7 +90,7 @@ class ITSEC_Core_Admin {
 	 * @return void
 	 */
 	public function show_plugins_page_rebranding_banner( $plugin_file ) {
-		if ( ! get_site_option('itsec_dismissed_rebranding_plugin_notice') ) {
+		if ( ! get_site_option('itsec_dismissed_rebranded_plugin_notice') ) {
 			$branding_link = ITSEC_Core::is_pro()
 				? 'https://go.solidwp.com/security-notice-ithemes-becoming-solidwp'
 				: 'https://go.solidwp.com/security-free-notice-ithemes-becoming-solidwp'
@@ -99,7 +102,7 @@ class ITSEC_Core_Admin {
 					<tr class="itsec-plugin-rebranding-tr">
 					<td colspan="4" style="padding: 20px 40px; background: #f0f6fc; border-left: 4px solid #72aee6; box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.1);">
 					<div class="itsec-plugin-rebranding-container">
-						<h4 class="itsec-rebranding-header">' . __( "iThemes Security is Becoming Solid Security: More Security, Better UIs, and Improved Features", "better-wp-security" ) . '</h4>
+						<h4 class="itsec-rebranding-header">' . __( "iThemes Security is now Solid Security: More Security, Better UIs, and Improved Features", "better-wp-security" ) . '</h4>
 						<p>' . __( "We have been working hard for almost a year to bring you incredible new features in the form of our new and improved brand: SolidWP.", "better-wp-security" ) . '</p>
 						<a href="' . $branding_link . '">' . __( 'Learn More About Solid Security and SolidWP', 'better-wp-security') . '</a>
 						<span class="itsec-plugin-rebranding-notice-dismiss"></span>
@@ -118,7 +121,7 @@ class ITSEC_Core_Admin {
 			return new WP_Error( 'itsec-admin-notices.invalid-nonce', esc_html__( 'Request Expired. Please refresh and try again.', 'better-wp-security' ) );
 		}
 
-		$result = update_site_option( 'itsec_dismissed_rebranding_plugin_notice', true );
+		$result = update_site_option( 'itsec_dismissed_rebranded_plugin_notice', true );
 
 		if ( $result ) {
 			return wp_send_json_success();

@@ -11,5 +11,6 @@ export default function useSingletonEffect( singleton, effect ) {
 			effect();
 			triggeredMap.set( singleton, true );
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
 }

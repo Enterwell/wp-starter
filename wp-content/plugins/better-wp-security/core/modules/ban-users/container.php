@@ -42,7 +42,7 @@ return static function ( Container $c ) {
 			],
 			[
 				'events' => 'blacklist-recaptcha',
-				'label'  => __( 'Recaptcha', 'better-wp-security' ),
+				'label'  => __( 'CAPTCHA', 'better-wp-security' ),
 			],
 		], [
 			'circle_label'    => _x( 'Banned', 'Total Banned IPs', 'better-wp-security' ),

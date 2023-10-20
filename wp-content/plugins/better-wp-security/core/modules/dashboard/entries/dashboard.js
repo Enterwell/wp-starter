@@ -27,14 +27,9 @@ export * from './dashboard/utils';
 export { useRegisterCards } from './dashboard/cards';
 export Card from './dashboard/components/card';
 export CardHeader, {
-	Date as CardHeaderDate,
-	Status as CardHeaderStatus,
 	Title as CardHeaderTitle,
 } from './dashboard/components/card/header';
 export CardFooter, {
 	FooterSchemaActions as CardFooterSchemaActions,
 } from './dashboard/components/card/footer';
 export PromoCard from './dashboard/components/edit-cards/promo-card';
-export MasterDetail, {
-	Back as MasterDetailBack,
-} from './dashboard/components/master-detail';

@@ -9,7 +9,7 @@ final class ITSEC_Privacy {
 
 	public function admin_init() {
 		if ( function_exists( 'wp_add_privacy_policy_content' ) ) {
-			wp_add_privacy_policy_content( 'iThemes Security', $this->get_privacy_policy_content() );
+			wp_add_privacy_policy_content( 'Solid Security', $this->get_privacy_policy_content() );
 		}
 	}
 
@@ -21,7 +21,7 @@ final class ITSEC_Privacy {
 
 	public function register_exporter( $exporters ) {
 		$exporters['ithemes-security'] = array(
-			'exporter_friendly_name' => __( 'iThemes Security Plugin', 'better-wp-security' ),
+			'exporter_friendly_name' => __( 'Solid Security Plugin', 'better-wp-security' ),
 			'callback'               => array( $this, 'export' ),
 		);
 
@@ -36,7 +36,7 @@ final class ITSEC_Privacy {
 
 	public function register_eraser( $erasers ) {
 		$erasers['ithemes-security'] = array(
-			'eraser_friendly_name' => __( 'iThemes Security Plugin', 'better-wp-security' ),
+			'eraser_friendly_name' => __( 'Solid Security Plugin', 'better-wp-security' ),
 			'callback'             => array( $this, 'erase' ),
 		);
 

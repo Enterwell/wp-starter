@@ -34,9 +34,7 @@ domReady( () => {
 } );
 
 export * from './settings/components';
-export { ToolFill } from './settings/pages/tools';
-export { SecureSiteEndFill } from './settings/pages/secure-site';
-export { BeforeSettingsFill } from './settings/pages/settings';
+export { OnboardSiteTypeBeforeFill } from './settings/pages/site-type/chooser';
 export {
 	Page,
 	ChildPages,
@@ -46,8 +44,6 @@ export {
 export {
 	useNavigateTo,
 	useConfigContext,
-	useModuleSchemaValidator,
 } from './settings/utils';
 export { STORE_NAME as ONBOARD_STORE_NAME } from './settings/stores/onboard';
-export { STORE_NAME as TOOLS_STORE_NAME } from './settings/stores/tools';
 export { history };

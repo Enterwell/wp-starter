@@ -7,7 +7,12 @@ import { validate } from 'uuid';
 /**
  * WordPress dependencies
  */
-import { addAction, addFilter } from '@wordpress/hooks';
+import { addAction } from '@wordpress/hooks';
+
+/**
+ * Internal dependencies
+ */
+import { store as uiStore } from '@ithemes/security.user-groups.ui';
 
 addAction(
 	'ithemes-security.onboard.applyAnswerResponse',
@@ -15,7 +20,7 @@ addAction(
 	function( registry, answer ) {
 		for ( const userGroup of answer.user_groups ) {
 			const created = registry
-				.dispatch( 'ithemes-security/user-groups-editor' )
+				.dispatch( uiStore )
 				.createLocalGroup( userGroup.id );
 
 			if ( ! created ) {
@@ -23,7 +28,7 @@ addAction(
 			}
 
 			registry
-				.dispatch( 'ithemes-security/user-groups-editor' )
+				.dispatch( uiStore )
 				.editGroup(
 					userGroup.id,
 					pick( userGroup, [
@@ -56,7 +61,7 @@ addAction(
 
 				for ( const setting of modules[ module ] ) {
 					registry
-						.dispatch( 'ithemes-security/user-groups-editor' )
+						.dispatch( uiStore )
 						.editGroupSetting( userGroupId, module, setting, true );
 				}
 			}
@@ -69,36 +74,10 @@ addAction(
 	'ithemes-security/user-groups/onboard.reset',
 	function( registry ) {
 		registry
-			.dispatch( 'ithemes-security/user-groups-editor' )
+			.dispatch( uiStore )
 			.deleteLocalGroups();
 		registry
-			.dispatch( 'ithemes-security/user-groups-editor' )
+			.dispatch( uiStore )
 			.resetAllEdits();
-	}
-);
-
-addFilter(
-	'ithemes-security.settings.isConditionalSettingActive',
-	'ithemes-security/user-groups/user-group-conditional',
-	function( isActive, module, definition, context ) {
-		if ( ! isActive || ! definition[ 'user-groups' ] ) {
-			return isActive;
-		}
-
-		const { registry } = context;
-		const groupsBySetting = registry
-			.select( 'ithemes-security/user-groups-editor' )
-			.getEditedGroupsBySetting();
-
-		for ( const groupSetting of definition[ 'user-groups' ] ) {
-			if (
-				! ( groupsBySetting[ module.id ]?.[ groupSetting ] || [] )
-					.length
-			) {
-				return false;
-			}
-		}
-
-		return true;
 	}
 );

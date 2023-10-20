@@ -18,13 +18,20 @@
   "require": {
     "php": "^7.3 | ^8.0",
     "pimple/pimple": "^3.5",
-    "bjeavons/zxcvbn-php": "^1.3"
+    "bjeavons/zxcvbn-php": "^1.3",
+    "patchstack/firewall": "dev-master",
+    "deliciousbrains/wp-background-processing": "^1.1"
   },
   "repositories": [
     {
       "type": "vcs",
       "url": "https://github.com/TimothyBJacobs/strauss",
       "no-api": true
+    },
+    {
+      "name": "patchstack/firewall",
+      "type": "vcs",
+      "url": "https://bitbucket.org/solid-wp/firewall-engine.git"
     }
   ],
   "autoload": {

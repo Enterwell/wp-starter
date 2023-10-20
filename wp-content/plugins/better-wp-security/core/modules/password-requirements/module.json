@@ -2,6 +2,7 @@
   "id": "password-requirements",
   "status": "always-active",
   "type": "login",
+  "order": 20,
   "title": "Password Requirements",
   "description": "Requiring strong and refusing compromised passwords is the first step in securing your login page.",
   "help": "Brute force attacks rely on people reusing weak passwords. Password Requirements allow you to force selected users to create a strong password that hasn’t already been compromised.",

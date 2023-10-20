@@ -1,14 +1,20 @@
 .itsec-card--type-line-graph {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    overflow: hidden;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	overflow: hidden;
 
-    & .itsec-card-header {
-        flex-shrink: 0;
-    }
+	& .itsec-card-header {
+		flex-shrink: 0;
+	}
 
-    & .recharts-responsive-container {
-        flex-grow: 1;
-    }
+	& .recharts-responsive-container {
+		flex-grow: 1;
+	}
+
+	& circle {
+		fill: $solid-wp-surface-primaryAccent;
+		fill-opacity: 1;
+	}
+
 }

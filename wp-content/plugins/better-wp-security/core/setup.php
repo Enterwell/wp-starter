@@ -70,6 +70,7 @@ final class ITSEC_Setup {
 	 */
 	public static function handle_upgrade( $build = false ) {
 		if ( ! ITSEC_Modules::get_setting( 'global', 'initial_build' ) ) {
+			ITSEC_Modules::initialize_container();
 			ITSEC_Modules::set_setting( 'global', 'initial_build', ITSEC_Core::get_plugin_build() - 1 );
 		}
 

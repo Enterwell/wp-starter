@@ -13,6 +13,9 @@ final class ITSEC_Schema {
 		'itsec_mutexes',
 		'itsec_bans',
 		'itsec_dashboard_events',
+		'itsec_dashboard_lockouts',
+		'itsec_vulnerabilities',
+		'itsec_firewall_rules',
 	];
 
 	const PRO_TABLES = [
@@ -121,6 +124,7 @@ CREATE TABLE {$wpdb->base_prefix}itsec_geolocation_cache (
 	location_long decimal(11,8) NOT NULL,
 	location_label varchar(255) NOT NULL,
 	location_credit varchar (255) NOT NULL,
+	location_meta text NOT NULL,
 	location_time datetime NOT NULL,
 	PRIMARY KEY  (location_id),
 	UNIQUE KEY location_host (location_host),
@@ -194,6 +198,46 @@ CREATE TABLE {$wpdb->base_prefix}itsec_dashboard_events (
 	event_consolidated tinyint(1) NOT NULL DEFAULT '0',
 	PRIMARY KEY  (`event_id`),
 	UNIQUE KEY `event_slug__time__consolidated` (event_slug,event_time,event_consolidated)
+) $charset_collate;
+
+CREATE TABLE {$wpdb->base_prefix}itsec_dashboard_lockouts (
+	id int(11) unsigned NOT NULL AUTO_INCREMENT,
+	ip varchar(40),
+	time datetime NOT NULL,
+	count int(11) unsigned NOT NULL,
+	PRIMARY KEY  (`id`),
+	UNIQUE KEY `ip__time` (`ip`, `time`)
+) $charset_collate;
+
+CREATE TABLE {$wpdb->base_prefix}itsec_vulnerabilities (
+	id varchar(128) NOT NULL,
+	software_type varchar(20) NOT NULL,
+	software_slug varchar(255) NOT NULL,
+	first_seen datetime NOT NULL,
+	last_seen datetime NOT NULL,
+	resolved_at datetime default NULL,
+	resolved_by bigint(20) unsigned NOT NULL default 0,
+	resolution varchar(20) NOT NULL default '',
+	details text NOT NULL,
+	PRIMARY KEY  (`id`),
+	KEY `resolution` (`resolution`),
+	KEY `software_type` (`software_type`),
+	KEY `last_seen` (`last_seen`)
+) $charset_collate;
+
+CREATE TABLE {$wpdb->base_prefix}itsec_firewall_rules (
+	id bigint(20) NOT NULL AUTO_INCREMENT,
+	provider varchar(20) NOT NULL,
+	provider_ref varchar(128) NOT NULL,
+	name varchar(255) NOT NULL,
+	vulnerability varchar(128) NOT NULL,
+	config text NOT NULL,
+	created_at datetime NOT NULL,
+	paused_at datetime default NULL,
+	PRIMARY KEY  (`id`),
+	KEY `provider__ref` (`provider`, `provider_ref`),
+	KEY `vulnerability` (`vulnerability`),
+	KEY `paused_at` (`paused_at`)
 ) $charset_collate;
 ";
 

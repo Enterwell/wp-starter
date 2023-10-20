@@ -12,9 +12,9 @@ final class ITSEC_IPCheck_Logs {
 		if ( 'ip-blocked' === $entry['code'] ) {
 			$entry['description'] = esc_html__( 'IP Blocked', 'better-wp-security' );
 		} else if ( 'successful-login-by-blocked-ip' === $entry['code'] ) {
-			$entry['description'] = esc_html__( 'Blocked Host Attempted Login With Good Credentials', 'better-wp-security' );
+			$entry['description'] = esc_html__( 'Blocked IP Attempted Login With Good Credentials', 'better-wp-security' );
 		} else if ( 'failed-login-by-blocked-ip' === $entry['code'] ) {
-			$entry['description'] = esc_html__( 'Blocked Host Attempted Login', 'better-wp-security' );
+			$entry['description'] = esc_html__( 'Blocked IP Attempted Login', 'better-wp-security' );
 		}
 
 		return $entry;

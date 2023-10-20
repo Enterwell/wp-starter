@@ -159,19 +159,19 @@ class Two_Factor_Email extends Two_Factor_Provider implements ITSEC_Two_Factor_P
 		$mail->add_user_header(
 			$is_signup ? esc_html__( 'Finish Setting Up Two-Factor', 'better-wp-security' ) : esc_html__( 'Continue Logging On', 'better-wp-security' ),
 			'',
-			true
 		);
 		$mail->add_text( $message );
 
+		$mail->add_small_code( $token );
+
 		if ( $session = ITSEC_Core::get_login_interstitial()->get_current_session() ) {
 			ITSEC_Core::get_login_interstitial()->initialize_same_browser( $session );
-			$mail->add_large_button(
+			$mail->add_button(
 				esc_html__( 'Continue', 'better-wp-security' ),
 				ITSEC_Core::get_login_interstitial()->get_async_action_url( $session, '2fa-verify-email' )
 			);
 		}
 
-		$mail->add_small_code( $token );
 		$mail->add_user_footer();
 
 		$nc->send( 'two-factor-email', $mail );

@@ -6,6 +6,8 @@
     height: 100%;
 
     & svg {
+        width: 200px;
+        height: auto;
         animation: itsec-loader__grow 3.0s infinite ease-in;
     }
 }

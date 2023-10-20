@@ -5,6 +5,7 @@ import { Router, Switch, Route, Redirect } from 'react-router-dom';
 import { QueryParamProvider } from 'use-query-params';
 import { ErrorBoundary } from 'react-error-boundary';
 import { ThemeProvider } from '@emotion/react';
+import styled from '@emotion/styled';
 
 /**
  * WordPress components
@@ -20,7 +21,7 @@ import { PluginArea } from '@wordpress/plugins';
 /**
  * iThemes dependencies
  */
-import { defaultTheme } from '@ithemes/ui';
+import { solidTheme, Surface, SurfaceVariant } from '@ithemes/ui';
 
 /**
  * Internal dependencies
@@ -33,6 +34,11 @@ import useSearchProviders from './search';
 import './stores';
 import './style.scss';
 
+const StyledApp = styled( Surface )`
+	display: flex;
+	flex-direction: column;
+`;
+
 export default function App( {
 	history,
 	serverType,
@@ -43,8 +49,8 @@ export default function App( {
 	const redirect = onboardComplete ? '/settings' : '/onboard';
 
 	return (
-		<ThemeProvider theme={ defaultTheme }>
-			<div className="itsec-settings">
+		<ThemeProvider theme={ solidTheme }>
+			<StyledApp className="itsec-settings" variant={ SurfaceVariant.UNDER_PAGE }>
 				<ConfigContext.Provider
 					value={ { serverType, installType, onboardComplete } }
 				>
@@ -84,7 +90,7 @@ export default function App( {
 						</QueryParamProvider>
 					</Router>
 				</ConfigContext.Provider>
-			</div>
+			</StyledApp>
 		</ThemeProvider>
 	);
 }

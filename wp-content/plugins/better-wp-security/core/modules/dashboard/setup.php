@@ -61,6 +61,19 @@ class ITSEC_Dashboard_Setup implements \iThemesSecurity\Contracts\Runnable {
 				wp_delete_post( $post->ID, true );
 			}
 		}
+
+		if ( $itsec_old_version < 4128 ) {
+			$site_scan_cards = new WP_Query( [
+				'post_type'    => ITSEC_Dashboard::CPT_CARD,
+				'meta_key'     => ITSEC_Dashboard::META_CARD,
+				'meta_value'   => [ 'malware-scan' ],
+				'meta_compare' => 'IN',
+			] );
+
+			foreach ( $site_scan_cards->posts as $post ) {
+				update_post_meta( $post->ID, ITSEC_Dashboard::META_CARD, 'vulnerable-software' );
+			}
+		}
 	}
 }
 

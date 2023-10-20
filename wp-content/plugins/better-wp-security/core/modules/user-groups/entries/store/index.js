@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies
  */
-import { registerStore } from '@wordpress/data';
+import { register, createReduxStore } from '@wordpress/data';
 
 /**
  * Internal dependencies
@@ -12,8 +12,9 @@ import * as actions from './actions';
 import * as selectors from './selectors';
 import userGroups from './reducers';
 import * as resolvers from './resolvers';
+import { STORE_NAME } from './constant';
 
-const store = registerStore( 'ithemes-security/user-groups', {
+const store = createReduxStore( STORE_NAME, {
 	controls: { ...dataControls, ...controls },
 	actions,
 	selectors,
@@ -21,4 +22,5 @@ const store = registerStore( 'ithemes-security/user-groups', {
 	reducer: userGroups,
 } );
 
+register( store );
 export default store;

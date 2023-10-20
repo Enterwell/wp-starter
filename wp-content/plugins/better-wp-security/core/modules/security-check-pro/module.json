@@ -6,7 +6,7 @@
   },
   "type": "utility",
   "title": "Security Check Pro",
-  "description": "Detects the correct way to identify user IP addresses based on your server configuration by making an API request to iThemes.com servers. No user information is sent to iThemes. [Read our Privacy Policy](https://ithemes.com/privacy-policy/).",
+  "description": "Detects the correct way to identify user IP addresses based on your server configuration by making an API request to SolidWP.com servers. No user information is sent to SolidWP. [Read our Privacy Policy](https://go.solidwp.com/solid-privacy-policy).",
   "onboard": true,
   "side-effects": true,
   "tools": {

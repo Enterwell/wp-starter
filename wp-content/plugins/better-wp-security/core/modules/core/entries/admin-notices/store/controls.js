@@ -9,8 +9,10 @@ import { uniqueId } from 'lodash';
 import {
 	select as selectData,
 	dispatch as dispatchData,
+	createRegistryControl,
 } from '@wordpress/data';
 import { default as triggerApiFetch } from '@wordpress/api-fetch';
+import { doAction as doActionHook } from '@wordpress/hooks';
 
 /**
  * Internal dependencies
@@ -84,6 +86,14 @@ export function createNotice( status = 'info', content, options = {} ) {
 	};
 }
 
+export function doAction( action, ...args ) {
+	return {
+		type: 'DO_ACTION',
+		action,
+		args,
+	};
+}
+
 const controls = {
 	API_FETCH( { request } ) {
 		return triggerApiFetch( request ).catch( responseToError );
@@ -109,6 +119,9 @@ const controls = {
 
 		dispatchData( 'core/notices' ).createNotice( status, content, options );
 	},
+	DO_ACTION: createRegistryControl( ( registry ) => ( { action, args } ) => {
+		doActionHook( `ithemes-security.${ action }`, registry, ...args );
+	} ),
 };
 
 export default controls;

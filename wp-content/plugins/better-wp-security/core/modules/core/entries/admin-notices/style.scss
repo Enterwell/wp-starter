@@ -1,0 +1,64 @@
+.itsec-plugin-rebranding-container {
+    border-left: 4px solid #DBA618;
+    border-bottom: 1px solid #C3C4C7;
+    border-right: 1px solid #C3C4C7;
+    border-top: 1px solid #C3C4C7;
+    background: #FCF9E8;
+    padding: 10px;
+    position: relative;
+
+    .itsec-rebranding-header {
+        font-weight: 700;
+        font-size: 14px;
+        color: #333333;
+        margin: 0px;
+    }
+
+    .itsec-rebranding-header:before {
+        content: "\f14c";
+        color: #B32D2E;
+        font: normal 20px/1 dashicons;
+        margin-right: 6px;
+        display: inline-block;
+        vertical-align: top;
+    }
+
+    p {
+        font-weight: 500;
+        font-size: 14px;
+        color: #333333;
+        margin: 0 0 0 26px !important;
+
+    }
+
+    a {
+        text-decoration: underline;
+        margin-left: 26px;
+    }
+
+    .itsec-plugin-rebranding-notice-dismiss {
+        position: absolute;
+        top: 0;
+        right: 1px;
+        border: none;
+        margin: 0;
+        padding: 9px;
+        background: none;
+        color: #787c82;
+        cursor: pointer;
+    }
+
+    .itsec-plugin-rebranding-notice-dismiss:before {
+        background: none;
+        color: #787c82;
+        content: "\f153";
+        display: block;
+        font: normal 16px/20px dashicons;
+        speak: never;
+        height: 20px;
+        text-align: center;
+        width: 20px;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+}

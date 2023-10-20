@@ -25,11 +25,11 @@ class ITSEC_Dashboard_Card_Active_Lockouts extends ITSEC_Dashboard_Card {
 	public function get_size() {
 		return array(
 			'minW'     => 1,
-			'minH'     => 2,
-			'maxW'     => 2,
-			'maxH'     => 3,
+			'minH'     => 1,
+			'maxW'     => 1,
+			'maxH'     => 1,
 			'defaultW' => 1,
-			'defaultH' => 2,
+			'defaultH' => 1,
 		);
 	}
 
@@ -283,7 +283,7 @@ class ITSEC_Dashboard_Card_Active_Lockouts extends ITSEC_Dashboard_Card {
 					if ( is_array( $logs ) ) {
 						foreach ( $logs as $log ) {
 							if ( is_wp_error( $log['data'] ) ) {
-								$label = $log['data']->get_error_code() === 'itsec-recaptcha-incorrect' ? __( 'Invalid Recaptcha', 'better-wp-security' ) : __( 'Skipped Recaptcha', 'better-wp-security' );
+								$label = $log['data']->get_error_code() === 'itsec-recaptcha-incorrect' ? __( 'Invalid CAPTCHA', 'better-wp-security' ) : __( 'Skipped CAPTCHA', 'better-wp-security' );
 							} else {
 								$label = __( 'Unknown', 'better-wp-security' );
 							}

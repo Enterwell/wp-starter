@@ -210,7 +210,6 @@ export function registerCompletionStep( {
 	id,
 	label,
 	priority,
-	render,
 	callback,
 	activeCallback,
 } ) {
@@ -219,7 +218,6 @@ export function registerCompletionStep( {
 		id,
 		label,
 		priority,
-		render,
 		callback,
 		activeCallback,
 	};

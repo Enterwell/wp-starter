@@ -12,7 +12,8 @@ setLocaleData( { '': {} }, 'ithemes-security-pro' );
  * Internal dependencies
  */
 import { useSingletonEffect } from '@ithemes/security-hocs';
-import { slug, settings } from './dashboard/index';
+import * as malwareScan from './dashboard/scan';
+import * as vulnerableSoftware from './dashboard/vulnerable-software';
 import './dashboard/style.scss';
 
 registerPlugin( 'itsec-site-scanner-dashboard', {
@@ -23,7 +24,7 @@ registerPlugin( 'itsec-site-scanner-dashboard', {
 
 function App() {
 	const { registerCard } = useDispatch( 'ithemes-security/dashboard' );
-	useSingletonEffect( App, () => registerCard( slug, settings ) );
+	useSingletonEffect( App, () => [ malwareScan, vulnerableSoftware ].forEach( ( { slug, settings } ) => registerCard( slug, settings ) ) );
 
 	return null;
 }

@@ -318,6 +318,30 @@ class ITSEC_REST_Dashboard_Dashboards_Controller extends ITSEC_REST_Dashboard_Co
 	 * @param string $layout Layout type to use.
 	 */
 	private function use_layout( $id, $layout ) {
+		if ( $layout === 'default' ) {
+			$cards = array_map( function ( ITSEC_Dashboard_Card $card ) {
+				$exclude = [
+					'fingerprinting',
+					'security-summary', // Manually add as first.
+				];
+
+				if ( in_array( $card->get_slug(), $exclude, true ) ) {
+					return null;
+				}
+
+				if ( $card->get_max() !== 1 ) {
+					return null;
+				}
+
+				return [
+					'type' => $card->get_slug(),
+				];
+			}, ITSEC_Dashboard_Util::get_registered_cards() );
+			array_unshift( $cards, [ 'type' => 'security-summary' ] );
+			ITSEC_Dashboard_Util::import_cards( $id, array_filter( $cards ), array( 'skip_unknown' => true ) );
+
+			return;
+		}
 
 		$layout = sanitize_title( $layout ); // This is set to an enum in the schema, but for additional safety.
 		$file   = dirname( dirname( __FILE__ ) ) . "/layouts/{$layout}.json";

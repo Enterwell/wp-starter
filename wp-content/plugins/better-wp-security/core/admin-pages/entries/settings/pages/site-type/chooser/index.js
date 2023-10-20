@@ -9,15 +9,35 @@ import { useRouteMatch, Link } from 'react-router-dom';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { createSlotFill } from '@wordpress/components';
+
+/**
+ * Solid dependencies
+ */
+import { Heading, List, ListItem, Notice, Text, TextSize, TextVariant, TextWeight } from '@ithemes/ui';
 
 /**
  * Internal dependencies
  */
-import { HelpList, MessageList } from '@ithemes/security-components';
-import { PageHeader, SelectableCard, HelpFill } from '../../../components';
+import { SelectableCard } from '../../../components';
 import { STORE_NAME } from '../../../stores/onboard';
 import { useNavigateTo } from '../../../utils';
-import './style.scss';
+import {
+	StyledHeader,
+	StyledLogo,
+	StyledSiteTypeChooser,
+	brochure,
+	blog,
+	network,
+	portfolio,
+	ecommerce,
+	nonProfit,
+} from './styles';
+
+export const {
+	Slot: OnboardSiteTypeBeforeSlot,
+	Fill: OnboardSiteTypeBeforeFill,
+} = createSlotFill( 'OnboardSiteTypeBefore' );
 
 export default function SiteTypeChooser() {
 	const { clearVisitedLocations } = useDispatch( STORE_NAME );
@@ -27,56 +47,75 @@ export default function SiteTypeChooser() {
 	} ) );
 
 	return (
-		<>
-			<PageHeader
-				title={ __( 'Choose the Type of Website', 'better-wp-security' ) }
-				subtitle={ __(
-					'Select one of the following that best represents your website.',
-					'better-wp-security'
-				) }
+		<StyledSiteTypeChooser>
+			<StyledLogo />
+			<Text
+				as="p"
+				size={ TextSize.EXTRA_LARGE }
+				text={ __( 'Welcome to Solid Security! Answer a few questions to quickly enable the most important security features for this website. You can always change settings later.', 'better-wp-security' ) }
 			/>
 
+			<OnboardSiteTypeBeforeSlot />
+
 			{ lastVisitedLocation && (
-				<MessageList
-					hasBorder
+				<Notice
 					onDismiss={ clearVisitedLocations }
-					messages={ [
-						createInterpolateElement(
-							__(
-								'Already started setting up iThemes Security? <a>Resume</a> from where you left off.',
-								'better-wp-security'
-							),
-							{
-								a: <Link to={ lastVisitedLocation } />,
-							}
-						),
-					] }
+					text={
+						<Text>
+							{ createInterpolateElement(
+								__(
+									'Already started setting up Solid Security? <a>Resume</a> from where you left off.',
+									'better-wp-security'
+								),
+								{
+									a: <Link to={ lastVisitedLocation } />,
+								}
+							) }
+						</Text>
+					}
 				/>
 			) }
 
-			<ul className="itsec-site-type-list">
+			<StyledHeader>
+				<Heading
+					level={ 2 }
+					size={ TextSize.LARGE }
+					weight={ TextWeight.HEAVY }
+					text={ __( 'What type of website is this?', 'better-wp-security' ) }
+				/>
+				<Text
+					as="p"
+					variant={ TextVariant.DARK }
+					text={ __( 'Select the one that best represents your website. This will focus the rest of the setup wizard on the options most necessary to secure the site.', 'better-wp-security' ) }
+				/>
+			</StyledHeader>
+
+			<List gap={ 3 }>
 				{ siteTypes.map( ( siteType ) => (
-					<li key={ siteType.id }>
+					<ListItem key={ siteType.id }>
 						<SiteType
 							id={ siteType.id }
 							title={ siteType.title }
 							description={ siteType.description }
-							icon={ siteType.icon }
 							recommended={ siteType.recommended }
 						/>
-					</li>
+					</ListItem>
 				) ) }
-			</ul>
-
-			<HelpFill>
-				<PageHeader title={ __( 'Site Type', 'better-wp-security' ) } />
-				<HelpList topic="site-type" />
-			</HelpFill>
-		</>
+			</List>
+		</StyledSiteTypeChooser>
 	);
 }
 
-function SiteType( { id, title, description, icon, recommended } ) {
+const icons = {
+	ecommerce,
+	network,
+	'non-profit': nonProfit,
+	blog,
+	brochure,
+	portfolio,
+};
+
+function SiteType( { id, title, description, recommended } ) {
 	const { clearSiteType } = useDispatch( STORE_NAME );
 	const match = useRouteMatch();
 	const navigateTo = useNavigateTo();
@@ -90,7 +129,7 @@ function SiteType( { id, title, description, icon, recommended } ) {
 			onClick={ onClick }
 			title={ title }
 			description={ description }
-			icon={ icon }
+			icon={ icons[ id ] }
 			recommended={ recommended }
 		/>
 	);

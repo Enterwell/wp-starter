@@ -91,7 +91,7 @@ final class ITSEC_Modules implements Import_Export_Source {
 		$slug = sanitize_title_with_dashes( $slug );
 
 		if ( ! is_dir( $path ) ) {
-			trigger_error( sprintf( __( 'An attempt to register the %1$s module failed since the supplied path (%2$s) is invalid. This could indicate an invalid modification or incomplete installation of the iThemes Security plugin. Please reinstall the plugin and try again.', 'better-wp-security' ), $slug, $path ) );
+			trigger_error( sprintf( __( 'An attempt to register the %1$s module failed since the supplied path (%2$s) is invalid. This could indicate an invalid modification or incomplete installation of the Solid Security plugin. Please reinstall the plugin and try again.', 'better-wp-security' ), $slug, $path ) );
 
 			return false;
 		}
@@ -513,7 +513,7 @@ final class ITSEC_Modules implements Import_Export_Source {
 		$self->_active_modules_list = array();
 
 		foreach ( $self->_active_modules as $module => $active ) {
-			if ( $active ) {
+			if ( $active && isset( self::get_instance()->module_config[ $module ] ) ) {
 				$self->_active_modules_list[] = $module;
 			}
 		}
@@ -838,6 +838,7 @@ final class ITSEC_Modules implements Import_Export_Source {
 		}
 
 		self::get_instance()->initialized_container = true;
+		self::get_instance()->load_container_definitions( 'user-groups' );
 	}
 
 	/**
@@ -851,8 +852,16 @@ final class ITSEC_Modules implements Import_Export_Source {
 		}
 
 		self::load_module_file( 'active.php', 'global' );
-		// The active.php file is for code that will only run when the module is active.
-		self::load_module_file( 'active.php', ':active' );
+
+		if ( ITSEC_Core::is_loading_early() ) {
+			self::load_module_file( 'active.php', ':active-early' );
+
+			add_action( 'plugins_loaded', function () {
+				self::load_module_file( 'active.php', ':active-normal' );
+			}, - 95 );
+		} else {
+			self::load_module_file( 'active.php', ':active' );
+		}
 	}
 
 	/**
@@ -984,6 +993,10 @@ final class ITSEC_Modules implements Import_Export_Source {
 				'php'        => $requirements['server']['php'] ?? null,
 				'extensions' => $requirements['server']['extensions'] ?? [],
 			];
+		}
+
+		if ( isset( $requirements['load'] ) && ( $mode === 'activate' || $requirements['load']['validate'] === $mode ) ) {
+			$check['load'] = $requirements['load']['type'];
 		}
 
 		return ITSEC_Lib::evaluate_requirements( $check );
@@ -1125,6 +1138,18 @@ final class ITSEC_Modules implements Import_Export_Source {
 
 		if ( ':active' === $modules ) {
 			return self::get_active_modules_to_run();
+		}
+
+		if ( ':active-early' === $modules ) {
+			return array_filter( self::get_active_modules_to_run(), function ( $module ) {
+				return self::get_instance()->module_config[ $module ]->can_load_early();
+			} );
+		}
+
+		if ( ':active-normal' === $modules ) {
+			return array_filter( self::get_active_modules_to_run(), function ( $module ) {
+				return ! self::get_instance()->module_config[ $module ]->can_load_early();
+			} );
 		}
 
 		if ( is_string( $modules ) ) {

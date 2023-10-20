@@ -2,7 +2,7 @@
 
 class ITSEC_Lib_Remote_Messages {
 
-	const URL = 'https://ithemes.com/api/itsec-service-status.json';
+	const URL = 'https://assets.solidwp.com/public/itsec-service-status.json';
 	const OPTION = 'itsec_remote_messages';
 	const EVENT = 'remote-messages';
 

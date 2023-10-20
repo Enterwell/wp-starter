@@ -8,12 +8,11 @@ import { map } from 'lodash';
  */
 import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
-import { compose, withInstanceId } from '@wordpress/compose';
-import { useState } from '@wordpress/element';
+import { useMemo, useState } from '@wordpress/element';
+import { useInstanceId } from '@wordpress/compose';
 import {
-	withDispatch,
-	withSelect,
-	dispatch as dataDispatch,
+	useSelect,
+	useDispatch,
 } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { BaseControl } from '@wordpress/components';
@@ -21,14 +20,15 @@ import { BaseControl } from '@wordpress/components';
 /**
  * Internal dependencies
  */
-import { AsyncSelect } from '@ithemes/security-components';
+import { AsyncSelect } from '@ithemes/security-ui';
+import { store as uiStore } from '@ithemes/security.user-groups.ui';
 import './style.scss';
 
 function formatUser( user ) {
 	return { value: user.id, label: user.name, user };
 }
 
-const loadUsers = ( search ) =>
+const loadUsers = ( receiveUser ) => ( search ) =>
 	new Promise( ( resolve, reject ) => {
 		apiFetch( {
 			path: addQueryArgs( '/wp/v2/users', {
@@ -39,9 +39,7 @@ const loadUsers = ( search ) =>
 			} ),
 		} )
 			.then( ( response ) => {
-				response.forEach(
-					dataDispatch( 'ithemes-security/core' ).receiveUser
-				);
+				response.forEach( receiveUser );
 
 				return response;
 			} )
@@ -49,16 +47,46 @@ const loadUsers = ( search ) =>
 			.catch( reject );
 	} );
 
-function PanelUsers( {
-	instanceId,
-	users,
-	loading,
-	onChange,
+export default function PanelUsers( {
+	groupId,
 	disabled = false,
 } ) {
+	const instanceId = useInstanceId( PanelUsers );
+	const { editGroup } = useDispatch( uiStore );
+	const { receiveUser } = useDispatch( 'ithemes-security/core' );
+	const { users, loading } = useSelect( ( select ) => {
+		const _userIds =
+			select( uiStore ).getEditedGroupAttribute( groupId, 'users' ) || [];
+		const _users = [];
+		let _loading = false;
+
+		_userIds.forEach( ( userId ) => {
+			const user = select( 'ithemes-security/core' ).getUser( userId );
+
+			if ( user ) {
+				_users.push( user );
+			} else if (
+				select( 'core/data' ).isResolving(
+					'ithemes-security/core',
+					'getUser',
+					[ userId ]
+				)
+			) {
+				_loading = true;
+			}
+		} );
+
+		return {
+			users: _users,
+			loading: _loading,
+		};
+	}, [ groupId ] );
+
 	const [ selectSearch, setSelectSearch ] = useState( '' );
 	const selectId = `itsec-user-group-panel-users__select-${ instanceId }`;
 	const values = loading ? [] : users.map( formatUser );
+
+	const loadOptions = useMemo( () => loadUsers( receiveUser ), [ receiveUser ] );
 
 	return (
 		<BaseControl
@@ -75,10 +103,10 @@ function PanelUsers( {
 				isMulti
 				cacheOptions
 				defaultOptions
-				loadOptions={ loadUsers }
+				loadOptions={ loadOptions }
 				value={ values }
 				onChange={ ( newUsers ) =>
-					onChange( { users: map( newUsers, 'value' ) } )
+					editGroup( groupId, { users: map( newUsers, 'value' ) } )
 				}
 				inputValue={ selectSearch }
 				onInputChange={ ( newSelect ) =>
@@ -88,46 +116,3 @@ function PanelUsers( {
 		</BaseControl>
 	);
 }
-
-export default compose( [
-	withSelect( ( select, { groupId } ) => {
-		const userIds =
-			select(
-				'ithemes-security/user-groups-editor'
-			).getEditedGroupAttribute( groupId, 'users' ) || [];
-		const users = [];
-		let loading = false;
-
-		userIds.forEach( ( userId ) => {
-			const user = select( 'ithemes-security/core' ).getUser( userId );
-
-			if ( user ) {
-				users.push( user );
-			} else if (
-				select( 'core/data' ).isResolving(
-					'ithemes-security/core',
-					'getUser',
-					[ userId ]
-				)
-			) {
-				loading = true;
-			}
-		} );
-
-		return {
-			users,
-			userIds,
-			loading,
-		};
-	} ),
-	withDispatch( ( dispatch, { groupId } ) => ( {
-		receiveUser: dispatch( 'ithemes-security/core' ).receiveUser,
-		onChange( edit ) {
-			return dispatch( 'ithemes-security/user-groups-editor' ).editGroup(
-				groupId,
-				edit
-			);
-		},
-	} ) ),
-	withInstanceId,
-] )( PanelUsers );

@@ -32,17 +32,17 @@ class ITSEC_Lib_Distributed_Storage {
 
 			if ( array_key_exists( 'serialize', $value ) || array_key_exists( 'unserialize', $value ) ) {
 				if ( ! isset( $value['serialize'] ) ) {
-					_doing_it_wrong( __CLASS__, 'iThemes Security: Serialize function required when using unserialize.', '4.5.0' );
+					_doing_it_wrong( __CLASS__, 'Solid Security: Serialize function required when using unserialize.', '4.5.0' );
 				} elseif ( ! is_callable( $value['serialize'] ) ) {
-					_doing_it_wrong( __CLASS__, 'iThemes Security: Serialize function must be callable.', '4.5.0' );
+					_doing_it_wrong( __CLASS__, 'Solid Security: Serialize function must be callable.', '4.5.0' );
 				} else {
 					$valid = true;
 				}
 
 				if ( ! isset( $value['unserialize'] ) ) {
-					_doing_it_wrong( __CLASS__, 'iThemes Security: Unserialize function required when using serialize.', '4.5.0' );
+					_doing_it_wrong( __CLASS__, 'Solid Security: Unserialize function required when using serialize.', '4.5.0' );
 				} elseif ( ! is_callable( $value['unserialize'] ) ) {
-					_doing_it_wrong( __CLASS__, 'iThemes Security: Unserialize function must be callable.', '4.5.0' );
+					_doing_it_wrong( __CLASS__, 'Solid Security: Unserialize function must be callable.', '4.5.0' );
 				} else {
 					$valid = true;
 				}
@@ -72,7 +72,7 @@ class ITSEC_Lib_Distributed_Storage {
 	public function get( $key ) {
 
 		if ( ! isset( $this->config[ $key ] ) ) {
-			_doing_it_wrong( __METHOD__, "iThemes Security: Unsupported key '{$key}' for '{$this->name}' storage.", '4.5.0' );
+			_doing_it_wrong( __METHOD__, "Solid Security: Unsupported key '{$key}' for '{$this->name}' storage.", '4.5.0' );
 
 			return false;
 		}
@@ -96,7 +96,7 @@ class ITSEC_Lib_Distributed_Storage {
 	public function get_cursor( $key ) {
 
 		if ( ! isset( $this->config[ $key ] ) ) {
-			_doing_it_wrong( __METHOD__, "iThemes Security: Unsupported key '{$key}' for '{$this->name}' storage.", '4.5.0' );
+			_doing_it_wrong( __METHOD__, "Solid Security: Unsupported key '{$key}' for '{$this->name}' storage.", '4.5.0' );
 
 			return null;
 		}
@@ -124,7 +124,7 @@ class ITSEC_Lib_Distributed_Storage {
 		global $wpdb;
 
 		if ( ! isset( $this->config[ $key ] ) ) {
-			_doing_it_wrong( __METHOD__, "iThemes Security: Unsupported key '{$key}' for '{$this->name}' storage.", '4.5.0' );
+			_doing_it_wrong( __METHOD__, "Solid Security: Unsupported key '{$key}' for '{$this->name}' storage.", '4.5.0' );
 
 			return false;
 		}
@@ -188,7 +188,7 @@ class ITSEC_Lib_Distributed_Storage {
 	public function append( $key, $value ) {
 
 		if ( ! isset( $this->config[ $key ] ) ) {
-			_doing_it_wrong( __METHOD__, "iThemes Security: Unsupported key '{$key}' for '{$this->name}' storage.", '4.5.0' );
+			_doing_it_wrong( __METHOD__, "Solid Security: Unsupported key '{$key}' for '{$this->name}' storage.", '4.5.0' );
 
 			return false;
 		}
@@ -196,7 +196,7 @@ class ITSEC_Lib_Distributed_Storage {
 		$config = $this->config[ $key ];
 
 		if ( ! $config['chunk'] ) {
-			_doing_it_wrong( __METHOD__, "iThemes Security: Cannot append to non-chunked key '{$key}' for '{$this->name}' storage.", '4.5.0' );
+			_doing_it_wrong( __METHOD__, "Solid Security: Cannot append to non-chunked key '{$key}' for '{$this->name}' storage.", '4.5.0' );
 
 			return false;
 		}
@@ -260,7 +260,7 @@ class ITSEC_Lib_Distributed_Storage {
 	 */
 	public function set_from_iterator( $key, $iterator ) {
 		if ( ! isset( $this->config[ $key ] ) ) {
-			_doing_it_wrong( __METHOD__, "iThemes Security: Unsupported key '{$key}' for '{$this->name}' storage.", '4.5.0' );
+			_doing_it_wrong( __METHOD__, "Solid Security: Unsupported key '{$key}' for '{$this->name}' storage.", '4.5.0' );
 
 			return false;
 		}
@@ -268,7 +268,7 @@ class ITSEC_Lib_Distributed_Storage {
 		$config = $this->config[ $key ];
 
 		if ( ! $config['chunk'] ) {
-			_doing_it_wrong( __METHOD__, "iThemes Security: Cannot set from iterator to non-chunked key '{$key}' for '{$this->name}' storage.", '4.5.0' );
+			_doing_it_wrong( __METHOD__, "Solid Security: Cannot set from iterator to non-chunked key '{$key}' for '{$this->name}' storage.", '4.5.0' );
 
 			return false;
 		}
@@ -478,7 +478,7 @@ class ITSEC_Lib_Distributed_Storage {
 		}
 
 		if ( ! is_array( $option ) ) {
-			trigger_error( "iThemes Security: Non-array value encountered for chunked key '{$key}' in storage '{$this->name}'." );
+			trigger_error( "Solid Security: Non-array value encountered for chunked key '{$key}' in storage '{$this->name}'." );
 
 			return;
 		}

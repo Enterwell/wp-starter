@@ -190,7 +190,7 @@ final class ITSEC_Logs_Page {
 
 
 			if ( false === check_ajax_referer( 'itsec-logs-nonce', 'nonce', false ) ) {
-				ITSEC_Response::add_error( new WP_Error( 'itsec-logs-page-failed-nonce', __( 'A nonce security check failed, preventing the request from completing as expected. Please try reloading the page and trying again.', 'better-wp-security' ) ) );
+				ITSEC_Response::add_error( new WP_Error( 'itsec-logs-page-failed-nonce', __( 'A security check failed, preventing the request from completing as expected. Please try reloading the page and trying again.', 'better-wp-security' ) ) );
 			} else if ( ! ITSEC_Core::current_user_can_manage() ) {
 				ITSEC_Response::add_error( new WP_Error( 'itsec-logs-page-insufficient-privileges', __( 'A permissions security check failed, preventing the request from completing as expected. The currently logged in user does not have sufficient permissions to make this request. Please try reloading the page and trying again.', 'better-wp-security' ) ) );
 			} else if ( empty( $id ) ) {
@@ -259,7 +259,7 @@ final class ITSEC_Logs_Page {
 						'order'   => 30,
 					),
 					'host'        => array(
-						'header'  => esc_html__( 'Host', 'better-wp-security' ),
+						'header'  => esc_html__( 'IP Address', 'better-wp-security' ),
 						'content' => '<code>' . esc_html( $entry['remote_ip'] ) . '</code>',
 						'order'   => 40,
 					),
@@ -431,9 +431,9 @@ final class ITSEC_Logs_Page {
 ?>
 	<div class="wrap">
 		<h1>
-			<?php _e( 'iThemes Security', 'better-wp-security' ); ?>
+			<?php _e( 'Solid Security', 'better-wp-security' ); ?>
 			<a href="<?php echo esc_url( ITSEC_Core::get_settings_page_url() ); ?>" class="page-title-action"><?php _e( 'Manage Settings', 'better-wp-security' ); ?></a>
-			<a href="<?php echo esc_url( apply_filters( 'itsec_support_url', 'https://wordpress.org/support/plugin/better-wp-security' ) ); ?>" class="page-title-action"><?php _e( 'Support', 'better-wp-security' ); ?></a>
+			<a href="<?php echo esc_url( apply_filters( 'itsec_support_url', 'https://go.solidwp.com/org-support-link' ) ); ?>" class="page-title-action"><?php _e( 'Support', 'better-wp-security' ); ?></a>
 		</h1>
 
 		<div id="itsec-settings-messages-container">

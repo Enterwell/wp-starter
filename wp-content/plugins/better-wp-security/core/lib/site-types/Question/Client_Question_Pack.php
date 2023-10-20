@@ -23,11 +23,11 @@ final class Client_Question_Pack implements Questions_Provider {
 				}
 
 				public function get_prompt(): string {
-					return __( 'Choosing who you are setting the site up for will help us preconfigure some settings for you.', 'better-wp-security' );
+					return __( 'Choosing who you are setting the site up for will help to preconfigure some settings for you.', 'better-wp-security' );
 				}
 
 				public function get_description(): string {
-					return __( 'If you are setting up iThemes Security for a client, we will ask you to select which users are theirs. Identifying your clients allows you to control their access to things like the security settings or if they are allowed to view the Security Dashboard', 'better-wp-security' );
+					return __( 'If you are setting up Solid Security for a client, next you‘ll select which users are theirs. Identifying your clients allows you to control their access to things like the security settings or if they are allowed to view the Security Dashboard.', 'better-wp-security' );
 				}
 
 				public function get_answer_schema(): array {
@@ -60,7 +60,7 @@ final class Client_Question_Pack implements Questions_Provider {
 				}
 
 				public function get_description(): string {
-					return __( 'iThemes Security Pro will group client users together, allowing you to manage their access to sensitive information and which security settings you enable for them.', 'better-wp-security' );
+					return __( 'Solid Security Pro will group client users together, allowing you to manage their access to sensitive information and which security settings you enable for them.', 'better-wp-security' );
 				}
 
 				public function get_answer_schema(): array {
@@ -115,11 +115,11 @@ final class Client_Question_Pack implements Questions_Provider {
 				}
 
 				public function get_prompt(): string {
-					return __( 'Which users will manage iThemes Security on this site?', 'better-wp-security' );
+					return __( 'Which users will manage Solid Security on this site?', 'better-wp-security' );
 				}
 
 				public function get_description(): string {
-					return __( 'Include yourself and anyone else who will need access to iThemes Security. Grouping these users together will allow you to manage their access to sensitive information and which security settings you enable for them.', 'better-wp-security' );
+					return __( 'Include yourself and anyone else who will need access to Solid Security. Grouping these users together will allow you to manage their access to sensitive information and which security settings you enable for them.', 'better-wp-security' );
 				}
 
 				public function get_answer_schema(): array {
@@ -179,7 +179,7 @@ final class Client_Question_Pack implements Questions_Provider {
 				}
 
 				public function get_prompt(): string {
-					return __( 'Should your clients be able to view and make changes to the iThemes Security settings?', 'better-wp-security' );
+					return __( 'Should your clients be able to view and make changes to the Solid Security settings?', 'better-wp-security' );
 				}
 
 				public function get_description(): string {
@@ -189,7 +189,7 @@ final class Client_Question_Pack implements Questions_Provider {
 				public function get_answer_schema(): array {
 					return [
 						'type'     => 'boolean',
-						'title'    => __( 'Yes, allow managing of iThemes Security', 'better-wp-security' ),
+						'title'    => __( 'Yes, allow managing of Solid Security', 'better-wp-security' ),
 						'default'  => false,
 						'uiSchema' => [
 							'ui:widget' => 'ToggleWidget',

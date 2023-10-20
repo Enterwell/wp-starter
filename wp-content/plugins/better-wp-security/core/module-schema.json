@@ -61,6 +61,14 @@
         "custom"
       ]
     },
+    "load": {
+      "type": "string",
+      "enum": [
+        "early",
+        "normal"
+      ],
+      "default": "normal"
+    },
     "order": {
       "type": "integer",
       "minimum": 0
@@ -541,6 +549,26 @@
                       "OpenSSL"
                     ]
                   }
+                }
+              }
+            }
+          ]
+        },
+        "load": {
+          "type": "object",
+          "allOf": [
+            {
+              "$ref": "#/definitions/requirement"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "normal",
+                    "early"
+                  ]
                 }
               }
             }

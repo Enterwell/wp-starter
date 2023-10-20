@@ -7,73 +7,85 @@ import { isEmpty, size, map } from 'lodash';
  * WordPress dependencies
  */
 import { Fragment } from '@wordpress/element';
-import { autop } from '@wordpress/autop';
-import { Button } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
+
+/**
+ * iThemes dependencies
+ */
+import { Button, Heading, SurfaceVariant, Text, TextSize, TextVariant, TextWeight } from '@ithemes/ui';
 
 /**
  * Internal dependencies
  */
-import './style.scss';
+import { Markup } from '@ithemes/security-components';
+import { StyledHeader, StyledMessage, StyledNotice, StyledFooter, StyledMeta, StyledMetaItem } from './styles';
 
 export default function Notice( { notice } ) {
 	return (
-		<article
-			className={ `itsec-admin-notice itsec-admin-notice--severity-${ notice.severity }` }
-		>
-			<header className="itsec-admin-notice__header">
-				<div className="itsec-admin-notice__header-inset">
-					<h4
-						dangerouslySetInnerHTML={ {
-							__html:
-								notice.title ||
-								formatMessage( notice.message, notice ),
-						} }
-					/>
-					{ map(
-						notice.actions,
-						( action, slug ) =>
-							action.style === 'primary' && (
-								<PrimaryAction key={ slug } notice={ notice } action={ action } />
-							)
-					) }
-				</div>
-			</header>
+		<StyledNotice>
+			<StyledHeader severity={ notice.severity }>
+				<Heading
+					level={ 4 }
+					size={ TextSize.NORMAL }
+					weight={ TextWeight.HEAVY }
+					variant={ TextVariant.DARK }
+				>
+					<Markup noWrap content={ notice.title || formatMessage( notice.message, notice ) } />
+				</Heading>
+				{ map(
+					notice.actions,
+					( action, slug ) =>
+						action.style === 'primary' && (
+							<PrimaryAction key={ slug } notice={ notice } action={ action } />
+						)
+				) }
+			</StyledHeader>
 
 			{ notice.title && notice.message && (
-				<section
-					className="itsec-admin-notice__message"
-					dangerouslySetInnerHTML={ {
-						__html: autop(
-							formatMessage( notice.message, notice )
-						),
-					} }
-				/>
+				<StyledMessage>
+					<Text as="p">
+						<Markup noWrap content={ formatMessage( notice.message, notice ) } />
+					</Text>
+				</StyledMessage>
 			) }
 
 			{ hasMeta( notice ) && (
-				<dl className="itsec-admin-notice__meta">
+				<StyledMeta as="dl" variant={ SurfaceVariant.TERTIARY }>
 					{ map(
 						notice.meta,
 						( meta, key ) =>
 							key !== 'created_at' && (
 								<Fragment key={ key }>
-									<dt>{ meta.label }</dt>
-									<dd>{ meta.formatted }</dd>
+									<StyledMetaItem
+										as="dt"
+										weight={ TextWeight.HEAVY }
+										variant={ TextVariant.DARK }
+										text={ meta.label }
+										textTransform="uppercase"
+									/>
+									<StyledMetaItem
+										as="dd"
+										size={ TextSize.SMALL }
+										variant={ TextVariant.MUTED }
+										text={ meta.formatted }
+									/>
 								</Fragment>
 							)
 					) }
-				</dl>
+				</StyledMeta>
 			) }
 
 			{ notice.meta.created_at && (
-				<footer className="itsec-admin-notice__footer">
-					<time dateTime={ notice.meta.created_at.value }>
-						{ notice.meta.created_at.formatted }
-					</time>
-				</footer>
+				<StyledFooter>
+					<Text
+						as="time"
+						dateTime={ notice.meta.created_at.value }
+						text={ notice.meta.created_at.formatted }
+						size={ TextSize.SMALL }
+					/>
+				</StyledFooter>
 			) }
-		</article>
+		</StyledNotice>
 	);
 }
 

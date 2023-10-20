@@ -43,6 +43,7 @@ final class End_Users_Question_Pack implements Questions_Provider {
 						'default'     => [],
 						'uiSchema'    => [
 							'ui:widget' => 'checkboxes',
+							'ui:style'  => 'chicklet',
 						]
 					];
 				}
@@ -52,7 +53,7 @@ final class End_Users_Question_Pack implements Questions_Provider {
 				}
 
 				protected function get_description_fallback(): string {
-					return __( 'Select the WordPress user roles they are assigned to', 'better-wp-security' );
+					return __( 'Select the WordPress user roles they are assigned to.', 'better-wp-security' );
 				}
 
 				public function respond( Answer_Handler $handler ) {

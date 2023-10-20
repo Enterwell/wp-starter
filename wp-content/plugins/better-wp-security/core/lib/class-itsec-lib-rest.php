@@ -4,8 +4,12 @@ class ITSEC_Lib_REST {
 	const LINK_REL = 'https://s.api.ithemes.com/l/ithemes-security/';
 	const DATE_FORMAT = 'Y-m-d\TH:i:sP';
 
+	private const P_24_HOURS = '24-hours';
+	private const P_WEEK = 'week';
+	private const P_30_DAYS = '30-days';
+
 	/**
-	 * Get the URI for an iThemes Security link relation.
+	 * Get the URI for an Solid Security link relation.
 	 *
 	 * @param string $relation
 	 *
@@ -315,5 +319,148 @@ class ITSEC_Lib_REST {
 		}
 
 		return $root . $path;
+	}
+
+	/**
+	 * Adds pagination to a REST API response.
+	 *
+	 * @param WP_REST_Request  $request
+	 * @param WP_REST_Response $response
+	 * @param int              $count
+	 * @param string           $path
+	 *
+	 * @return void
+	 */
+	public static function paginate( WP_REST_Request $request, WP_REST_Response $response, int $count, string $path ) {
+		$max_pages = ceil( $count / $request['per_page'] );
+		$response->header( 'X-WP-Total', $count );
+		$response->header( 'X-WP-TotalPages', $max_pages );
+
+		$request_params = $request->get_query_params();
+		$base           = add_query_arg(
+			map_deep( $request_params, function ( $value ) {
+				if ( is_bool( $value ) ) {
+					$value = $value ? 'true' : 'false';
+				}
+
+				return urlencode( $value );
+			} ),
+			rest_url( $path )
+		);
+
+		if ( $request['page'] > 1 ) {
+			$prev_page = $request['page'] - 1;
+
+			if ( $prev_page > $max_pages ) {
+				$prev_page = $max_pages;
+			}
+
+			$prev_link = add_query_arg( 'page', $prev_page, $base );
+			$response->link_header( 'prev', $prev_link );
+		}
+
+		if ( $max_pages > $request['page'] ) {
+			$next_page = $request['page'] + 1;
+			$next_link = add_query_arg( 'page', $next_page, $base );
+
+			$response->link_header( 'next', $next_link );
+		}
+	}
+
+	/**
+	 * Get the definition for a period collection param.
+	 *
+	 * @return array
+	 */
+	public static function get_period_arg(): array {
+		return [
+			'default' => self::P_30_DAYS,
+			'oneOf'   => [
+				[
+					'type'                 => 'object',
+					'additionalProperties' => false,
+					'properties'           => [
+						'start' => [
+							'type'     => 'string',
+							'format'   => 'date-time',
+							'required' => true,
+						],
+						'end'   => [
+							'type'     => 'string',
+							'format'   => 'date-time',
+							'required' => true,
+						],
+					],
+				],
+				[
+					'type' => 'string',
+					'enum' => [
+						self::P_24_HOURS,
+						self::P_WEEK,
+						self::P_30_DAYS,
+					],
+				],
+			],
+		];
+	}
+
+	/**
+	 * Get the date range for the report query.
+	 *
+	 * @param string|array $period
+	 *
+	 * @return int[]|WP_Error
+	 */
+	public static function parse_period_arg( $period ) {
+		if ( is_array( $period ) ) {
+			if ( ! isset( $period['start'], $period['end'] ) ) {
+				return new WP_Error(
+					'itsec.rest.invalid-period',
+					__( 'Invalid Period', 'better-wp-security' ),
+					[ 'status' => WP_Http::BAD_REQUEST ]
+				);
+			}
+
+			if (
+				false === ( $s = strtotime( $period['start'] ) ) ||
+				false === ( $e = strtotime( $period['end'] ) )
+			) {
+				return new WP_Error(
+					'itsec.rest.invalid-period',
+					__( 'Invalid Period', 'better-wp-security' ),
+					[ 'status' => WP_Http::BAD_REQUEST ]
+				);
+			}
+
+			return [ $s, $e ];
+		}
+
+		$now = ITSEC_Core::get_current_time_gmt();
+
+		switch ( $period ) {
+			case self::P_24_HOURS:
+				return [
+					( $now - DAY_IN_SECONDS )
+					-
+					( ( $now - DAY_IN_SECONDS ) % HOUR_IN_SECONDS ),
+					$now,
+				];
+			case self::P_WEEK:
+				return [
+					strtotime( '-1 week', $now ),
+					$now,
+				];
+			case self::P_30_DAYS:
+				return [
+					strtotime( '-30 days', $now ),
+					$now,
+				];
+		}
+
+		return new WP_Error(
+			'itsec.rest.invalid-period',
+			__( 'Invalid Period', 'better-wp-security' ),
+			[ 'status' => WP_Http::BAD_REQUEST ]
+		);
 	}
 }

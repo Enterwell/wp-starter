@@ -1,6 +1,6 @@
 <?php
 /**
- * iThemes Security IP tools library.
+ * Solid Security IP tools library.
  *
  * Contains the ITSEC_Lib_IP_Tools class.
  *
@@ -8,7 +8,7 @@
  */
 
 /**
- * iThemes Security IP Tools Library class.
+ * Solid Security IP Tools Library class.
  *
  * Utility class for validating and comparing IPs, as well as converting ranges. Supports IPv4 and IPv6.
  *
@@ -447,7 +447,11 @@ class ITSEC_Lib_IP_Tools {
 			'/([:\.])(\*(\1|$))+/', // Match all whole chunks in the middle with wildcards, or a wildcard as the whole chunk at the end
 			'/^\*([:\.])/',         // Match a wildcard as the whole first chunk
 		);
-		return preg_replace_callback( $search, array( 'self', 'clean_wildcards_preg_replace_callback' ), $ip );
+		return preg_replace_callback(
+			$search,
+			array( ITSEC_Lib_IP_Tools::class, 'clean_wildcards_preg_replace_callback' ),
+			$ip
+		);
 	}
 
 	/**

@@ -3,12 +3,18 @@
  */
 import { withTheme } from '@rjsf/core';
 import { mapValues, isObject, isEmpty } from 'lodash';
+import styled from '@emotion/styled';
 
 /**
  * WordPress dependencies
  */
 import { useMemo, useState, useRef } from '@wordpress/element';
 import { useDispatch } from '@wordpress/data';
+
+/**
+ * SolidWP dependencies
+ */
+import { Surface, SurfaceVariant } from '@ithemes/ui';
 
 /**
  * Internal dependencies
@@ -21,6 +27,12 @@ const SchemaForm = withTheme( Theme );
 const formContext = {
 	disableInlineErrors: true,
 };
+
+const StyledSectionCreate = styled( Surface )`
+  padding: ${ ( { theme: { getSize } } ) => getSize( 1 ) };
+  flex-grow: 1;
+  overflow: scroll;
+`;
 
 export default function AddNew( {
 	id,
@@ -82,7 +94,10 @@ export default function AddNew( {
 	};
 
 	return (
-		<section className="itsec-card-banned-users__create">
+		<StyledSectionCreate
+			as="section"
+			variant={ SurfaceVariant.SECONDARY }
+		>
 			{ createFormSchema && (
 				<SchemaForm
 					id={ id }
@@ -101,6 +116,6 @@ export default function AddNew( {
 					<></>
 				</SchemaForm>
 			) }
-		</section>
+		</StyledSectionCreate>
 	);
 }

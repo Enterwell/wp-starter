@@ -17,12 +17,13 @@ import { Component } from '@wordpress/element';
  * Internal dependencies
  */
 import { withInterval } from '@ithemes/security-hocs';
-import widthProvider from './width-provider';
 import Card from '../card';
 import EmptyState from '../card-grid/empty-state';
 import {
 	GRID_COLUMNS,
 	BREAKPOINTS,
+	CARD_MARGIN,
+	getMaxWidthForGrid,
 	areGridLayoutsEqual,
 	transformApiLayoutToGrid,
 	transformGridLayoutToApi,
@@ -125,21 +126,23 @@ class CardGrid extends Component {
 
 	render() {
 		const { cards, dashboardId, usingTouch } = this.props;
+		const maxWidth = getMaxWidthForGrid( this.props.width );
 
 		if ( ! cards.length ) {
-			return <EmptyState />;
+			return <EmptyState maxWidth={ maxWidth } />;
 		}
 
 		return (
 			<Grid
+				style={ { maxWidth } }
 				breakpoints={ BREAKPOINTS }
 				onBreakpointChange={ this.onBreakpointChange }
 				cols={ GRID_COLUMNS }
-				rowHeight={ 200 }
-				width={ this.props.width }
+				rowHeight={ 380 }
+				width={ Math.min( this.props.width, maxWidth ) }
 				layouts={ this.state.layout }
 				onLayoutChange={ this.onLayoutChange }
-				margin={ [ 20, 20 ] }
+				margin={ [ CARD_MARGIN, CARD_MARGIN ] }
 				isDraggable={ ! usingTouch }
 				isResizable={ ! usingTouch }
 				className={
@@ -187,7 +190,6 @@ export default compose( [
 	ifCondition(
 		( { cardsLoaded, layoutLoaded } ) => cardsLoaded && layoutLoaded
 	),
-	widthProvider,
 	pure,
 	withDispatch( ( dispatch, props ) => ( {
 		openEditCards: dispatch( 'ithemes-security/dashboard' ).openEditCards,

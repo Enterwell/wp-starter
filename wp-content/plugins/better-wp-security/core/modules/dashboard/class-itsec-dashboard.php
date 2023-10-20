@@ -404,6 +404,11 @@ class ITSEC_Dashboard implements Runnable, Import_Export_Source {
 						break;
 				}
 				break;
+			case 'firewall':
+				if ( $data['type'] === 'action' ) {
+					ITSEC_Dashboard_Util::record_event( 'firewall-block' );
+				}
+				break;
 		}
 	}
 

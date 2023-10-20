@@ -1,12 +1,10 @@
 /**
  * External dependencies
  */
-import { useHistory, useLocation, useRouteMatch } from 'react-router-dom';
+import { useHistory, useLocation, useParams, useRouteMatch } from 'react-router-dom';
 import { createLocation } from 'history';
-import { pickBy, get, set } from 'lodash';
-import Ajv from 'ajv';
+import { pickBy, get, set, isEmpty, every } from 'lodash';
 import classnames from 'classnames';
-import { JsonPointer } from 'json-ptr';
 
 /**
  * WordPress dependencies
@@ -15,10 +13,8 @@ import {
 	createContext,
 	useCallback,
 	useContext,
-	useMemo,
 } from '@wordpress/element';
-import { useDispatch, useSelect, useRegistry } from '@wordpress/data';
-import { applyFilters } from '@wordpress/hooks';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { __, _n, sprintf } from '@wordpress/i18n';
 
 /**
@@ -66,219 +62,36 @@ export function useChildPath() {
 }
 
 /**
- * Grabs a global instance of Ajv.
- *
- * @return {Ajv.Ajv} The ajv instance.
- */
-export function getAjv() {
-	if ( ! getAjv.instance ) {
-		getAjv.instance = new Ajv( { schemaId: 'id' } );
-		getAjv.instance.addMetaSchema(
-			require( 'ajv/lib/refs/json-schema-draft-04.json' )
-		);
-		getAjv.instance.addFormat( 'html', {
-			type: 'string',
-			validate() {
-				// Validating HTML isn't something we can realistically do.
-				// We accept everything and can then kses it on the server.
-				return true;
-			},
-		} );
-	}
-
-	return getAjv.instance;
-}
-
-const isConditionalSettingActive = ( definition, module, context ) => {
-	const {
-		serverType,
-		installType,
-		activeModules,
-		settings,
-		featureFlags,
-	} = context;
-
-	if (
-		definition[ 'server-type' ] &&
-		! definition[ 'server-type' ].includes( serverType )
-	) {
-		return false;
-	}
-
-	if (
-		definition[ 'install-type' ] &&
-		definition[ 'install-type' ] !== installType
-	) {
-		return false;
-	}
-
-	if ( definition[ 'active-modules' ] ) {
-		for ( const activeModule of definition[ 'active-modules' ] ) {
-			if ( ! activeModules.includes( activeModule ) ) {
-				return false;
-			}
-		}
-	}
-
-	if ( definition[ 'feature-flags' ] ) {
-		for ( const featureFlag of definition[ 'feature-flags' ] ) {
-			if ( ! featureFlags?.includes( featureFlag ) ) {
-				return false;
-			}
-		}
-	}
-
-	if ( definition.settings ) {
-		const ajv = getAjv();
-		const validate = ajv.compile( definition.settings );
-
-		if ( ! validate( settings ) ) {
-			return false;
-		}
-	}
-
-	/**
-	 * Filters whether a conditional setting is active.
-	 *
-	 * This hook can only be used to turn a conditional setting inactive,
-	 * if it is inactive due to other conditional rules, this filter won't run.
-	 *
-	 * @param {boolean} isActive   Whether the setting is active.
-	 * @param {Object}  module     The module definition.
-	 * @param {Object}  definition The conditional setting definition.
-	 * @param {Object}  context    Context used to determine whether the setting is active.
-	 */
-	return applyFilters(
-		'ithemes-security.settings.isConditionalSettingActive',
-		true,
-		module,
-		definition,
-		context
-	);
-};
-
-/**
- * Makes a settings schema conditional based on the module definition.
- *
- * @param {Object}        module                The module definition.
- * @param {Object}        context               The context used to evaluate the conditional settings.
- * @param {string}        context.serverType    The web server type.
- * @param {string}        context.installType   The ITSEC installation type.
- * @param {Array<string>} context.activeModules The list of active modules.
- * @param {Array<string>} context.featureFlags  The list of feature flags.
- * @param {Object}        context.settings      The module's setting value.
- * @param {Object}        context.registry      The @wordpress/data registry.
- *
- * @return {Object} The settings schema.
- */
-export function makeConditionalSettingsSchema( module, context ) {
-	const isActive = ( definition ) =>
-		isConditionalSettingActive( definition, module, context );
-	const reduceConditional = ( parent, subSchema ) => {
-		if ( ! subSchema.properties ) {
-			return subSchema;
-		}
-
-		return {
-			...subSchema,
-			properties: Object.entries( subSchema.properties ).reduce(
-				( acc, [ propName, propSchema ] ) => {
-					const conditionalKey = `${ parent }.${ propName }`;
-
-					if (
-						module.settings.conditional[ conditionalKey ] &&
-						! isActive(
-							module.settings.conditional[ conditionalKey ]
-						)
-					) {
-						return acc;
-					}
-
-					acc[ propName ] = reduceConditional(
-						conditionalKey,
-						propSchema
-					);
-
-					return acc;
-				},
-				{}
-			),
-		};
-	};
-
-	const properties = Object.entries(
-		module.settings.schema.properties
-	).reduce( ( acc, [ propName, propSchema ] ) => {
-		if ( ! module.settings.interactive.includes( propName ) ) {
-			return acc;
-		}
-
-		if (
-			module.settings.conditional[ propName ] &&
-			! isActive( module.settings.conditional[ propName ] )
-		) {
-			return acc;
-		}
-
-		acc[ propName ] = reduceConditional( propName, propSchema );
-
-		return acc;
-	}, {} );
-
-	return {
-		...module.settings.schema,
-		properties,
-	};
-}
-
-export function useConditionalSchema( module, settings ) {
-	const { serverType, installType } = useConfigContext();
-	const registry = useRegistry();
-	const { activeModules, featureFlags } = useSelect(
-		( select ) => ( {
-			activeModules: select( MODULES_STORE_NAME ).getActiveModules(),
-			featureFlags: select( CORE_STORE_NAME ).getFeatureFlags(),
-		} ),
-		[]
-	);
-	const context = {
-		serverType,
-		installType,
-		activeModules,
-		settings,
-		registry,
-		featureFlags,
-	};
-
-	if ( ! module ) {
-		return null;
-	}
-
-	return makeConditionalSettingsSchema( module, context );
-}
-
-/**
  * A hook to allow for convenient editing of module settings.
  *
  * @param {Object}                            module         The module definition.
  * @param {function(Object, string): boolean} [filterFields] An optional function to filter the included settings.
- * @return {{schema: Object, uiSchema: Object, setFormData: Function, formData: Object}} The settings form components.
+ * @return {{schema: Object, uiSchema: Object, hasSettings: boolean, setFormData: Function, formData: Object}} The settings form components.
  */
 export function useSettingsForm( module, filterFields ) {
-	const formData = useSelect(
-		( select ) =>
-			select( MODULES_STORE_NAME ).getEditedSettings( module.id ),
+	const { formData, conditionalSchemaBase } = useSelect(
+		( select ) => ( {
+			formData: select( MODULES_STORE_NAME ).getEditedSettings( module.id ),
+			conditionalSchemaBase: select( MODULES_STORE_NAME ).getSettingsConditionalSchema( module.id ),
+		} ),
 		[ module.id ]
 	);
 	const { editSettings } = useDispatch( MODULES_STORE_NAME );
-	const conditionalSchema = useConditionalSchema( module, formData );
 
-	if ( filterFields ) {
-		conditionalSchema.properties = pickBy(
-			conditionalSchema.properties,
+	const conditionalSchema = filterFields ? {
+		...conditionalSchemaBase,
+		properties: pickBy(
+			conditionalSchemaBase.properties,
 			filterFields
-		);
-	}
+		),
+	} : conditionalSchemaBase;
+
+	const hasSettings = ! every(
+		conditionalSchema?.properties,
+		( propSchema ) =>
+			propSchema.type === 'object' &&
+			isEmpty( propSchema.properties )
+	);
 
 	const setFormData = ( e ) => {
 		editSettings( module.id, e.formData );
@@ -286,72 +99,40 @@ export function useSettingsForm( module, filterFields ) {
 
 	return {
 		schema: conditionalSchema,
-		uiSchema: module.settings.schema.uiSchema,
+		uiSchema: module.settings?.schema.uiSchema,
+		hasSettings,
 		formData,
 		setFormData,
 	};
 }
 
-export function useModuleSchemaValidator( moduleId ) {
-	const ajv = getAjv();
-	const { module, settings } = useSelect(
-		( select ) => ( {
-			module: select( MODULES_STORE_NAME ).getModule( moduleId ),
-			settings: select( MODULES_STORE_NAME ).getEditedSettings(
-				moduleId
-			),
-		} ),
-		[ moduleId ]
+/**
+ * A hook to retrieve the allowed settings for the current root.
+ *
+ * @param {Object} module The module definition.
+ * @return {{allowedFields: Array<string>, filterFields: ((function(object, string): boolean))}} The list of allowed fields, and a filter callback.
+ */
+export function useAllowedSettingsFields( module ) {
+	const { root } = useParams();
+
+	const allowedFields = ( () => {
+		switch ( root ) {
+			case 'import':
+				return module?.settings?.import;
+			case 'onboard':
+				return module?.settings?.onboard;
+		}
+	} )();
+	const _filterFields = useCallback(
+		( value, key ) => allowedFields.includes( key ),
+		[ allowedFields ]
 	);
-	const conditionalSchema = useConditionalSchema( module, settings );
-	const noOpTrue = useCallback( () => true );
+	const filterFields = allowedFields && _filterFields;
 
-	const compiled = useMemo( () => {
-		if ( ! conditionalSchema ) {
-			return noOpTrue;
-		}
-
-		return ajv.compile( conditionalSchema );
-	}, [ conditionalSchema ] );
-
-	return useCallback( () => {
-		if ( compiled( settings ) ) {
-			return true;
-		}
-
-		return {
-			errors: compiled.errors,
-			errorText: convertSchemaErrorToText(
-				compiled.errors,
-				moduleId,
-				conditionalSchema
-			),
-		};
-	}, [ compiled, settings ] );
-}
-
-function convertSchemaErrorToText( errors, moduleId, schema ) {
-	const text = [];
-
-	for ( const { message, schemaPath, dataPath } of errors ) {
-		let ptr = JsonPointer.create( schemaPath );
-		let parent = ptr.parent( schema );
-
-		while ( parent && ! parent.title ) {
-			ptr = JsonPointer.create(
-				ptr.path.slice( 0, ptr.path.length - 1 )
-			);
-			parent = ptr.parent( schema );
-		}
-
-		if ( parent?.title ) {
-			text.push( `${ parent.title } ${ message }.` );
-		} else {
-			text.push( `${ moduleId }${ dataPath } ${ message }.` );
-		}
-	}
-
-	return text;
+	return {
+		allowedFields,
+		filterFields,
+	};
 }
 
 /**
@@ -367,7 +148,7 @@ export function getModuleTypes() {
 		},
 		{
 			slug: 'lockout',
-			label: __( 'Lockouts', 'better-wp-security' ),
+			label: __( 'Firewall', 'better-wp-security' ),
 		},
 		{
 			slug: 'site-check',
@@ -477,6 +258,14 @@ export function useModuleRequirementsValidator() {
 						).replace( '%l', '%s' ),
 						missingExtensions.join( ', ' )
 					), module.requirements.server );
+				}
+			}
+
+			if ( module.requirements.load && isForMode( module.requirements.load ) && requirementsInfo ) {
+				if ( module.requirements.load.type === 'normal' && requirementsInfo.load === 'early' ) {
+					error.add( 'load', __( 'Loading Solid Security via an MU-Plugin is not supported.', 'better-wp-security' ) );
+				} else if ( module.requirements.load.type === 'early' && requirementsInfo.load === 'normal' ) {
+					error.add( 'load', __( 'Loading Solid Security without an MU-Plugin is not supported.', 'better-wp-security' ) );
 				}
 			}
 

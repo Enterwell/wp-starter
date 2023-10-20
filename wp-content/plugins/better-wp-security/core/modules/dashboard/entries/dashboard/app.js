@@ -2,12 +2,13 @@
  * External dependencies
  */
 import { ThemeProvider } from '@emotion/react';
+import { Responsive } from 'react-grid-layout';
 
 /**
  * WordPress dependencies
  */
 import { NoticeList, SlotFillProvider, Popover } from '@wordpress/components';
-import { pure, usePrevious } from '@wordpress/compose';
+import { pure, usePrevious, useResizeObserver } from '@wordpress/compose';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
 import { PluginArea } from '@wordpress/plugins';
@@ -16,7 +17,7 @@ import '@wordpress/notices';
 /**
  * iThemes dependencies
  */
-import { defaultTheme } from '@ithemes/ui';
+import { solidTheme } from '@ithemes/ui';
 
 /**
  * Internal dependencies
@@ -30,17 +31,16 @@ import CardGrid from './components/card-grid';
 import CreateDashboard from './components/create-dashboard';
 import Toolbar from './components/toolbar';
 import Help from './components/help';
-import { ConfigContext } from './utils';
+import { BREAKPOINTS, ConfigContext } from './utils';
 import './style.scss';
 
-const Page = pure( ( { page, dashboardId } ) => {
+const Page = pure( ( { page, dashboardId, width, breakpoint } ) => {
 	useRegisterCards();
 
 	switch ( page ) {
 		case 'view-dashboard':
-			return <CardGrid dashboardId={ dashboardId } />;
 		case 'create-dashboard':
-			return <CreateDashboard />;
+			return dashboardId > 0 && <CardGrid dashboardId={ dashboardId } width={ width } breakpoint={ breakpoint } />;
 		case 'help':
 			return <Help />;
 		default:
@@ -49,6 +49,7 @@ const Page = pure( ( { page, dashboardId } ) => {
 } );
 
 export default function App( { context } ) {
+	const [ resizeListener, size ] = useResizeObserver();
 	const {
 		page,
 		primaryDashboard,
@@ -86,17 +87,18 @@ export default function App( { context } ) {
 		} else {
 			viewCreateDashboard();
 		}
-	}, [ primaryDashboard ] );
+	}, [ primaryDashboard, prevPrimaryDashboard, viewDashboard, viewCreateDashboard ] );
 
 	if ( primaryDashboard === undefined ) {
 		return null;
 	}
 
 	return (
-		<ThemeProvider theme={ defaultTheme }>
+		<ThemeProvider theme={ solidTheme }>
 			<SlotFillProvider>
 				<ConfigContext.Provider value={ context }>
 					<div className={ `itsec-dashboard itsec-app-page--${ page }` }>
+						{ resizeListener }
 						<Popover.Slot />
 						<NoticeList
 							notices={ notices }
@@ -106,8 +108,16 @@ export default function App( { context } ) {
 						/>
 						<Toolbar dashboardId={ dashboardId } />
 						<BelowToolbarSlot fillProps={ { page, dashboardId } } />
-						<AdminBar dashboardId={ dashboardId } />
-						<Page page={ page } dashboardId={ dashboardId } />
+						<AdminBar dashboardId={ dashboardId } width={ size.width } />
+						{ page === 'create-dashboard' && (
+							<CreateDashboard />
+						) }
+						<Page
+							page={ page }
+							dashboardId={ dashboardId }
+							width={ size.width }
+							breakpoint={ Responsive.utils.getBreakpointFromWidth( BREAKPOINTS, size.width ) }
+						/>
 					</div>
 					<PluginArea />
 				</ConfigContext.Provider>

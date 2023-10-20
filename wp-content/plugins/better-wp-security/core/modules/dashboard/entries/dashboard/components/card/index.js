@@ -3,6 +3,7 @@
  */
 import { ErrorBoundary } from 'react-error-boundary';
 import classnames from 'classnames';
+import styled from '@emotion/styled';
 
 /**
  * WordPress dependencies
@@ -11,17 +12,28 @@ import { pure } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
 
 /**
+ * iThemes dependencies
+ */
+import { Surface } from '@ithemes/ui';
+
+/**
  * Internal dependencies
  */
 import { withProps } from '@ithemes/security-hocs';
 import { useCardElementQueries, useCardRenderer } from '../../cards';
 import CardUnknown from '../empty-states/card-unknown';
 import CardCrash from '../empty-states/card-crash';
-import CardBecoming from '../empty-states/card-becoming';
 import './style.scss';
 
+const StyledCard = styled( Surface )`
+	width: 100%;
+	height: 100%;
+	border-radius: 2px;
+	box-shadow: 0 0 5px rgba(211, 211, 211, 0.35);
+`;
+
 function Card( { id, dashboardId, className, gridWidth, children, ...rest } ) {
-	let { card, config } = useSelect(
+	const { card, config } = useSelect(
 		( select ) => ( {
 			card: select( 'ithemes-security/dashboard' ).getDashboardCard( id ),
 			config:
@@ -31,22 +43,13 @@ function Card( { id, dashboardId, className, gridWidth, children, ...rest } ) {
 		} ),
 		[ id ]
 	);
-
-	if ( id === 'ithemes-becoming-solid' ) {
-		card = {
-			card: 'ithemes-becoming-solid',
-			dashboardId: 99999,
-		};
-		card.card = 'ithemes-becoming-solid';
-		card.dashboardId = 99999;
-	}
-
 	const CardRender = useCardRenderer( config );
 	const eqProps = useCardElementQueries( config, rest.style, gridWidth );
 
 	if ( card.card === 'unknown' ) {
 		return (
-			<article
+			<StyledCard
+				as="article"
 				className={ classnames(
 					className,
 					'itsec-card',
@@ -55,28 +58,14 @@ function Card( { id, dashboardId, className, gridWidth, children, ...rest } ) {
 				{ ...rest }
 			>
 				<CardUnknown card={ card } dashboardId={ dashboardId } />
-			</article>
-		);
-	}
-
-	if ( card.card === 'ithemes-becoming-solid' ) {
-		return (
-			<article
-				className={ classnames(
-					className,
-					'itsec-card',
-					'itsec-card--ithemes-becoming-solid'
-				) }
-				{ ...rest }
-			>
-				<CardBecoming card={ card } dashboardId={ dashboardId } />
-			</article>
+			</StyledCard>
 		);
 	}
 
 	if ( ! CardRender ) {
 		return (
-			<article
+			<StyledCard
+				as="article"
 				className={ classnames(
 					className,
 					'itsec-card',
@@ -85,12 +74,13 @@ function Card( { id, dashboardId, className, gridWidth, children, ...rest } ) {
 				{ ...rest }
 			>
 				<CardCrash card={ card } config={ config } />
-			</article>
+			</StyledCard>
 		);
 	}
 
 	return (
-		<article
+		<StyledCard
+			as="article"
 			className={ classnames( className, 'itsec-card' ) }
 			id={ `itsec-card-${ card.id }` }
 			{ ...rest }
@@ -107,7 +97,7 @@ function Card( { id, dashboardId, className, gridWidth, children, ...rest } ) {
 				/>
 			</ErrorBoundary>
 			{ children }
-		</article>
+		</StyledCard>
 	);
 }
 

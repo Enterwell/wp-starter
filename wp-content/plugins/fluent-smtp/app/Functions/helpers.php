@@ -32,7 +32,7 @@ if (!function_exists('fluentMailIsListedSenderEmail')) {
         static $settings;
 
         if (!$settings) {
-            $settings = get_option('fluentmail-settings');
+            $settings = fluentMailGetSettings();
         }
 
         if (!$settings) {
@@ -51,7 +51,7 @@ if (!function_exists('fluentMailDefaultConnection')) {
             return $defaultConnection;
         }
 
-        $settings = get_option('fluentmail-settings');
+        $settings = fluentMailGetSettings();
 
         if (!$settings) {
             return [];
@@ -247,16 +247,6 @@ if (!function_exists('fluentMailSend')) {
             };
         }
 
-        if (($class = get_class($phpmailer)) != 'PHPMailer\PHPMailer\PHPMailer') {
-            do_action(
-                'wp_mail_failed',
-                new WP_Error(
-                    400,
-                    "Oops! PHPMailer is modified by $class."
-                )
-            );
-        }
-
         // Headers.
         $cc = array();
         $bcc = array();
@@ -352,6 +342,8 @@ if (!function_exists('fluentMailSend')) {
         $phpmailer->clearAttachments();
         $phpmailer->clearCustomHeaders();
         $phpmailer->clearReplyTos();
+        $phpmailer->Body = '';
+        $phpmailer->AltBody = '';
 
 
         /*
@@ -401,17 +393,16 @@ if (!function_exists('fluentMailSend')) {
              *
              */
             $from_email = apply_filters('wp_mail_from', $from_email);
-
-            /**
-             * Filters the name to associate with the "from" email address.
-             *
-             * @param string $from_name Name associated with the "from" email address.
-             * @since 2.3.0
-             *
-             */
-            $from_name = apply_filters('wp_mail_from_name', $from_name);
         }
 
+        /**
+         * Filters the name to associate with the "from" email address.
+         *
+         * @param string $from_name Name associated with the "from" email address.
+         * @since 2.3.0
+         *
+         */
+        $from_name = apply_filters('wp_mail_from_name', $from_name);
 
         try {
             $phpmailer->setFrom($from_email, $from_name, false);
@@ -553,17 +544,22 @@ if (!function_exists('fluentMailSend')) {
          */
         do_action_ref_array('phpmailer_init', array(&$phpmailer));
 
+        $mail_data = compact('to', 'subject', 'message', 'headers', 'attachments');
 
         // Send!
         try {
             // Trap the fluentSMTPMail mailer here
             $phpmailer = new FluentMail\App\Services\Mailer\FluentPHPMailer($phpmailer);
-            return $phpmailer->send();
+
+            $send = $phpmailer->send();
+
+            do_action('wp_mail_succeeded', $mail_data);
+
+            return $send;
 
         } catch (PHPMailer\PHPMailer\Exception $e) {
 
-            $mail_error_data = compact('to', 'subject', 'message', 'headers', 'attachments');
-            $mail_error_data['phpmailer_exception_code'] = $e->getCode();
+            $mail_data['phpmailer_exception_code'] = $e->getCode();
 
             /**
              * Fires after a PHPMailer\PHPMailer\Exception is caught.
@@ -573,17 +569,170 @@ if (!function_exists('fluentMailSend')) {
              * @since 4.4.0
              *
              */
-            do_action(
-                'wp_mail_failed',
-                new WP_Error(
-                    'wp_mail_failed',
-                    $e->getMessage(),
-                    $mail_error_data
-                )
-            );
-
+            do_action('wp_mail_failed', new WP_Error('wp_mail_failed', $e->getMessage(), $mail_data));
             return false;
         }
+    }
+}
+
+if (!function_exists('fluentMailGetSettings')) {
+    function fluentMailGetSettings($defaults = [], $cached = true)
+    {
+        static $cachedSettings;
+        if ($cached && $cachedSettings) {
+            return $cachedSettings;
+        }
+
+        $settings = get_option('fluentmail-settings');
+
+        if (!$settings) {
+            return $defaults;
+        }
+
+        if (!empty($settings['use_encrypt'])) {
+            $providerKeyMaps = [
+                'smtp'        => 'password',
+                'ses'         => 'secret_key',
+                'mailgun'     => 'api_key',
+                'sendgrid'    => 'api_key',
+                'sendinblue'  => 'api_key',
+                'sparkpost'   => 'api_key',
+                'pepipost'    => 'api_key',
+                'postmark'    => 'api_key',
+                'elasticmail' => 'api_key',
+                'gmail'       => 'client_secret',
+                'outlook'     => 'client_secret',
+            ];
+            if (!empty($settings['connections']) && is_array($settings['connections'])) {
+                foreach ($settings['connections'] as $key => $connection) {
+                    $providerKey = $connection['provider_settings']['provider'];
+                    if (empty($providerKeyMaps[$providerKey])) {
+                        continue;
+                    }
+
+                    $secretFieldKey = $providerKeyMaps[$providerKey];
+
+                    if (empty($connection['provider_settings'][$secretFieldKey])) {
+                        continue;
+                    }
+
+                    $settings['connections'][$key]['provider_settings'][$secretFieldKey] = fluentMailEncryptDecrypt($connection['provider_settings'][$secretFieldKey], 'd');
+                }
+            }
+        }
+
+        $cachedSettings = $settings;
+
+        return $settings;
+    }
+}
+
+if (!function_exists('fluentMailSetSettings')) {
+    function fluentMailSetSettings($settings)
+    {
+        $settings['use_encrypt'] = apply_filters('fluentsmtp_use_encrypt', 'yes');
+
+        $hasSecretField = false;
+
+        if (!empty($settings['use_encrypt'])) {
+            $providerKeyMaps = [
+                'smtp'        => 'password',
+                'ses'         => 'secret_key',
+                'mailgun'     => 'api_key',
+                'sendgrid'    => 'api_key',
+                'sendinblue'  => 'api_key',
+                'sparkpost'   => 'api_key',
+                'pepipost'    => 'api_key',
+                'postmark'    => 'api_key',
+                'elasticmail' => 'api_key',
+                'gmail'       => 'client_secret',
+                'outlook'     => 'client_secret',
+            ];
+            if (!empty($settings['connections']) && is_array($settings['connections'])) {
+                foreach ($settings['connections'] as $key => $connection) {
+                    $providerKey = $connection['provider_settings']['provider'];
+                    if (empty($providerKeyMaps[$providerKey])) {
+                        continue;
+                    }
+
+                    $secretFieldKey = $providerKeyMaps[$providerKey];
+
+                    if (empty($connection['provider_settings'][$secretFieldKey])) {
+                        continue;
+                    }
+
+                    $hasSecretField = true;
+
+                    $settings['connections'][$key]['provider_settings'][$secretFieldKey] = fluentMailEncryptDecrypt($connection['provider_settings'][$secretFieldKey], 'e');
+                }
+            }
+        }
+
+        if ($hasSecretField) {
+            $settings['test'] = fluentMailEncryptDecrypt('test', 'e');
+        } else {
+            $settings['test'] = '';
+            $settings['use_encrypt'] = '';
+        }
+
+        $result = update_option('fluentmail-settings', $settings);
+
+        fluentMailGetSettings([], false);
+
+        return $result;
+    }
+}
+
+if (!function_exists('fluentMailEncryptDecrypt')) {
+    function fluentMailEncryptDecrypt($value, $type = 'e')
+    {
+        if (!$value) {
+            return $value;
+        }
+
+        if (!extension_loaded('openssl')) {
+            return $value;
+        }
+
+        if (defined('FLUENTMAIL_ENCRYPT_SALT')) {
+            $salt = FLUENTMAIL_ENCRYPT_SALT;
+        } else {
+            $salt = (defined('LOGGED_IN_SALT') && '' !== LOGGED_IN_SALT) ? LOGGED_IN_SALT : 'this-is-a-fallback-salt-but-not-secure';
+        }
+
+        if (defined('FLUENTMAIL_ENCRYPT_KEY')) {
+            $key = FLUENTMAIL_ENCRYPT_KEY;
+        } else {
+            $key = (defined('LOGGED_IN_KEY') && '' !== LOGGED_IN_KEY) ? LOGGED_IN_KEY : 'this-is-a-fallback-key-but-not-secure';
+        }
+
+        if ($type == 'e') {
+            $method = 'aes-256-ctr';
+            $ivlen = openssl_cipher_iv_length($method);
+            $iv = openssl_random_pseudo_bytes($ivlen);
+
+            $raw_value = openssl_encrypt($value . $salt, $method, $key, 0, $iv);
+            if (!$raw_value) {
+                return false;
+            }
+
+            return base64_encode($iv . $raw_value); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+        }
+
+        $raw_value = base64_decode($value, true); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
+
+        $method = 'aes-256-ctr';
+        $ivlen = openssl_cipher_iv_length($method);
+        $iv = substr($raw_value, 0, $ivlen);
+
+        $raw_value = substr($raw_value, $ivlen);
+
+        $newValue = openssl_decrypt($raw_value, $method, $key, 0, $iv);
+        if (!$newValue || substr($newValue, -strlen($salt)) !== $salt) {
+            return false;
+        }
+
+        return substr($newValue, 0, -strlen($salt));
     }
 }
 
@@ -595,4 +744,42 @@ function fluentMailDb()
 
     require_once(FLUENTMAIL_PLUGIN_PATH . 'app/Services/wpfluent/wpfluent.php');
     return FluentSmtpDb();
+}
+
+
+function fluentMailFuncCouldNotBeLoadedRecheckPluginsLoad()
+{
+    add_action('admin_notices', function () {
+        if (!current_user_can('manage_options')) {
+            return;
+        }
+        $details = new ReflectionFunction('wp_mail');
+        $hints = $details->getFileName() . ':' . $details->getStartLine();
+        ?>
+        <div class="notice notice-warning fluentsmtp_urgent is-dismissible">
+            <p>
+                <?php
+                echo sprintf(
+                    __('The <strong>FluentSMTP</strong> plugin depends on
+                                <a target="_blank" href="%1s">wp_mail</a> pluggable function and
+                                plugin is not able to extend it. Please check if another plugin is using this and disable it for <strong>FluentSMTP</strong> to work!',
+                        'fluent-smtp'), 'https://developer.wordpress.org/reference/functions/wp_mail/'
+                );
+                ?>
+            </p>
+            <p style="color: red;"><?php _e('Possible Conflict: ', 'fluent-smtp'); ?><?php echo $hints; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></p>
+        </div>
+        <?php
+    });
+
+    $activePlugins = get_option('active_plugins');
+    $index = array_search('fluent-smtp/fluent-smtp.php', $activePlugins);
+    if ($index !== false) {
+        if ($index === 0) {
+            return;
+        }
+        unset($activePlugins[$index]);
+        array_unshift($activePlugins, 'fluent-smtp/fluent-smtp.php');
+        update_option('active_plugins', $activePlugins, true);
+    }
 }

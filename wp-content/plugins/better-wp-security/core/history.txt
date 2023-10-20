@@ -148,7 +148,7 @@
 	Fixed: No more "Array" message appearing in digest emails from user lockouts
 	Fixed: HTML in traditional file log emails will display correctly.
 	Fixed: From address in notification emails will now display correctly.
-	Fixed: MySQL errors will no longer appear for missing iThemes Security tables. Instead it will attempt to recreate them.
+	Fixed: MySQL errors will no longer appear for missing Solid Security tables. Instead it will attempt to recreate them.
 1.7.1 - 2014-09-16 - Chris Wiegman
 	Fixed: Version bump to break cache.
 1.7.2 - 2014-09-17 - Chris Wiegman
@@ -211,7 +211,7 @@
 	Bug Fix: Fixed regression that prevented adding wildcard IP's in the form of 'XXX.XXX.XXX.*' to Ban Hosts.
 1.13.6 - 2015-03-20 - Chris Jean
 	Enhancement: Translation files can now be stored in WP_LANG_DIR/plugins/ithemes-security-pro for
-		iThemes Security Pro and WP_LANG_DIR/plugins/better-wp-security for iThemes Security free version.
+		Solid Security Pro and WP_LANG_DIR/plugins/better-wp-security for Solid Security free version.
 	Bug Fix: The file permissions check will no longer list a warning if the plugins directory has permissions of 755.
 1.13.7 - 2015-04-22 - Chris Jean
 	Enhancement: Improved domain name generation given the host name.
@@ -257,7 +257,7 @@
 	Bug Fix: Readded support for Litespeed .htaccess file modifications.
 1.15.0 - 2015-07-02 - Chris Jean
 	Feature Removal: Removed the malware scanning feature as VirusTotal no longer supports scanning from WordPress sites. A replacement is in the works.
-	Bug Fix: The close button on the "Thank you for activating iThemes Security" message now appears in the correct location.
+	Bug Fix: The close button on the "Thank you for activating Solid Security" message now appears in the correct location.
 	Bug Fix: Removed the site's URL being displayed in the "Replace jQuery With a Safe Version" setting details.
 	Bug Fix: Updated .htaccess rules to be compatible with Apache 2.4 without the auth compat module.
 	Bug Fix: Enabling and disabling the "Remove File Writing Permissions" setting now updates the file permissions properly.
@@ -286,7 +286,7 @@
 1.17.4 - 2015-09-21 - Chris Jean
 	Compatibility Fix: Updated code triggered by the ITSEC_TEST_MALWARE_SCAN_DISABLE_SSLVERIFY define. This avoids plugin compatibility issues that prevent disabling the SSL peer verification.
 2.0.0 - 2015-10-14 - Chris Jean
-	New Feature: Added "Multiple Authentication Attempts per XML-RPC Request" setting to the WordPress Tweaks section. When this setting is set to "Block", iThemes Security will block brute force login attacks against XML-RPC as described by Sucuri in this blog post: https://blog.sucuri.net/2015/10/brute-force-amplification-attacks-against-wordpress-xmlrpc.html
+	New Feature: Added "Multiple Authentication Attempts per XML-RPC Request" setting to the WordPress Tweaks section. When this setting is set to "Block", Solid Security will block brute force login attacks against XML-RPC as described by Sucuri in this blog post: https://blog.sucuri.net/2015/10/brute-force-amplification-attacks-against-wordpress-xmlrpc.html
 	Enhancement: Updated text describing the XML-RPC setting in the WordPress Tweaks section to better explain what the setting is for and which setting is recommended.
 	Enhancement: Improved IP detection when proxy detection is active by processing the header set by CloudFlare.
 	Enhancement: Added a filter named itsec_filter_remote_addr_headers which can be used to change which headers are searched for the client IP. This allows for tailoring the IP detection for specific reverse proxies and load balancers.
@@ -308,7 +308,7 @@
 2.1.1 - 2016-01-14 - Chris Jean & Aaron D. Campbell
 	Bug Fix: Module-specific data is properly initialized/removed on plugin activation, deactivation, and uninstallation.
 2.1.2 - 2016-01-15 - Chris Jean & Aaron D. Campbell
-	Enhancement: Updated handler for multiple active versions of iThemes Security.
+	Enhancement: Updated handler for multiple active versions of Solid Security.
 2.1.3 - 2016-01-26 - Chris Jean & Aaron D. Campbell
 	Bug Fix: Comparisons of IPv4 addresses and ranges now include the IP's at the edge of the ranges.
 	Bug Fix: IPv4 tests now work as expected when deciding if a blacklisted IP or range overlaps a whitelisted IP's and ranges.
@@ -323,9 +323,9 @@
 2.1.4 - 2016-01-27 - Chris Jean & Aaron D. Campbell
 	Bug Fix: Fixed warning that could occur on a failed login when Local Brute Force Detection is disabled.
 2.1.5 - 2016-02-03 - Chris Jean & Aaron D. Campbell
-	Bug Fix: All data added to the options table by iThemes Security is removed on uninstall.
+	Bug Fix: All data added to the options table by Solid Security is removed on uninstall.
 	Bug Fix: Fixed the cause of the following warning: call_user_func_array() expects parameter 1 to be a valid callback, class 'ITSEC_SSL_Setup' does not have a method 'execute_deactivate'
-	Enhancement: Improved code that ensures that tables and options table entries created by iThemes Security are removed on uninstall only when no other iThemes Security plugin is active.
+	Enhancement: Improved code that ensures that tables and options table entries created by Solid Security are removed on uninstall only when no other Solid Security plugin is active.
 2.2.0 - 2016-02-11 - Chris Jean & Aaron D. Campbell
 	New Feature: Added support for IPv6 addresses. This includes support for IPv6 in lockouts, ban hosts, and white lists.
 	Bug Fix: Fixed issue that could cause username-based lockouts to fail for long usernames.
@@ -370,7 +370,7 @@
 	Bug Fix: Throw a real 403 instead of a faked 404 for hide backend - Fixes compatability with certain plugins including WordPress SEO. Hat tip to Joost de Valk (@jdevalk) and the @Yoast team for bringing this issue to our attention.
 2.3.0 - 2016-05-23 - Chris Jean & Aaron D. Campbell
 	Enhancement: New user interface with both grid and list views for managing settings.
-	Enhancement: New automatic temp whitelisting of IPs for users that manage iThemes Security settings.
+	Enhancement: New automatic temp whitelisting of IPs for users that manage Solid Security settings.
 	Enhancement: Better feedback on errors when modifying wp-config.php or server config files.
 	Enhancement: Improved code efficiency of the Away Mode feature so that it takes less processing time when active.
 	Enhancement: Rather than disabling features that have invalid user input, the user now can fix the issue before saving.
@@ -419,7 +419,7 @@
 2.5.3 - 2016-08-25 - Chris Jean & Aaron D. Campbell
 	Bug Fix: The Security > Security Check link now works as expected in multisite.
 2.5.4 - 2016-08-29 - Chris Jean & Aaron D. Campbell
-	Misc: Added placeholder for the Version Management module of iThemes Security Pro.
+	Misc: Added placeholder for the Version Management module of Solid Security Pro.
 2.5.5 - 2016-09-13 - Chris Jean
 	Bug Fix: Fixed bug that could prevent the "Filter Long URL Strings" feature from working properly.
 	Bug Fix: Removed restrictions in the "Filter Long URL Strings" feature that were unrelated to request length.
@@ -440,13 +440,13 @@
 2.5.10 - 2016-10-13 - Chris Jean
 	Bug Fix: Fixed issue that could prevent saving of File Change settings, resulting in an error messages of "A validation function for file-change received data that did not have the required entry for latest_changes."
 2.5.11 - 2016-10-14 - Chris Jean
-	Bug Fix: Fixed iThemes Security Pro logo appearing in daily digest emails for iThemes Security users.
+	Bug Fix: Fixed Solid Security Pro logo appearing in daily digest emails for Solid Security users.
 2.6.0 - 2016-10-27 - Chris Jean
 	Bug Fix: Fixed data save issue that could cause multiple notification emails to be sent in a short period of time.
 	Bug Fix: Fixed issue that could cause the malware scanner to fail on sites that change the arg_separator.output php.ini value from its default value.
 	Bug Fix: Removed redundant entries in the HackRepair blacklist.
 	Bug Fix: Enabling Protect System Files in System Tweaks will now only block install.php for the current site. This fixes the issue where the setting can block installation of a site in a subdirectory.
-	Bug Fix: Fixed problem that could cause requests for iThemes Security data from iThemes Sync to fail due to large amounts of log entries.
+	Bug Fix: Fixed problem that could cause requests for Solid Security data from iThemes Sync to fail due to large amounts of log entries.
 	Bug Fix: Scheduled backups now run if the ITSEC_BACKUP_CRON define is set with a non-boolean value.
 	Bug Fix: Replaced static references to wp-includes with the WPINC define.
 	Bug Fix: Moved blocking of query strings containing %0[0-9A-F] characters from the Non-English Characters setting to the Suspicious Query Strings setting as those characters are control code characters and are not associated with a language.
@@ -507,8 +507,8 @@
 	Bug Fix: Fixed a bug that could prevent settings from saving properly if the site was migrated to a new server or a new home path on the server.
 3.1.2 - 2017-03-23 - Chris Jean
 	Bug Fix: When a requesting IP address cannot be found, default to 127.0.0.1. This fixes issues with some alternate cron setups.
-	Bug Fix: Having more than one iThemes Security modification in a .htaccess, nginx.conf, or wp-config.php file will no longer result in having all the file content between each section removed when updating the file.
-	Bug Fix: Modifications to the wp-config.php file added by W3 Total Cache now have their Windows-style newlines preserved when iThemes Security updates the file.
+	Bug Fix: Having more than one Solid Security modification in a .htaccess, nginx.conf, or wp-config.php file will no longer result in having all the file content between each section removed when updating the file.
+	Bug Fix: Modifications to the wp-config.php file added by W3 Total Cache now have their Windows-style newlines preserved when Solid Security updates the file.
 3.1.3 - 2017-04-11 - Chris Jean
 	Bug Fix: Removed warning: "Non-static method ITSEC_Setup::uninstall() should not be called statically".
 	Enhancement: Removed AhrefsBot from the HackRepair blacklist as they are legitimate bot.
@@ -552,7 +552,7 @@
 	Enhancement: Replaced file locking with database locking. This method of locking is compatible with all systems as it does not require the ability to write files. It also allows for locking to work on sites that have multiple front-end servers with a shared database. Since file locking is no longer used, the Global Settings > Disable File Locking setting was removed.
 	Enhancement: Add "Copy to Clipboard" functionality for server and wp-config rules.
 	Bug Fix: Prevent 404s when following links in email notifications on a site with Hide Backend enabled.
-	Bug Fix: Ensure uninstall process is not run when another version of iThemes Security is still active.
+	Bug Fix: Ensure uninstall process is not run when another version of Solid Security is still active.
 	Bug Fix: Fixed method of working around Hide Backend.
 	Bug Fix: Warnings are no longer generated when saving a user profile with a role of "No role for this site" selected.
 3.6.0 - 2017-08-07 - Chris Jean & Timothy Jacobs
@@ -580,7 +580,7 @@
 	Bug Fix: Fixed bug that prevents wp-admin/install.php blocking from working properly on nginx servers.
 	Bug Fix: Don't attempt to do an SSL redirect when WP CLI is running.
 3.9.0 - 2017-10-25 - Chris Jean, Timothy Jacobs and Saylor Bullington
-	New Feature: Introduces the Notification Center, a centralized place to manage and customize email notifications sent by iThemes Security.
+	New Feature: Introduces the Notification Center, a centralized place to manage and customize email notifications sent by Solid Security.
 	Bug Fix: Corrected some Javascript and CSS links not generating correctly on Windows servers.
 3.9.1 - 2017-10-26 - Chris Jean & Timothy Jacobs
 	Bug Fix: Only enable the Lockout email notification is the Daily Digest was previously disabled.
@@ -641,7 +641,7 @@
 4.1.3 - 2018-02-21 - Chris Jean & Timothy Jacobs
 	Enhancement: Cleaned up styling in settings to make some settings stand out better.
 	Minor: Use plugin build for cache busting assets.
-	Minor: Extract scheduling loop system to iThemes Security Core for future development.
+	Minor: Extract scheduling loop system to Solid Security Core for future development.
 	Bug Fix: Cannot use object of type WP_Error as array in Malware Scanner.
 	Bug Fix: Reordered loading of logging class to allow for logging earlier.
 4.1.4 - 2018-03-01 - Chris Jean & Timothy Jacobs
@@ -799,7 +799,7 @@
 5.1.4 - 2019-03-22 - Chris Jean & Timothy Jacobs
 	Bug Fix: Hide backend bypass.
 5.2.0 - 2019-05-30 - Chris Jean & Timothy Jacobs
-	New: iThemes Security Admin Notices are now conveniently located in the new Security Messages Menu. Check your notices in the Security menu on the WordPress Admin Bar.
+	New: Solid Security Admin Notices are now conveniently located in the new Security Messages Menu. Check your notices in the Security menu on the WordPress Admin Bar.
 	Tweak: Remove 'DELETE' method from "System Tweaks -> Filter Request Methods"
 5.2.1 - 2019-06-06 - Chris Jean & Timothy Jacobs
 	Enhancement: Add Security Message when a Notification Center email fails to send.
@@ -812,10 +812,10 @@
 	Bug Fix: Strict Standards error during Sync request.
 	Bug Fix: wp_die() if a login interstitial session fails to be created instead of throwing a fatal error.
 5.3.0 - 2019-09-04 - Timothy Jacobs
-	Breaking Change: iThemes Security requires PHP 5.4 or later.
+	Breaking Change: Solid Security requires PHP 5.4 or later.
 	Enhancement: New Lockout Template screen.
 	Bug Fix: Brute Force module reporting invalid logins using an email address incorrectly.
-	Developer Note: There were significant changes to the internals of the iThemes Security Lockout API in this release. If you are using the ITSEC_Lockout class directly, all the API functions will continue to work, but will emit deprecation notices.
+	Developer Note: There were significant changes to the internals of the Solid Security Lockout API in this release. If you are using the ITSEC_Lockout class directly, all the API functions will continue to work, but will emit deprecation notices.
 5.3.1 - 2019-09-05 - Timothy Jacobs
 	Bug Fix: PHP Warning while logging interstitial updates.
 5.3.2 - 2019-09-09 - Timothy Jacobs
@@ -836,7 +836,7 @@
 5.4.3 - 2019-11-18 - Timothy Jacobs
 	Tweak: Introduce ITSEC_Lib method to retrieve WP branch version.
 5.5.0 - 2019-12-09 - Timothy Jacobs
-	New Feature: iThemes Security now includes Security Check Pro to automatically and correctly determine your visitors IP addresses. Enable this scan by running Security Check and opting in to Security Check Pro or activate the Security Check Pro module in Advanced Modules. H/t Jeremy Voisin
+	New Feature: Solid Security now includes Security Check Pro to automatically and correctly determine your visitors IP addresses. Enable this scan by running Security Check and opting in to Security Check Pro or activate the Security Check Pro module in Advanced Modules. H/t Jeremy Voisin
 	Enhancement: Run Security Check Pro IP Detection automatically once a day.
 	Enhancement: Manually re-run Security Check Pro IP Detection from the Global Settings page.
 5.5.1 - 2019-12-18 - Timothy Jacobs
@@ -846,7 +846,7 @@
 	Bug Fix: Backup event was not added when the WP Cron Scheduler was reset manually.
 	Bug Fix: Admin Notices Popover was not being hidden when clicking outside the Popover on WP 5.3.
 5.6.0 - 2020-02-12 - Timothy Jacobs, Josh Oakes
-	Important: iThemes Security requires PHP 5.6 or greater and WordPress 5.2 or greater.
+	Important: Solid Security requires PHP 5.6 or greater and WordPress 5.2 or greater.
 	New Feature: Save Time Securing WordPress With User Groups!
 	New Feature: Simplified connection flow when setting up iThemes Sync.
 	Bug Fix: Warning when loading the settings page on PHP 7.4.
@@ -901,7 +901,7 @@
 	Tweak: Use an opaque token for site scan verification to reduce invalid secret errors.
 	Bug Fix: Error when trying to run Security Check on new installations.
 5.9.0 - 2020-09-16 - Timothy Jacobs
-	Important: iThemes Security requires WordPress 5.4 or later.
+	Important: Solid Security requires WordPress 5.4 or later.
 	Enhancement: Add a setting for configuring the number of bans added to the server config files (.htaccess/nginx.conf).
 	Enhancement: Store the time a ban was added, and the lockout module responsible for the ban.
 	Bug Fix: PHP warnings when invalid entries are stored in the WordPress Cron storage.
@@ -910,11 +910,11 @@
 	Bug Fix: Missing borders in the sidebar widgets on WordPress 5.5.
 	Bug Fix: Notice actions didn't trigger when "Hide Admin Bar" is enabled.
 5.9.1 - 2020-09-24 - Timothy Jacobs
-	Tweak: Disable SSL verification when performing the Security Check Loopback test. Some hosts can't properly verify loopback requests. This verification is unnecessary in this circumstance, and disabling SSL verification aligns iThemes Security with default WordPress loopback behavior.
+	Tweak: Disable SSL verification when performing the Security Check Loopback test. Some hosts can't properly verify loopback requests. This verification is unnecessary in this circumstance, and disabling SSL verification aligns Solid Security with default WordPress loopback behavior.
 	Bug Fix: Some users would be force to choose a strong password twice in a row.
 	Bug Fix: Warning when saving the Ban Users module outside of the Settings Page without passing the legacy host_list setting.
 6.0.0 - 2020-10-13 - Timothy Jacobs
-	Enhancement: Overwrite Restrict Content Pro's detected IP address with the IP detected by iThemes Security.
+	Enhancement: Overwrite Restrict Content Pro's detected IP address with the IP detected by Solid Security.
 	Bug Fix: Passwords Requirements compatibility with Restrict Content Pro.
 	Bug Fix: PHP warnings that may occur when initializing default user groups on a new installation.
 6.0.1 - 2020-11-05 - Timothy Jacobs

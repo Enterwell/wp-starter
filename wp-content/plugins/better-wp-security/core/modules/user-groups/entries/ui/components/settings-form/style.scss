@@ -1,0 +1,32 @@
+.itsec-user-groups-setting-form {
+    margin: 0;
+    padding: 0;
+}
+
+.itsec-user-groups-setting-form__module {
+    display: grid;
+    grid-template-columns: [label fields] minmax(0, 1fr);
+    grid-template-rows: auto;
+    grid-gap: 0.75rem 1rem;
+
+    @include break-small {
+        grid-template-columns: [label] 10rem [fields] minmax(0, 1fr);
+    }
+
+    &:nth-child(n + 2) {
+        margin-top: 1.25rem;
+    }
+
+    h3 {
+        grid-column: label;
+    }
+
+    > *:not(h3) {
+        grid-column: fields;
+    }
+
+    .components-toggle-control.itsec-highlighted-search-result label {
+        border-bottom: 3px solid $solid-wp-primary-base;
+        padding-bottom: 6px;
+    }
+}

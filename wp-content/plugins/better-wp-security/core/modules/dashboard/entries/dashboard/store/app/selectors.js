@@ -7,7 +7,12 @@ export function getCurrentPageAttr( state ) {
 }
 
 export function getViewingDashboardId( state ) {
-	return state.app.view.page === 'view-dashboard' && state.app.view.attr.id;
+	if ( state.app.view.page === 'create-dashboard' ) {
+		return state.app.previousView?.attr.id;
+	}
+	if ( state.app.view.page === 'view-dashboard' ) {
+		return state.app.view.attr.id;
+	}
 }
 
 export function getSuggestedShareUsers( state ) {

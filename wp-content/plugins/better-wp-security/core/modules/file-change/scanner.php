@@ -1093,30 +1093,26 @@ class ITSEC_File_Change_Scanner {
 			esc_html__( 'File Change Warning', 'better-wp-security' ),
 			sprintf( esc_html__( 'File Scan Report for %s', 'better-wp-security' ), '<b>' . date_i18n( get_option( 'date_format' ) ) . '</b>' ),
 			false,
+			esc_html__( 'Files on your site have changed since the last scan. Please review the report below to verify the changes are expected.', 'better-wp-security' ),
 			$tracking_link
 		);
-		$mail->add_text( esc_html__( 'A file (or files) on your site have been changed. Please review the report below to verify changes are not the result of a compromise.', 'better-wp-security' ) );
 
 		$mail->add_section_heading( esc_html__( 'Scan Summary', 'better-wp-security' ) );
 		$mail->add_file_change_summary( $email_details[0], $email_details[1], $email_details[2] );
 
-		$mail->add_section_heading( esc_html__( 'Scan Details', 'better-wp-security' ) );
-
-		$headers = array( esc_html__( 'File', 'better-wp-security' ), esc_html__( 'Modified', 'better-wp-security' ), esc_html__( 'File Hash', 'better-wp-security' ) );
-
 		if ( $email_details[0] ) {
 			$mail->add_large_text( esc_html__( 'Added Files', 'better-wp-security' ) );
-			$mail->add_table( $headers, $this->generate_email_rows( $email_details[3]['added'] ) );
+			$mail->add_file_change_table( $this->generate_email_rows( $email_details[3]['added'] ) );
 		}
 
 		if ( $email_details[1] ) {
 			$mail->add_large_text( esc_html__( 'Removed Files', 'better-wp-security' ) );
-			$mail->add_table( $headers, $this->generate_email_rows( $email_details[3]['removed'] ) );
+			$mail->add_file_change_table( $this->generate_email_rows( $email_details[3]['removed'] ) );
 		}
 
 		if ( $email_details[2] ) {
 			$mail->add_large_text( esc_html__( 'Changed Files', 'better-wp-security' ) );
-			$mail->add_table( $headers, $this->generate_email_rows( $email_details[3]['changed'] ) );
+			$mail->add_file_change_table( $this->generate_email_rows( $email_details[3]['changed'] ) );
 		}
 
 		$mail->add_footer();

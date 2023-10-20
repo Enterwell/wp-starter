@@ -23,7 +23,7 @@ final class ITSEC_Hide_Backend_Settings extends Config_Settings {
 		}
 
 		ITSEC_Response::add_message( $message );
-		ITSEC_Response::add_message( sprintf( __( 'Your new login URL is <strong><code>%1$s</code></strong>. A reminder has also been sent to the notification email addresses set in iThemes Security’s Notification Center.', 'better-wp-security' ), esc_url( $url ) ) );
+		ITSEC_Response::add_message( sprintf( __( 'Your new login URL is <strong><code>%1$s</code></strong>. A reminder has also been sent to the notification email addresses set in Solid Security’s Notification Center.', 'better-wp-security' ), esc_url( $url ) ) );
 		$this->send_new_login_url( $url, $enabling );
 	}
 
@@ -51,6 +51,7 @@ final class ITSEC_Hide_Backend_Settings extends Config_Settings {
 			esc_html__( 'New Login URL', 'better-wp-security' ),
 			esc_html__( 'New Login URL', 'better-wp-security' ),
 			false,
+			esc_html__( 'Your new login URL is available below', 'better-wp-security' ),
 			$tracking_link
 		);
 		$mail->add_text( ITSEC_Lib::replace_tags( $nc->get_message( 'hide-backend' ), array(

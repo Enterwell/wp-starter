@@ -1,9 +1,5 @@
 <?php
 
-require_once( dirname( __FILE__ ) . '/geolocation/interface-itsec-geolocator.php' );
-require_once( dirname( __FILE__ ) . '/geolocation/class-itsec-geolocator-chain.php' );
-require_once( dirname( __FILE__ ) . '/geolocation/class-itsec-geolocator-page-cache.php' );
-
 class ITSEC_Lib_Geolocation {
 
 	/** @var ITSEC_Geolocator */
