@@ -3,5 +3,6 @@
 
 {# Example gutenberg block #}
 <div class="gb-example-block {{ attributes.className }}">
-    <code>This is new component ExampleBlock</code>
+	<code>This is new component ExampleBlock</code>
+	{{ innerContent|raw }}
 </div>

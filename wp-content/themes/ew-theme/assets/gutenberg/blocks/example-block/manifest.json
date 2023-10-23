@@ -2,7 +2,7 @@
   "blockName": "example-block",
   "category": "ew-starter",
   "title": "Example block",
-  "hasInnerBlocks": false,
+  "hasInnerBlocks": true,
   "keywords": [],
   "styles": [],
   "description": "Example block for base development",
