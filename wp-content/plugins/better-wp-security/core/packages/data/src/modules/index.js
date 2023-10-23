@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies
  */
-import { registerStore } from '@wordpress/data';
+import { createReduxStore, register } from '@wordpress/data';
 
 /**
  * Internal dependencies
@@ -11,10 +11,11 @@ import * as actions from './actions';
 import * as selectors from './selectors';
 import reducer from './reducers';
 import * as resolvers from './resolvers';
+import { STORE_NAME } from './constant';
 
-export const STORE_NAME = 'ithemes-security/modules';
+export { STORE_NAME };
 
-const store = registerStore( STORE_NAME, {
+const store = createReduxStore( STORE_NAME, {
 	controls,
 	actions,
 	selectors,
@@ -22,5 +23,7 @@ const store = registerStore( STORE_NAME, {
 	reducer,
 	persist: [ 'moduleEdits', 'settingEdits' ],
 } );
+
+register( store );
 
 export default store;

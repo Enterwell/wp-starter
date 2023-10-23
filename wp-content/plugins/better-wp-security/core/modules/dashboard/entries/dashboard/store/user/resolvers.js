@@ -1,17 +1,14 @@
 /**
  * WordPress dependencies
  */
-import { addQueryArgs } from '@wordpress/url';
+import { controls } from '@wordpress/data';
 
 /**
  * Internal dependencies
  */
-import { apiFetch } from '../controls';
 import { receivePrimaryDashboard } from './actions';
 
 export function* getPrimaryDashboard() {
-	const user = yield apiFetch( {
-		path: addQueryArgs( '/wp/v2/users/me', { context: 'edit' } ),
-	} );
+	const user = yield controls.resolveSelect( 'ithemes-security/core', 'getCurrentUser' );
 	yield receivePrimaryDashboard( user.meta._itsec_primary_dashboard );
 }

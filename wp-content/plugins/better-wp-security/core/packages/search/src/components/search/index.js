@@ -114,8 +114,9 @@ export default forwardRef( function Search(
 					onFocus={ () => setIsSearching( true ) }
 					onKeyDown={ onKeyDown }
 					ref={ useMergeRefs( [ ref, searchRef ] ) }
-					placeholder={ __( 'Search for feature, settings, and more', 'better-wp-security' ) }
+					placeholder={ __( 'Search for features, settings, and more', 'better-wp-security' ) }
 					omitSeparators
+					size="large"
 				/>
 				{ ( isSearching || showResults ) && query.length >= 3 && (
 					<SearchResults
@@ -184,7 +185,7 @@ const SearchResults = forwardRef( function(
 				id={ id }
 				active={ active && idPrefix + active }
 				onNavigate={ ( result ) =>
-					setActive( result.substr( idPrefix.length ) )
+					setActive( result.substring( idPrefix.length ) )
 				}
 				onKeyDown={ onKeyDown }
 				onFocus={ onFocus }

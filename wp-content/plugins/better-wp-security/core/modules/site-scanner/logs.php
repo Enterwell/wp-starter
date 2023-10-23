@@ -72,15 +72,15 @@ class ITSEC_Site_Scanner_Logs {
 		$scan = $factory->for_log_item( $entry );
 
 		if ( is_wp_error( $scan ) ) {
-			return esc_html__( 'The iThemes Security site scan encountered an error.', 'better-wp-security' );
+			return esc_html__( 'The Solid Security site scan encountered an error.', 'better-wp-security' );
 		}
 
 		$count = $scan->count( \iThemesSecurity\Site_Scanner\Status::WARN );
 
 		return esc_html( sprintf(
 			_n(
-				'iThemes Security found %s issue during a site scan.',
-				'iThemes Security found %s issues during a site scan.',
+				'Solid Security found %s issue during a site scan.',
+				'Solid Security found %s issues during a site scan.',
 				$count,
 				'better-wp-security'
 			),
@@ -97,6 +97,10 @@ class ITSEC_Site_Scanner_Logs {
 	}
 
 	public function enqueue() {
+		if ( get_current_screen()->id !== 'security_page_itsec-logs' ) {
+			return;
+		}
+
 		wp_enqueue_script( 'itsec-site-scanner-scan-settings' );
 		wp_enqueue_style( 'itsec-core-packages-components-site-scan-results-style' );
 	}

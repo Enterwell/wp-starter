@@ -102,7 +102,7 @@ function AuthorizedHosts( { value, onChange, ip } ) {
 			disabled={ ! ip }
 			className="itsec-global-add-authorized-ip"
 		>
-			{ __( 'Add my current IP to the authorized hosts list', 'better-wp-security' ) }
+			{ __( 'Authorize my IP address', 'better-wp-security' ) }
 		</Button>
 	);
 }

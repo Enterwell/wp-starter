@@ -7,7 +7,8 @@ import classnames from 'classnames';
 /**
  * WordPress dependencies
  */
-import { CheckboxControl } from '@wordpress/components';
+import { CheckboxControl, VisuallyHidden } from '@wordpress/components';
+import './style.scss';
 
 export default function CheckboxGroupControl( {
 	value,
@@ -18,6 +19,8 @@ export default function CheckboxGroupControl( {
 	disabled,
 	readOnly,
 	className,
+	style,
+	hideLabelFromVision,
 } ) {
 	let isChecked, update;
 
@@ -39,12 +42,19 @@ export default function CheckboxGroupControl( {
 
 	return (
 		<fieldset
-			className={ classnames( 'components-base-control', className ) }
+			className={ classnames(
+				'components-base-control',
+				className,
+				style && `itsec-components-checkbox-group-control--style-${ style }`
+			) }
 		>
 			<div className="components-base-control__field">
-				<legend className="components-base-control__label">
-					{ label }
-				</legend>
+				{ hideLabelFromVision && <VisuallyHidden>{ label }</VisuallyHidden> }
+				{ ! hideLabelFromVision && (
+					<legend className="components-base-control__label">
+						{ label }
+					</legend>
+				) }
 				{ help && (
 					<p className="components-base-control__help">{ help }</p>
 				) }
@@ -65,6 +75,7 @@ export default function CheckboxGroupControl( {
 								isChecked( option ) &&
 								'itsec-components-checkbox-group-control__option--is-checked'
 							}
+							__nextHasNoMarginBottom
 						/>
 					) ) }
 				</div>

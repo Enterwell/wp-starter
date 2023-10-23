@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ruleset name="Patchstack CS" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="Patchstack">
+    <arg name="colors"/>
+    <arg name="extensions" value="php"/>
+    <file>./src</file>
+    <file>./tests</file>
+    <exclude-pattern>*/vendor/*</exclude-pattern>
+    <rule ref="PSR12">
+        <exclude name="Generic.Files.LineLength.TooLong" />
+        <exclude name="Generic.Files.LowercasedFilename.NotFound" />
+        <exclude name="PSR1.Classes.ClassDeclaration.MissingNamespace" />
+    </rule>
+</ruleset>

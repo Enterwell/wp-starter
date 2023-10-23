@@ -116,14 +116,14 @@ final class ITSEC_Security_Check_Scanner {
 
 
 		self::$feedback->add_section( 'network-brute-force-signup', array( 'interactive' => true, 'status' => 'call-to-action' ) );
-		self::$feedback->add_text( __( 'With Network Brute Force Protection, your site is protected against attackers found by other sites running iThemes Security. If your site identifies a new attacker, it automatically notifies the network so that other sites are protected as well. To join this site to the network and enable the protection, click the button below.', 'better-wp-security' ) );
+		self::$feedback->add_text( __( 'With Network Brute Force Protection, your site is protected against attackers found by other sites running Solid Security. If your site identifies a new attacker, it automatically notifies the network so that other sites are protected as well. To join this site to the network and enable the protection, click the button below.', 'better-wp-security' ) );
 		self::$feedback->add_input( 'text', 'email', array(
 			'format'      => __( 'Email Address: %1$s', 'better-wp-security' ),
 			'value_alias' => 'email',
 			'style_class' => 'regular-text',
 		) );
 		self::$feedback->add_input( 'select', 'updates_optin', array(
-			'format'  => __( 'Receive email updates about WordPress Security and marketing news from iThemes: %1$s', 'better-wp-security' ),
+			'format'  => __( 'Receive email updates about WordPress Security and marketing news from SolidWP: %1$s', 'better-wp-security' ),
 			'options' => array( 'true' => __( 'Yes', 'better-wp-security' ), 'false' => __( 'No', 'better-wp-security' ) ),
 			'value'   => 'false',
 		) );

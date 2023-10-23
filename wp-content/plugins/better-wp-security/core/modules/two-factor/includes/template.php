@@ -92,11 +92,10 @@
 			</div>
 			<p>
 				<?php printf(
-					__( 'For iOS devices, the %2$s Authy%1$s, %3$s Google Authenticator%1$s, %4$s FreeOTP Authenticator%1$s, or %5$s Toopher%1$s apps are the most popular token generators.', 'better-wp-security' ), '</a>',
-					'<a href="https://itunes.apple.com/us/app/authy/id494168017?mt=8">',
-					'<a href="https://itunes.apple.com/us/app/google-authenticator/id388497605?mt=8">',
-					'<a href="https://itunes.apple.com/us/app/freeotp-authenticator/id872559395?mt=8">',
-					'<a href="https://itunes.apple.com/us/app/toopher/id562592093?mt=8">'
+					__( 'For iOS devices, the %2$s Authy%1$s, %3$s Google Authenticator%1$s, or %4$s FreeOTP Authenticator%1$s apps are the most popular token generators.', 'better-wp-security' ), '</a>',
+					'<a href="https://go.solidwp.com/authy">',
+					'<a href="https://go.solidwp.com/google-authenticator">',
+					'<a href="https://go.solidwp.com/free-otp">',
 				); ?>
 			</p>
 		<# } else { #>
@@ -109,11 +108,10 @@
 			</div>
 			<p>
 				<?php printf(
-					__( 'For Android devices, the %2$s Authy%1$s, %3$s Google Authenticator%1$s, %4$s FreeOTP Authenticator%1$s, or %5$s Toopher%1$s apps are the most popular token generators.', 'better-wp-security' ), '</a>',
-					'<a href="https://play.google.com/store/apps/details?id=com.authy.authy&hl=en">',
-					'<a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&hl=en">',
-					'<a href="https://play.google.com/store/apps/details?id=org.fedorahosted.freeotp">',
-					'<a href="https://play.google.com/store/apps/details?id=com.toopher.android&hl=en">'
+					__( 'For Android devices, the %2$s Authy%1$s, %3$s Google Authenticator%1$s, or %4$s FreeOTP Authenticator%1$s apps are the most popular token generators.', 'better-wp-security' ), '</a>',
+					'<a href="https://go.solidwp.com/authy-app">',
+					'<a href="https://go.solidwp.com/google-authenticator-">',
+					'<a href="https://go.solidwp.com/free-otp-authenticator">',
 				); ?>
 			</p>
 		<# } #>

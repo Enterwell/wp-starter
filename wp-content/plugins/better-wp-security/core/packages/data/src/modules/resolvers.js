@@ -13,16 +13,11 @@ import { controls } from '@wordpress/data';
  */
 import { apiFetch } from '../controls';
 import { fetchModules, receiveSettings } from './actions';
-import { STORE_NAME } from './';
+import { STORE_NAME } from './constant';
 
-export const getModules = {
-	*fulfill() {
-		yield fetchModules();
-	},
-	isFulfilled( state ) {
-		return state.modules.length > 0;
-	},
-};
+export function *getModules() {
+	yield fetchModules();
+}
 
 export const getSettings = {
 	*fulfill( module ) {

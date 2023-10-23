@@ -56,7 +56,7 @@ class ITSEC_Lib_Encryption {
 		if ( ! ITSEC_Files::can_write_to_files() ) {
 			return Result::error( new WP_Error(
 				'itsec.encryption.cannot-write-to-files',
-				__( 'iThemes Security does not have permission to write to your wp-config.php file.', 'better-wp-security' )
+				__( 'Solid Security does not have permission to write to your wp-config.php file.', 'better-wp-security' )
 			) );
 		}
 

@@ -16,12 +16,13 @@ import { useSingletonEffect } from '@ithemes/security-hocs';
 import { LineGraph, PieChart } from './renderers';
 import * as activeLockouts from './active-lockouts';
 import * as bannedUsers from './banned-users-list';
+import * as securitySummary from './security-summary';
 
 export function useRegisterCards() {
 	const { registerCard } = useDispatch( 'ithemes-security/dashboard' );
 
 	useSingletonEffect( useRegisterCards, () =>
-		[ activeLockouts, bannedUsers ].forEach( ( { slug, settings } ) =>
+		[ activeLockouts, bannedUsers, securitySummary ].forEach( ( { slug, settings } ) =>
 			registerCard( slug, settings )
 		)
 	);

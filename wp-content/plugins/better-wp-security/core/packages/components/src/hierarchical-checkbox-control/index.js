@@ -9,11 +9,11 @@ import classnames from 'classnames';
  * WordPress dependencies
  */
 import { Component } from '@wordpress/element';
+import { CheckboxControl } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
-import { CheckboxControl } from '../';
 import './style.scss';
 
 class Node {

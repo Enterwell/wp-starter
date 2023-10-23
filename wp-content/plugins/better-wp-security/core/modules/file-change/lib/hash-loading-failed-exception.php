@@ -18,7 +18,7 @@ class ITSEC_File_Change_Hash_Loading_Failed_Exception extends Exception {
 	 */
 	public static function create_for( ITSEC_File_Change_Package $package, ITSEC_File_Change_Hash_Comparator_Loadable $comparator ) {
 		$e = new self( sprintf(
-		/* translators: 1. The name of the comparator. 2. The name of the package, for example "iThemes Security Pro v4.5.0". */
+		/* translators: 1. The name of the comparator. 2. The name of the package, for example "Solid Security Pro v4.5.0". */
 			__( 'The %1$s comparator failed to load hashes for %2$s.', 'better-wp-security' ),
 			get_class( $comparator ),
 			$package

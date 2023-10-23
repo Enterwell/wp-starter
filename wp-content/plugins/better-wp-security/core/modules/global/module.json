@@ -1,15 +1,16 @@
 {
   "id": "global",
   "status": "always-active",
+  "load": "early",
   "title": "Global Settings",
-  "description": "Configure basic settings that control how iThemes Security functions.",
-  "help": "Changes made to the Global Settings are applied globally throughout the plugin settings. For example, the Lockout & Lockout messages settings are used by all of the iThemes Security Lockout features.",
+  "description": "Configure basic settings that control how Solid Security functions.",
+  "help": "Changes made here are applied globally throughout Solid Security’s settings. For example, the lockout settings and messages are used by all of Solid Security’s lockout features.",
   "type": "recommended",
   "tools": {
     "identify-server-ips": {
       "title": "Identify Server IPs",
       "description": "Determines the list of IP addresses your server uses when making HTTP requests.",
-      "help": "The correct list of server IPs is important to prevent erroneous Lockouts and Trusted Devices errors.",
+      "help": "The correct list of server IPs is important to prevent erroneous lockouts and trusted device errors.",
       "schedule": "identify-server-ips"
     }
   },
@@ -22,8 +23,8 @@
   "user-groups": {
     "manage_group": {
       "type": "multiple",
-      "title": "Manage iThemes Security",
-      "description": "Allow users to manage iThemes Security.",
+      "title": "Manage Solid Security",
+      "description": "Allow users to manage Solid Security.",
       "default": "administrator"
     }
   },
@@ -34,13 +35,13 @@
         "type": "boolean",
         "default": true,
         "title": "Write to Files",
-        "description": "Allow iThemes Security to write to wp-config.php and .htaccess automatically. If disabled, you will need to place configuration options in those files manually."
+        "description": "Allow Solid Security to write to wp-config.php and .htaccess automatically. If this box is not checked, you will need to edit those files manually."
       },
       "nginx_file": {
         "type": "string",
         "format": "file-path",
         "title": "NGINX Conf File",
-        "description": "This path must be writable by your website. For added security, it is recommended you do not include it in your website root folder.",
+        "description": "This path must be writable by WordPress. For security reasons, we recommend you do not include it in your website’s root folder.",
         "default": ""
       },
       "lockout_period": {
@@ -48,54 +49,54 @@
         "minimum": 0,
         "default": 15,
         "title": "Minutes to Lockout",
-        "description": "The length of time a host or user will be locked out from this site after hitting the limit of bad logins. The default setting of 15 minutes is recommended as increasing it could prevent attackers from being banned."
+        "description": "The length of time an IP address or user will be locked out from this site after hitting the limit for failed logins. The default setting of 15 minutes is recommended. Increasing it could prevent attackers from being banned."
       },
       "blacklist_period": {
         "type": "integer",
         "minimum": 0,
         "default": 7,
         "title": "Days to Remember Lockouts",
-        "description": "How many days should iThemes Security remember a lockout. This does not affect the logs generated when creating a lockout."
+        "description": "How many days should Solid Security remember a lockout? This does not affect the logs generated when creating a lockout."
       },
       "blacklist": {
         "type": "boolean",
         "default": true,
         "title": "Ban Repeat Offender",
-        "description": "Should iThemes Security permanently add a locked out IP address to the “Ban Users” list after reaching the configured “Ban Threshold”."
+        "description": "Permanently add a locked-out IP address to the “Ban Users” list after reaching the configured “Ban Threshold.”"
       },
       "blacklist_count": {
         "type": "integer",
         "minimum": 0,
         "default": 3,
         "title": "Ban Threshold",
-        "description": "The number of lockouts iThemes Security must remember before permanently banning the attacker."
+        "description": "The number of lockouts Solid Security must remember before permanently banning the attacker."
       },
       "lockout_message": {
         "type": "string",
         "format": "html",
         "default": "error",
-        "title": "Host Lockout Message",
-        "description": "The message to display when a computer (host) has been locked out."
+        "title": "IP Lockout Message",
+        "description": "Display this message when an IP address has been locked out."
       },
       "user_lockout_message": {
         "type": "string",
         "format": "html",
-        "default": "You have been locked out due to too many invalid login attempts.",
+        "default": "You have been locked out for too many invalid login attempts.",
         "title": "User Lockout Message",
-        "description": "The message to display to a user when their account has been locked out."
+        "description": "The message to display to a user when they have been locked out."
       },
       "community_lockout_message": {
         "type": "string",
         "format": "html",
-        "default": "Your IP address has been flagged as a threat by the iThemes Security network.",
+        "default": "Your IP address has been flagged as a threat by the Solid Security network.",
         "title": "Community Lockout Message",
-        "description": "The message to display to a user when their IP has been flagged as bad by the iThemes network."
+        "description": "The message to display to a user when their IP has been flagged as suspicious by the SolidWP network."
       },
       "automatic_temp_auth": {
         "type": "boolean",
         "default": true,
         "title": "Automatically Temporarily Authorize Hosts",
-        "description": "Whenever an administrator user accesses the website, iThemes Security will prevent locking out that computer for 24 hours."
+        "description": "Whenever an administrator user accesses the website, Solid Security will prevent their last used IP from being locked out for 24 hours."
       },
       "lockout_white_list": {
         "type": "array",
@@ -103,8 +104,8 @@
           "type": "string"
         },
         "default": [],
-        "title": "Authorized Hosts",
-        "description": "Enter a list of hosts that should not be locked out by iThemes Security.",
+        "title": "Authorized IPs",
+        "description": "Enter a list of IP addresses that should not be locked out by Solid Security.",
         "keywords": [
           "whitelist"
         ]
@@ -123,7 +124,7 @@
         ],
         "default": "database",
         "title": "How should event logs be kept",
-        "description": "iThemes Security can log events in multiple ways, each with advantages and disadvantages. Database Only puts all events in the database with your posts and other WordPress data. This makes it easy to retrieve and process but can be slower if the database table gets very large. File Only is very fast but the plugin does not process the logs itself as that would take far more resources. For most users or smaller sites Database Only should be fine. If you have a very large site or a log processing software then File Only might be a better option."
+        "description": "Solid Security can log events in two different ways. Each has advantages and disadvantages. Database Only logs puts all events in the database with your posts and other WordPress data. This makes it easy to retrieve and process that information, but it can slow down your site if the log table gets very large. File Only logging is very fast, but the plugin does not process the logs itself. That would take far more server resources. For most users or smaller sites, Database Only logging should be fine. If you have a very large site or log processing software, then File Only might be a better option."
       },
       "log_rotation": {
         "type": "integer",
@@ -137,45 +138,45 @@
         "minimum": 0,
         "default": 180,
         "title": "Days to Keep File Logs",
-        "description": "The number of days file logs should be kept. File logs will additionally be rotated once the file hits 10MB. Set to 0 to only use log rotation."
+        "description": "The number of days file logs should be kept. File logs will be rotated once the file hits 10MB. Set to 0 to only use log rotation."
       },
       "log_location": {
         "type": "string",
-        "format": "file-path",
+        "format": "directory",
         "default": "",
         "title": "Path to Log Files",
-        "description": "This path must be writable by your website. For added security, it is recommended you do not include it in your website root folder."
+        "description": "This folder must be writable. For security reasons, we recommend you do not save logs in your website's root folder."
       },
       "proxy": {
         "type": "string",
         "default": "automatic",
         "title": "Proxy Detection",
-        "description": "Determine how iThemes Security determines your visitor’s IP addresses. Choose the Security Check Scan to let iThemes Security identify malicious IPs attacking your website accurately."
+        "description": "Determine how Solid Security identifies your visitor’s IP addresses. Choose the Security Check Scan to allow Solid Security to accurately identify malicious IPs attacking your website."
       },
       "proxy_header": {
         "type": "string",
         "default": "HTTP_X_FORWARDED_FOR",
         "title": "Proxy Header",
-        "description": "Select the header your Proxy Server uses to forward the client IP address. If you don’t know the header, you can contact your hosting provider or select the header that has your IP Address."
+        "description": "Select the header your proxy server uses to forward the client IP address. If you don’t know the header, you can contact your hosting provider or select the header that shows your true IP address."
       },
       "allow_tracking": {
         "type": "boolean",
         "default": false,
         "title": "Allow Data Tracking",
-        "description": "Allow iThemes to track plugin usage via anonymous data.",
+        "description": "Allow Solid Security to track plugin usage with anonymized data.",
         "readonly": true
       },
       "hide_admin_bar": {
         "type": "boolean",
         "default": false,
         "title": "Hide Security Menu in Admin Bar",
-        "description": "Remove the Security Messages Menu from the admin bar. Notifications will only appear on the iThemes Security dashboard and settings pages."
+        "description": "Remove the Security Messages Menu from the Admin Bar. Notifications will only appear on the Solid Security dashboard and settings pages."
       },
       "show_error_codes": {
         "type": "boolean",
         "default": false,
         "title": "Show Error Codes",
-        "description": "Each error message in iThemes Security has an associated error code that can help diagnose an issue. Changing this setting to “Yes” causes these codes to display. This setting should be left set to “No” unless iThemes Security support requests that you change it.",
+        "description": "Each error message in Solid Security has an associated error code that can help diagnose an issue. Changing this setting to “Yes” causes these codes to be displayed. This setting should be left set to “No” unless Solid Security's customer success team requests that you change it.",
         "readonly": true
       },
       "build": {

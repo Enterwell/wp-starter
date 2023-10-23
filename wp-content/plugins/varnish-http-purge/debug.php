@@ -266,7 +266,15 @@ class VarnishDebug {
 			$x_age_vapc = ( $x_age && $headers['Age'] > 0 ) ? true : false;
 
 			// Optional Headers.
-			$x_via     = ( is_numeric( strpos( $headers['Via'], 'arnish' ) ) ) ? true : false;
+			$x_via = false;
+			if ( is_array( $headers['Via'] ) ) {
+				foreach ( $headers['Via'] as $header_via ) {
+					if ( is_numeric( strpos( $header_via, 'arnish' ) ) ) {
+						$x_via = true;
+						break;
+					}
+				}
+			}
 			$x_cache   = ( isset( $headers['x-cache-status'] ) && strpos( $headers['x-cache-status'], 'HIT' ) !== false ) ? true : false;
 			$x_p_cache = ( isset( $headers['X-Proxy-Cache'] ) && strpos( $headers['X-Proxy-Cache'], 'HIT' ) !== false ) ? true : false;
 
@@ -308,7 +316,7 @@ class VarnishDebug {
 			$return['icon'] = 'awesome';
 		} else {
 			// translators: %1 is the type of caching service detected (i.e. nginx or varnish).
-			$return['message'] = sprintf( __( 'We detected that the %1s caching service is running, but we are unable to determine that it\'s working.', 'varnish-http-purge' ), $cache_service );
+			$return['message'] = sprintf( __( 'We detected that the %1s caching service is running, but we are unable to determine that it\'s working. Make sure your server returns both Age and X-Varnish headers.', 'varnish-http-purge' ), $cache_service );
 			$return['icon']    = 'warning';
 		}
 

@@ -1,10 +1,15 @@
 <?php
 
 use iThemesSecurity\Ban_Hosts;
+use iThemesSecurity\Lib\REST\Geolocation_Controller;
+use iThemesSecurity\Lib\REST\Lockout_Stats_Controller;
+use iThemesSecurity\Lib\REST\Logs_Controller;
 use iThemesSecurity\Lib\REST\Modules_Controller;
 use iThemesSecurity\Lib\REST\Settings_Controller;
 use iThemesSecurity\Lib\REST\Site_Types_Controller;
 use iThemesSecurity\Lib\REST\Tools_Controller;
+use iThemesSecurity\Lib\REST\User_Actions_Controller;
+use iThemesSecurity\Lib\REST\Users_Controller_Extension;
 
 class ITSEC_REST {
 	public function run() {
@@ -34,6 +39,11 @@ class ITSEC_REST {
 		ITSEC_Modules::get_container()->get( Settings_Controller::class )->register_routes();
 		ITSEC_Modules::get_container()->get( Site_Types_Controller::class )->register_routes();
 		ITSEC_Modules::get_container()->get( Tools_Controller::class )->register_routes();
+		ITSEC_Modules::get_container()->get( User_Actions_Controller::class )->register_routes();
+		ITSEC_Modules::get_container()->get( Logs_Controller::class )->register_routes();
+		ITSEC_Modules::get_container()->get( Geolocation_Controller::class )->register_routes();
+		ITSEC_Modules::get_container()->get( Lockout_Stats_Controller::class )->register_routes();
+		ITSEC_Modules::get_container()->get( Users_Controller_Extension::class )->run();
 
 		foreach ( ITSEC_Modules::get_container()->get( 'rest.controllers' ) as $controller ) {
 			$controller->register_routes();
@@ -118,6 +128,10 @@ class ITSEC_REST {
 
 		if ( ITSEC_Core::current_user_can_manage() ) {
 			$response->data['requirements_info'] = ITSEC_Lib::get_requirements_info();
+			$response->data['server_type']       = ITSEC_LIB::get_server();
+			$response->data['install_type']      = ITSEC_Core::get_install_type();
+			$response->data['has_patchstack']    = ITSEC_Core::has_patchstack();
+			$response->data['is_lw_customer']    = ITSEC_Core::licensed_user_is_lw_customer();
 		}
 
 		$response->data['supports'] = apply_filters( 'itsec_rest_supports', [] );
@@ -306,7 +320,7 @@ class ITSEC_REST {
 		if ( $status !== 200 ) {
 			return new WP_Error(
 				'itsec.discover.itsec-index.non-200',
-				sprintf( __( 'iThemes Security REST API index returned a non-200 status code (%d).', 'better-wp-security' ), $status ),
+				sprintf( __( 'Solid Security REST API index returned a non-200 status code (%d).', 'better-wp-security' ), $status ),
 				[ 'status' => WP_Http::BAD_REQUEST ]
 			);
 		}
@@ -316,7 +330,7 @@ class ITSEC_REST {
 		if ( ! $body || ! $itsec_data = json_decode( $body, true ) ) {
 			return new WP_Error(
 				'itsec.discover.itsec-index.empty',
-				__( 'iThemes Security REST API index returned no data.', 'better-wp-security' ),
+				__( 'Solid Security REST API index returned no data.', 'better-wp-security' ),
 				[ 'status' => WP_HTTP::BAD_REQUEST ]
 			);
 		}

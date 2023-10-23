@@ -42,11 +42,11 @@ class ITSEC_Dashboard_Card_Pie_Chart extends ITSEC_Dashboard_Card {
 
 		$this->size = wp_parse_args( $options['size'], array(
 			'minW'     => 1,
-			'minH'     => 2,
-			'maxW'     => 2,
-			'maxH'     => 2,
+			'minH'     => 1,
+			'maxW'     => 1,
+			'maxH'     => 1,
 			'defaultW' => 1,
-			'defaultH' => 2,
+			'defaultH' => 1,
 		) );
 	}
 

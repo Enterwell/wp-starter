@@ -79,7 +79,7 @@ class ITSEC_SSL {
 		} );
 
 		$redirect = "https://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}";
-		wp_safe_redirect( $redirect, 301, 'iThemes Security' );
+		wp_safe_redirect( $redirect, 301, 'Solid Security' );
 		exit();
 	}
 

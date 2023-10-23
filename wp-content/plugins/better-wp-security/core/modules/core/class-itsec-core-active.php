@@ -1,17 +1,27 @@
 <?php
 
+use iThemesSecurity\Contracts\Runnable;
 use iThemesSecurity\Encryption\User_Key_Rotator;
 use iThemesSecurity\Lib\Result;
 use iThemesSecurity\Lib\Tools\Config_Tool;
 use iThemesSecurity\Lib\Tools\Tools_Registry;
 use iThemesSecurity\Module_Config;
 
-class ITSEC_Core_Active {
+class ITSEC_Core_Active implements Runnable {
 
 	/** @var string[] */
 	private $handles = [];
 
+	/** @var Runnable[] */
+	private $runnable;
+
+	public function __construct( Runnable ...$runnable ) { $this->runnable = $runnable; }
+
 	public function run() {
+		foreach ( $this->runnable as $runnable ) {
+			$runnable->run();
+		}
+
 		add_action( 'rest_api_init', array( $this, 'rest_api_init' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'register_scripts' ), 0 );
 		add_action( 'login_enqueue_scripts', array( $this, 'register_scripts' ), 0 );
@@ -293,6 +303,58 @@ class ITSEC_Core_Active {
 
 			public function is_available(): bool {
 				return ITSEC_Lib_Encryption::has_encryption_key_changed() && ITSEC_Lib_Encryption::is_available();
+			}
+		} );
+
+		$registry->register( new class( 'create-mu-plugin', ITSEC_Modules::get_config( 'core' ) ) extends Config_Tool {
+			public function run( array $form = [] ): Result {
+				$template = ITSEC_Lib_File::read( __DIR__ . '/security-loader.txt' );
+
+				if ( is_wp_error( $template ) ) {
+					return Result::error( $template );
+				}
+
+				$basename = plugin_basename( ITSEC_Core::get_plugin_file() );
+
+				if ( ! file_exists( WP_CONTENT_DIR . '/plugins/' . $basename ) ) {
+					return Result::error( new WP_Error(
+						'itsec.tool.create-mu-plugin.unknown-installation',
+						__( 'Could not determine the correct path to load Solid Security.', 'better-wp-security' )
+					) );
+				}
+
+				$contents = sprintf( $template, $basename );
+
+				$path = WP_CONTENT_DIR . '/mu-plugins/000-solid-security-loader.php';
+
+				$written = ITSEC_Lib_File::write( $path, $contents );
+
+				if ( is_wp_error( $written ) ) {
+					return Result::error( $written );
+				}
+
+				return Result::success()->add_success_message( __( 'Created MU-Plugin loader.', 'better-wp-security' ) );
+			}
+
+			public function is_available(): bool {
+				return ! defined( 'ITSEC_LOAD_EARLY' ) || ! ITSEC_LOAD_EARLY;
+			}
+		} );
+
+		$registry->register( new class( 'remove-mu-plugin', ITSEC_Modules::get_config( 'core' ) ) extends Config_Tool {
+			public function run( array $form = [] ): Result {
+				$path    = WP_CONTENT_DIR . '/mu-plugins/000-solid-security-loader.php';
+				$removed = ITSEC_Lib_File::remove( $path );
+
+				if ( is_wp_error( $removed ) ) {
+					return Result::error( $removed );
+				}
+
+				return Result::success()->add_success_message( __( 'Removed MU-Plugin loader.', 'better-wp-security' ) );
+			}
+
+			public function is_available(): bool {
+				return file_exists( WP_CONTENT_DIR . '/mu-plugins/000-solid-security-loader.php' );
 			}
 		} );
 	}

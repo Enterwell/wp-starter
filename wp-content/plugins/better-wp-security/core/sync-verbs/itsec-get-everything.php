@@ -2,7 +2,7 @@
 
 class Ithemes_Sync_Verb_ITSEC_Get_Everything extends Ithemes_Sync_Verb {
 	public static $name        = 'itsec-get-everything';
-	public static $description = 'Retrieve iThemes Security Status and other information.';
+	public static $description = 'Retrieve Solid Security Status and other information.';
 
 	public function run( $arguments ) {
 		$api = ITSEC_Core::get_sync_api();

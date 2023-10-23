@@ -1,6 +1,8 @@
 <?php
 
-class ITSEC_Admin_Notices {
+use iThemesSecurity\Contracts\Runnable;
+
+class ITSEC_Admin_Notices implements Runnable {
 	const ACTION = 'itsec-admin-notice';
 
 	/** @var WP_Error[] */
@@ -138,7 +140,7 @@ class ITSEC_Admin_Notices {
 				continue;
 			}
 
-			$message = str_replace( "{{ \$${slug} }}", $action->get_uri(), $message );
+			$message = str_replace( "{{ \${$slug} }}", $action->get_uri(), $message );
 		}
 
 		return $message;

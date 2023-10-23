@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { apiFetch } from './controls';
+import { apiFetch, doAction } from './controls';
 
 export function receiveNotices( notices ) {
 	return {
@@ -70,6 +70,7 @@ export function failedUpdateMutedHighlight( slug, mute, error ) {
 
 export function* doNoticeAction( noticeId, actionId, payload = {} ) {
 	yield startNoticeAction( noticeId, actionId );
+	yield doAction( 'admin-notices.triggerAction', noticeId, actionId, payload );
 
 	let response;
 

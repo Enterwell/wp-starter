@@ -1,13 +1,15 @@
 /**
  * External dependencies
  */
-import { get, isPlainObject, cloneDeep, pick } from 'lodash';
+import { cloneDeep, get, isPlainObject, pick } from 'lodash';
+import Ajv from 'ajv';
 
 /**
  * WordPress dependencies
  */
 import { createContext, useContext } from '@wordpress/element';
 import { addQueryArgs, getQueryArgs, removeQueryArgs } from '@wordpress/url';
+import { __, sprintf } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -20,21 +22,21 @@ export { WPError, getParamHistory };
 export Result from './result';
 
 export const GlobalNavigationContext = createContext( {
-	getUrl( page ) {
+	getUrl( page, path ) {
 		page = page === 'settings' ? 'itsec' : 'itsec-' + page;
 		const href = removeQueryArgs(
 			document.location.href,
 			...Object.keys( getQueryArgs( document.location.href ) )
 		);
 
-		return addQueryArgs( href, { page } );
+		return addQueryArgs( href, path ? { page, path } : { page } );
 	},
 } );
 
-export function useGlobalNavigationUrl( page ) {
+export function useGlobalNavigationUrl( page, path ) {
 	const { getUrl } = useContext( GlobalNavigationContext );
 
-	return getUrl( page );
+	return getUrl( page, path );
 }
 
 export function makeUrlRelative( baseUrl, target ) {
@@ -331,4 +333,142 @@ export function transformApiErrorToList( error ) {
 	}
 
 	return [ ...wpError.getAllErrorMessages(), ...messages ];
+}
+
+/**
+ * Time Since date occured
+ *
+ * @param {Date} date The date to compare against.
+ * @return {string} The time since the date occurred.
+ */
+export function timeSince( date ) {
+	const currentDate = new Date();
+	if ( date > currentDate ) {
+		return __( 'Online Recently', 'better-wp-security' );
+	}
+	const seconds = Math.floor( ( currentDate - date ) / 1000 );
+
+	let interval = seconds / 31536000;
+
+	if ( interval > 1 ) {
+		return sprintf(
+			/* translators: 1. number of years since */
+			__( '%s years', 'better-wp-security' ),
+			Math.floor( interval )
+		);
+	}
+	interval = seconds / 2592000;
+	if ( interval > 1 ) {
+		return sprintf(
+			/* translators: 1. number of months since */
+			__( '%s months', 'better-wp-security' ),
+			Math.floor( interval )
+		);
+	}
+	interval = seconds / 86400;
+	if ( interval > 1 ) {
+		return sprintf(
+			/* translators: 1. number of days since */
+			__( '%s days', 'better-wp-security' ),
+			Math.floor( interval )
+		);
+	}
+	interval = seconds / 3600;
+	if ( interval > 1 ) {
+		return sprintf(
+			/* translators: 1. number of hours since */
+			__( '%s hours', 'better-wp-security' ),
+			Math.floor( interval )
+		);
+	}
+	interval = seconds / 60;
+	if ( interval > 1 ) {
+		return sprintf(
+			/* translators: 1. number of minutes since */
+			__( '%s minutes', 'better-wp-security' ),
+			Math.floor( interval )
+		);
+	}
+	return sprintf(
+		/* translators: 1. number of seconds since */
+		__( '%s seconds', 'better-wp-security' ),
+		Math.floor( interval )
+	);
+}
+
+/**
+ * Grabs a global instance of Ajv.
+ *
+ * @return {Ajv.Ajv} The ajv instance.
+ */
+export function getAjv() {
+	if ( ! getAjv.instance ) {
+		getAjv.instance = new Ajv( { schemaId: 'id' } );
+		getAjv.instance.addMetaSchema(
+			require( 'ajv/lib/refs/json-schema-draft-04.json' )
+		);
+		getAjv.instance.addFormat( 'html', {
+			type: 'string',
+			validate() {
+				// Validating HTML isn't something we can realistically do.
+				// We accept everything and can then kses it on the server.
+				return true;
+			},
+		} );
+		getAjv.instance.addFormat( 'relative-file-path', {
+			type: 'string',
+			validate( value ) {
+				if ( value.includes( '../' ) ) {
+					return false;
+				}
+
+				return true;
+			},
+		} );
+		getAjv.instance.addFormat( 'file-path', {
+			type: 'string',
+			validate( value ) {
+				if ( ! value.startsWith( '/' ) ) {
+					return false;
+				}
+
+				if ( value.includes( '../' ) ) {
+					return false;
+				}
+
+				return true;
+			},
+		} );
+		getAjv.instance.addFormat( 'directory', {
+			type: 'string',
+			validate( value ) {
+				if ( ! value.startsWith( '/' ) ) {
+					return false;
+				}
+
+				if ( value.includes( '../' ) ) {
+					return false;
+				}
+
+				return true;
+			},
+		} );
+	}
+
+	return getAjv.instance;
+}
+
+/**
+ * Gets an emoji for the given country code.
+ *
+ * @param {string} countryCode The two-letter country code.
+ * @return {string} The unicode emoji characters.
+ */
+export function getFlagEmoji( countryCode ) {
+	// https://dev.to/jorik/country-code-to-flag-emoji-a21
+	const codePoints = countryCode
+		.toUpperCase()
+		.split( '' )
+		.map( ( char ) => 127397 + char.charCodeAt() );
+	return String.fromCodePoint( ...codePoints );
 }

@@ -6,7 +6,7 @@ use iThemesSecurity\Site_Scanner\Scan;
 class ITSEC_Site_Scanner_API {
 
 	const HOST = 'https://itsec-site-scanner.ithemes.com/';
-	const ACCEPT = 'application/vnd.site-scanner.ithemes;v=1.0';
+	const ACCEPT = 'application/vnd.site-scanner.ithemes;v=1.1';
 	const VERIFY_TOKEN = 'site-scanner-verify';
 
 	/**
@@ -159,7 +159,7 @@ class ITSEC_Site_Scanner_API {
 	/**
 	 * Registers a site with the Site Scanner API.
 	 *
-	 * This is not meant to be used by licensed iThemes Security users.
+	 * This is not meant to be used by licensed Solid Security users.
 	 *
 	 * @param int $site_id The site ID to register.
 	 *
@@ -290,11 +290,11 @@ class ITSEC_Site_Scanner_API {
 	 */
 	private static function generate_signature( $json ) {
 		if ( ! ITSEC_Core::is_pro() ) {
-			return new WP_Error( 'non_active_license', __( 'Not an iThemes Security Pro install.', 'better-wp-security' ) );
+			return new WP_Error( 'non_active_license', __( 'Not a Solid Security Pro install.', 'better-wp-security' ) );
 		}
 
 		if ( ! isset( $GLOBALS['ithemes_updater_path'] ) ) {
-			return new WP_Error( 'updater_not_available', __( 'Could not find the iThemes updater.', 'better-wp-security' ) );
+			return new WP_Error( 'updater_not_available', __( 'Could not find the SolidWP updater.', 'better-wp-security' ) );
 		}
 
 		require_once( $GLOBALS['ithemes_updater_path'] . '/keys.php' );
@@ -303,7 +303,7 @@ class ITSEC_Site_Scanner_API {
 		$keys = Ithemes_Updater_Keys::get( [ 'ithemes-security-pro' ] );
 
 		if ( empty( $keys['ithemes-security-pro'] ) ) {
-			return new WP_Error( 'non_active_license', __( 'iThemes Security Pro is not activated.', 'better-wp-security' ) );
+			return new WP_Error( 'non_active_license', __( 'Solid Security Pro is not activated.', 'better-wp-security' ) );
 		}
 
 		$signature = hash_hmac( 'sha1', $json, $keys['ithemes-security-pro'] );
@@ -315,7 +315,7 @@ class ITSEC_Site_Scanner_API {
 		$package_details = Ithemes_Updater_Packages::get_full_details();
 
 		if ( empty( $package_details['packages']['ithemes-security-pro/ithemes-security-pro.php']['user'] ) ) {
-			return new WP_Error( 'non_active_license', __( 'iThemes Security Pro is not activated.', 'better-wp-security' ) );
+			return new WP_Error( 'non_active_license', __( 'Solid Security Pro is not activated.', 'better-wp-security' ) );
 		}
 
 		$user = $package_details['packages']['ithemes-security-pro/ithemes-security-pro.php']['user'];

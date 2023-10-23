@@ -1,45 +1,36 @@
 /**
  * WordPress dependencies
  */
-import { Button } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
-import { compose } from '@wordpress/compose';
-import { withDispatch, withSelect } from '@wordpress/data';
+import { __, sprintf } from '@wordpress/i18n';
+import { closeSmall } from '@wordpress/icons';
+import { useSelect, useDispatch } from '@wordpress/data';
 
 /**
  * Internal dependencies
  */
 import { getCardTitle } from '../../utils';
+import { StyledCard, StyledTertiaryButton } from './styles';
 
-function RemoveCard( { card, config, remove } ) {
+export default function RemoveCard( { dashboardId, card } ) {
+	const { config } = useSelect( ( select ) => ( {
+		config: select( 'ithemes-security/dashboard' ).getAvailableCard( card.card ),
+	} ), [ card.card ] );
+	const { removeDashboardCard } = useDispatch( 'ithemes-security/dashboard' );
+
+	const title = getCardTitle( card, config );
+
 	return (
-		<li className="itsec-edit-cards__card-choice itsec-edit-cards__card-choice--remove">
-			<Button
-				className="itsec-edit-cards__action itsec-edit-cards__action--remove"
-				label={ __( 'Remove', 'better-wp-security' ) }
-				icon="no"
+		<StyledCard>
+			<StyledTertiaryButton
+				text={ title }
+				/* translators: 1. Dashboard Card Name */
+				label={ sprintf( __( 'Remove %s', 'better-wp-security' ), title ) }
+				icon={ closeSmall }
+				iconPosition="right"
+				onClick={ () => removeDashboardCard( dashboardId, card ) }
 				showTooltip={ false }
-				onClick={ remove }
+				variant="tertiary"
 			/>
-			<span className="itsec-edit-cards__card-choice-title">
-				{ getCardTitle( card, config ) }
-			</span>
-		</li>
+		</StyledCard>
 	);
 }
-
-export default compose( [
-	withSelect( ( select, props ) => ( {
-		config: select( 'ithemes-security/dashboard' ).getAvailableCard(
-			props.card.card
-		),
-	} ) ),
-	withDispatch( ( dispatch, props ) => ( {
-		remove() {
-			return dispatch( 'ithemes-security/dashboard' ).removeDashboardCard(
-				props.dashboardId,
-				props.card
-			);
-		},
-	} ) ),
-] )( RemoveCard );

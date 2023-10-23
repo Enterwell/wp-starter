@@ -3,22 +3,22 @@
 namespace iThemesSecurity\Site_Scanner\REST;
 
 use iThemesSecurity\Site_Scanner\Factory;
-use iThemesSecurity\Site_Scanner\Repository\Options;
-use iThemesSecurity\Site_Scanner\Repository\Repository;
+use iThemesSecurity\Site_Scanner\Repository\Scans_Options;
+use iThemesSecurity\Site_Scanner\Repository\Scans_Repository;
 use iThemesSecurity\Site_Scanner\Scan;
 use iThemesSecurity\Site_Scanner\Status;
 
 class Scans extends \WP_REST_Controller {
 
-	/** @var Repository */
+	/** @var Scans_Repository */
 	private $repository;
 
 	/**
 	 * Scans constructor.
 	 *
-	 * @param Repository $repository
+	 * @param Scans_Repository $repository
 	 */
-	public function __construct( Repository $repository ) {
+	public function __construct( Scans_Repository $repository ) {
 		$this->repository = $repository;
 		$this->namespace  = 'ithemes-security/v1';
 		$this->rest_base  = 'site-scanner/scans';
@@ -78,6 +78,20 @@ class Scans extends \WP_REST_Controller {
 	public function create_item( $request ) {
 		$scan = \ITSEC_Site_Scanner_API::scan( $request['site_id'] );
 
+		// This is a cached response. Let's fetch the latest from the API.
+		if ( ! $scan->get_id() ) {
+			$scans = $this->repository->get_scans( ( new Scans_Options() )->set_per_page( 1 ) );
+
+			if ( isset( $scans[0] ) ) {
+				$scan = $scans[0];
+			}
+		}
+
+		if ( ! function_exists( 'wp_version_check' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/update.php';
+			wp_version_check();
+		}
+
 		$response = $this->prepare_item_for_response( $scan, $request );
 		$response->set_status( 201 );
 		$response->header( 'Location', rest_url( sprintf( '%s/%s/%s', $this->namespace, $this->rest_base, $scan->get_id() ) ) );
@@ -109,7 +123,7 @@ class Scans extends \WP_REST_Controller {
 		$page     = (int) $request['page'];
 		$per_page = (int) $request['per_page'];
 
-		$options = ( new Options() )
+		$options = ( new Scans_Options() )
 			->set_page( $page )
 			->set_per_page( $per_page );
 

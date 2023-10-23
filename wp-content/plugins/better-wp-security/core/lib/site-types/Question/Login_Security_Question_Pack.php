@@ -47,7 +47,7 @@ final class Login_Security_Question_Pack implements Questions_Provider {
 				}
 
 				public function get_description(): string {
-					return __( 'Securing users with two-factor authentication will require them to enter a security code along with their username and password to log in. Two-Factor authentication is the strongest way to prevent automated bot attacks.', 'better-wp-security' );
+					return __( 'Securing users with two-factor authentication will require them to enter a security code along with their username and password to log in. Two-factor authentication is the strongest way to prevent automated bot attacks.', 'better-wp-security' );
 				}
 
 				public function respond( Answer_Handler $handler ) {
@@ -114,7 +114,7 @@ final class Login_Security_Question_Pack implements Questions_Provider {
 			}
 
 			public function get_description(): string {
-				return __( 'When you secure your users with a password policy, iThemes Security will require them to create a strong password that hasn’t already been compromised. ', 'better-wp-security' );
+				return __( 'When you secure your users with a password policy, Solid Security will require them to create a strong password that hasn’t already been compromised. ', 'better-wp-security' );
 			}
 
 			public function respond( Answer_Handler $handler ) {

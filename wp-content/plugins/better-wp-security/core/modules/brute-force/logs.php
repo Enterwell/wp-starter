@@ -13,7 +13,7 @@ final class ITSEC_Brute_Force_Logs {
 		if ( 'invalid-login' === $code ) {
 			$entry['description'] = esc_html__( 'Invalid Login', 'better-wp-security' );
 		} else if ( 'auto-ban-admin-username' === $code ) {
-			$entry['description'] = esc_html__( 'Banned Use of "admin" Username', 'better-wp-security' );
+			$entry['description'] = esc_html__( 'Locked out due to Use of "admin" Username', 'better-wp-security' );
 		}
 
 		return $entry;

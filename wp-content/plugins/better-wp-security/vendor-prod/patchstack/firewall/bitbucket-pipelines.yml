@@ -1,0 +1,36 @@
+pipelines:
+  default:
+    - parallel:
+        - step:
+            name: PHP 7.4
+            image: php:7.4
+            script:
+              - apt-get update && apt-get install -qy git curl libzip-dev zip
+              - docker-php-ext-install zip
+              - curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+              - composer install --ignore-platform-reqs
+              - ./vendor/bin/phpunit tests
+            caches:
+              - composer
+        - step:
+            name: PHP 8.0
+            image: php:8.0
+            script:
+              - apt-get update && apt-get install -qy git curl libzip-dev zip
+              - docker-php-ext-install zip
+              - curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+              - composer install --ignore-platform-reqs
+              - ./vendor/bin/phpunit tests
+            caches:
+              - composer
+        - step:
+            name: PHP 8.1
+            image: php:8.1
+            script:
+              - apt-get update && apt-get install -qy git curl libzip-dev zip
+              - docker-php-ext-install zip
+              - curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+              - composer install --ignore-platform-reqs
+              - ./vendor/bin/phpunit tests
+            caches:
+              - composer

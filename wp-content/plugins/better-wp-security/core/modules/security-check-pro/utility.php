@@ -210,8 +210,7 @@ final class ITSEC_Security_Check_Pro_Utility {
 				'body'   => $response['body'],
 			] );
 
-			return new WP_Error( 'itsec-security-check-pro-empty-response', __( 'An error occurred when communicating with the iThemes Security Check server: The server returned a blank response.', 
-'better-wp-security' ) );
+			return new WP_Error( 'itsec-security-check-pro-empty-response', __( 'An error occurred when communicating with the Solid Security Check server: The server returned a blank response.', 'better-wp-security' ) );
 		}
 
 		$body = json_decode( $response['body'], true );
@@ -222,15 +221,15 @@ final class ITSEC_Security_Check_Pro_Utility {
 		] );
 
 		if ( is_null( $body ) ) {
-			return new WP_Error( 'itsec-security-check-pro-non-json-response', __( 'An error occurred when communicating with the iThemes Security Check server: The server did not return JSON data when JSON data was expected.', 'better-wp-security' ) );
+			return new WP_Error( 'itsec-security-check-pro-non-json-response', __( 'An error occurred when communicating with the Solid Security Check server: The server did not return JSON data when JSON data was expected.', 'better-wp-security' ) );
 		}
 
 		if ( isset( $body['error'], $body['error']['code'], $body['error']['message'] ) ) {
-			return new WP_Error( 'itsec-security-check-pro-' . $body['error']['code'], sprintf( __( 'An error occurred when communicating with the iThemes Security Check server: %s (%s)', 'better-wp-security' ), $body['error']['message'], $body['error']['code'] ) );
+			return new WP_Error( 'itsec-security-check-pro-' . $body['error']['code'], sprintf( __( 'An error occurred when communicating with the Solid Security Check server: %s (%s)', 'better-wp-security' ), $body['error']['message'], $body['error']['code'] ) );
 		}
 
 		if ( empty( $body['complete'] ) ) {
-			return new WP_Error( 'itsec-security-check-pro-scan-incomplete', __( 'The iThemes Security Check server could not contact your site. Please wait a few minutes and try again.', 'better-wp-security' ) );
+			return new WP_Error( 'itsec-security-check-pro-scan-incomplete', __( 'The Solid Security Check server could not contact your site. Please wait a few minutes and try again.', 'better-wp-security' ) );
 		}
 
 		return $body;

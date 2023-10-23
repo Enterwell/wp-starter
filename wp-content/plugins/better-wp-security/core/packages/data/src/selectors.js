@@ -2,7 +2,7 @@
  * External dependencies
  */
 import createSelector from 'rememo';
-import { merge, cloneDeep } from 'lodash';
+import { merge, cloneDeep, find } from 'lodash';
 
 /**
  * WordPress dependencies
@@ -87,19 +87,7 @@ export function getSchema( state, schemaId ) {
 		return null;
 	}
 
-	for ( const route in index.routes ) {
-		if ( ! index.routes.hasOwnProperty( route ) ) {
-			continue;
-		}
-
-		const schema = index.routes[ route ].schema;
-
-		if ( schema && schema.title === schemaId ) {
-			return schema;
-		}
-	}
-
-	return null;
+	return find( index.routes, ( route ) => route?.schema?.title === schemaId )?.schema;
 }
 
 export function getRoles( state ) {
@@ -135,4 +123,20 @@ export const getFeatureFlags = createRegistrySelector(
 
 export function getBatchMaxItems( state ) {
 	return state.batchMaxItems;
+}
+
+export function getServerType( state ) {
+	return state.index?.server_type || null;
+}
+
+export function getInstallType( state ) {
+	return state.index?.install_type || null;
+}
+
+export function hasPatchstack( state ) {
+	return state.index?.has_patchstack || null;
+}
+
+export function isLiquidWebCustomer( state ) {
+	return state.index?.is_lw_customer || null;
 }

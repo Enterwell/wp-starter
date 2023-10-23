@@ -1,5 +1,5 @@
 <p class="itsec-sync-connect__link-wrap">
-    <input type="submit" class="itsec-sync-connect__link" value="<?php esc_html_e( 'Connect Sync', 'better-wp-security' ) ?>">
+    <input type="submit" class="itsec-sync-connect__link" value="<?php esc_html_e( 'Connect Solid Central', 'better-wp-security' ) ?>">
 </p>
 
 <?php

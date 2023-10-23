@@ -5,13 +5,13 @@ namespace iThemesSecurity\Site_Scanner\REST;
 use iThemesSecurity\Site_Scanner\Factory;
 use iThemesSecurity\Site_Scanner\Fixer;
 use iThemesSecurity\Site_Scanner\Issue;
-use iThemesSecurity\Site_Scanner\Repository\Repository;
+use iThemesSecurity\Site_Scanner\Repository\Scans_Repository;
 use iThemesSecurity\Site_Scanner\Scan;
 use iThemesSecurity\Site_Scanner\Status;
 
 class Issues extends \WP_REST_Controller {
 
-	/** @var Repository */
+	/** @var Scans_Repository */
 	private $repository;
 
 	/** @var Fixer */
@@ -23,10 +23,10 @@ class Issues extends \WP_REST_Controller {
 	/**
 	 * Issues constructor.
 	 *
-	 * @param Repository $repository
-	 * @param Fixer      $fixer
+	 * @param Scans_Repository $repository
+	 * @param Fixer            $fixer
 	 */
-	public function __construct( Repository $repository, Fixer $fixer ) {
+	public function __construct( Scans_Repository $repository, Fixer $fixer ) {
 		$this->repository  = $repository;
 		$this->fixer       = $fixer;
 		$this->namespace   = 'ithemes-security/v1';
@@ -108,6 +108,10 @@ class Issues extends \WP_REST_Controller {
 		$issues = [];
 
 		foreach ( $scan->get_entries() as $entry ) {
+			if ( $request['entry'] && ! in_array( $entry->get_slug(), $request['entry'], true ) ) {
+				continue;
+			}
+
 			foreach ( $entry->get_issues() as $issue ) {
 				$issues[] = $this->prepare_response_for_collection( $this->prepare_item_for_response( $issue, $request, $scan ) );
 			}
@@ -364,6 +368,13 @@ class Issues extends \WP_REST_Controller {
 	public function get_collection_params() {
 		return [
 			'context' => $this->get_context_param( [ 'default' => 'view' ] ),
+			'entry'   => [
+				'type'  => 'array',
+				'items' => [
+					'type' => 'string',
+					'enum' => Factory::ENTRIES,
+				],
+			]
 		];
 	}
 }

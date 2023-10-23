@@ -1,7 +1,7 @@
 <?php
 
 /**
- * The iThemes Security Module Settings Page API parent class.
+ * The Solid Security Module Settings Page API parent class.
  *
  * @property-read string $id
  * @property-read string $title
@@ -60,7 +60,7 @@ class ITSEC_Module_Settings_Page {
 	protected $requires_resave_after_activation = false;
 
 	/**
-	 * Whether the module is part of iThemes Security Pro or not.
+	 * Whether the module is part of Solid Security Pro or not.
 	 *
 	 * @access protected
 	 * @var bool
@@ -84,7 +84,7 @@ class ITSEC_Module_Settings_Page {
 	protected $redraw_on_save = false;
 
 	/**
-	 * Whether the module is an iThemes Security Pro module being shown as an upsell or not.
+	 * Whether the module is a Solid Security Pro module being shown as an upsell or not.
 	 *
 	 * @access protected
 	 * @var bool

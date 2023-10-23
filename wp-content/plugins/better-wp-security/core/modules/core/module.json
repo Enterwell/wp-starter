@@ -21,10 +21,18 @@
       "type": "recurring"
     }
   },
+  "settings": {
+    "type": "object",
+    "properties": {
+      "last_seen_lockout": {
+        "type": "integer",
+        "default": 0
+      }
+    }
+  },
   "feature-flags": {
     "enable_encryption": {
       "remote": true,
-      "rate": 100,
       "title": "Enable Encryption",
       "description": "Automatically enables encryption for Two-Factor if available.",
       "documentation": "https://ithemes.com/?p=84653"
@@ -33,8 +41,8 @@
   "tools": {
     "set-encryption-key": {
       "title": "Set Encryption Key",
-      "description": "Sets a secure key that iThemes Security uses to encrypt sensitive values like Two-Factor codes.",
-      "help": "iThemes Security will add a constant to your website’s <code>wp-config.php</code> file named <code>ITSEC_ENCRYPTION_KEY</code>.",
+      "description": "Sets a secure key that Solid Security uses to encrypt sensitive values like Two-Factor codes.",
+      "help": "Solid Security will add a constant to your website’s <code>wp-config.php</code> file named <code>ITSEC_ENCRYPTION_KEY</code>.",
       "keywords": [
         "encryption"
       ],
@@ -70,6 +78,14 @@
           }
         }
       }
+    },
+    "create-mu-plugin": {
+      "title": "Create MU Plugin Loader",
+      "description": "For better security and optimized performance Solid Security can be loaded as an MU-Plugin. Run this tool to automatically create the MU Plugin."
+    },
+    "remove-mu-plugin": {
+      "title": "Remove MU Plugin Loader",
+      "description": "For better security and optimized performance Solid Security is being loaded as an MU-Plugin. Run this tool to automatically remove the MU Plugin."
     }
   }
 }

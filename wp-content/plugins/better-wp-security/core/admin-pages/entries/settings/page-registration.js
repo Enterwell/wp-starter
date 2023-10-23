@@ -70,10 +70,10 @@ export default function PageRegistration( { children } ) {
 			...latestPages,
 			[ id ]: newChildPages,
 		} ) );
-	} );
+	}, [ setChildPages ] );
 	const removeChildPages = useCallback( ( id ) => {
 		setChildPages( ( latestPages ) => omit( latestPages, id ) );
-	} );
+	}, [ setChildPages ] );
 
 	return (
 		<Context.Provider
@@ -100,6 +100,7 @@ export function Page( {
 	location = 'primary',
 	featureFlag,
 	ignore,
+	hideFromNav,
 	children,
 } ) {
 	const context = useContext( Context );
@@ -114,12 +115,14 @@ export function Page( {
 			location,
 			featureFlag,
 			ignore,
+			hideFromNav,
 			render: children,
 		} );
 
 		return () => {
 			context.removePage( id );
 		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ id, title ] );
 
 	return null;
@@ -175,7 +178,23 @@ export function useCurrentPage() {
 export function useCurrentChildPages() {
 	const { childPages } = useContext( Context );
 
-	return useMemo( () => flatMap( childPages ) );
+	return useMemo( () => flatMap( childPages ), [ childPages ] );
+}
+
+export function usePreviousPage( currentPage ) {
+	const pages = usePages();
+
+	if ( ! pages.length ) {
+		return undefined;
+	}
+
+	if ( ! currentPage ) {
+		return undefined;
+	}
+
+	const index = pages.findIndex( ( page ) => page.id === currentPage );
+
+	return pages[ index - 1 ]?.id;
 }
 
 export function useNextPage( currentPage ) {

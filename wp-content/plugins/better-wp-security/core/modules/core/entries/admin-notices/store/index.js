@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies
  */
-import { registerStore } from '@wordpress/data';
+import { register, createReduxStore } from '@wordpress/data';
 
 /**
  * Internal dependencies
@@ -12,12 +12,14 @@ import * as selectors from './selectors';
 import adminNotices from './reducers';
 import * as resolvers from './resolvers';
 
-const store = registerStore( 'ithemes-security/admin-notices', {
+const store = createReduxStore( 'ithemes-security/admin-notices', {
 	controls,
 	actions,
 	selectors,
 	resolvers,
 	reducer: adminNotices,
 } );
+
+register( store );
 
 export default store;

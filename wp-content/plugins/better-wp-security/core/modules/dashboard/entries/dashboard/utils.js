@@ -48,7 +48,6 @@ export function useCanWrite() {
 }
 
 export const BREAKPOINT_ORDER = Object.freeze( [
-	'huge',
 	'wide',
 	'large',
 	'medium',
@@ -56,22 +55,34 @@ export const BREAKPOINT_ORDER = Object.freeze( [
 ] );
 
 export const GRID_COLUMNS = Object.freeze( {
-	huge: 8,
-	wide: 6,
-	large: 4,
+	wide: 4,
+	large: 3,
 	medium: 2,
 	mobile: 1,
 } );
+
+export const CARD_WIDTH = 400;
+export const CARD_MARGIN = 20;
 
 export const BREAKPOINTS = Object.freeze(
 	BREAKPOINT_ORDER.reduce(
 		( acc, bp ) => ( {
 			...acc,
-			[ bp ]: ( 250 * GRID_COLUMNS[ bp ] ) + ( 20 * ( GRID_COLUMNS[ bp ] - 1 ) ),
+			[ bp ]: ( CARD_WIDTH * GRID_COLUMNS[ bp ] ) + ( CARD_MARGIN * ( GRID_COLUMNS[ bp ] - 1 ) ),
 		} ),
 		{}
 	)
 );
+
+export function getMaxWidthForGrid( width ) {
+	const breakpoint = BREAKPOINT_ORDER.find(
+		( match ) => ( BREAKPOINTS[ match ] + CARD_MARGIN ) <= width
+	);
+
+	const columns = GRID_COLUMNS[ breakpoint ];
+
+	return columns * ( CARD_WIDTH + CARD_MARGIN );
+}
 
 const OPTIONAL_LAYOUT_KEYS = [ 'minW', 'minH', 'maxW', 'maxH' ];
 

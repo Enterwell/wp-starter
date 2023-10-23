@@ -66,7 +66,7 @@ class ITSEC_File_Change_Package_Factory {
 		);
 
 		/**
-		 * The list of files that iThemes Security manages.
+		 * The list of files that Solid Security manages.
 		 *
 		 * @param string[] $files
 		 */
@@ -208,7 +208,7 @@ class ITSEC_File_Change_Package_Factory {
 	 *
 	 * @return ITSEC_File_Change_Package|null
 	 */
-	private function filter( ITSEC_File_Change_Package $package = null, $file, $search_path ) {
+	private function filter( ?ITSEC_File_Change_Package $package, $file, $search_path ) {
 
 		/**
 		 * Filter the corresponding package for a file.

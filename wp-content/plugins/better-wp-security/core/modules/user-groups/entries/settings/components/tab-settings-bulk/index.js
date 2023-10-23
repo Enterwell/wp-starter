@@ -1,37 +1,23 @@
 /**
  * WordPress dependencies
  */
-import { CardBody, Disabled } from '@wordpress/components';
+import { Disabled } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
-import { SettingsForm, MultiGroupSelector } from '../';
-import { useSettingsDefinitions } from '../../utils';
-import Field from './field';
+import { useSettingsDefinitions, SettingsForm, BulkSettingField } from '@ithemes/security.user-groups.ui';
 
 export default function TabSettingsBulk( { groupIds, children } ) {
 	const settings = useSettingsDefinitions();
-
-	let body = (
-		<CardBody>
+	return (
+		<Disabled isDisabled={ ! groupIds.length }>
 			{ children }
 			<SettingsForm
 				definitions={ settings }
-				settingComponent={ Field }
+				settingComponent={ BulkSettingField }
 				groupIds={ groupIds }
 			/>
-		</CardBody>
-	);
-
-	if ( ! groupIds.length ) {
-		body = <Disabled>{ body }</Disabled>;
-	}
-
-	return (
-		<>
-			<MultiGroupSelector />
-			{ body }
-		</>
+		</Disabled>
 	);
 }

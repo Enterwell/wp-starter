@@ -49,7 +49,7 @@ final class ITSEC_Logs_List_Table extends ITSEC_WP_List_Table {
 			return '';
 		}
 
-		return '<code><a href="' . esc_url( ITSEC_Lib::get_trace_ip_link( $entry['remote_ip'] ) ) . '" target="_blank" rel="noopener noreferrer">' . esc_html( $entry['remote_ip'] ) . '</a></code>';
+		return '<code>' . esc_html( $entry['remote_ip'] ) . '</code>';
 	}
 
 	/**
@@ -158,7 +158,7 @@ final class ITSEC_Logs_List_Table extends ITSEC_WP_List_Table {
 			'type'           => esc_html__( 'Type', 'better-wp-security' ),
 			'description'    => esc_html__( 'Description', 'better-wp-security' ),
 			'timestamp'      => esc_html__( 'Time', 'better-wp-security' ),
-			'remote_ip'      => esc_html__( 'Host', 'better-wp-security' ),
+			'remote_ip'      => esc_html__( 'IP', 'better-wp-security' ),
 			'user_id'        => esc_html__( 'User', 'better-wp-security' ),
 			'details'        => esc_html__( 'Details', 'better-wp-security' ),
 		);

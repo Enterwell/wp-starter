@@ -4,17 +4,20 @@
 import { __ } from '@wordpress/i18n';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useState } from '@wordpress/element';
+import { arrowLeft as backIcon } from '@wordpress/icons';
+
+/**
+ * Solid dependencies
+ */
+import { Button, Heading, Text, TextSize, TextVariant } from '@ithemes/ui';
 
 /**
  * Internal dependencies
  */
-import { ErrorList } from '@ithemes/security-components';
-import {
-	PrimarySchemaForm,
-	PageHeader,
-	Breadcrumbs,
-} from '../../../components';
+import { ErrorList, PrimarySchemaForm } from '@ithemes/security-ui';
 import { ONBOARD_STORE_NAME } from '../../../stores';
+import { StyledQuestion, StyledQuestionHeader } from './styles';
+import { OnboardBackActionFill } from '../../../components';
 
 const formContext = {
 	disableInlineErrors: true,
@@ -24,33 +27,53 @@ export default function Question( {
 	prompt,
 	description,
 	showErrors = true,
+	goBack,
 	children,
 } ) {
-	const { error, siteTypeTitle } = useSelect( ( select ) => ( {
-		error: select( ONBOARD_STORE_NAME ).getLastError(),
-		siteTypeTitle: select( ONBOARD_STORE_NAME ).getSelectedSiteType()
-			?.title,
-	} ) );
+	const { error } = useSelect(
+		( select ) => ( {
+			error: select( ONBOARD_STORE_NAME ).getLastError(),
+		} ),
+		[]
+	);
 
 	return (
 		<>
-			<PageHeader
-				title={ prompt }
-				subtitle={ description }
-				breadcrumbs={ <Breadcrumbs title={ siteTypeTitle } /> }
-			/>
-			{ showErrors && (
-				<ErrorList
-					apiError={ error }
-					className="itsec-site-type-question__error-list"
-				/>
+			<StyledQuestion>
+				<StyledQuestionHeader>
+					<Heading
+						level={ 3 }
+						text={ prompt }
+						size={ TextSize.EXTRA_LARGE }
+						variant={ TextVariant.DARK }
+					/>
+					<Text
+						as="p"
+						text={ description }
+						variant={ TextVariant.MUTED }
+					/>
+				</StyledQuestionHeader>
+				{ showErrors && (
+					<ErrorList apiError={ error } />
+				) }
+				{ children }
+			</StyledQuestion>
+			{ goBack && (
+				<OnboardBackActionFill>
+					<Button
+						onClick={ goBack }
+						text={ __( 'Back', 'better-wp-security' ) }
+						icon={ backIcon }
+						iconPosition="left"
+						variant="tertiary"
+					/>
+				</OnboardBackActionFill>
 			) }
-			{ children }
 		</>
 	);
 }
 
-export function SchemaQuestion( { question, onAnswer, goBack } ) {
+export function SchemaQuestion( { question, onAnswer, isAnswering, goBack } ) {
 	const { editAnswer } = useDispatch( ONBOARD_STORE_NAME );
 	const { answer, error } = useSelect( ( select ) => ( {
 		error: select( ONBOARD_STORE_NAME ).getLastError(),
@@ -63,6 +86,7 @@ export function SchemaQuestion( { question, onAnswer, goBack } ) {
 			prompt={ question.prompt }
 			description={ question.description }
 			showErrors={ false }
+			goBack={ goBack }
 		>
 			<PrimarySchemaForm
 				schema={ question.answer_schema }
@@ -77,13 +101,14 @@ export function SchemaQuestion( { question, onAnswer, goBack } ) {
 					onAnswer( submittedData );
 				} }
 				saveLabel={ __( 'Next', 'better-wp-security' ) }
-				cancelLabel={ __( 'Back', 'better-wp-security' ) }
-				onCancel={ goBack }
 				formContext={ formContext }
 				apiError={ error }
 				schemaError={ schemaError }
 				onError={ setSchemaError }
 				showErrorList={ false }
+				saveDisabled={ isAnswering }
+				undoDisabled={ isAnswering }
+				alignActions="start"
 			/>
 		</Question>
 	);

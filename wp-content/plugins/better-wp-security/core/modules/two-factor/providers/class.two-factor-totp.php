@@ -513,7 +513,7 @@ class Two_Factor_Totp extends Two_Factor_Provider implements ITSEC_Two_Factor_Pr
 			if ( user_can( $user, ITSEC_Core::get_required_cap() ) ) {
 				echo '<br><br>';
 				esc_html_e( 'Locked out?', 'better-wp-security' );
-				echo ' <a href="https://help.ithemes.com/hc/en-us/articles/360021124173">';
+				echo ' <a href="https://go.solidwp.com/help-center-diable-features">';
 				esc_html_e( 'Learn how to temporarily disable Two-Factor.', 'better-wp-security' );
 				echo '</a>';
 			}

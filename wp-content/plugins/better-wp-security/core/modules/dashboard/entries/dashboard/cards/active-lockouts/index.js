@@ -1,56 +1,63 @@
 /**
  * External dependencies
  */
+import styled from '@emotion/styled';
 import { isEmpty, find } from 'lodash';
 import memize from 'memize';
+
 /**
  * WordPress dependencies
  */
 import { __, sprintf } from '@wordpress/i18n';
 import { compose, pure } from '@wordpress/compose';
-import { Fragment, useState, useCallback } from '@wordpress/element';
+import { useState, useCallback } from '@wordpress/element';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { dateI18n } from '@wordpress/date';
-import { Button } from '@wordpress/components';
+import { Button, Tooltip } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
 
 /**
  * iThemes dependencies
  */
-import { SearchControl } from '@ithemes/ui';
+import { Heading, MasterDetail, MasterDetailBackButton, SearchControl, Surface, Text, TextSize, TextVariant, TextWeight } from '@ithemes/ui';
 
 /**
  * Internal dependencies
  */
 import { withDebounceHandler } from '@ithemes/security-hocs';
+import { FlexSpacer } from '@ithemes/security-components';
 import Header, { Title } from '../../components/card/header';
 import Footer from '../../components/card/footer';
-import MasterDetail, { Back } from '../../components/master-detail';
 import { CardHappy } from '../../components/empty-states';
 import Detail from './Detail';
-import './style.scss';
 
-function MasterRender( { master } ) {
+export function ActiveLockout( { master } ) {
 	return (
-		<Fragment>
-			<time
-				className="itsec-card-active-lockouts__start-time"
-				dateTime={ master.start_gmt }
-				title={ dateI18n( 'M d, Y g:s A', master.start_gmt ) }
-			>
-				{ sprintf(
-					/* translators: 1. Relative time from human_time_diff(). */
-					__( '%s ago', 'better-wp-security' ),
-					master.start_gmt_relative
-				) }
-			</time>
-			<h3 className="itsec-card-active-lockouts__label">
-				{ master.label }
-			</h3>
-			<p className="itsec-card-active-lockouts__description">
-				{ master.description }
-			</p>
-		</Fragment>
+		<>
+			<Tooltip text={ dateI18n( 'M d, Y g:s A', master.start_gmt ) }>
+				<span>
+					<Text
+						as="time"
+						size={ TextSize.SMALL }
+						textTransform="capitalize"
+						variant={ TextVariant.MUTED }
+						text={ sprintf(
+							/* translators: 1. Relative time from human_time_diff(). */
+							__( '%s ago', 'better-wp-security' ),
+							master.start_gmt_relative
+						) }
+					/>
+				</span>
+			</Tooltip>
+			<Heading
+				level={ 3 }
+				size={ TextSize.NORMAL }
+				variant={ TextVariant.DARK }
+				weight={ TextWeight.HEAVY }
+				text={ master.label }
+			/>
+			<Text variant={ TextVariant.DARK } text={ master.description } />
+		</>
 	);
 }
 
@@ -167,6 +174,18 @@ function useBanLockout( card ) {
 	return [ banningIds, callback, isAvailable ];
 }
 
+const StyledSurface = styled( Surface )`
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	height: 100%;
+	position: relative;
+`;
+
+const StyledSearchContainer = styled.div`
+	padding: 1rem;
+`;
+
 function ActiveLockouts( {
 	card,
 	config,
@@ -207,34 +226,27 @@ function ActiveLockouts( {
 		}
 	};
 
-	const isSmall = true;
-
 	const selectedLockout = find( card.data.lockouts, [ 'id', selectedId ] );
 	const isBannable = selectedLockout?.bannable && isBanAvailable;
-
 	return (
-		<div className="itsec-card--type-active-lockouts">
-			<Header>
-				<Back
-					isSmall={ isSmall }
-					select={ select }
-					selectedId={ selectedLockout?.id || 0 }
-				/>
+		<StyledSurface className="itsec-card--type-active-lockouts">
+			<Header align="left">
+				<MasterDetailBackButton isSinglePane onSelect={ select } selectedId={ selectedLockout?.id || 0 } />
 				<Title card={ card } config={ config } />
 			</Header>
 			{ ! selectedLockout?.id && (
-				<div className="itsec-card-active-lockouts__search-container">
+				<StyledSearchContainer>
 					<SearchControl
+						placeholder={ __( 'Search Lockouts', 'better-wp-security' ) }
 						value={ searchTerm }
 						onChange={ ( next ) => {
 							setSearchTerm( next );
 							query( card.id, next ? { search: next } : {} );
 						} }
-						placeholder={ __( 'Search Lockouts', 'better-wp-security' ) }
 						isSearching={ isQuerying }
-						surfaceVariant="secondary"
+						size="small"
 					/>
-				</div>
+				</StyledSearchContainer>
 			) }
 			{ isEmpty( card.data.lockouts ) ? (
 				<CardHappy
@@ -247,21 +259,27 @@ function ActiveLockouts( {
 			) : (
 				<MasterDetail
 					masters={ withLinks( card.data.lockouts, card._links ) }
-					detailRender={ Detail }
-					masterRender={ MasterRender }
+					getId={ ( lockout ) => lockout.id }
+					isBorderless
+					isSinglePane
 					mode="list"
+					renderMaster={ ( lockout ) => (
+						<ActiveLockout master={ lockout } />
+					) }
+					onSelect={ select }
 					selectedId={ selectedLockout?.id || 0 }
-					select={ select }
-					isSmall={ isSmall }
+					renderDetail={ ( lockout, isVisible ) => (
+						<Detail master={ lockout } isVisible={ isVisible } />
+					) }
 				/>
 			) }
 			{ selectedLockout?.id > 0 && ( isReleaseAvailable || isBannable ) && (
 				<Footer>
+					<FlexSpacer />
 					{ isReleaseAvailable &&
-						<span className="itsec-card-footer__action">
+						<span>
 							<Button
 								variant="primary"
-								isSmall
 								aria-disabled={ releasingIds.includes(
 									selectedId
 								) }
@@ -273,10 +291,9 @@ function ActiveLockouts( {
 						</span>
 					}
 					{ isBannable &&
-						<span className="itsec-card-footer__action">
+						<span>
 							<Button
 								variant="primary"
-								isSmall
 								aria-disabled={ banningIds.includes(
 									selectedId
 								) }
@@ -289,7 +306,7 @@ function ActiveLockouts( {
 					}
 				</Footer>
 			) }
-		</div>
+		</StyledSurface>
 	);
 }
 
@@ -299,11 +316,4 @@ export const settings = {
 		withDebounceHandler( 'query', 500, { leading: true } ),
 		pure,
 	] )( ActiveLockouts ),
-	elementQueries: [
-		{
-			type: 'width',
-			dir: 'max',
-			px: 500,
-		},
-	],
 };

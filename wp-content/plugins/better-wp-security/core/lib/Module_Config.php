@@ -57,7 +57,7 @@ final class Module_Config {
 		}
 
 		if ( ! $for ) {
-			$for = \ITSEC_Core::is_pro() ? 'pro' : 'free';
+			$for = \ITSEC_Core::get_install_type();
 		}
 
 		return $status[ $for ];
@@ -65,6 +65,14 @@ final class Module_Config {
 
 	public function get_type(): string {
 		return $this->get_config()['type'];
+	}
+
+	public function can_load_early(): bool {
+		return $this->get_load() === 'early';
+	}
+
+	public function get_load(): string {
+		return $this->get_config()['load'] ?? 'normal';
 	}
 
 	public function is_deprecated(): bool {

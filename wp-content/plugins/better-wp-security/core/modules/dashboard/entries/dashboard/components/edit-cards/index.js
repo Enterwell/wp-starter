@@ -2,78 +2,82 @@
  * External dependencies
  */
 import { sortBy } from 'lodash';
-import memize from 'memize';
+
 /**
  * WordPress dependencies
  */
-import { compose } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
-import { select as coreSelect, withSelect } from '@wordpress/data';
+import { useSelect } from '@wordpress/data';
+import { useMemo } from '@wordpress/element';
+import { useViewportMatch } from '@wordpress/compose';
+
+/**
+ * iThemes dependencies
+ */
+import { Heading, Text, TextSize, TextVariant, TextWeight } from '@ithemes/ui';
+
 /**
  * Internal dependencies
  */
 import { EditCardsSlot } from '@ithemes/security.dashboard.api';
+import { getCardTitle } from '../../utils';
 import AddCard from './add-card';
 import RemoveCard from './remove-card';
-import { getCardTitle } from '../../utils';
-import './style.scss';
+import { StyledEditCards, StyledHeader, StyledCardsList } from './styles';
 
-const sorted = memize( ( cards ) =>
-	sortBy( cards, [
-		( card ) => {
-			const config = coreSelect(
-				'ithemes-security/dashboard'
-			).getAvailableCard( card.card );
+export default function EditCards( { dashboardId } ) {
+	const isExpanded = useViewportMatch( 'medium', '<' );
 
-			return getCardTitle( card, config );
-		},
-	] )
-);
+	const { cards, cardConfigs, addableCards } = useSelect( ( select ) => ( {
+		cards: select( 'ithemes-security/dashboard' ).getDashboardCards( dashboardId ),
+		cardConfigs: select( 'ithemes-security/dashboard' ).getAvailableCards(),
+		addableCards: select( 'ithemes-security/dashboard' ).getDashboardAddableCardLDOs( dashboardId ),
+	} ), [ dashboardId ] );
+	const sortedCards = useMemo(
+		() => sortBy(
+			cards,
+			( card ) => getCardTitle(
+				card,
+				cardConfigs.find( ( config ) => card.card === config.slug )
+			)
+		), [ cards, cardConfigs ] );
 
-function EditCards( { dashboardId, cards, availableCardLDOs } ) {
 	return (
-		<div className="itsec-edit-cards">
-			<header>
-				<h3>{ __( 'Edit Cards', 'better-wp-security' ) }</h3>
-				<p>
-					{ __( 'Add or remove cards on your dashboard.', 'better-wp-security' ) }
-				</p>
-			</header>
-			<section>
-				<ul className="itsec-edit-cards__card-choices">
-					{ availableCardLDOs.map( ( ldo ) => (
-						<AddCard
-							ldo={ ldo }
-							key={ ldo.href }
-							dashboardId={ dashboardId }
-						/>
-					) ) }
-					{ sorted( cards ).map( ( card ) => (
-						<RemoveCard
-							key={ card.id }
-							card={ card }
-							dashboardId={ dashboardId }
-						/>
-					) ) }
+		<StyledEditCards isExpanded={ isExpanded }>
+			<StyledHeader>
+				{ ! isExpanded && (
+					<Heading
+						level={ 3 }
+						variant={ TextVariant.DARK }
+						weight={ TextWeight.HEAVY }
+						size={ TextSize.NORMAL }
+						text={ __( 'Edit Cards', 'better-wp-security' ) }
+					/>
+				) }
+				<Text
+					variant={ TextVariant.MUTED }
+					size={ TextSize.SMALL }
+					text={ __( 'Add or remove cards on your dashboard.', 'better-wp-security' ) }
+				/>
+			</StyledHeader>
+			<StyledCardsList>
+				{ addableCards.map( ( ldo ) => (
+					<AddCard
+						ldo={ ldo }
+						key={ ldo.href }
+						dashboardId={ dashboardId }
+					/>
+				) ) }
+				{ sortedCards.map( ( card ) => (
+					<RemoveCard
+						key={ card.id }
+						card={ card }
+						dashboardId={ dashboardId }
+					/>
+				) ) }
 
-					<EditCardsSlot />
-				</ul>
-			</section>
-		</div>
+				<EditCardsSlot />
+			</StyledCardsList>
+		</StyledEditCards>
 	);
 }
-
-export default compose( [
-	withSelect( ( select, props ) => ( {
-		cards: select( 'ithemes-security/dashboard' ).getDashboardCards(
-			props.dashboardId
-		),
-		isAdding: select( 'ithemes-security/dashboard' ).isAddingCard(
-			props.selected,
-			{}
-		),
-		availableCardLDOs: select(
-			'ithemes-security/dashboard'
-		).getDashboardAddableCardLDOs( props.dashboardId ),
-	} ) ),
-] )( EditCards );

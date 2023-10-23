@@ -1,6 +1,6 @@
 <?php
 /**
- * iThemes Security utility function library.
+ * Solid Security utility function library.
  *
  * Contains the ITSEC_Lib_Utility class.
  *
@@ -9,7 +9,7 @@
 
 if ( ! class_exists( 'ITSEC_Lib_Utility' ) ) {
 	/**
-	 * iThemes Security Utility Library class.
+	 * Solid Security Utility Library class.
 	 *
 	 * Various utility functions.
 	 *
@@ -117,7 +117,7 @@ if ( ! class_exists( 'ITSEC_Lib_Utility' ) ) {
 		 */
 		public static function get_relative_url_path( $url ) {
 			$url = parse_url( $url, PHP_URL_PATH );
-			$home_url = parse_url( home_url(), PHP_URL_PATH );
+			$home_url = parse_url( home_url(), PHP_URL_PATH ) ?: '';
 			$path = preg_replace( '/^' . preg_quote( $home_url, '/' ) . '/', '', $url, 1, $count );
 
 			if ( 1 === $count ) {

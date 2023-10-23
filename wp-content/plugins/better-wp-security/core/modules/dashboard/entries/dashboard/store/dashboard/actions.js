@@ -153,6 +153,8 @@ export function* addDashboard( dashboard, context ) {
 	yield createNotice( 'success', __( 'Dashboard Created', 'better-wp-security' ), {
 		autoDismiss: 10000,
 	} );
+
+	return created;
 }
 
 /**

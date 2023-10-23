@@ -1,15 +1,31 @@
 /**
+ * External Dependencies
+ */
+import styled from '@emotion/styled';
+
+/**
  * WordPress dependencies
  */
 import { __, sprintf } from '@wordpress/i18n';
 import { useCallback } from '@wordpress/element';
 import { dateI18n } from '@wordpress/date';
 import apiFetch from '@wordpress/api-fetch';
+import { Tooltip } from '@wordpress/components';
+
+/**
+ * iThemes dependencies
+ */
+import { Heading, Text, TextSize, TextVariant, TextWeight } from '@ithemes/ui';
 
 /**
  * Internal dependencies
  */
 import { useAsync } from '@ithemes/security-hocs';
+import { ActiveLockout } from './index';
+
+const StyledDetail = styled.div`
+	padding: 0.5rem 1.25rem;
+`;
 
 function Detail( { master = {}, isVisible } ) {
 	const fetchDetails = useCallback( () => {
@@ -28,30 +44,13 @@ function Detail( { master = {}, isVisible } ) {
 	}, [ master.id, master.links.item ] );
 
 	const { value: details } = useAsync( fetchDetails, isVisible );
-
 	return (
-		<div className="itsec-card-active-lockouts__detail-container">
-			<time
-				className="itsec-card-active-lockouts__start-time"
-				dateTime={ master.start_gmt }
-			>
-				{ sprintf(
-					/* translators: 1. Relative time from human_time_diff(). */
-					__( '%s ago', 'better-wp-security' ),
-					master.start_gmt_relative
-				) }
-			</time>
-			<h3 className="itsec-card-active-lockouts__label">
-				{ master.label }
-			</h3>
-			<p className="itsec-card-active-lockouts__description">
-				{ master.description }
-			</p>
-
+		<StyledDetail>
+			<ActiveLockout master={ master } />
 			{ details && details.history.length > 0 && (
 				<History history={ details.history } />
 			) }
-		</div>
+		</StyledDetail>
 	);
 }
 
@@ -60,10 +59,14 @@ function History( { history } ) {
 		<>
 			<hr />
 
-			<div className="itsec-card-active-lockouts__history">
-				<h4 className="itsec-card-active-lockouts__history-title">
-					{ __( 'History', 'better-wp-security' ) }
-				</h4>
+			<div>
+				<Heading
+					level={ 4 }
+					size={ TextSize.NORMAL }
+					variant={ TextVariant.DARK }
+					weight={ TextWeight.HEAVY }
+					text={ __( 'History', 'better-wp-security' ) }
+				/>
 				<ul>
 					{ history.map( ( detail ) =>
 						<HistoryItem
@@ -77,30 +80,43 @@ function History( { history } ) {
 	);
 }
 
+const StyledListItem = styled.li`
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+`;
+
+const StyledHistoryLabel = styled( Text )`
+	background-color: ${ ( { theme } ) => theme.colors.surface.secondary };
+	padding: 11px 6px;
+	border-radius: 2px;
+`;
+
 function HistoryItem( { history } ) {
 	if ( ! history.label ) {
 		return;
 	}
 
-	const time = (
-		<time
-			dateTime={ history.time }
-			title={ dateI18n( 'M d, Y g:s A', history.time ) }
-		>
-			{ sprintf(
-				/* translators: 1. Relative time from human_time_diff(). */
-				__( '%s ago', 'better-wp-security' ),
-				history.time_relative
-			) }
-		</time>
-	);
-
 	return (
-		<li key={ history.id }>
-			<code>{ history.label }</code>
-			{ ' – ' }
-			{ time }
-		</li>
+		<StyledListItem key={ history.id }>
+			<StyledHistoryLabel as="code">{ history.label }</StyledHistoryLabel>
+			<Tooltip text={ dateI18n( 'M d, Y g:s A', history.time ) }>
+				<span>
+					{ ' ' }
+					&#8226;
+					{ ' ' }
+					<Text
+						as="time"
+						variant={ TextVariant.DARK }
+						text={ sprintf(
+							/* translators: 1. Relative time from human_time_diff(). */
+							__( '%s ago', 'better-wp-security' ),
+							history.time_relative
+						) }
+					/>
+				</span>
+			</Tooltip>
+		</StyledListItem>
 	);
 }
 

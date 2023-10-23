@@ -6,17 +6,17 @@ class ITSEC_Dashboard_Card_Banned_Users extends ITSEC_Dashboard_Card {
 	}
 
 	public function get_label() {
-		return __( 'Banned Users', 'better-wp-security' );
+		return __( 'Banned IPs', 'better-wp-security' );
 	}
 
 	public function get_size() {
 		return [
-			'minW'     => 2,
-			'minH'     => 2,
-			'maxW'     => 3,
-			'maxH'     => 4,
-			'defaultW' => 2,
-			'defaultH' => 3,
+			'minW'     => 1,
+			'minH'     => 1,
+			'maxW'     => 1,
+			'maxH'     => 1,
+			'defaultW' => 1,
+			'defaultH' => 1,
 		];
 	}
 

@@ -12,9 +12,7 @@ import '@ithemes/security.user-groups.api';
 import { Page } from '@ithemes/security.pages.settings';
 import { Layout } from './components';
 import { useCompletionSteps, useSearchProviders } from './utils';
-import './store';
 import './hooks';
-import './style.scss';
 
 export default function App() {
 	useCompletionSteps();

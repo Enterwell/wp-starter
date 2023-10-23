@@ -32,6 +32,10 @@ export function getNotices( state ) {
 	return state.notices;
 }
 
+export function isNoticeDismissed( state, noticeId ) {
+	return ! state.notices.find( ( notice ) => notice.id === noticeId );
+}
+
 export function areNoticesLoaded() {
 	return isResolved( 'getNotices' );
 }

@@ -279,7 +279,7 @@ abstract class ITSEC_Settings {
 		$validator = ITSEC_Modules::get_validator( $this->get_id() );
 
 		if ( is_null( $validator ) ) {
-			$retval['errors'][] = new WP_Error( 'itsec-settings-missing-validator-for-' . $this->get_id(), sprintf( __( 'The data validator for %1$s is missing. Data for the module cannot be saved without the validator. This error could indicate a bad install of iThemes Security. Please remove the plugin and reinstall it. If this message persists, please contact support and send them this error message.', 'better-wp-security' ), $this->get_id() ) );
+			$retval['errors'][] = new WP_Error( 'itsec-settings-missing-validator-for-' . $this->get_id(), sprintf( __( 'The data validator for %1$s is missing. Data for the module cannot be saved without the validator. This error could indicate a bad install of Solid Security. Please remove the plugin and reinstall it. If this message persists, please contact support and send them this error message.', 'better-wp-security' ), $this->get_id() ) );
 		} else {
 			$validator->validate( $settings );
 

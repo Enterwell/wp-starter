@@ -183,6 +183,7 @@ module.exports = function makeConfig( directory, pro ) {
 				{
 					test: /\.svg$/,
 					exclude: /node_modules/,
+					resourceQuery: { not: [ /inline/ ] },
 					use: [
 						{
 							loader: 'svg-react-loader',
@@ -193,6 +194,14 @@ module.exports = function makeConfig( directory, pro ) {
 							},
 						},
 					],
+				},
+				{
+					resourceQuery: /inline/,
+					type: 'asset/inline',
+				},
+				{
+					test: /\.png/,
+					type: 'asset/resource',
 				},
 			],
 		},
@@ -269,6 +278,10 @@ module.exports = function makeConfig( directory, pro ) {
 			alias: {
 				// Always load the same copy of @emotion/react to prevent issues with npm linking our UI library.
 				'@emotion/react': path.resolve( directory, './node_modules/@emotion/react' ),
+				'@ithemes/security-ui': path.resolve(
+					directory,
+					'./core/packages/ui/src/index.js'
+				),
 				'@ithemes/security-utils': path.resolve(
 					directory,
 					'./core/packages/utils/src/index.js'

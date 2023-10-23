@@ -291,9 +291,9 @@ final class ITSEC_Network_Brute_Force_Utilities {
 
 		if ( ! isset( $args['user-agent'] ) ) {
 			if ( ITSEC_Core::is_pro() ) {
-				$args['user-agent'] = 'iThemes Security Pro/';
+				$args['user-agent'] = 'Solid Security Pro/';
 			} else {
-				$args['user-agent'] = 'iThemes Security/';
+				$args['user-agent'] = 'Solid Security/';
 			}
 
 			$args['user-agent'] .= ITSEC_Core::get_plugin_version() . '-' . ITSEC_Core::get_plugin_build() . '; WordPress/' . get_bloginfo( 'version' );

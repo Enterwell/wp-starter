@@ -1,9 +1,9 @@
-=== iThemes Security ===
-Contributors: ithemes, timothyblynjacobs, layotte, jthillithemes, lisacee.
-Tags: security plugin, malware scanner, security, malware prevention, two-factor authentication, brute force protection, scanner, password protection, ban, bad bots, audit log
-Requires at least: 5.9
+=== Solid Security – Password, Two Factor Authentication, and Brute Force Protection ===
+Contributors: ithemes, timothyblynjacobs, layotte, jthillithemes, lisacee, solidwp
+Tags: security, malware, two factor authentication, brute force protection, password protection
+Requires at least: 6.2
 Tested up to: 6.3
-Stable tag: 8.1.8
+Stable tag: 9.0.0
 Requires PHP: 7.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -13,23 +13,32 @@ Released under the terms of the GNU General Public License.
 
 == Description ==
 
-= The Best WordPress Security Plugin to Secure & Protect WordPress =
+= Reduce your WordPress website’s risk to nearly zero with Solid Security =
 
-On average, 30,000 websites are hacked every day. Every 39 seconds, a new cyberattack happens somewhere on the web.
+[Formerly iThemes Security. Looking for iThemes? Learn more here.](https://go.solidwp.com/wporg-security-ithemes)
 
-The good news is that most security disasters can be prevented. Using iThemes Security, you can identify and stop attacks on your website. Saving yourself the time and cost of repairing a hacked website.
+On average, 30,000 websites are hacked every day.* Cyberattacks in the US increased by 57% in 2022.** Bad actors who want to hack your site, steal your data, and cripple your business are a 24/7/365 threat.
 
-= Secure your Website in Minutes =
+You need a proactive, strategic approach to WordPress website security that protects your site from brute force attacks, malware infections, and other cyber threats.
 
-The iThemes Security setup and onboarding experience is designed to allow anyone to secure their WordPress website in under 10 minutes, without needing a degree in cybersecurity.
+[Solid Security](https://go.solidwp.com/solid-security-pro) shields your site from cyberattacks and prevents security vulnerabilities. It automatically locks out bad users identified by our Brute Force Protection Network that is nearly 1 million sites strong and leverages your own blacklist. It secures and protects your most commonly attacked part of your WordPress website – user login authentication.
 
-Knowing that you have enabled all the right security settings for your website will leave you feeling like your site has never been more secure.
+With Patchstack integration (Pro) protects your site before you even have a chance to address vulnerabilities and before a plugin or theme vendor or developer can even issue a patch.
 
-= Security Site Templates to Fit Your Type of Site =
+That’s 24/7/365 always-on truly Solid Security.
 
-An eCommerce site requires a different level of security than your average blog. iTheme Security Site Templates make it quick and easy to apply the right security settings for your website.
+https://vimeo.com/863249227
+
+= 🌐 Secure your Website in Minutes =
+
+The Solid Security setup and onboarding experience allows anyone to secure their WordPress website in under 10 minutes, regardless of technical acumen. Knowing that you have enabled all the right security settings for your website will leave you feeling like your site has never been more secure.
+
+= 📚 Security Site Templates to Fit Your Type of Site =
+
+Enabling the correct security settings based on the type of website you are building or maintaining is essential for proper security. An eCommerce site requires a different level of security than a basic blog. Solid Security Site Templates make it quick and easy to apply the right security settings for your website.
 
 Choose from six different site templates to apply the type of security your site needs:
+
 1. **Ecommerce** – websites that sell products or services
 2. **Network** – websites that connect people or communities
 3. **Non-Profit** – websites that promote your cause and collect donations
@@ -37,119 +46,148 @@ Choose from six different site templates to apply the type of security your site
 5. **Portfolio** – websites that showcase your craft
 6. **Brochure** – simple websites that promote your business
 
-= Real-Time Website Security Dashboard =
+= ⌚ Real-Time Website Security Dashboard =
 
 Every day, lots of activity is happening on your website that you can't see. Many of these activities can be related to your site's security, so monitoring these events is vital to keeping your site secure.
 
-The iThemes Security Pro plugin provides a real-time WordPress security dashboard that monitors security-related events on your site around the clock. The iThemes Security Dashboard is a dynamic dashboard with all your WordPress website's security activity stats in one place, including brute force attacks, banned users, active lockouts, site scan results, and user security stats (Pro).
+The [Solid Security Pro](https://go.solidwp.com/solid-security-pro, "Learn more about Solid Security Pro") plugin provides a real-time WordPress security dashboard that monitors security-related events on your site around the clock. The Solid Security Dashboard is a dynamic dashboard with all your WordPress website’s security activity stats in one place, including brute force attacks, banned users, active lockouts, site scan results, and user security stats (Pro).
 
-= WordPress Login Security =
+= 🗝️ WordPress Login Security =
 
-Secure your WordPress login with several layers of security
+Setting up and maintaining proper WordPress configurations and managing user account access are essential aspects of hardening your site against threats and vulnerabilities. Basic and Pro include features that address both of these factors.
 
-- **Two-Factor Authentication (2FA)** - Make your WordPress login nearly impenetrable to attack by requiring users to enter a security code along with a password to login. The iThemes Security plugin allows you to add two-factor authentication to your WordPress login with several authentication methods, including mobile apps like Authy and Google Authenticator, email, and backup codes.
+- **Two Factor Authentication (2FA)** - Make your WordPress login nearly impenetrable to attack by requiring users to enter a security code along with a password to login. The Solid Security plugin allows you to add two-factor authentication to your WordPress login with several authentication methods, including mobile apps like Authy and Google Authenticator, email, and backup codes.
+
 - **Password Requirements** - Create and enforce a password policy for your users in less than a minute.
+
 - **reCAPTCHA** (Pro) - Stop bad bots from engaging in abusive activities on your website, such as attempting to break into your website using compromised passwords, posting spam, or even scraping your content.
+
 - **Passwordless Logins** (Pro) - WordPress security made easy. Secure your user accounts with 2fa & strong passwords while allowing real users login with a click of a mouse.
+
 - **Trusted Devices** (Pro) - Identify the devices you and other users use to block session hijacking attacks and limit Administrator privileges to Trusted Devices.
 
-= The Right Amount of Security for Every User Level =
+- **Automated Vulnerability Patching** (Pro) - Solid Security Pro includes Patchstack which patches vulnerabilities before you have a chance to and applies fixes even before a plugin developer or vendor has issued a patch.
 
-Different types of user levels require different levels of security. During the iThemes Security setup process, you can identify your website's key user groups. Once the different types of users are identified, you can apply the level of security that is just right for each user group.
+Learn more about how [passwordless login is the future](https://staging.solidwp.com/guides/getting-started-with-passwordless-login/, "Get our Solid Guide on Passwordless login here") and how Solid Security can help you implement it today.
+
+= 👨‍👩‍👧‍👦 The Right Amount of Security for Every User Level =
+
+Different types of user levels require different levels of security. During the Solid Security setup process, you can identify your website’s key user groups. Once the different types of users are identified, you can apply the level of security that is just right for each user group.
 
 Here are a couple of examples of how User Groups are useful for securing your site:
 
-- **For Clients** – Let's say you are configuring iThemes Security on a client's website. You will decide whether or not they are required to use two-factor authentication and if they should have access to the iThemes Security settings.
+- **For Clients** – Let’s say you are configuring Solid Security on a client’s website. You will decide whether or not they are required to use two-factor authentication and if they should have access to the Solid Security settings.
+
 - **For Customers** – If you have an eCommerce website, you will decide whether or not you want to protect customer accounts with a password policy.
 
 **Privilege Escalation** (Pro) also adds a safe, secure way to grant temporary admin-level access to your website.
 
-= Block Bad Bots & Ban User Agents with Lockouts =
+= 🤖 Block Bad Bots & Ban User Agents with Lockouts =
 
-- **Ban Users** - Permanently block repeat offenders from accessing your site.
+- **Ban Users** (Basic and Pro) - Permanently block repeat offenders from accessing your site.
 Local Brute Force Protection - Automatically identify and stop the most common method of attack on WordPress sites.
-- **Network Brute Force Protection** - The network is the iThemes Security community and is over a million websites strong. If someone tries to break into websites in the iThemes Security community, iThemes Security will block them across the network.
-- **Magic Links** (Pro) - Security shouldn't get in your way. Magic Links allow you to log in to your WordPress site while your username is locked out by the iThemes Security Local Brute Force Protection feature.
 
-= Monitor Your Site's Security Health =
+- **Local Brute Force Protection** (Basic and Pro) – Automatically identify and stop the most common method of attack on WordPress sites.
 
-- **File Change Detection** - iThemes Security logs changes made to your website that can help detect malicious activity on your website.
-- **Site Scanner** - Enable twice-daily checks for known vulnerabilities of WordPress core file, plugins and themes. Using the Google Safe Browsing API, the Site Scan also checks your Google's blocklist status and will alert you if Google has found any malware on your website.
+- **Network Brute Force Protection** (Basic and Pro) - The network is the Solid Security community and is nearly one million websites strong. If someone tries to break into websites in the Solid Security community, Solid Security will block them across the network.
+
+- **Magic Links** (Pro) - Security shouldn’t get in your way. Magic Links allow you to log in to your WordPress site while your username is locked out by the Solid Security Local Brute Force Protection feature.
+
+= 🔍 Monitor Your Site's Security Health =
+
+- **File Change Detection** (Basic and Pro) - Solid Security logs changes made to your website that can help detect malicious activity on your website.
+
+- **Site Scanner** (Basic and Pro) - Enable twice-daily checks for known vulnerabilities of WordPress core file, plugins and themes. Using the Google Safe Browsing API, the Site Scan also checks your Google’s blocklist status and will alert you if Google has found any malware on your website.
+
 - **Site Scanner** (Pro) - Unlock Version Management to automatically apply a patch to vulnerable software detected by the Site Scan when one is available.
-- **User Logging** (Pro) - Keep a record of user activity in your WordPress security logs, including login/logout, user registration, adding/removing plugins, switching themes, changes to posts and pages, and more.
-- **Version Management** (Pro) - The Version Management feature in iThemes Security Pro allows you to auto-update WordPress, plugins, and themes. Beyond that, Version Management also has options to harden your website when you are running outdated software and scan for old websites.
 
-= Website Security Utilities =
+- **User Logging** (Pro) - Keep a record of user activity in your WordPress security logs, including login/logout, user registration, adding/removing plugins, switching themes, changes to posts and pages, and more.
+
+- **Version Management** (Pro) - The Version Management feature in Solid Security Pro allows you to auto-update WordPress, plugins, and themes. Beyond that, Version Management also has options to harden your website when you are running outdated software and scan for old websites.
+
+= 🛠️ Website Security Utilities =
 
 - **Enforce SSL** - Force all connections to the website to be made over SSL/TLS.
+
 - **Database Backups** - Create backups of your WordPress database. (Not a complete backup.)
+
 - **Geolocation** (Pro) - Improve Trusted Devices by connecting to an external location or mapping API.
 
-= Advanced Security Tools =
+= 🚀 Advanced Security Tools =
 
 - **Identify Server IPs** - Prevent issues caused by inadvertently locking out your server IPs.
-- **Change User ID 1** - Change the user ID for the first WordPress user.
-- **Change Database Prefix** -Change the database prefix that WordPress uses.
+- **Change User ID 1** - Change the user ID for the first WordPress user, potentially preventing attacks that assume the user with ID1 exists and is an administrator.
+- **Change Database Prefix** - Change the database prefix that WordPress uses, potentially preventing attacks that assume the database prefix is "wp_".
 - **Check File Permission** - See the file and directory permissions of key areas of your site.
-- **Server Config Rules** - View or flush the server security rules generated by iThemes Security.
-- **wp-config.php Rules** - View or flush the wp-config.php security rules generated by iThemes Security.
+- **Server Config Rules** - View or flush the server security rules generated by Solid Security.
+- **wp-config.php Rules** - View or flush the wp-config.php security rules generated by Solid Security.
 - **Change WordPress Salts** - Secure your site after a successful attack by changing the WordPress salts used to secure cookies and security tokens.
-- **Hide Login URL** - The Hide Backend setting can change the login URL of your site.
+- **Hide Login URL** - change the login URL of your site, making it harder for bots to find your login page and attack it.
 
-= Need Help? =
+= 🛟 Need Help? =
 
-Free support may be available with the community's help in the <a href="https://wordpress.org/support/plugin/better-wp-security/">WordPress.org support forums</a> (Note: this is community-provided support. iThemes does not monitor the WordPress.org support forums).
+Free support may be available with the community’s help in the WordPress.org support forums. Our Solid Security support team provides top-notch technical support to all our Solid Security Basic users there.
 
-Our <a href="https://help.ithemes.com/hc/en-us/categories/200147050-iThemes-Security">Help Center</a> will help you become an iThemes Security expert.
+**[Our Help Center will help you become an iThemes Security expert.](https://go.solidwp.com/security-help-center)**
 
-Get added peace of mind with professional support from our expert team and pro features to take your site's security to the next level with <a href="https://ithemes.com/security/">iThemes Security Pro</a>.
+Get additional peace of mind with professional support from our expert team and pro features to take your site’s security to the next level with Solid Security Pro.
 
 = Recover From a Hacked Site =
 
-iThemes Security makes regular backups of your WordPress database, allowing you to get back online quickly in the event of a hack or security breach. Use iThemes Security to create and email database backups on a customizable schedule.
+Solid Security makes regular backups of your WordPress database, allowing you to get back online quickly in the event of a hack or security breach. Use Solid Security to create and email database backups on a customizable schedule.
 
-For complete site backups and the ability to restore or move WordPress to a new host or domain, check out <a href="https://ithemes.com/purchase/backupbuddy">BackupBuddy</a>.
+For complete site backups and the ability to restore or move WordPress to a new host or domain, check out [Solid Backups](https://go.solidwp.com/security-basic-solid-backups).
 
-= Translations =
+= Solid Central Integration =
+Manage more than one WordPress site? Release lockouts and keep your themes, plugins, and WordPress core up to date from one dashboard with [Solid Central](https://go.solidwp.com/security-basic-solid-central).
 
-* Spanish by <a href="http://www.webhostinghub.com/">Andrew Kurtis</a>
+*Zippia. "30 Crucial Cybersecurity Statistics [2023]: Data, Trends And More" Zippia.com. Jun. 15, 2023, https://www.zippia.com/advice/cybersecurity-statistics/
 
-Please <a href="https://ithemes.com/contact" target="_blank">let us know</a> if you would like to contribute a translation.
-
-= iThemes Sync Integration =
-
-Manage more than one WordPress site? Release lockouts and keep your themes, plugins, and WordPress core up to date from one dashboard with iThemes Sync Pro. <a href="https://ithemes.com/sync/">Start your free trial of Themes Sync Pro</a>.
+**https://blog.checkpoint.com/2023/01/05/38-increase-in-2022-global-cyberattacks/
 
 == Frequently Asked Questions ==
 
-= Why does iThemes Security require the latest WordPress version? Can't I use a slightly older version? =
+= Why does Solid Security require the latest WordPress version? Can't I use a slightly older version? =
 * One of the best security practices for a WordPress site owner is keeping software up to date. Because of this, we only test this plugin on the latest stable version of WordPress and will only guarantee it works in the latest version.
 
 = Will this plugin completely stop all attacks on my site? =
-* No. iThemes Security is designed to help improve the security of your WordPress installation from many common attack methods, but it cannot prevent every possible attack. Nothing replaces diligence and good practice. This plugin makes it a little easier for you to apply both.
+* No. Solid Security is designed to help improve the security of your WordPress installation from many common attack methods, but it cannot prevent every possible attack. Nothing replaces diligence and good practice. This plugin makes it a little easier for you to apply both.
 
 = Is this plugin only for new WordPress installs or can I use it on existing sites, too? =
-* Many of the changes made by this plugin are complex and can break existing sites. While iThemes Security can be installed on either a new or existing site, we strongly recommend making a <a href="https://ithemes.com/purchase/backupbuddy" target="_blank">complete backup</a> of your existing site before applying any features included in this plugin.
+* While Solid Security can be installed on either a new or existing site, we strongly recommend making a [complete backup](https://go.solidwp.com/security-basic-solid-backups) of your existing site before applying any features included in this plugin.
 
 = Will this plugin work on all servers and hosts? =
-* iThemes Security requires Apache or LiteSpeed and mod_rewrite or NGINX to work.
+* Solid Security requires Apache or LiteSpeed and mod_rewrite or NGINX to work.
 
 = What changes does this plugin make that can break my site? =
-* iThemes Security makes significant changes to your database and other site files which can be problematic for existing WordPress sites. Again, we strongly recommended making a complete backup of your site before using this plugin. While problems are rare, most support requests involve the failure to make a proper backup before installation. DISCLAIMER: Under no circumstances do we release this plugin with any warranty, implied or otherwise. We cannot be held responsible for any damage that might arise from the use of this plugin.
-* <a href="https://ithemes.com/fixing-ithemes-security-lockouts/">Fixing iThemes Security Lockouts</a>
-* <a href="https://ithemes.com/what-is-changed-by-ithemes-security/">What is Changed By iThemes Security</a>
+* Solid Security makes significant changes to your database and other site files which can be problematic for existing WordPress sites. Again, we strongly recommended making a complete backup of your site before using this plugin. While problems are rare, most support requests involve the failure to make a proper backup before installation. DISCLAIMER: Under no circumstances do we release this plugin with any warranty, implied or otherwise. We cannot be held responsible for any damage that might arise from the use of this plugin.
 
 == Screenshots ==
 
-1. Security Site Templates to Fit Your Type of Site
+1. Customized onboarding configures your security settings to your needs
 2. Real-Time Security Dashboard
-3. WordPress Login Security
-4. Block Bad Bots & Ban User Agents with Lockouts
+3. WordPress Login Security with Two Factor Authentication
+4. Firewall rules, Block Bad Bots, and Ban User Agents with Lockouts
 5. Monitor Your Site's Security Health
-6. Website Security Utilities
-7. Advanced Security Tools
+6. Database backups help you get up and running again when the worst happens
+7. Advanced Security Settings for power users
+8. Automated vulnerability patching with Patchstack (Pro)
 
 == Changelog ==
+
+= 9.0.0 =
+* New: iThemes Security is now Solid Security! Learn More: https://go.solidwp.com/security-welcome-to-solidwp
+* Important: Solid Security now requires WordPress 6.2 or later.
+* New: The Firewall screen brings together the Firewall functionality Solid Security provides into one easy to use screen. More Firewall features are coming soon!
+* New: The Vulnerabilities screen identifies what vulnerable software you have on your site and guides you through next steps.
+* New: Identify risks in your site's security with the the expanded Site Scan functionality.
+* New: The User Security screen keeps you appraised of the security practices your site's users are following. Easily apply actions to multiple users in one-click like resetting passwords or logging out active sessions.
+* Enhancement: The dashboard and settings screens have been redesigned to make it easier to find what you're looking for.
+* Enhancement: The Security Summary dashboard card gives you a snapshot of the most important security issues affecting your site.
+* Enhancement: Add support for loading Solid Security via an MU-Plugin for improved performance when blocking attackers.
+* Tweak: Remove the IP Tracker Online link from the logs page.
+* Bug Fix: PHP 8.2 compatibility.
+* Bug Fix: Resolved PHP warnings when unexpected data is encountered during software updates.
 
 = 8.1.8 =
 * News: iThemes Security is becoming Solid Security soon. Learn More: https://go.solidwp.com/security-free-notice-ithemes-becoming-solidwp

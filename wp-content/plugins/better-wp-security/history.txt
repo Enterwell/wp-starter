@@ -1014,3 +1014,16 @@
 	Bug Fix: Don't require "Write to Files" to be enabled to use the "Rotate Encryption Key" tool.
 8.1.8 - 2023-08-31 - Timothy Jacobs, Lisa Canini, Jared Hill
 	News: iThemes Security is becoming Solid Security soon. Learn More: https://go.solidwp.com/security-free-notice-ithemes-becoming-solidwp
+9.0.0 - 2023-10-17 - Timothy Jacobs, Lisa Canini, Jared Hill, John Hooks
+	New: iThemes Security is now Solid Security! Learn More: https://go.solidwp.com/security-welcome-to-solidwp
+	Important: Solid Security now requires WordPress 6.2 or later.
+	New: The Firewall screen brings together the Firewall functionality Solid Security provides into one easy to use screen. More Firewall features are coming soon!
+	New: The Vulnerabilities screen identifies what vulnerable software you have on your site and guides you through next steps.
+	New: Identify risks in your site's security with the the expanded Site Scan functionality.
+	New: The User Security screen keeps you appraised of the security practices your site's users are following. Easily apply actions to multiple users in one-click like resetting passwords or logging out active sessions.
+	Enhancement: The dashboard and settings screens have been redesigned to make it easier to find what you're looking for.
+	Enhancement: The Security Summary dashboard card gives you a snapshot of the most important security issues affecting your site.
+	Enhancement: Add support for loading Solid Security via an MU-Plugin for improved performance when blocking attackers.
+	Tweak: Remove the IP Tracker Online link from the logs page.
+	Bug Fix: PHP 8.2 compatibility.
+	Bug Fix: Resolved PHP warnings when unexpected data is encountered during software updates.

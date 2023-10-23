@@ -3,7 +3,7 @@
 class Ithemes_Sync_Verb_ITSEC_Get_Lockouts extends Ithemes_Sync_Verb {
 
 	public static $name = 'itsec-get-lockouts';
-	public static $description = 'Retrieve a list of current lockouts in iThemes Security.';
+	public static $description = 'Retrieve a list of current lockouts in Solid Security.';
 
 	public $default_arguments = array();
 

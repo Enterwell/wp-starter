@@ -9,7 +9,6 @@ export { default as useSingletonEffect } from './use-singleton-effect';
 export { default as useAsync } from './use-async';
 export { default as useEventListener } from './use-event-listener';
 export { default as useFocusOutside } from './use-focus-outside';
-export { default as useHover } from './use-hover';
 export { default as useLocalStorage } from './use-local-storage';
 export { default as useMergeRefs } from './use-merge-refs';
 export { default as useSet } from './use-set';

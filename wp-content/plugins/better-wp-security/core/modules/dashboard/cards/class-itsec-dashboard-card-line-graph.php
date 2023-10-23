@@ -31,11 +31,11 @@ class ITSEC_Dashboard_Card_Line_Graph extends ITSEC_Dashboard_Card {
 		$this->data_config = $data_config;
 		$this->size        = wp_parse_args( $size, array(
 			'minW'     => 2,
-			'minH'     => 2,
-			'maxW'     => 3,
-			'maxH'     => 3,
+			'minH'     => 1,
+			'maxW'     => 2,
+			'maxH'     => 1,
 			'defaultW' => 2,
-			'defaultH' => 2,
+			'defaultH' => 1,
 		) );
 	}
 

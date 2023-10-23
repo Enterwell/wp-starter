@@ -2037,7 +2037,17 @@ final class ITSEC_Lib {
 	 *
 	 * @return array
 	 */
-	public static function preload_rest_requests( $requests ) {
+	public static function preload_rest_requests( $requests, string $page = '' ) {
+		if ( $page ) {
+			/**
+			 * Filters the list of API requests to preload.
+			 *
+			 * @param array  $requests
+			 * @param string $page
+			 */
+			$requests = apply_filters( 'itsec_preload_requests', $requests, 'tools' );
+		}
+
 		$preload = array();
 
 		foreach ( $requests as $key => $config ) {
@@ -2060,6 +2070,18 @@ final class ITSEC_Lib {
 			if ( $response->get_status() >= 200 && $response->get_status() < 300 ) {
 				rest_send_allow_header( $response, rest_get_server(), $request );
 
+				if ( is_int( $key ) ) {
+					$key = $config['route'];
+
+					if ( ! empty( $config['query'] ) ) {
+						$key = add_query_arg( $config['query'], $key );
+					}
+
+					if ( ! empty( $config['embed'] ) ) {
+						$key = add_query_arg( '_embed', '1', $key );
+					}
+				}
+
 				$preload[ $key ] = array(
 					'body'    => rest_get_server()->response_to_data( $response, ! empty( $config['embed'] ) ),
 					'headers' => $response->get_headers()
@@ -2068,6 +2090,40 @@ final class ITSEC_Lib {
 		}
 
 		return $preload;
+	}
+
+	/**
+	 * Preloads a REST API request directly into a data store.
+	 *
+	 * This can be useful when we need the data to be immediately
+	 * available when the app renders. Typical preloading still has
+	 * a fractional delay, as it goes through an async fetch stack.
+	 *
+	 * @param string $store  The data store handle.
+	 * @param string $action The data store action.
+	 * @param string $route  The REST API route to fetch.
+	 * @param array  $query  Query parameters for the REST API route.
+	 *
+	 * @return bool
+	 */
+	public static function preload_request_for_data_store( string $store, string $action, string $route, array $query = [] ): bool {
+		$request = new WP_REST_Request( 'GET', $route );
+		$request->set_query_params( $query );
+
+		$response = rest_do_request( $request );
+
+		if ( $response->is_error() ) {
+			return false;
+		}
+
+		$data = rest_get_server()->response_to_data( $response, ! empty( $query['_embed'] ) );
+
+		return wp_add_inline_script( 'itsec-packages-data', sprintf(
+			"wp.data.dispatch( '%s' ).%s( %s )",
+			$store,
+			$action,
+			wp_json_encode( $data )
+		) );
 	}
 
 	/**
@@ -2354,12 +2410,13 @@ final class ITSEC_Lib {
 	 */
 	public static function get_requirements_info(): array {
 		return [
+			'load'   => ITSEC_Core::is_loading_early() ? 'early' : 'normal',
 			'server' => [
 				'php'        => explode( '-', PHP_VERSION )[0],
 				'extensions' => [
 					'OpenSSL' => self::is_func_allowed( 'openssl_verify' ),
 				],
-			]
+			],
 		];
 	}
 
@@ -2417,6 +2474,10 @@ final class ITSEC_Lib {
 						],
 					],
 				],
+				'load'          => [
+					'type' => 'string',
+					'enum' => [ 'normal', 'early' ],
+				],
 			],
 		];
 
@@ -2439,7 +2500,7 @@ final class ITSEC_Lib {
 					if ( version_compare( ITSEC_Core::get_plugin_version(), $version, '<' ) ) {
 						$error->add(
 							'version',
-							sprintf( __( 'You must be running at least version %s of iThemes Security.', 'better-wp-security' ), $version )
+							sprintf( __( 'You must be running at least version %s of Solid Security.', 'better-wp-security' ), $version )
 						);
 					}
 
@@ -2507,6 +2568,12 @@ final class ITSEC_Lib {
 						$error->add( 'server', $message );
 					}
 					break;
+				case 'load':
+					if ( $requirement === 'normal' && ITSEC_Core::is_loading_early() ) {
+						$error->add( 'load', __( 'Loading Solid Security via an MU-Plugin is not supported.', 'better-wp-security' ) );
+					} elseif ( $requirement === 'early' && ! ITSEC_Core::is_loading_early() ) {
+						$error->add( 'load', __( 'Loading Solid Security without an MU-Plugin is not supported.', 'better-wp-security' ) );
+					}
 			}
 		}
 
@@ -2666,8 +2733,8 @@ final class ITSEC_Lib {
 	 * Extends a service definition, ignoring if the service has been frozen.
 	 *
 	 * @param \iThemesSecurity\Strauss\Pimple\Container $c
-	 * @param string            $id
-	 * @param callable          $extend
+	 * @param string                                    $id
+	 * @param callable                                  $extend
 	 *
 	 * @return bool
 	 */
@@ -2740,6 +2807,29 @@ final class ITSEC_Lib {
 			wp_rand( 0, 0xffff ),
 			wp_rand( 0, 0xffff )
 		);
+	}
+
+	/**
+	 * Clears the WordPress auth cookies.
+	 *
+	 * This function is safe to call before plugins have been loaded.
+	 * But the request MUST exist after calling it.
+	 *
+	 * @return void
+	 */
+	public static function clear_auth_cookie() {
+		if ( ! function_exists( 'wp_clear_auth_cookie' ) ) {
+			if ( is_multisite() ) {
+				ms_cookie_constants();
+			}
+
+			// Define constants after multisite is loaded.
+			wp_cookie_constants();
+
+			require_once ABSPATH . 'wp-includes/pluggable.php';
+		}
+
+		wp_clear_auth_cookie();
 	}
 
 	public static function recursively_json_serialize( $value ) {

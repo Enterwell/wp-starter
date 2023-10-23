@@ -2,28 +2,52 @@
  * External dependencies
  */
 import { useDebounceCallback } from '@react-hook/debounce';
-import classnames from 'classnames';
+import styled from '@emotion/styled';
 
 /**
  * WordPress dependencies
  */
-import { Button } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { useState } from '@wordpress/element';
 
 /**
+ * SolidWP dependencies
+ */
+import {
+	Surface,
+	Button,
+} from '@ithemes/ui';
+
+/**
  * Internal dependencies
  */
 import Header, { Title } from '../../components/card/header';
-import Footer from '../../components/card/footer';
-import { Back } from '../../components/master-detail';
-import Search from './search';
 import List from './list';
 import AddNew from './add-new';
-import './style.scss';
 
-function BannedUsers( { card, config, eqProps } ) {
+const StyledSurface = styled( Surface )`
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	height: 100%;
+`;
+
+export const StyledFooter = styled( Surface )`
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  flex-shrink: 0;
+  justify-content: flex-end;
+  position: sticky;
+  bottom: 0;
+  padding: 0.5rem 1.25rem;
+  gap: 0.5rem;
+  margin-top: auto;
+  border-top: 1px solid ${ ( { theme } ) => theme.colors.border.normal };
+`;
+
+function BannedUsers( { card, config } ) {
 	const [ isCreating, setCreating ] = useState( false );
 	const [ isSaving, setSaving ] = useState( false );
 	const { schema, isQuerying } = useSelect( ( select ) => ( {
@@ -39,33 +63,29 @@ function BannedUsers( { card, config, eqProps } ) {
 	} = useDispatch( 'ithemes-security/bans' );
 	const debouncedQuery = useDebounceCallback( query, 500 );
 	const [ selected, select ] = useState( 0 );
-	const isSmall =
-		eqProps[ 'max-height' ] && eqProps[ 'max-height' ].includes( '500px' );
 	const onSelect = ( selectedId ) => {
 		select( selectedId );
 		setCreating( false );
 	};
 	const formId = `itsec-ban-card-create-form__${ card.id }`;
 	return (
-		<div
-			className={ classnames( 'itsec-card--type-banned-users', {
-				'itsec-card-banned-users--creating': isCreating,
-			} ) }
-		>
+		<StyledSurface>
 			<Header>
-				<Back
-					isSmall={ isSmall }
-					select={ select }
-					selectedId={ selected }
+				<Title
+					card={ card }
+					config={ config }
 				/>
-				<Title card={ card } config={ config } />
 			</Header>
-			<Search query={ debouncedQuery } isQuerying={ isQuerying } />
-			<List
-				selected={ isCreating ? false : selected }
-				onSelect={ onSelect }
-				isSmall={ isSmall }
-			/>
+			{ ! isCreating && (
+				<>
+					<List
+						selected={ isCreating ? false : selected }
+						onSelect={ onSelect }
+						querying={ isQuerying }
+						query={ debouncedQuery }
+					/>
+				</>
+			) }
 			{ isCreating && (
 				<AddNew
 					id={ formId }
@@ -75,23 +95,21 @@ function BannedUsers( { card, config, eqProps } ) {
 					afterSave={ () => invalidateResolution( 'getBans' ) }
 				/>
 			) }
-			<Footer>
+			<StyledFooter>
 				{ isCreating && (
 					<>
-						<span className="itsec-card-footer__action">
+						<span>
 							<Button
 								variant="link"
-								isSmall
 								disabled={ isSaving }
 								onClick={ () => setCreating( false ) }
 							>
 								{ __( 'Cancel', 'better-wp-security' ) }
 							</Button>
 						</span>
-						<span className="itsec-card-footer__action">
+						<span>
 							<Button
 								variant="primary"
-								isSmall
 								form={ formId }
 								type="submit"
 								isBusy={ isSaving }
@@ -107,12 +125,8 @@ function BannedUsers( { card, config, eqProps } ) {
 						{ schema?.links
 							.filter( ( link ) => link.rel === 'create-form' && ( ! link.targetHints?.allow || link.targetHints.allow.includes( 'POST' ) ) )
 							.map( ( createForm ) => (
-								<span
-									key={ createForm.href }
-									className="itsec-card-footer__action"
-								>
+								<span key={ createForm.href }>
 									<Button
-										isSmall
 										variant="primary"
 										onClick={ () =>
 											setCreating(
@@ -126,19 +140,12 @@ function BannedUsers( { card, config, eqProps } ) {
 							) ) }
 					</>
 				) }
-			</Footer>
-		</div>
+			</StyledFooter>
+		</StyledSurface>
 	);
 }
 
 export const slug = 'banned-users-list';
 export const settings = {
 	render: BannedUsers,
-	elementQueries: [
-		{
-			type: 'height',
-			dir: 'max',
-			px: 500,
-		},
-	],
 };

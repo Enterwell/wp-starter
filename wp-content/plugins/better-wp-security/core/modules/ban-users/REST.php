@@ -46,7 +46,7 @@ final class REST implements Runnable {
 			'uiSchema'   => [
 				'bans' => [
 					'ui:field'       => 'TextareaListField',
-					'ui:rows'        => 10,
+					'ui:rows'        => 7,
 					'ui:placeholder' => '127.0.0.1 # This is my note',
 				],
 			]

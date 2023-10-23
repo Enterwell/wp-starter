@@ -57,7 +57,7 @@ final class Tools_Runner implements Runnable {
 		if ( ! $this->is_condition_valid( $tool ) ) {
 			return Result::error( new \WP_Error(
 				'itsec.tools.run.condition-invalid',
-				__( 'This tool cannot run because it‘s condition is not valid.', 'better-wp-security' )
+				__( 'This tool cannot run because its condition is not valid.', 'better-wp-security' )
 			) );
 		}
 

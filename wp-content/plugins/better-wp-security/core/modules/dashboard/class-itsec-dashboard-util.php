@@ -10,7 +10,7 @@ class ITSEC_Dashboard_Util {
 	const P_30_DAYS = '30-days';
 
 	/** @var string[] WordPress breakpoints. */
-	public static $breakpoints = array( 'huge', 'wide', 'large', 'medium', 'mobile' );
+	public static $breakpoints = array( 'wide', 'large', 'medium', 'mobile' );
 
 	/** @var ITSEC_Dashboard_Card[] */
 	private static $registered_cards;
@@ -107,6 +107,10 @@ class ITSEC_Dashboard_Util {
 		}
 
 		$user = ITSEC_Lib::get_user( $user );
+
+		if ( ! $user ) {
+			return array();
+		}
 
 		if ( isset( self::$_query_cache['shared'][ $user->ID ] ) ) {
 			$ids = self::$_query_cache['shared'][ $user->ID ];

@@ -93,6 +93,18 @@ class ITSEC_File_Change_Package_Theme implements ITSEC_File_Change_Package, Seri
 		return sprintf( __( '%1$s theme %2$s', 'better-wp-security' ), $this->get_theme_header( 'Theme Name' ), 'v' . $this->get_version() );
 	}
 
+	public function __serialize(): array {
+		return array(
+			'theme_dir'  => $this->theme->get_stylesheet(),
+			'theme_root' => $this->theme->get_theme_root(),
+		);
+	}
+
+	public function __unserialize( array $data ): void {
+		$this->theme = wp_get_theme( $data['theme_dir'], $data['theme_root'] );
+	}
+
+
 	/**
 	 * @inheritDoc
 	 */

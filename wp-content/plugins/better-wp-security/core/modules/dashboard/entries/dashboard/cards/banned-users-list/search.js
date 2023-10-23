@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { omitBy } from 'lodash';
+import styled from '@emotion/styled';
 
 /**
  * WordPress dependencies
@@ -64,6 +65,17 @@ function useActorsSelect( emptyLabel = '' ) {
 	return options;
 }
 
+const StyledSearchControlContainer = styled.section`
+	display: flex;
+	align-items: flex-start;
+	gap: ${ ( { theme: { getSize } } ) => getSize( .75 ) };
+	padding: ${ ( { theme: { getSize } } ) => getSize( 1 ) };
+`;
+
+const StyledSelectControl = styled( SelectControl )`
+	width: 128px;
+`;
+
 export default function Search( { query, isQuerying } ) {
 	const actors = useActorsSelect( __( 'All', 'better-wp-security' ) );
 	const [ search, setSearch ] = useState( {
@@ -81,10 +93,11 @@ export default function Search( { query, isQuerying } ) {
 	};
 
 	return (
-		<section className="itsec-card-banned-users__search">
-			<SelectControl
+		<StyledSearchControlContainer>
+			<StyledSelectControl
 				options={ actors }
 				hideLabelFromVision
+				__nextHasNoMarginBottom
 				label={ __( 'Ban Reason', 'better-wp-security' ) }
 				value={
 					search.actor_type && search.actor_id
@@ -104,12 +117,12 @@ export default function Search( { query, isQuerying } ) {
 				} }
 			/>
 			<SearchControl
+				placeholder={ __( 'Search Bans', 'better-wp-security' ) }
 				value={ search.search }
 				onChange={ ( term ) => onSearch( { search: term } ) }
 				isSearching={ isQuerying }
-				surfaceVariant="secondary"
-				placeholder={ __( 'Search Bans', 'better-wp-security' ) }
+				size="small"
 			/>
-		</section>
+		</StyledSearchControlContainer>
 	);
 }

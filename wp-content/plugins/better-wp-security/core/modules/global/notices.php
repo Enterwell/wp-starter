@@ -10,7 +10,7 @@ class ITSEC_Admin_Notice_Network_Brute_Force_Promo implements ITSEC_Admin_Notice
 	}
 
 	public function get_message() {
-		return esc_html__( 'New! Take your site security to the next level by activating iThemes Brute Force Network Protection.', 'better-wp-security' );
+		return esc_html__( 'New! Take your site security to the next level by activating SolidWP Brute Force Network Protection.', 'better-wp-security' );
 	}
 
 	public function get_severity() {
@@ -53,7 +53,7 @@ class ITSEC_Admin_Notice_Licensed_Hostname_Prompt implements ITSEC_Admin_Notice 
 	}
 
 	public function get_message() {
-		return esc_html__( 'iThemes Security Pro couldn\'t verify the license for this site. An active license is required to authenticate the Site Scanner.', 'better-wp-security' );
+		return esc_html__( 'Solid Security couldn’t verify the license for this site. An active license is required to authenticate the Site Scanner.', 'better-wp-security' );
 	}
 
 	public function get_meta() {
@@ -93,12 +93,12 @@ ITSEC_Lib_Admin_Notices::register(
 				}
 
 				public function get_title() {
-					return __( 'Enable Security Check Pro', 'better-wp-security' );
+					return __( 'Enable Security Check', 'better-wp-security' );
 				}
 
 				public function get_message() {
 					return __( 'Automatic IP detection is susceptible to IP spoofing attacks.', 'better-wp-security' ) . ' ' .
-					       __( 'We recommend enabling Security Check Pro to securely configure IP detection.', 'better-wp-security' ) . ' ' .
+					       __( 'We recommend enabling Security Check to securely configure IP detection.', 'better-wp-security' ) . ' ' .
 					       __( 'Alternatively, manually configure <a href="{{ $configure }}">Proxy Detection</a> based on your server setup.', 'better-wp-security' );
 				}
 
@@ -144,7 +144,7 @@ if ( ITSEC_Core::is_temp_disable_modules_set() ) {
 	ITSEC_Lib_Admin_Notices::register(
 		new ITSEC_Admin_Notice_Managers_Only(
 			new ITSEC_Admin_Notice_Static(
-				'disable-modules', esc_html__( 'The ITSEC_DISABLE_MODULES define is set. All iThemes Security protections are disabled. Please make the necessary settings changes and remove the define as quickly as possible.', 'better-wp-security' ), '', ITSEC_Admin_Notice::S_WARN
+				'disable-modules', esc_html__( 'The ITSEC_DISABLE_MODULES define is set. All Solid Security protections are disabled. Please make the necessary settings changes and remove the define as quickly as possible.', 'better-wp-security' ), '', ITSEC_Admin_Notice::S_WARN
 			)
 		)
 	);

@@ -30,7 +30,7 @@ __( 'The path on your machine where backup files should be stored. For added sec
 __( 'Backups to Retain', 'better-wp-security' );
 __( 'Limit the number of backups stored locally (on this server). Any older backups beyond this number will be removed. Enter “0” to retain all backups.', 'better-wp-security' );
 __( 'Compress Backup Files', 'better-wp-security' );
-__( 'By default, iThemes Security will zip backup files to reduce file size. You may need to turn this off if you are having problems with backups.', 'better-wp-security' );
+__( 'By default, Solid Security will zip backup files to reduce file size. You may need to turn this off if you are having problems with backups.', 'better-wp-security' );
 __( 'Backup Tables', 'better-wp-security' );
 __( 'Specify which tables should be included or excluded from backups. WordPress Core tables are always included.', 'better-wp-security' );
 __( 'Last Run', 'better-wp-security' );
@@ -46,7 +46,7 @@ __( 'List of tables to include in each backup.', 'better-wp-security' );
 # BEGIN MODULE: ban-users
 __( 'Ban Users', 'better-wp-security' );
 __( 'Block specific IP addresses and user agents from accessing the site.', 'better-wp-security' );
-__( 'iThemes Security automatically adds an IP to the ban list once it meets the Ban Threshold requirements. The Ban Threshold setting can be adjusted in the [Global Settings](itsec://settings/configure/global). You can manually add IPs to the ban list from the Security Dashboard using the Banned Users card.', 'better-wp-security' );
+__( 'Solid Security automatically adds an IP to the ban list once it meets the Ban Threshold requirements. The Ban Threshold setting can be adjusted in the [Global Settings](itsec://settings/configure/global). You can manually add IPs to the ban list from the Security Dashboard using the Banned IPs card.', 'better-wp-security' );
 __( 'blacklist', 'better-wp-security' );
 __( 'Default Ban List', 'better-wp-security' );
 __( 'As a getting-started point you can include the HackRepair.com ban list developed by Jim Walker.', 'better-wp-security' );
@@ -61,13 +61,13 @@ __( 'Custom Bans', 'better-wp-security' );
 # BEGIN MODULE: brute-force
 __( 'Local Brute Force', 'better-wp-security' );
 __( 'Protect your site against attackers that try to randomly guess login details to your site.', 'better-wp-security' );
-__( 'If one had unlimited time and wanted to try an unlimited number of password combinations to get into your site they eventually would, right? This method of attack, known as a brute force attack, is something that WordPress is acutely susceptible to as, by default, the system doesn’t care how many attempts a user makes to login. It will always let you try again. Enabling login limits will ban the host user from attempting to login again after the specified bad login threshold has been reached.', 'better-wp-security' );
-__( 'Automatically ban “admin” user', 'better-wp-security' );
-__( 'Immediately ban a host that attempts to login using the “admin” username.', 'better-wp-security' );
-__( 'Max Login Attempts Per Host', 'better-wp-security' );
-__( 'The number of login attempts a user has before their host or computer is locked out of the system. Set to 0 to record bad login attempts without locking out the host.', 'better-wp-security' );
+__( 'If one had unlimited time and wanted to try an unlimited number of password combinations to get into your site they eventually would, right? This method of attack, known as a brute force attack, is something that WordPress is acutely susceptible to as, by default, the system doesn’t care how many attempts a user makes to login. It will always let you try again. Enabling login limits will ban login attempts from that IP address after the specified bad login threshold has been reached.', 'better-wp-security' );
+__( 'Automatically lockout “admin” user', 'better-wp-security' );
+__( 'Immediately lockout an IP address that attempts to login using the “admin” username.', 'better-wp-security' );
+__( 'Max Login Attempts Per IP', 'better-wp-security' );
+__( 'The number of login attempts that can be made before an IP address is locked out of the system. Set to 0 to record bad login attempts without creating a lockout.', 'better-wp-security' );
 __( 'Max Login Attempts Per User', 'better-wp-security' );
-__( 'The number of login attempts a user has before their username is locked out of the system. Note that this is different from hosts in case an attacker is using multiple computers. In addition, if they are using your login name you could be locked out yourself. Set to 0 to log bad login attempts per user without ever locking the user out (this is not recommended).', 'better-wp-security' );
+__( 'The number of login attempts a user can make before their username is locked out of the system. Note that this is different from IPs in case an attacker is using multiple computers. In addition, if they are using your login name you could be locked out yourself. Set to 0 to log bad login attempts per user without ever locking the user out (this is not recommended).', 'better-wp-security' );
 __( 'Minutes to Remember Bad Login (check period)', 'better-wp-security' );
 __( 'The number of minutes in which bad logins should be remembered.', 'better-wp-security' );
 __( 'Login Attempts', 'better-wp-security' );
@@ -81,8 +81,8 @@ __( 'Advanced feature to rename the wp-content directory to a different name.', 
 # BEGIN MODULE: core
 __( 'Core', 'better-wp-security' );
 __( 'Set Encryption Key', 'better-wp-security' );
-__( 'Sets a secure key that iThemes Security uses to encrypt sensitive values like Two-Factor codes.', 'better-wp-security' );
-__( 'iThemes Security will add a constant to your website’s <code>wp-config.php</code> file named <code>ITSEC_ENCRYPTION_KEY</code>.', 'better-wp-security' );
+__( 'Sets a secure key that Solid Security uses to encrypt sensitive values like Two-Factor codes.', 'better-wp-security' );
+__( 'Solid Security will add a constant to your website’s <code>wp-config.php</code> file named <code>ITSEC_ENCRYPTION_KEY</code>.', 'better-wp-security' );
 __( 'encryption', 'better-wp-security' );
 __( 'Confirm Reset Key', 'better-wp-security' );
 __( 'Confirm you want to reset the encryption key to a new value.', 'better-wp-security' );
@@ -92,13 +92,17 @@ __( 'If you’ve manually updated the <code>ITSEC_ENCRYPTION_KEY</code> constant
 __( 'encryption', 'better-wp-security' );
 __( 'Previous Key', 'better-wp-security' );
 __( 'Provide the previous value of <code>ITSEC_ENCRYPTION_KEY</code>.', 'better-wp-security' );
+__( 'Create MU Plugin Loader', 'better-wp-security' );
+__( 'For better security and optimized performance Solid Security can be loaded as an MU-Plugin. Run this tool to automatically create the MU Plugin.', 'better-wp-security' );
+__( 'Remove MU Plugin Loader', 'better-wp-security' );
+__( 'For better security and optimized performance Solid Security is being loaded as an MU-Plugin. Run this tool to automatically remove the MU Plugin.', 'better-wp-security' );
 # END MODULE: core
 
 # BEGIN MODULE: dashboard
 __( 'Security Dashboard', 'better-wp-security' );
 __( 'See a real-time overview of the security activity on your website with this dynamic dashboard.', 'better-wp-security' );
 __( 'Enable Dashboard Creation', 'better-wp-security' );
-__( 'Allow users to create new iThemes Security Dashboards.', 'better-wp-security' );
+__( 'Allow users to create new Solid Security Dashboards.', 'better-wp-security' );
 # END MODULE: dashboard
 
 # BEGIN MODULE: database-prefix
@@ -113,7 +117,7 @@ __( 'Email Confirmation', 'better-wp-security' );
 
 # BEGIN MODULE: feature-flags
 __( 'Feature Flags', 'better-wp-security' );
-__( 'Feature Flags in iThemes Security allow you to try experimental features before they are released.', 'better-wp-security' );
+__( 'Feature Flags in Solid Security allow you to try experimental features before they are released.', 'better-wp-security' );
 __( 'Enabled Features', 'better-wp-security' );
 __( 'Select which experimental features you’d like to enable.', 'better-wp-security' );
 # END MODULE: feature-flags
@@ -148,70 +152,79 @@ __( 'View or flush the generated wp-config.php rules.', 'better-wp-security' );
 __( 'The “Write to Files” setting must be enabled to automatically flush rules.', 'better-wp-security' );
 # END MODULE: file-writing
 
+# BEGIN MODULE: firewall
+__( 'Firewall Rules Engine', 'better-wp-security' );
+__( 'Protect your site with firewall rules.', 'better-wp-security' );
+__( 'Max Firewall Violations Per IP address', 'better-wp-security' );
+__( 'The number of times a firewall rule can be triggered before an attacker will be locked out for an extended period of time.', 'better-wp-security' );
+__( 'Minutes to Remember (check period)', 'better-wp-security' );
+__( 'The number of minutes a firewall violation should be remembered.', 'better-wp-security' );
+# END MODULE: firewall
+
 # BEGIN MODULE: global
 __( 'Global Settings', 'better-wp-security' );
-__( 'Configure basic settings that control how iThemes Security functions.', 'better-wp-security' );
-__( 'Changes made to the Global Settings are applied globally throughout the plugin settings. For example, the Lockout & Lockout messages settings are used by all of the iThemes Security Lockout features.', 'better-wp-security' );
+__( 'Configure basic settings that control how Solid Security functions.', 'better-wp-security' );
+__( 'Changes made here are applied globally throughout Solid Security’s settings. For example, the lockout settings and messages are used by all of Solid Security’s lockout features.', 'better-wp-security' );
 __( 'Write to Files', 'better-wp-security' );
-__( 'Allow iThemes Security to write to wp-config.php and .htaccess automatically. If disabled, you will need to place configuration options in those files manually.', 'better-wp-security' );
+__( 'Allow Solid Security to write to wp-config.php and .htaccess automatically. If this box is not checked, you will need to edit those files manually.', 'better-wp-security' );
 __( 'NGINX Conf File', 'better-wp-security' );
-__( 'This path must be writable by your website. For added security, it is recommended you do not include it in your website root folder.', 'better-wp-security' );
+__( 'This path must be writable by WordPress. For security reasons, we recommend you do not include it in your website’s root folder.', 'better-wp-security' );
 __( 'Minutes to Lockout', 'better-wp-security' );
-__( 'The length of time a host or user will be locked out from this site after hitting the limit of bad logins. The default setting of 15 minutes is recommended as increasing it could prevent attackers from being banned.', 'better-wp-security' );
+__( 'The length of time an IP address or user will be locked out from this site after hitting the limit for failed logins. The default setting of 15 minutes is recommended. Increasing it could prevent attackers from being banned.', 'better-wp-security' );
 __( 'Days to Remember Lockouts', 'better-wp-security' );
-__( 'How many days should iThemes Security remember a lockout. This does not affect the logs generated when creating a lockout.', 'better-wp-security' );
+__( 'How many days should Solid Security remember a lockout? This does not affect the logs generated when creating a lockout.', 'better-wp-security' );
 __( 'Ban Repeat Offender', 'better-wp-security' );
-__( 'Should iThemes Security permanently add a locked out IP address to the “Ban Users” list after reaching the configured “Ban Threshold”.', 'better-wp-security' );
+__( 'Permanently add a locked-out IP address to the “Ban Users” list after reaching the configured “Ban Threshold.”', 'better-wp-security' );
 __( 'Ban Threshold', 'better-wp-security' );
-__( 'The number of lockouts iThemes Security must remember before permanently banning the attacker.', 'better-wp-security' );
-__( 'Host Lockout Message', 'better-wp-security' );
-__( 'The message to display when a computer (host) has been locked out.', 'better-wp-security' );
+__( 'The number of lockouts Solid Security must remember before permanently banning the attacker.', 'better-wp-security' );
+__( 'IP Lockout Message', 'better-wp-security' );
+__( 'Display this message when an IP address has been locked out.', 'better-wp-security' );
 __( 'User Lockout Message', 'better-wp-security' );
-__( 'The message to display to a user when their account has been locked out.', 'better-wp-security' );
+__( 'The message to display to a user when they have been locked out.', 'better-wp-security' );
 __( 'Community Lockout Message', 'better-wp-security' );
-__( 'The message to display to a user when their IP has been flagged as bad by the iThemes network.', 'better-wp-security' );
+__( 'The message to display to a user when their IP has been flagged as suspicious by the SolidWP network.', 'better-wp-security' );
 __( 'Automatically Temporarily Authorize Hosts', 'better-wp-security' );
-__( 'Whenever an administrator user accesses the website, iThemes Security will prevent locking out that computer for 24 hours.', 'better-wp-security' );
-__( 'Authorized Hosts', 'better-wp-security' );
-__( 'Enter a list of hosts that should not be locked out by iThemes Security.', 'better-wp-security' );
+__( 'Whenever an administrator user accesses the website, Solid Security will prevent their last used IP from being locked out for 24 hours.', 'better-wp-security' );
+__( 'Authorized IPs', 'better-wp-security' );
+__( 'Enter a list of IP addresses that should not be locked out by Solid Security.', 'better-wp-security' );
 __( 'whitelist', 'better-wp-security' );
 __( 'How should event logs be kept', 'better-wp-security' );
-__( 'iThemes Security can log events in multiple ways, each with advantages and disadvantages. Database Only puts all events in the database with your posts and other WordPress data. This makes it easy to retrieve and process but can be slower if the database table gets very large. File Only is very fast but the plugin does not process the logs itself as that would take far more resources. For most users or smaller sites Database Only should be fine. If you have a very large site or a log processing software then File Only might be a better option.', 'better-wp-security' );
+__( 'Solid Security can log events in two different ways. Each has advantages and disadvantages. Database Only logs puts all events in the database with your posts and other WordPress data. This makes it easy to retrieve and process that information, but it can slow down your site if the log table gets very large. File Only logging is very fast, but the plugin does not process the logs itself. That would take far more server resources. For most users or smaller sites, Database Only logging should be fine. If you have a very large site or log processing software, then File Only might be a better option.', 'better-wp-security' );
 __( 'Database Only', 'better-wp-security' );
 __( 'File Only', 'better-wp-security' );
 __( 'Both', 'better-wp-security' );
 __( 'Days to Keep Database Logs', 'better-wp-security' );
 __( 'The number of days database logs should be kept.', 'better-wp-security' );
 __( 'Days to Keep File Logs', 'better-wp-security' );
-__( 'The number of days file logs should be kept. File logs will additionally be rotated once the file hits 10MB. Set to 0 to only use log rotation.', 'better-wp-security' );
+__( 'The number of days file logs should be kept. File logs will be rotated once the file hits 10MB. Set to 0 to only use log rotation.', 'better-wp-security' );
 __( 'Path to Log Files', 'better-wp-security' );
-__( 'This path must be writable by your website. For added security, it is recommended you do not include it in your website root folder.', 'better-wp-security' );
+__( 'This folder must be writable. For security reasons, we recommend you do not save logs in your website\'s root folder.', 'better-wp-security' );
 __( 'Proxy Detection', 'better-wp-security' );
-__( 'Determine how iThemes Security determines your visitor’s IP addresses. Choose the Security Check Scan to let iThemes Security identify malicious IPs attacking your website accurately.', 'better-wp-security' );
+__( 'Determine how Solid Security identifies your visitor’s IP addresses. Choose the Security Check Scan to allow Solid Security to accurately identify malicious IPs attacking your website.', 'better-wp-security' );
 __( 'Proxy Header', 'better-wp-security' );
-__( 'Select the header your Proxy Server uses to forward the client IP address. If you don’t know the header, you can contact your hosting provider or select the header that has your IP Address.', 'better-wp-security' );
+__( 'Select the header your proxy server uses to forward the client IP address. If you don’t know the header, you can contact your hosting provider or select the header that shows your true IP address.', 'better-wp-security' );
 __( 'Allow Data Tracking', 'better-wp-security' );
-__( 'Allow iThemes to track plugin usage via anonymous data.', 'better-wp-security' );
+__( 'Allow Solid Security to track plugin usage with anonymized data.', 'better-wp-security' );
 __( 'Hide Security Menu in Admin Bar', 'better-wp-security' );
-__( 'Remove the Security Messages Menu from the admin bar. Notifications will only appear on the iThemes Security dashboard and settings pages.', 'better-wp-security' );
+__( 'Remove the Security Messages Menu from the Admin Bar. Notifications will only appear on the Solid Security dashboard and settings pages.', 'better-wp-security' );
 __( 'Show Error Codes', 'better-wp-security' );
-__( 'Each error message in iThemes Security has an associated error code that can help diagnose an issue. Changing this setting to “Yes” causes these codes to display. This setting should be left set to “No” unless iThemes Security support requests that you change it.', 'better-wp-security' );
+__( 'Each error message in Solid Security has an associated error code that can help diagnose an issue. Changing this setting to “Yes” causes these codes to be displayed. This setting should be left set to “No” unless Solid Security\'s customer success team requests that you change it.', 'better-wp-security' );
 __( 'Lockouts', 'better-wp-security' );
 __( 'Lockout Messages', 'better-wp-security' );
 __( 'Authorized Hosts', 'better-wp-security' );
 __( 'Logging', 'better-wp-security' );
 __( 'IP Detection', 'better-wp-security' );
 __( 'UI Tweaks', 'better-wp-security' );
-__( 'Manage iThemes Security', 'better-wp-security' );
-__( 'Allow users to manage iThemes Security.', 'better-wp-security' );
+__( 'Manage Solid Security', 'better-wp-security' );
+__( 'Allow users to manage Solid Security.', 'better-wp-security' );
 __( 'Identify Server IPs', 'better-wp-security' );
 __( 'Determines the list of IP addresses your server uses when making HTTP requests.', 'better-wp-security' );
-__( 'The correct list of server IPs is important to prevent erroneous Lockouts and Trusted Devices errors.', 'better-wp-security' );
+__( 'The correct list of server IPs is important to prevent erroneous lockouts and trusted device errors.', 'better-wp-security' );
 # END MODULE: global
 
 # BEGIN MODULE: hibp
 __( 'Refuse Compromised Passwords', 'better-wp-security' );
-__( 'Require users to use passwords which do not appear in any password breaches tracked by Have I Been Pwned. Plaintext passwords are never sent to Have I Been Pwned. Instead, 5 characters of the hashed password are sent over an encrypted connection to their API. ', 'better-wp-security' );
+__( 'Reject passwords that have appeared in password breaches tracked by haveibeenpwned.com. This is a secure API call that does not transmit complete, unhashed passwords.', 'better-wp-security' );
 # END MODULE: hibp
 
 # BEGIN MODULE: hide-backend
@@ -242,7 +255,7 @@ __( 'Protect your site with automated site scans. When this feature is enabled, 
 # BEGIN MODULE: network-brute-force
 __( 'Network Brute Force', 'better-wp-security' );
 __( 'Join a network of sites that reports and protects against bad actors on the internet.', 'better-wp-security' );
-__( 'If one had unlimited time and wanted to try an unlimited number of password combinations to get into your site they eventually would, right? This method of attack, known as a brute force attack, is something that WordPress is acutely susceptible to as, by default, the system doesn’t care how many attempts a user makes to login. It will always let you try again. Enabling login limits will ban the host user from attempting to login again after the specified bad login threshold has been reached.', 'better-wp-security' );
+__( 'If one had unlimited time and wanted to try an unlimited number of password combinations to get into your site they eventually would, right? This method of attack, known as a brute force attack, is something that WordPress is acutely susceptible to as, by default, the system doesn’t care how many attempts a user makes to login. It will always let you try again. Enabling login limits will ban login attempts from that IP address after the specified bad login threshold has been reached.', 'better-wp-security' );
 __( 'Ban Reported IPs', 'better-wp-security' );
 __( 'Automatically ban IPs reported as a problem by the network.', 'better-wp-security' );
 __( 'API Key', 'better-wp-security' );
@@ -254,10 +267,10 @@ __( 'API Configuration', 'better-wp-security' );
 
 # BEGIN MODULE: notification-center
 __( 'Notification Center', 'better-wp-security' );
-__( 'Manage and configure email notifications sent by iThemes Security related to various settings modules.', 'better-wp-security' );
+__( 'Manage and configure email notifications sent by Solid Security related to various features.', 'better-wp-security' );
 __( 'Using the Notification Center, you can set the default recipients, enable the security digest email, customize email notifications, and more.', 'better-wp-security' );
 __( 'From Email', 'better-wp-security' );
-__( 'iThemes Security will send notifications from this email address. Leave blank to use the WordPress default.', 'better-wp-security' );
+__( 'Solid Security will send notifications from this email address. Leave blank to use the WordPress default.', 'better-wp-security' );
 __( 'Default Recipients', 'better-wp-security' );
 __( 'Set the default recipients for any admin-facing notifications.', 'better-wp-security' );
 # END MODULE: notification-center
@@ -282,7 +295,7 @@ __( 'This shouldn’t be done periodically, but only if you suspect your site ma
 
 # BEGIN MODULE: security-check-pro
 __( 'Security Check Pro', 'better-wp-security' );
-__( 'Detects the correct way to identify user IP addresses based on your server configuration by making an API request to iThemes.com servers. No user information is sent to iThemes. [Read our Privacy Policy](https://ithemes.com/privacy-policy/).', 'better-wp-security' );
+__( 'Detects the correct way to identify user IP addresses based on your server configuration by making an API request to SolidWP.com servers. No user information is sent to SolidWP. [Read our Privacy Policy](https://go.solidwp.com/solid-privacy-policy).', 'better-wp-security' );
 __( 'Detects the correct way to identify user IP addresses based on your server configuration.', 'better-wp-security' );
 # END MODULE: security-check-pro
 
@@ -303,9 +316,9 @@ __( 'Forces all dashboard access to be served only over an SSL connection.', 'be
 
 # BEGIN MODULE: strong-passwords
 __( 'Strong Passwords', 'better-wp-security' );
-__( 'Force users to use strong passwords as rated by the WordPress password meter.', 'better-wp-security' );
+__( 'Require strong passwords approved by the WordPress password strength meter.', 'better-wp-security' );
 __( 'Strong Passwords', 'better-wp-security' );
-__( 'Force users to use strong passwords as rated by the WordPress password meter.', 'better-wp-security' );
+__( 'Require strong passwords approved by the WordPress password strength meter.', 'better-wp-security' );
 # END MODULE: strong-passwords
 
 # BEGIN MODULE: sync-connect
@@ -332,33 +345,33 @@ __( 'PHP Execution', 'better-wp-security' );
 
 # BEGIN MODULE: two-factor
 __( 'Two-Factor', 'better-wp-security' );
-__( 'Two-Factor Authentication greatly increases the security of your WordPress user account by requiring additional information beyond your username and password in order to log in.', 'better-wp-security' );
-__( 'Two-Factor authentication is a tried and true security method and will stop most automated bot attacks on the WordPress login. Once Two-Factor Authentication is enabled here, users can visit their profile to enable two-factor for their account.', 'better-wp-security' );
+__( 'Two-Factor Authentication greatly increases the security of your WordPress user account by requiring an additional code along with your username and password to log in.', 'better-wp-security' );
+__( 'Two-Factor authentication is a tried and true security method that will stop most automated bot attacks on the WordPress login screen. Once Two-Factor Authentication is enabled here, users can visit their profile settings to enable it on their account.', 'better-wp-security' );
 __( '2fa', 'better-wp-security' );
 __( 'multi-factor', 'better-wp-security' );
 __( 'mfa', 'better-wp-security' );
 __( 'Authentication Methods Available to Users', 'better-wp-security' );
-__( 'iThemes Security supports multiple two-factor methods: mobile app, email, and backup codes. Selecting “All Methods” is highly recommended so that users can use the method that works the best for them.', 'better-wp-security' );
+__( 'Solid Security supports multiple two-factor authentication methods: mobile apps, email messages, and backup codes. Selecting “All Methods” is highly recommended so that users can choose the method that works the best for them.', 'better-wp-security' );
 __( 'All Methods (recommended)', 'better-wp-security' );
 __( 'All Except Email', 'better-wp-security' );
 __( 'Select Methods Manually', 'better-wp-security' );
 __( 'Select Available Methods', 'better-wp-security' );
 __( 'Disable on First Login', 'better-wp-security' );
-__( 'This simplifies the sign up flow for users that require two-factor to be enabled for their account.', 'better-wp-security' );
-__( 'On-board Welcome Text', 'better-wp-security' );
-__( 'Customize the text shown to users at the beginning of the Two-Factor On-Board flow.', 'better-wp-security' );
+__( 'This simplifies the signup flow for users who require two-factor to be enabled for their account.', 'better-wp-security' );
+__( 'Onboarding Welcome Text', 'better-wp-security' );
+__( 'Customize the text shown to users at the beginning of the Two-Factor onboarding flow.', 'better-wp-security' );
 __( 'Methods', 'better-wp-security' );
 __( 'Setup Flow', 'better-wp-security' );
 __( 'Skip Two-Factor Onboarding', 'better-wp-security' );
-__( 'By default, when a user logs in via the WordPress Login Page, iThemes Security will prompt them to setup Two-Factor. Optionally, you can skip the two-factor authentication on-boarding process for certain users. Users can still manually enroll in two-factor through their WordPress admin profile.', 'better-wp-security' );
+__( 'By default, when a user logs in via the WordPress Login Page, Solid Security will prompt them to setup Two-Factor. Optionally, you can skip the two-factor authentication on-boarding process for certain users. Users can still manually enroll in two-factor through their WordPress admin profile.', 'better-wp-security' );
 __( 'Application Passwords', 'better-wp-security' );
-__( 'Use Application Passwords to allow authentication without providing your actual password when using non-traditional login methods such as XML-RPC or the REST API. They can be easily revoked, and can never be used for traditional logins to your website.', 'better-wp-security' );
+__( 'Use Application Passwords to allow authentication without providing your actual password when using non-traditional login methods such as XML-RPC or the REST API. Application passwords are easily revoked and can never be used in the traditional login process.', 'better-wp-security' );
 # END MODULE: two-factor
 
 # BEGIN MODULE: user-groups
 __( 'User Groups', 'better-wp-security' );
 __( 'User Groups allow you to enable security features for specific sets of users.', 'better-wp-security' );
-__( 'User Groups allow you to view and manage the security settings that affect how people interact with your site. Enabling security features per group gives you the flexibility to apply the right level of security to the right people.</br>If a user belongs to multiple groups, all settings enabled in those groups will be applied to that user.', 'better-wp-security' );
+__( 'User Groups allow you to view and manage the security settings that affect how people interact with your site. Enabling security features per group gives you the flexibility to apply the right level of security to the right people. If a user belongs to multiple groups, all settings enabled in those groups will be applied to that user.', 'better-wp-security' );
 # END MODULE: user-groups
 
 # BEGIN MODULE: wordpress-tweaks

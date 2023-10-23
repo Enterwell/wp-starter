@@ -109,7 +109,7 @@ final class ITSEC_File_Change_Logs {
 	}
 
 	public function filter_highlight_title( $title, $entry ) {
-		return esc_html__( 'iThemes Security noticed file changes in your WordPress site.', 'better-wp-security' );
+		return esc_html__( 'Solid Security noticed file changes in your WordPress site.', 'better-wp-security' );
 	}
 
 	public function filter_highlight_message( $title, $entry ) {

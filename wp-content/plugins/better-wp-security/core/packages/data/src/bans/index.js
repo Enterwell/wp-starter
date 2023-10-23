@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies
  */
-import { registerStore } from '@wordpress/data';
+import { createReduxStore, register } from '@wordpress/data';
 
 /**
  * Internal dependencies
@@ -14,12 +14,12 @@ import reducer from './reducers';
 
 const STORE_NAME = 'ithemes-security/bans';
 
-registerStore( STORE_NAME, {
+register( createReduxStore( STORE_NAME, {
 	controls,
 	actions,
 	selectors,
 	resolvers,
 	reducer,
-} );
+} ) );
 
 export { STORE_NAME };

@@ -217,7 +217,7 @@ abstract class ITSEC_Scheduler {
 		 * Register scheduled events.
 		 *
 		 * Events should be registered in response to a user action, for example activating a module or changing a setting.
-		 * Occasionally, iThemes Security will manually ask for all events to be scheduled.
+		 * Occasionally, Solid Security will manually ask for all events to be scheduled.
 		 *
 		 * @param ITSEC_Scheduler $this
 		 */
@@ -233,7 +233,7 @@ abstract class ITSEC_Scheduler {
 	public function register_events_for_module( $module ) {
 		ITSEC_Modules::load_module_file( 'scheduling.php', $module, function ( $fn ) {
 			if ( ! is_callable( $fn ) ) {
-				_doing_it_wrong( 'scheduling.php', __( 'An iThemes Security module\'s scheduling.php file must return a callable.', 'better-wp-security' ), '5.8.0' );
+				_doing_it_wrong( 'scheduling.php', __( 'A Solid Security module\'s scheduling.php file must return a callable.', 'better-wp-security' ), '5.8.0' );
 
 				return;
 			}

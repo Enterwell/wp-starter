@@ -6,7 +6,7 @@ import { utils } from '@rjsf/core';
 /**
  * Internal dependencies
  */
-import { EntitySelectControl } from '@ithemes/security-components';
+import { EntitySelectControl } from '@ithemes/security-ui';
 
 const { getUiOptions } = utils;
 

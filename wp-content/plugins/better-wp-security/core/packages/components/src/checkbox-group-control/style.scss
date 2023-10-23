@@ -1,0 +1,30 @@
+.itsec-components-checkbox-group-control--style-chicklet {
+    .itsec-components-checkbox-group-control__options {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 0.75rem 1.5rem;
+    }
+
+    .components-checkbox-control {
+        background: #f6f7f7;
+        border: 1px solid $solid-wp-border-normal;
+        border-radius: 2px;
+
+        .components-base-control__field {
+            display: flex;
+
+            .components-checkbox-control__input-container {
+                margin: 1rem 0 1rem 1rem;
+            }
+
+            label {
+                padding: 1rem;
+                flex-grow: 1;
+            }
+        }
+
+        .components-base-control__help {
+            margin: 0 1rem 1rem 1rem;
+        }
+    }
+}

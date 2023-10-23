@@ -1,7 +1,6 @@
 export { default as LogModal } from './log-modal';
 export { default as SiteScanResults } from './site-scan-results';
 export { default as PrintR } from './print-r';
-export { default as AsyncSelect } from './async-select';
 export { default as HoverDetector } from './hover-detector';
 export { default as CloseButton } from './close-button';
 export { default as Loader } from './loader';
@@ -31,5 +30,4 @@ export { default as HelpPopover } from './help-popover';
 export { default as HelpList } from './help-list';
 export { default as Markup } from './markup';
 export { default as SplitButton } from './split-button';
-export { default as EntitySelectControl } from './entity-select-control';
 export { default as RecommendedIcon } from './recommended-icon';

@@ -3,7 +3,7 @@
   "type": "custom",
   "status": "always-active",
   "title": "Notification Center",
-  "description": "Manage and configure email notifications sent by iThemes Security related to various settings modules.",
+  "description": "Manage and configure email notifications sent by Solid Security related to various features.",
   "help": "Using the Notification Center, you can set the default recipients, enable the security digest email, customize email notifications, and more.",
   "settings": {
     "type": "object",
@@ -53,7 +53,7 @@
         ],
         "default": "",
         "title": "From Email",
-        "description": "iThemes Security will send notifications from this email address. Leave blank to use the WordPress default."
+        "description": "Solid Security will send notifications from this email address. Leave blank to use the WordPress default."
       },
       "default_recipients": {
         "type": "object",

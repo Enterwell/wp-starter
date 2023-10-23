@@ -5,421 +5,433 @@ import {
 	Redirect,
 	Route,
 	Switch,
-	useParams,
 	useRouteMatch,
 	useLocation,
-	generatePath,
-	Link,
+	useParams,
 } from 'react-router-dom';
-import { isEmpty, every, cloneDeep, size, sortBy } from 'lodash';
+import { cloneDeep, sortBy } from 'lodash';
 
 /**
  * WordPress dependencies
  */
-import { useDispatch, useRegistry, useSelect } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import { useMemo, useState } from '@wordpress/element';
-import { Card, CardHeader, CardBody, Button } from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
+import { chevronDown as openedIcon, chevronUp as closedIcon, help as helpIcon } from '@wordpress/icons';
+import { ToggleControl, createSlotFill } from '@wordpress/components';
+
+/**
+ * Solid dependencies
+ */
+import { Button, Text, TextSize, SurfaceVariant } from '@ithemes/ui';
 
 /**
  * Internal dependencies
  */
 import {
-	ControlledTabPanel,
 	ErrorList,
-	HelpList,
-} from '@ithemes/security-components';
-import { withNavigate } from '@ithemes/security-hocs';
+	NavigationTab,
+	Markup,
+} from '@ithemes/security-ui';
 import {
-	CORE_STORE_NAME,
 	MODULES_STORE_NAME,
 } from '@ithemes/security.packages.data';
 import {
-	PageHeader,
-	PrimarySchemaFormInputs,
-	PrimarySchemaFormActions,
-	HelpFill,
-	SelectableCard,
-	Breadcrumbs,
-	useHelpBreadcrumbTrail,
-} from '../../components';
-import {
-	useConfigContext,
-	useNavigateTo,
 	useSettingsForm,
-	makeConditionalSettingsSchema,
+	useAllowedSettingsFields,
 	getModuleTypes,
 	appendClassNameAtPath,
 	useModuleRequirementsValidator,
 } from '../../utils';
-import { useNavigation, ChildPages } from '../../page-registration';
-import './style.scss';
+import { OnboardHeader } from '../../components';
+import { useNavigation } from '../../page-registration';
+import {
+	StyledModuleList,
+	StyledOnboardWrapper,
+	StyledPageHeader,
+	StyledPrimarySchemaFormInputs,
+	StyledSettingsActions,
+	StyledModulePanel,
+	StyledModulePanelHeader,
+	StyledModulePanelTrigger,
+	StyledModulePanelTitle,
+	StyledModulePanelDescription,
+	StyledModulePanelIcon,
+	StyledModulePanelBody,
+	StyledModulePanelNoSettingsDescription,
+	StyledModulePanelNotices,
+	StyledFormContainer,
+	StyledSingleModuleSettingsContainer,
+	StyledNavigation,
+	StyledErrorList,
+} from './styles';
 
 function useTypes() {
 	const { root } = useParams();
-	const { serverType, installType } = useConfigContext();
-	const registry = useRegistry();
-	const { editedModules, activeModules, featureFlags } = useSelect(
+	const { editedModules } = useSelect(
 		( select ) => ( {
 			editedModules: select( MODULES_STORE_NAME ).getEditedModules(),
-			activeModules: select( MODULES_STORE_NAME ).getActiveModules(),
-			featureFlags: select( CORE_STORE_NAME ).getFeatureFlags(),
-		} )
+		} ), []
 	);
-	const validateModuleRequirements = useModuleRequirementsValidator();
+	const modules = editedModules.filter( ( module ) => {
+		if ( root === 'onboard' && ! module.onboard ) {
+			return false;
+		}
 
-	const getModules = () =>
-		editedModules.filter( ( module ) => {
-			if ( module.status.selected !== 'active' ) {
-				return false;
-			}
+		if ( root === 'import' && ! module.settings?.import?.length > 0 ) {
+			return false;
+		}
 
-			if ( ! module.settings?.show_ui ) {
-				return false;
-			}
+		const hasSettings = module.settings?.show_ui;
 
-			if ( ! module.settings?.interactive.length ) {
-				return false;
-			}
+		return hasSettings || module.status.default !== 'always-active';
+	} );
 
-			if ( root === 'onboard' && ! module.settings?.onboard.length ) {
-				return false;
-			}
-
-			if (
-				root === 'import' &&
-				! module.settings?.onboard.length &&
-				! module.settings?.import.length
-			) {
-				return false;
-			}
-
-			if ( validateModuleRequirements( module, 'run' ).hasErrors() ) {
-				return false;
-			}
-
-			if ( module.settings?.conditional ) {
-				const schema = makeConditionalSettingsSchema( module, {
-					serverType,
-					installType,
-					activeModules,
-					featureFlags,
-					registry,
-					settings: registry
-						.select( MODULES_STORE_NAME )
-						.getEditedSettings( module.id ),
-				} );
-
-				if ( isEmpty( schema.properties ) ) {
-					return false;
-				}
-
-				const allEmpty = every(
-					schema.properties,
-					( propSchema ) =>
-						propSchema.type === 'object' &&
-						isEmpty( propSchema.properties )
-				);
-
-				if ( allEmpty ) {
-					return false;
-				}
-
-				if (
-					root === 'onboard' &&
-					! module.settings.onboard.some(
-						( setting ) => !! schema.properties[ setting ]
-					)
-				) {
-					return false;
-				}
-
-				if (
-					root === 'import' &&
-					! module.settings.onboard.some(
-						( setting ) => !! schema.properties[ setting ]
-					) &&
-					! module.settings.import.some(
-						( setting ) => !! schema.properties[ setting ]
-					)
-				) {
-					return false;
-				}
-			}
-
-			return true;
-		} );
-
-	const modules = sortBy( getModules(), 'order' );
+	const sorted = sortBy( modules, 'order' );
 	const types = getModuleTypes()
-		.map( ( type ) => ( {
-			...type,
-			modules: modules.filter( ( module ) => module.type === type.slug ),
-		} ) )
-		.filter( ( type ) => type.modules.length > 0 );
+		.filter( ( type ) => modules.find( ( module ) => module.type === type.slug ) );
 
-	return { types, modules };
+	return { types, modules: sorted };
 }
 
-export default function Configure() {
+const {
+	Slot: PageHeaderSlot,
+	Fill: PageHeaderFill,
+} = createSlotFill( 'ConfigurePageHeader' );
+
+export function SingleModulePage( { module } ) {
+	const id = useInstanceId( SingleModulePage, 'itsec-configure-single-modules-page' );
+	const { config } = useSelect( ( select ) => ( {
+		config: select( MODULES_STORE_NAME ).getEditedModule( module ),
+	} ), [ module ] );
+	const { saveSettings } = useDispatch( MODULES_STORE_NAME );
+	const { filterFields } = useAllowedSettingsFields( config );
+
 	const {
-		url,
-		path,
-		isExact,
-		params: { root },
-	} = useRouteMatch();
-	const { types, modules } = useTypes();
-	const recommended = modules.filter(
-		( module ) => module.type === 'recommended'
-	);
-	const recommendedIds = recommended
-		.map( ( module ) => module.id )
-		.join( '|' );
-	const nav = [
-		...recommended.map( ( module ) => ( {
-			slug: module.id,
-			label: module.title,
-		} ) ),
-		...types,
-	];
+		schema,
+		uiSchema,
+		formData,
+		setFormData,
+	} = useSettingsForm( config, filterFields );
 
-	return (
-		<>
-			{ ! isExact && (
-				<ChildPages
-					pages={ nav
-						.filter( ( { slug } ) => slug !== 'advanced' )
-						.map( ( { slug, label } ) => ( {
-							title: label,
-							to: `${ url }/${ slug }`,
-							id: slug,
-						} ) ) }
-				/>
-			) }
-
-			<Switch>
-				<Route
-					path={ `${ path }/:child(${ recommendedIds })` }
-					render={ ( { match } ) => {
-						const module = modules.find(
-							( maybe ) => maybe.id === match.params.child
-						);
-
-						if ( ! module ) {
-							return null;
-						}
-
-						return <ModulePage module={ module } />;
-					} }
-				/>
-
-				<Route
-					path={ [ `${ path }/:child/:tab`, `${ path }/:child` ] }
-					render={ ( { match } ) => {
-						const activeType = types.find(
-							( type ) => type.slug === match.params.child
-						);
-
-						if ( ! activeType ) {
-							return null;
-						}
-
-						return <TabPanel modules={ activeType.modules } />;
-					} }
-				/>
-
-				<Route path={ path }>
-					{ nav.length > 0 &&
-						( root !== 'settings' ? (
-							<Intro to={ `${ url }/${ nav[ 0 ].slug }` } />
-						) : (
-							<Redirect to={ `${ url }/${ nav[ 0 ].slug }` } />
-						) ) }
-				</Route>
-			</Switch>
-		</>
-	);
-}
-
-function Intro( { to } ) {
-	return (
-		<>
-			<PageHeader
-				title={ __( 'Configure', 'better-wp-security' ) }
-				subtitle={ __(
-					'Based on the Security Features you’ve enabled while settings up iThemes Security, we’ve selected the most important settings for you to configure.',
-					'better-wp-security'
-				) }
-			/>
-
-			<div className="itsec-configure-intro">
-				<SelectableCard
-					title={ __( 'Recommended', 'better-wp-security' ) }
-					description={ __( 'Configure Site', 'better-wp-security' ) }
-					icon="star-filled"
-					fillIcon
-					to={ to }
-					direction="vertical"
-				/>
-			</div>
-		</>
-	);
-}
-
-function TabPanel( { modules } ) {
-	const { url, path } = useRouteMatch();
-	const { child: type, tab: moduleId, root, ...params } = useParams();
-	const navigateTo = useNavigateTo();
-	const tabs = useMemo(
-		() =>
-			modules.map( ( module ) => ( {
-				name: module.id,
-				title: module.title,
-				module,
-			} ) ),
-		[ type, modules ]
-	);
-
-	const activeModule = modules.find( ( module ) => module.id === moduleId );
-
-	if ( ! activeModule ) {
-		const first = modules.find( ( module ) => module.type === type );
-
-		return <Redirect to={ first ? `${ url }/${ first.id }` : url } />;
-	}
-
-	const onSelect = ( selected ) =>
-		navigateTo(
-			generatePath( path, {
-				...params,
-				root,
-				child: type,
-				tab: selected,
-			} )
-		);
-
-	return (
-		<ModulePage
-			module={ activeModule }
-			tabs={ tabs }
-			onSelect={ onSelect }
-		/>
-	);
-}
-
-function ModulePage( { module, tabs, onSelect } ) {
-	const { root } = useParams();
-
-	const Concrete =
-		root === 'settings' ? ConfigureModuleSettings : ConfigureModuleOnboard;
-
-	return (
-		<>
-			<PageHeader
-				title={ module.title }
-				subtitle={ module.description }
-				help={ module.help }
-				breadcrumbs={ module.type !== 'advanced' }
-			/>
-			<Concrete tabs={ tabs } module={ module } onSelect={ onSelect } />
-		</>
-	);
-}
-
-function ConfigureModuleOnboard( { tabs, module, onSelect } ) {
-	const { root } = useParams();
-	const { previous, goNext } = useNavigation(
-		tabs?.map( ( tab ) => tab.name )
-	);
-
-	if ( ! module ) {
+	if ( ! config ) {
 		return null;
 	}
 
+	const onSave = ( e ) => {
+		e.preventDefault();
+		saveSettings( config.id, true );
+	};
+
 	return (
-		<ConfigureModule
-			tabs={ tabs }
-			module={ module }
-			onSelect={ onSelect }
-			onSave={ goNext }
-			saveLabel={ __( 'Next', 'better-wp-security' ) }
-			saveDisabled={ false }
-			cancelLabel={ __( 'Back', 'better-wp-security' ) }
-			cancelRoute={ previous }
-			filterFields={ ( _, setting ) =>
-				module.settings.onboard.includes( setting ) ||
-				( root === 'import' &&
-					module.settings.import.includes( setting ) )
-			}
-		/>
+		<Page title={ config.title } description={ config.description } headerHasBorder>
+			<StyledFormContainer>
+				<PageHeaderSlot />
+				<StyledSingleModuleSettingsContainer onSubmit={ onSave } id={ id }>
+					<ConfigureModule
+						module={ config }
+						schema={ schema }
+						uiSchema={ uiSchema }
+						formData={ formData }
+						setFormData={ setFormData }
+					/>
+				</StyledSingleModuleSettingsContainer>
+			</StyledFormContainer>
+			<SettingsActions form={ id } modules={ [ module ] } />
+		</Page>
 	);
 }
 
-function ConfigureModuleSettings( { tabs, module, onSelect } ) {
+export function ModulesOfTypePage( { type, title, description } ) {
+	const id = useInstanceId( ModulesOfTypePage, 'itsec-configure-modules-of-type-page' );
+	const { modules: allModules } = useTypes();
+	const modules = useMemo(
+		() => allModules.filter( ( module ) => module.type === type ),
+		[ allModules, type ]
+	);
+	const moduleIds = useMemo( () => modules.map( ( module ) => module.id ), [ modules ] );
 	const { saveSettings } = useDispatch( MODULES_STORE_NAME );
 
-	if ( ! module ) {
+	if ( ! modules ) {
 		return null;
 	}
 
-	const onSave = () => saveSettings( module.id );
+	const onSubmit = ( e ) => {
+		e.preventDefault();
+		saveSettings( moduleIds, true );
+	};
 
 	return (
-		<ConfigureModule
-			tabs={ tabs }
-			module={ module }
-			onSelect={ onSelect }
-			onSave={ onSave }
+		<Page title={ title } description={ description } headerHasBorder>
+			<StyledFormContainer>
+				<PageHeaderSlot />
+				<StyledModuleList id={ id } onSubmit={ onSubmit }>
+					{ modules.map( ( module ) => <ModuleCard key={ module.id } module={ module } /> ) }
+				</StyledModuleList>
+			</StyledFormContainer>
+			<SettingsActions form={ id } modules={ moduleIds } />
+		</Page>
+	);
+}
+
+export function TabbedModulesPage( { exclude } ) {
+	const { types: allTypes, modules } = useTypes();
+	const types = useMemo(
+		() => allTypes.filter( ( type ) => ! exclude.includes( type.slug ) ),
+		[ allTypes, exclude ]
+	);
+	const { path, url } = useRouteMatch();
+
+	return (
+		<Switch>
+			<Route path={ `${ path }/:type` }>
+				<TabbedModulesRoute allModules={ modules }>
+					<PageHeaderSlot />
+					<StyledNavigation size={ TextSize.NORMAL }>
+						{ types.map( ( type ) => (
+							<NavigationTab key={ type.slug } title={ type.label } to={ `${ url }/${ type.slug }` } />
+						) ) }
+					</StyledNavigation>
+				</TabbedModulesRoute>
+			</Route>
+			<Route path={ path } exact>
+				{ types.length > 0 && (
+					<Redirect to={ `${ url }/${ types[ 0 ].slug }` } />
+				) }
+			</Route>
+		</Switch>
+	);
+}
+
+function TabbedModulesRoute( { allModules, children } ) {
+	const id = useInstanceId( TabbedModulesPage, 'itsec-configure-tabbed-modules-route' );
+	const { params } = useRouteMatch();
+
+	const modules = useMemo(
+		() => allModules.filter( ( module ) => module.type === params.type ),
+		[ allModules, params ]
+	);
+	const moduleIds = useMemo( () => modules.map( ( module ) => module.id ), [ modules ] );
+	const { saveSettings } = useDispatch( MODULES_STORE_NAME );
+
+	const onSubmit = ( e ) => {
+		e.preventDefault();
+		saveSettings( moduleIds, true );
+	};
+
+	return (
+		<Page
+			title={ __( 'Features', 'better-wp-security' ) }
+			description={ __( 'Choose and configure security features for your site.', 'better-wp-security' ) }
+		>
+			<StyledFormContainer>
+				{ children }
+				<StyledModuleList id={ id } onSubmit={ onSubmit }>
+					{ modules.map( ( module ) => (
+						<ModuleCard key={ module.id } module={ module } />
+					) ) }
+				</StyledModuleList>
+			</StyledFormContainer>
+			<SettingsActions form={ id } modules={ moduleIds } />
+		</Page>
+	);
+}
+
+function ModuleCard( { module } ) {
+	const { root } = useParams();
+	const { hash } = useLocation();
+	const [ isOpen, setIsOpen ] = useState( false );
+	const isActive = module.status.selected === 'active';
+	const validate = useModuleRequirementsValidator();
+	const validated = validate( module, isActive ? 'run' : 'activate' );
+	const { allowedFields, filterFields } = useAllowedSettingsFields( module );
+	const {
+		schema,
+		uiSchema,
+		hasSettings,
+		formData,
+		setFormData,
+	} = useSettingsForm( module, filterFields );
+
+	if ( ! isActive ) {
+		if (
+			validated.hasErrors() &&
+			! validated.getErrorCodes().some( ( code ) => validated.getErrorData( code )[ 0 ].showMessageIfUnmet )
+		) {
+			return null;
+		}
+	}
+
+	if ( module.status.default === 'always-active' && ! hasSettings ) {
+		return null;
+	}
+
+	const canToggleStatus = module.status.default !== 'always-active' && ! validated.hasErrors();
+	const showSettings = ( () => {
+		if ( ! module.settings?.show_ui ) {
+			return false;
+		}
+
+		if ( validated.hasErrors() ) {
+			return false;
+		}
+
+		if ( Array.isArray( allowedFields ) && ! allowedFields.length ) {
+			return false;
+		}
+
+		return true;
+	} )();
+
+	const isHighlighted = hash === `#${ module.id }` || hash.startsWith( `#${ module.id },` );
+	const isExpanded = isOpen || isHighlighted;
+
+	return (
+		<StyledModulePanel isHighlighted={ isHighlighted }>
+			<StyledModulePanelHeader>
+				{ canToggleStatus && (
+					<StatusToggleSettings
+						module={ module }
+						setSettingsOpen={ setIsOpen }
+						persist={ root === 'settings' }
+					/>
+				) }
+				{ ! canToggleStatus && (
+					<Text text={ module.title } />
+				) }
+				<Button
+					icon={ helpIcon }
+					label={ __( 'View external documentation.', 'better-wp-security' ) }
+					href="https://go.solidwp.com/security-basic-help-docs"
+					target="_blank"
+					variant="tertiary"
+					isSmall
+				/>
+			</StyledModulePanelHeader>
+			{ ! showSettings && (
+				<StyledModulePanelNoSettingsDescription>
+					<Text size={ TextSize.SMALL }>
+						<Markup noWrap content={ module.description } />
+					</Text>
+				</StyledModulePanelNoSettingsDescription>
+			) }
+			{ showSettings && (
+				<StyledModulePanelTrigger
+					onClick={ () => setIsOpen( ! isOpen ) }
+					aria-expanded={ isExpanded }
+					aria-controls={ `itsec-module-settings-${ module.id }` }
+					disabled={ ! isActive }
+					type="button"
+				>
+					<StyledModulePanelTitle text={
+						sprintf(
+						/* translators: 1. Module title. */
+							__( '%s Settings', 'better-wp-security' ),
+							module.title
+						)
+					} />
+					<StyledModulePanelDescription text={ module.description } size={ TextSize.SMALL } />
+					{ isActive && showSettings && (
+						<StyledModulePanelIcon icon={ isExpanded ? closedIcon : openedIcon } />
+					) }
+				</StyledModulePanelTrigger>
+			) }
+			{ isActive && showSettings && (
+				<StyledModulePanelBody
+					isOpen={ isExpanded }
+					variant={ SurfaceVariant.PRIMARY_CONTRAST }
+					id={ `itsec-module-settings-${ module.id }` }
+				>
+					<ConfigureModule
+						module={ module }
+						schema={ schema }
+						uiSchema={ uiSchema }
+						formData={ formData }
+						setFormData={ setFormData }
+					/>
+				</StyledModulePanelBody>
+			) }
+			{ validated.hasErrors() && (
+				<StyledModulePanelNotices>
+					<ErrorList errors={ validated.getAllErrorMessages() } />
+				</StyledModulePanelNotices>
+			) }
+		</StyledModulePanel>
+	);
+}
+
+function StatusToggleSettings( { module, setSettingsOpen, persist } ) {
+	const isActive = module.status.selected === 'active';
+	const [ toggling, setIsToggling ] = useState( false );
+	const { activateModule, deactivateModule, editModule } = useDispatch(
+		MODULES_STORE_NAME
+	);
+
+	const onToggleStatus = async ( checked ) => {
+		setIsToggling( true );
+		if ( checked ) {
+			await ( persist
+				? activateModule( module.id )
+				: editModule( module.id, { status: { selected: 'active' } } )
+			);
+			setSettingsOpen( true );
+		} else {
+			await ( persist
+				? deactivateModule( module.id )
+				: editModule( module.id, { status: { selected: 'inactive' } } )
+			);
+		}
+		setIsToggling( false );
+	};
+
+	return (
+		<ToggleControl
+			label={ module.title }
+			checked={ isActive }
+			onChange={ onToggleStatus }
+			disabled={ toggling }
+			aria-label={ sprintf(
+				/* translators: 1. The module name. */
+				__( 'Enable the “%s” module.', 'better-wp-security' ),
+				module.title
+			) }
+			aria-describedby={ `itsec-module-description--${ module.id }` }
+			__nextHasNoMarginBottom
 		/>
 	);
 }
 
-function ConfigureModule( {
-	tabs,
-	module,
-	onSelect,
-	onSave,
-	saveDisabled,
-	filterFields,
-	...rest
-} ) {
+function ConfigureModule( { module, schema, uiSchema: uiSchemaRaw, formData, setFormData } ) {
 	const id = useInstanceId(
 		ConfigureModule,
 		`itsec-configure-${ module.id }`
 	);
 	const { hash } = useLocation();
 
-	const { isSaving, isDirty, apiError } = useSelect(
+	const { apiError } = useSelect(
 		( select ) => ( {
-			isSaving: select( MODULES_STORE_NAME ).isSavingSettings(
-				module.id
-			),
-			isDirty: select( MODULES_STORE_NAME ).areSettingsDirty( module.id ),
 			apiError: select( MODULES_STORE_NAME ).getError( module.id ),
 		} ),
 		[ module.id ]
 	);
-	const { resetSettingEdits } = useDispatch( MODULES_STORE_NAME );
-	const {
-		schema,
-		uiSchema: uiSchemaRaw,
-		formData,
-		setFormData,
-	} = useSettingsForm( module, filterFields );
+
+	const highlightedSetting = hash.startsWith( `#${ module.id },` )
+		? hash.split( ',' )[ 1 ]
+		: hash.replace( '#', '' );
+
 	const uiSchema = useMemo( () => {
-		if ( ! hash ) {
+		if ( ! highlightedSetting ) {
 			return uiSchemaRaw;
 		}
 
 		return appendClassNameAtPath(
 			uiSchemaRaw ? cloneDeep( uiSchemaRaw ) : {},
-			[ hash.substr( 1 ), 'classNames' ],
+			[ highlightedSetting, 'classNames' ],
 			'itsec-highlighted-search-result'
 		);
-	}, [ uiSchemaRaw, hash ] );
+	}, [ uiSchemaRaw, highlightedSetting ] );
 
-	const [ schemaError, setSchemaError ] = useState( [] );
 	const formContext = useMemo(
 		() => ( {
 			module: module.id,
@@ -428,122 +440,80 @@ function ConfigureModule( {
 		[ module.id ]
 	);
 
-	const onSubmit = ( e ) => {
-		setSchemaError( [] );
-		onSave( e );
-	};
-
-	if ( ! module ) {
-		return null;
-	}
-
-	const renderModule = () => (
-		<>
-			<ModuleLinks module={ module } />
-			<CardBody>
-				<ErrorList apiError={ apiError } schemaError={ schemaError } />
-				<PrimarySchemaFormInputs
-					id={ id }
-					onSubmit={ onSubmit }
-					schema={ schema }
-					uiSchema={ uiSchema }
-					formData={ formData }
-					onChange={ setFormData }
-					idPrefix={ `itsec_${ module.id }` }
-					formContext={ formContext }
-					onError={ setSchemaError }
-					showErrorList={ false }
-				/>
-			</CardBody>
-		</>
-	);
-
 	return (
 		<>
-			<HelpPage module={ module } />
-			<Card>
-				{ tabs ? (
-					<ControlledTabPanel
-						tabs={ tabs }
-						selected={ module.id }
-						onSelect={ onSelect }
-						isStyled
-					>
-						{ renderModule }
-					</ControlledTabPanel>
-				) : (
-					renderModule()
-				) }
-			</Card>
-			<PrimarySchemaFormActions
+			<StyledErrorList apiError={ apiError } />
+			<StyledPrimarySchemaFormInputs
+				tagName="div"
 				id={ id }
-				isSaving={ isSaving }
-				saveDisabled={
-					saveDisabled === undefined ? ! isDirty : saveDisabled
-				}
-				undoDisabled={ ! isDirty }
-				onUndo={ () => resetSettingEdits( module.id ) }
-				{ ...rest }
+				schema={ schema }
+				uiSchema={ uiSchema }
+				formData={ formData }
+				onChange={ setFormData }
+				idPrefix={ `itsec_${ module.id }` }
+				formContext={ formContext }
+				showErrorList={ false }
 			/>
 		</>
 	);
 }
 
-function HelpPage( { module } ) {
+function SettingsActions( { modules, form } ) {
+	const { isSaving, isDirty } = useSelect( ( select ) => ( {
+		isDirty: select( MODULES_STORE_NAME ).getDirtySettings().some( ( module ) => modules.includes( module ) ),
+		isSaving: select( MODULES_STORE_NAME ).isSavingSettings( modules ),
+	} ), [ modules ] );
+	const { resetSettingEdits } = useDispatch( MODULES_STORE_NAME );
+	const { root } = useParams();
+	const { goNext } = useNavigation();
+
 	return (
-		<HelpFill>
-			<PageHeader
-				title={ module.title }
-				description={ module.help }
-				breadcrumbs={
-					<Breadcrumbs
-						trail={ useHelpBreadcrumbTrail( module.title ) }
-					/>
-				}
+		<StyledSettingsActions>
+			<Button
+				text={ __( 'Undo Changes', 'better-wp-security' ) }
+				variant="secondary"
+				onClick={ () => resetSettingEdits( modules ) }
+				disabled={ isSaving || ! isDirty }
 			/>
-			<HelpList topic={ module.id } />
-		</HelpFill>
+			{ root === 'settings' && (
+				<Button
+					type="submit"
+					form={ form }
+					text={ __( 'Save', 'better-wp-security' ) }
+					variant="primary"
+					isBusy={ isSaving }
+					disabled={ isSaving || ! isDirty }
+				/>
+			) }
+			{ root !== 'settings' && (
+				<Button
+					text={ __( 'Next', 'better-wp-security' ) }
+					variant="primary"
+					onClick={ goNext }
+				/>
+			) }
+		</StyledSettingsActions>
 	);
 }
 
-function ModuleLinks( { module } ) {
-	const links = [];
+function Page( { title, description, headerHasBorder, children } ) {
+	const { root } = useParams();
 
-	if (
-		! isEmpty( module.user_groups ) ||
-		module.id === 'password-requirements'
-	) {
-		const text =
-			module.id === 'password-requirements'
-				? __( 'User Groups', 'better-wp-security' )
-				: sprintf(
-					/* translators: 1. The number of user groups. */
-					__( 'User Groups (%d)', 'better-wp-security' ),
-					size( module.user_groups )
-				);
-
-		links.push(
-			<Link
-				to={ `/settings/user-groups?module=${ module.id }` }
-				component={ withNavigate( Button ) }
-				variant="link"
-				text={ text }
-				icon="groups"
-			/>
+	if ( root === 'settings' ) {
+		return (
+			<>
+				<PageHeaderFill>
+					<StyledPageHeader title={ title } description={ description } hasBorder={ headerHasBorder } />
+				</PageHeaderFill>
+				{ children }
+			</>
 		);
 	}
 
-	if ( ! links.length ) {
-		return null;
-	}
-
 	return (
-		<CardHeader className="itsec-configure-module-links">
-			<ul>
-				{ links.map( ( link, i ) => (
-					<li key={ i }>{ link }</li>
-				) ) }
-			</ul>
-		</CardHeader>
+		<StyledOnboardWrapper>
+			<OnboardHeader title={ title } description={ description } showIndicator showNext />
+			{ children }
+		</StyledOnboardWrapper>
 	);
 }

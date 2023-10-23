@@ -104,7 +104,11 @@ final class Settings_Controller extends \WP_REST_Controller {
 		}
 
 		if ( ! $obj = \ITSEC_Modules::get_settings_obj( $request['id'] ) ) {
-			return new \WP_Error( 'rest_unsupported_module', __( 'This module does not have settings.', 'better-wp-security' ) );
+			return new \WP_Error(
+				'rest_unsupported_module',
+				__( 'This module does not have settings.', 'better-wp-security' ),
+				[ 'status' => \WP_Http::NOT_FOUND ]
+			);
 		}
 
 		$settings = $request->get_json_params() ?: $request->get_body_params();
@@ -136,7 +140,11 @@ final class Settings_Controller extends \WP_REST_Controller {
 		}
 
 		if ( ! $obj = \ITSEC_Modules::get_settings_obj( $request['id'] ) ) {
-			return new \WP_Error( 'rest_unsupported_module', __( 'This module does not have settings.', 'better-wp-security' ) );
+			return new \WP_Error(
+				'rest_unsupported_module',
+				__( 'This module does not have settings.', 'better-wp-security' ),
+				[ 'status' => \WP_Http::NOT_FOUND ]
+			);
 		}
 
 		$current = $obj->get_all();
@@ -195,7 +203,11 @@ final class Settings_Controller extends \WP_REST_Controller {
 	 */
 	public function prepare_item_for_response( $item, $request ) {
 		if ( ! $obj = \ITSEC_Modules::get_settings_obj( $item->get_id() ) ) {
-			return new \WP_Error( 'rest_unsupported_module', __( 'This module does not have settings.', 'better-wp-security' ) );
+			return new \WP_Error(
+				'rest_unsupported_module',
+				__( 'This module does not have settings.', 'better-wp-security' ),
+				[ 'status' => \WP_Http::NOT_FOUND ]
+			);
 		}
 
 		$settings = $obj->prepare_for_rest();

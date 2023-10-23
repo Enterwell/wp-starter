@@ -1,22 +1,22 @@
 <?php
 
 /*
- * Plugin Name: iThemes Security
- * Plugin URI: https://ithemes.com/security
- * Description: Take the guesswork out of WordPress security. iThemes Security offers 30+ ways to lock down WordPress in an easy-to-use WordPress security plugin.
- * Author: iThemes
- * Author URI: https://ithemes.com
- * Version: 8.1.8
+ * Plugin Name: Solid Security Basic
+ * Plugin URI: https://solidwp.com/products/security
+ * Description: Shield your site from cyberattacks and prevent security vulnerabilities. The only security plugin you need for a solid foundation.
+ * Author: SolidWP
+ * Author URI: https://solidwp.com
+ * Version: 9.0.0
  * Text Domain: better-wp-security
  * Network: True
  * License: GPLv2
  * Requires PHP: 7.3
- * Requires at least: 5.9
+ * Requires at least: 6.2
  */
 
 if ( version_compare( phpversion(), '7.3.0', '<' ) ) {
 	function itsec_free_minimum_php_version_notice() {
-		echo '<div class="notice notice-error"><p>' . esc_html__( 'iThemes Security requires PHP 7.3 or higher.', 'better-wp-security' ) . '</p></div>';
+		echo '<div class="notice notice-error"><p>' . esc_html__( 'Solid Security Basic requires PHP 7.3 or higher.', 'better-wp-security' ) . '</p></div>';
 	}
 
 	add_action( 'admin_notices', 'itsec_free_minimum_php_version_notice' );
@@ -24,9 +24,9 @@ if ( version_compare( phpversion(), '7.3.0', '<' ) ) {
 	return;
 }
 
-if ( version_compare( $GLOBALS['wp_version'], '5.9', '<' ) ) {
+if ( version_compare( $GLOBALS['wp_version'], '6.2', '<' ) ) {
 	function itsec_minimum_wp_version_notice() {
-		echo '<div class="notice notice-error"><p>' . esc_html__( 'iThemes Security requires WordPress 5.9 or later.', 'better-wp-security' ) . '</p></div>';
+		echo '<div class="notice notice-error"><p>' . esc_html__( 'Solid Security Basic requires WordPress 6.2 or later.', 'better-wp-security' ) . '</p></div>';
 	}
 
 	add_action( 'admin_notices', 'itsec_minimum_wp_version_notice' );
@@ -61,4 +61,4 @@ if ( is_admin() ) {
 
 require( "$itsec_dir/core/core.php" );
 $itsec_core = ITSEC_Core::get_instance();
-$itsec_core->init( __FILE__,  'iThemes Security' );
+$itsec_core->init( __FILE__,  'Solid Security Basic' );

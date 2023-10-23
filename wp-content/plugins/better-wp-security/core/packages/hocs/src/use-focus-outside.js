@@ -75,6 +75,7 @@ export default function useFocusOutside( onFocusOutside ) {
 	// Cancel blur checks on unmount.
 	useEffect( () => {
 		return () => cancelBlurCheck();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
 
 	// Cancel a blur check if the callback or ref is no longer provided.

@@ -1,7 +1,7 @@
 /**
- * Internal dependencies
+ * WordPress dependencies
  */
-import { apiFetch } from '../controls';
+import { controls } from '@wordpress/data';
 
 export function receivePrimaryDashboard( dashboardId ) {
 	return {
@@ -11,16 +11,12 @@ export function receivePrimaryDashboard( dashboardId ) {
 }
 
 export function* setPrimaryDashboard( dashboardId ) {
-	const user = yield apiFetch( {
-		path: '/wp/v2/users/me',
-		method: 'PUT',
-		data: {
-			meta: {
-				_itsec_primary_dashboard: dashboardId,
-			},
+	yield controls.dispatch( 'ithemes-security/core', 'saveCurrentUser', {
+		meta: {
+			_itsec_primary_dashboard: dashboardId,
 		},
-	} );
-	yield receivePrimaryDashboard( user.meta._itsec_primary_dashboard );
+	}, true );
+	yield receivePrimaryDashboard( dashboardId );
 }
 
 export const RECEIVE_PRIMARY_DASHBOARD = 'RECEIVE_PRIMARY_DASHBOARD';

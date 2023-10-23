@@ -3,7 +3,7 @@
 class Ithemes_Sync_Verb_ITSEC_Release_Lockout extends Ithemes_Sync_Verb {
 
 	public static $name = 'itsec-release-lockout';
-	public static $description = 'Release a lockout set by iThemes Security.';
+	public static $description = 'Release a lockout set by Solid Security.';
 
 	public $default_arguments = array(
 		'id' => '', //lockout id to release
