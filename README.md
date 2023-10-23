@@ -185,7 +185,7 @@ List of recommended (and tested) environment requirements:
 
 ### Additional notes
 - User endpoint is disabled by default because of security reasons. Depending on the project needs, this can be enabled 
-[here](https://github.com/Enterwell/wp-starter/blob/master/wp-content/themes/ew-theme/classes/class-theme-hooks.php)
+[here](wp-content/themes/ew-theme/classes/class-ew-theme.php)
 
 ## 🏛 Project structure
 
@@ -282,5 +282,4 @@ if everything looks the same based on different browser engines.
 > 🔔 You can check which features work on which browsers (and their versions) on [CanIUse website](https://caniuse.com/).
 
 ## 🪪 License
-Project is licensed under [GNU Public License, **GPL v2 (or later)**](license.txt). This is a [requirement by WordPress](https://wordpress.org/about/license/) 
-because all plugins and themes are considered a derivative work.
+Project is licensed under [GNU Public License, **GPL v2 (or later)**](license.txt). This is a [requirement by WordPress](https://wordpress.org/about/license/)
