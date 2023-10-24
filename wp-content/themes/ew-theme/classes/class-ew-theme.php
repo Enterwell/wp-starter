@@ -66,6 +66,19 @@ class Ew_Theme {
 
 		// Disable all automatic WP updates
 		add_filter( 'automatic_updater_disabled', '__return_true' );
+
+		// Disable user endpoints for non admin users
+		if (!current_user_can('manage_options')) {
+			add_filter( 'rest_endpoints', function($endpoints) {
+				if ( isset( $endpoints['/wp/v2/users'] ) ) {
+					unset( $endpoints['/wp/v2/users'] );
+				}
+				if ( isset( $endpoints['/wp/v2/users/(?P<id>[\d]+)'] ) ) {
+					unset( $endpoints['/wp/v2/users/(?P<id>[\d]+)'] );
+				}
+				return $endpoints;
+			});
+		}
 	}
 
 	/**

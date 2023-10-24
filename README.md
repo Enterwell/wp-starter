@@ -183,6 +183,10 @@ List of recommended (and tested) environment requirements:
 > ⛏ TODO: explain purpose of this starter, what can you do with it, short summary of its architecture and what does each part of it do, 
 > link to [Gutenberg documentation](wp-content/themes/ew-theme/assets/gutenberg/README.md) (and translate it to ENG)
 
+### Additional notes
+- User endpoint is disabled by default because of security reasons. Depending on the project needs, this can be enabled 
+[here](wp-content/themes/ew-theme/classes/class-ew-theme.php)
+
 ## 🏛 Project structure
 
 > ⛏ TODO: visualize project structure, where are files meant to be created and worked on
@@ -278,5 +282,4 @@ if everything looks the same based on different browser engines.
 > 🔔 You can check which features work on which browsers (and their versions) on [CanIUse website](https://caniuse.com/).
 
 ## 🪪 License
-Project is licensed under [GNU Public License, **GPL v2 (or later)**](license.txt). This is a [requirement by WordPress](https://wordpress.org/about/license/) 
-because all plugins and themes are considered a derivative work.
+Project is licensed under [GNU Public License, **GPL v2 (or later)**](license.txt). This is a [requirement by WordPress](https://wordpress.org/about/license/)

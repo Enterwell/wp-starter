@@ -38,4 +38,3 @@ Ew_Theme::load();
 
 // Load blocks
 Ew_Blocks::load();
-
