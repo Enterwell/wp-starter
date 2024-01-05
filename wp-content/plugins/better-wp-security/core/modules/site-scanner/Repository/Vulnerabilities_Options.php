@@ -15,6 +15,19 @@ final class Vulnerabilities_Options {
 	/** @var array[] */
 	private $software = [];
 
+	/** @var \DateTimeInterface */
+	private $first_seen_after;
+
+	/** @var \DateTimeInterface */
+	private $first_seen_before;
+
+	/** @var \DateTimeInterface */
+	private $last_seen_after;
+
+	/** @var \DateTimeInterface */
+	private $last_seen_before;
+
+
 	/** @var int */
 	private $page;
 
@@ -37,6 +50,46 @@ final class Vulnerabilities_Options {
 
 	public function set_types( array $types ): self {
 		$this->types = $types;
+
+		return $this;
+	}
+
+	public function get_first_seen_before(): ?\DateTimeInterface {
+		return $this->first_seen_before;
+	}
+
+	public function set_first_seen_before( \DateTimeImmutable $first_seen_before ): self {
+		$this->first_seen_before = $first_seen_before;
+
+		return $this;
+	}
+
+	public function get_first_seen_after(): ?\DateTimeInterface {
+		return $this->first_seen_after;
+	}
+
+	public function set_first_seen_after( \DateTimeImmutable $first_seen_after ): self {
+		$this->first_seen_after = $first_seen_after;
+
+		return $this;
+	}
+
+	public function get_last_seen_before(): ?\DateTimeInterface {
+		return $this->last_seen_before;
+	}
+
+	public function set_last_seen_before( \DateTimeImmutable $last_seen_before ): self {
+		$this->last_seen_before = $last_seen_before;
+
+		return $this;
+	}
+
+	public function get_last_seen_after(): ?\DateTimeInterface {
+		return $this->last_seen_after;
+	}
+
+	public function set_last_seen_after( \DateTimeImmutable $last_seen_after ): self {
+		$this->last_seen_after = $last_seen_after;
 
 		return $this;
 	}

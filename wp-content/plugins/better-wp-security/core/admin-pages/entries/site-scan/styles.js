@@ -4,6 +4,11 @@
 import styled from '@emotion/styled';
 
 /**
+ * WordPress dependencies
+ */
+import { SnackbarList } from '@wordpress/components';
+
+/**
  * iTheme dependencies
  */
 import { Surface } from '@ithemes/ui';
@@ -42,3 +47,26 @@ export const StyledActionButtons = styled.div`
 	gap: 1rem;
 `;
 
+// Remove snackbar styling once core issue is resolved
+// Link to Issue https://github.com/WordPress/gutenberg/issues/56126
+export const StyledSnackbarList = styled( SnackbarList )`
+	.components-snackbar {
+		margin: 0 auto;
+	}
+  
+	.components-snackbar__content {
+		position: relative;
+		gap: 1rem;
+		align-items: center;
+	}
+	
+	.components-snackbar .components-snackbar__content-with-icon {
+		margin-left: 0;
+	}
+  
+	.components-snackbar .components-snackbar__icon {
+		position: relative;
+		left: 0;
+		top: 0;
+	}
+`;

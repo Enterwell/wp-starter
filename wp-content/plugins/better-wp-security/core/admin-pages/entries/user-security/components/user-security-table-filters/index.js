@@ -108,36 +108,53 @@ export function UserSecurityTableFilters() {
 						<FiltersGroupDateRange
 							slug="solid_last_seen"
 							title={ __( 'User Last Seen', 'better-wp-security' ) }
+							presets={ [
+								{
+									time: 86_400,
+									label: __( '24 hours', 'better-wp-security' ),
+									summary: __( 'Seen within 24 hours', 'better-wp-security' ),
+								},
+								{
+									time: 604_800,
+									label: __( '7 days', 'better-wp-security' ),
+									summary: __( 'Seen within 7 days', 'better-wp-security' ),
+								},
+								{
+									time: 2_592_000,
+									label: __( '30 days', 'better-wp-security' ),
+									summary: __( 'Seen within 30 days', 'better-wp-security' ),
+								},
+							] }
 							allowCustom
 						/>
 						<FiltersGroupCheckboxes
 							slug="solid_password_strength"
 							title={ __( 'Password Strength', 'better-wp-security' ) }
 							options={ [
-								{ value: '1', label: __( 'Very Weak', 'better-wp-security' ) },
-								{ value: '2', label: __( 'Weak', 'better-wp-security' ) },
-								{ value: '3', label: __( 'Medium', 'better-wp-security' ) },
-								{ value: '4', label: __( 'Strong', 'better-wp-security' ) },
+								{ value: '1', label: __( 'Very Weak', 'better-wp-security' ), summary: __( 'PW is very weak', 'better-wp-security' ) },
+								{ value: '2', label: __( 'Weak', 'better-wp-security' ), summary: __( 'PW is weak', 'better-wp-security' ) },
+								{ value: '3', label: __( 'Medium', 'better-wp-security' ), summary: __( 'PW is medium', 'better-wp-security' ) },
+								{ value: '4', label: __( 'Strong', 'better-wp-security' ), summary: __( 'PW is strong', 'better-wp-security' ) },
 							] }
 						/>
 						<FiltersGroupDateRange
-							slug="solid_password_age"
-							title={ __( 'Password Age', 'better-wp-security' ) }
+							slug="solid_password_changed"
+							title={ __( 'Password Changed', 'better-wp-security' ) }
 							presets={ [
 								{
-									value: 604800,
-									label: __( '7 days old', 'better-wp-security' ),
-									summary: __( 'Password is 7 days old', 'better-wp-security' ),
+									time: 604_800,
+									label: __( 'Within 7 days', 'better-wp-security' ),
+									summary: __( 'PW changed within 7 days', 'better-wp-security' ),
 								},
 								{
-									value: 2592000,
-									label: __( '30 days old', 'better-wp-security' ),
-									summary: __( 'PW is 30 days old', 'better-wp-security' ),
+									time: 2_592_000,
+									label: __( 'Within 30 days', 'better-wp-security' ),
+									summary: __( 'PW changed within 30 days', 'better-wp-security' ),
 								},
 								{
-									value: 7776000,
-									label: __( '90 days old', 'better-wp-security' ),
-									summary: __( 'PW is 90 days old', 'better-wp-security' ),
+									time: 7_776_000,
+									label: __( 'Within 90 days', 'better-wp-security' ),
+									summary: __( 'PW changed within 90 days', 'better-wp-security' ),
 								},
 							] }
 							allowCustom

@@ -50,7 +50,7 @@ export default function ListItem( { icon, issue, children } ) {
 					/>
 				</div>
 				<Button
-					aria-controls={ `solid-scan-result-${ issue }` }
+					aria-controls={ `solid-scan-result-${ issue.component + '-' + issue.id }` }
 					aria-expanded={ isExpanded }
 					icon={ isExpanded ? chevronUp : chevronDown }
 					iconPosition="right"
@@ -59,7 +59,7 @@ export default function ListItem( { icon, issue, children } ) {
 				/>
 			</StyledListItem>
 			<StyledListDetailsContainer variant="tertiary" isExpanded={ isExpanded }>
-				<StyledDetailsContainer id={ `solid-scan-result-${ issue }` }>
+				<StyledDetailsContainer id={ `solid-scan-result-${ issue.component + '-' + issue.id }` }>
 					{ children }
 				</StyledDetailsContainer>
 			</StyledListDetailsContainer>

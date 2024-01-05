@@ -77,7 +77,7 @@ class Users_Controller_Extension implements Runnable {
 				__( 'Not Configured Two-Factor', 'better-wp-security' ),
 			];
 
-			if ( \ITSEC_Core::is_pro() && \ITSEC_Modules::get_setting( 'two-factor', 'protect_user_group' ) ) {
+			if ( \ITSEC_Core::get_install_type() === 'pro' && \ITSEC_Modules::get_setting( 'two-factor', 'protect_user_group' ) ) {
 				$enum[]      = 'enforced-not-configured';
 				$enumNames[] = __( 'Two-Factor Enforced', 'better-wp-security' );
 			}
@@ -142,15 +142,24 @@ class Users_Controller_Extension implements Runnable {
 		}
 
 		if ( $request['solid_2fa'] ) {
+			$enforced = \ITSEC_Modules::get_setting( 'two-factor', 'protect_user_group' );
+
 			if ( $request['solid_2fa'] === 'enforced-not-configured' ) {
 				$params['solid_2fa'] = 'not-enabled';
-
-				$enforced = \ITSEC_Modules::get_setting( 'two-factor', 'protect_user_group' );
 
 				if ( $enforced ) {
 					$params['solid_user_groups'] = array_merge(
 						$enforced,
 						$params['solid_user_groups'] ?? [],
+					);
+				}
+			} elseif ( $request['solid_2fa'] === 'not-enabled' ) {
+				$params['solid_2fa'] = $request['solid_2fa'];
+
+				if ( $enforced ) {
+					$params['solid_user_groups__not_in'] = array_merge(
+						$enforced,
+						$params['solid_user_groups__not_in'] ?? [],
 					);
 				}
 			} else {
@@ -224,10 +233,6 @@ class Users_Controller_Extension implements Runnable {
 		] );
 		register_rest_field( 'user', 'solid_2fa', [
 			'get_callback' => function ( $data ) {
-				if ( ! \ITSEC_Core::current_user_can_manage() ) {
-					return null;
-				}
-
 				if ( ! \ITSEC_Modules::is_active( 'two-factor' ) ) {
 					return null;
 				}
@@ -238,12 +243,21 @@ class Users_Controller_Extension implements Runnable {
 					return null;
 				}
 
+				if (
+					! \ITSEC_Core::current_user_can_manage() &&
+					$user->ID !== get_current_user_id()
+				) {
+					return null;
+				}
+
 				$two_factor = \ITSEC_Two_Factor::get_instance();
 
 				if ( $two_factor->get_available_providers_for_user( $user, false ) ) {
 					return 'enabled';
 				} elseif ( $two_factor->get_available_providers_for_user( $user, true ) ) {
 					return 'enforced-not-configured';
+				} elseif ( ! $two_factor->get_allowed_provider_instances_for_user( $user ) ) {
+					return 'not-available';
 				}
 
 				return 'not-enabled';
@@ -251,11 +265,12 @@ class Users_Controller_Extension implements Runnable {
 			},
 			'schema'       => [
 				'type'      => [ 'string', 'null' ],
-				'enum'      => [ 'enabled', 'not-enabled', 'enforced-not-configured' ],
+				'enum'      => [ 'enabled', 'not-enabled', 'enforced-not-configured', 'not-available' ],
 				'enumNames' => [
 					__( 'Configured Two-Factor', 'better-wp-security' ),
 					__( 'Not Configured Two-Factor', 'better-wp-security' ),
 					__( 'Two-Factor Enforced', 'better-wp-security' ),
+					__( 'Two-Factor Not Available', 'better-wp-security' ),
 				],
 				'context'   => [ 'edit' ],
 				'readonly'  => true,

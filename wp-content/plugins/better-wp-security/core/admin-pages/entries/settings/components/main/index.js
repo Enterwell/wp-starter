@@ -22,8 +22,6 @@ import { Heading, TextWeight } from '@ithemes/ui';
  */
 import { TopToolbar } from '@ithemes/security-ui';
 import { ErrorRenderer, Navigation } from '../';
-import SolidSecuritySettingsBanner from '../rebranding-banner';
-import SolidSecuritySettingsSaleBanner from '../sale-banner';
 import { StyledMainContainer, StyledNavigationContainer, StyledMain } from './styles';
 
 export default function Main( { children } ) {
@@ -40,8 +38,6 @@ export default function Main( { children } ) {
 		<>
 			<TopToolbar />
 			<StyledMainContainer>
-				<SolidSecuritySettingsBanner />
-				<SolidSecuritySettingsSaleBanner />
 				<Heading level={ 1 } text={ __( 'Settings', 'better-wp-security' ) } weight={ TextWeight.NORMAL } />
 				<Flex gap={ 5 } align="start" direction={ isMedium ? 'row' : 'column' }>
 					<StyledNavigationContainer isMedium={ isMedium }>

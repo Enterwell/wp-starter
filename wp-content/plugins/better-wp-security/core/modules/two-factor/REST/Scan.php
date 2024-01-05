@@ -158,7 +158,8 @@ class Scan extends \WP_REST_Controller {
 				\ITSEC_Lib_REST::get_link_relation( 'send-2fa-reminder' ),
 				rest_url( sprintf( '%s/%s/%d/remind', $this->namespace, $this->rest_base, $item->ID ) ),
 				[
-					'title' => __( 'Remind User', 'better-wp-security' )
+					'title'     => __( 'Remind User', 'better-wp-security' ),
+					'snackbar'  => __( 'Email sent', 'better-wp-security' ),
 				]
 			);
 			$response->add_link(

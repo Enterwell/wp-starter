@@ -78,7 +78,7 @@ class ITSEC_Two_Factor_Interstitial extends ITSEC_Login_Interstitial {
 		<?php endif; ?>
 
 		<?php if ( $backup_providers ) : ?>
-			<div class="itsec-backup-methods" style="clear:both;margin-top:3em;padding-top:1em;border-top:1px solid #ddd;margin-bottom: -2em;">
+			<div class="itsec-backup-methods" style="clear:both;margin-top:3em;padding-top:1em;border-top:1px solid #ddd;margin-bottom:-2em;padding-bottom:2rem;">
 				<p><?php esc_html_e( 'Or, use a backup method:', 'better-wp-security' ); ?></p>
 				<ul style="margin-left:1em;">
 					<?php foreach ( $backup_providers as $backup_classname => $backup_provider ) : ?>

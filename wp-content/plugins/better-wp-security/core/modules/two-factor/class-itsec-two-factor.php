@@ -47,9 +47,12 @@ class ITSEC_Two_Factor {
 	private function __construct() {
 		add_action( 'itsec_login_interstitial_init', array( $this, 'register_interstitial' ) );
 
-		add_action( 'show_user_profile', array( $this, 'user_two_factor_options' ) );
+		if ( $this->is_legacy_ui_enabled() ) {
+			add_action( 'show_user_profile', array( $this, 'user_two_factor_options' ) );
+			add_action( 'personal_options_update', array( $this, 'user_two_factor_options_update' ) );
+		}
+
 		add_action( 'edit_user_profile', array( $this, 'user_two_factor_options' ) );
-		add_action( 'personal_options_update', array( $this, 'user_two_factor_options_update' ) );
 		add_action( 'edit_user_profile_update', array( $this, 'user_two_factor_options_update' ) );
 
 		add_filter( 'authenticate', array( $this, 'block_xmlrpc' ), 100 );
@@ -62,6 +65,7 @@ class ITSEC_Two_Factor {
 
 		add_action( 'load-profile.php', array( $this, 'add_profile_page_styling' ) );
 		add_action( 'load-user-edit.php', array( $this, 'add_profile_page_styling' ) );
+		add_action( 'itsec_enqueue_profile', array( $this, 'enqueue_profile' ) );
 
 		add_filter( 'itsec_rest_user_actions_schema', array( $this, 'add_user_actions' ) );
 		add_action( 'itsec_user_action_send-2fa-reminder', array( $this, 'apply_send_reminder_action' ), 10, 2 );
@@ -683,6 +687,28 @@ class ITSEC_Two_Factor {
 	}
 
 	/**
+	 * Checks if the legacy 2FA UI should be shown on profile pages.
+	 *
+	 * @return bool
+	 */
+	public function is_legacy_ui_enabled() {
+		if ( defined( 'SOLID_SECURITY_LEGACY_2FA_UI' ) && SOLID_SECURITY_LEGACY_2FA_UI ) {
+			return true;
+		}
+
+		$this->load_helper();
+		$providers = $this->helper->get_enabled_provider_instances();
+
+		foreach ( $providers as $provider ) {
+			if ( ! $provider instanceof ITSEC_Two_Factor_Provider_On_Boardable ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * Register the 2fa interstitial.
 	 *
 	 * @param ITSEC_Lib_Login_Interstitial $lib
@@ -705,6 +731,24 @@ class ITSEC_Two_Factor {
 
 		$this->load_helper();
 		$this->helper->get_enabled_provider_instances();
+	}
+
+	/**
+	 * Adds the Two Factor onboard URL to the profile JS code.
+	 *
+	 * @return void
+	 */
+	public function enqueue_profile() {
+		if ( $this->is_legacy_ui_enabled() ) {
+			return;
+		}
+
+		wp_add_inline_script( 'itsec-two-factor-profile', sprintf(
+			"itsec['two-factor'].profile.initialize( %s )",
+			wp_json_encode( [
+				'twoFactorOnboard' => site_url( 'wp-login.php?itsec_after_interstitial=2fa-on-board', 'login' ),
+			] ),
+		) );
 	}
 
 	/**

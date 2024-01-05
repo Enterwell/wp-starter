@@ -33,8 +33,8 @@ import { siteScannerStore, vulnerabilitiesStore } from '@ithemes/security.packag
  */
 import { withNavigate } from '@ithemes/security-hocs';
 import VulnerableSoftwareHeader from '../../components/vulnerable-software-header';
+import VulnerabilityTable from '../../components/vulnerability-table';
 import { StyledPageContainer, StyledPageHeader } from '../../components/styles';
-import VulnerabilityTable from './table';
 import { BeforeHeaderSlot } from '../../components/before-header';
 import {
 	StyledFilters,

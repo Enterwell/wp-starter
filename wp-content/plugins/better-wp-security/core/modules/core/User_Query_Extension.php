@@ -33,7 +33,7 @@ class User_Query_Extension implements Runnable {
 		}
 
 		if ( ! empty( $query->query_vars['solid_last_seen'] ) ) {
-			$meta[] = $this->create_date_range_meta_query( 'itsec_user_activity_last_seen', $query->query_vars['solid_password_changed'] );
+			$meta[] = $this->create_date_range_meta_query( 'itsec_user_activity_last_seen', $query->query_vars['solid_last_seen'] );
 		}
 
 		if ( ! empty( $query->query_vars['solid_password_changed'] ) ) {
@@ -72,6 +72,19 @@ class User_Query_Extension implements Runnable {
 				$query->query_vars['role__in'] = array_merge( $roles, $query->query_vars['role__in'] ?? [] );
 			}
 		}
+
+		if ( ! empty( $query->query_vars['solid_user_groups__not_in'] ) ) {
+			[ 'users' => $users, 'roles' => $roles ] = $this->parse_user_groups( $query->query_vars['solid_user_groups__not_in'] );
+
+			if ( $users && $roles ) {
+				// Defer processing to ::apply_user_groups_to_sql.
+				$query->query_vars['__solid_user_groups__not_in'] = compact( 'users', 'roles' );
+			} elseif ( $users ) {
+				$query->query_vars['exclude'] = array_merge( $users, $query->query_vars['exclude'] ?? [] );
+			} elseif ( $roles ) {
+				$query->query_vars['role__not_in'] = array_merge( $roles, $query->query_vars['role__not_in'] ?? [] );
+			}
+		}
 	}
 
 	/**
@@ -86,30 +99,41 @@ class User_Query_Extension implements Runnable {
 	 * @return void
 	 */
 	public function modify_sql( \WP_User_Query $query ) {
+		$this->generate_user_group_sql( $query, true );
+		$this->generate_user_group_sql( $query, false );
+	}
+
+	private function generate_user_group_sql( \WP_User_Query $query, bool $in ) {
 		global $wpdb;
 
-		if ( empty( $query->query_vars['__solid_user_groups'] ) ) {
+		$field = $in ? '__solid_user_groups' : '__solid_user_groups__not_in';
+
+		if ( empty( $query->query_vars[ $field ] ) ) {
 			return;
 		}
 
 		$blog_id = absint( $query->query_vars['blog_id'] ?? 0 );
 
-		[ 'users' => $users, 'roles' => $roles ] = $query->query_vars['__solid_user_groups'];
+		[ 'users' => $users, 'roles' => $roles ] = $query->query_vars[ $field ];
+
+		$operator   = $in ? 'IN' : 'NOT IN';
+		$like       = $in ? 'LIKE' : 'NOT LIKE';
+		$join_table = $in ? 'solid_umeta_in' : 'solid_umeta_not_in';
 
 		$where = [];
 
 		$prepare = $users;
-		$where[] = "( {$wpdb->users}.ID IN (" . implode( ',', array_fill( 0, count( $users ), '%d' ) ) . '))';
+		$where[] = "( {$wpdb->users}.ID {$operator} (" . implode( ',', array_fill( 0, count( $users ), '%d' ) ) . '))';
 
 		foreach ( $roles as $role ) {
-			$where[]   = "( solid_umeta.meta_key = %s AND solid_umeta.meta_value LIKE %s)";
+			$where[]   = "( {$join_table}.meta_key = %s AND {$join_table}.meta_value {$like} %s)";
 			$prepare[] = $wpdb->get_blog_prefix( $blog_id ) . 'capabilities';
 			$prepare[] = '%"' . $role . '"%';
 		}
 
-		$where = implode( ' OR ', $where );
+		$where = implode( $in ? ' OR ' : ' AND ', $where );
 
-		$query->query_from  .= " INNER JOIN {$wpdb->usermeta} as solid_umeta ON ({$wpdb->users}.ID = solid_umeta.user_id)";
+		$query->query_from  .= " INNER JOIN {$wpdb->usermeta} as {$join_table} ON ({$wpdb->users}.ID = {$join_table}.user_id)";
 		$query->query_where .= $wpdb->prepare( " AND ({$where})", $prepare );
 
 		if ( 0 !== strpos( $query->query_fields, 'DISTINCT ' ) ) {

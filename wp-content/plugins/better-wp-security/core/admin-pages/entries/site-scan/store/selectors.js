@@ -215,6 +215,7 @@ export function getIssueActions( state, issue ) {
 				rel,
 				title: link.title,
 				isDestructive: link.isDestructive || false,
+				snackbar: link.snackbar || false,
 			} );
 
 			return relAcc;

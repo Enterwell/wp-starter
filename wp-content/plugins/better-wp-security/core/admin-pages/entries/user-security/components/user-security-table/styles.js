@@ -48,7 +48,7 @@ export const StyledBulkEditTH = styled.th`
 	padding-bottom: ${ ( { theme: { getSize } } ) => getSize( .25 ) } !important;
 `;
 
-export const StyledUserSelectTD = styled.td`
+export const StyledUser = styled.div`
 	display: grid;
 	grid-template-columns: 0fr 0fr 1fr;
 	align-items: center;

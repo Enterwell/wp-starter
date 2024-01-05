@@ -22,3 +22,4 @@ domReady( () => {
 } );
 
 export { BeforeHeaderFill } from './vulnerabilities/components/before-header/index';
+export { vulnerabilityIcon, severityColor } from './vulnerabilities/components/vulnerability-table';

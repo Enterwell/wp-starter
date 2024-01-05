@@ -465,6 +465,10 @@ export function getAjv() {
  * @return {string} The unicode emoji characters.
  */
 export function getFlagEmoji( countryCode ) {
+	if ( ! countryCode ) {
+		return '';
+	}
+
 	// https://dev.to/jorik/country-code-to-flag-emoji-a21
 	const codePoints = countryCode
 		.toUpperCase()

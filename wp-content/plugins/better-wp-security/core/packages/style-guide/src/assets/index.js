@@ -45,3 +45,5 @@ export { default as FirewallNoRules } from './firewall-no-rules.svg';
 export { default as RebrandingLogos } from './rebranding-logos.svg';
 export { default as UpsellGradient } from './upsell_gradient.svg';
 export { default as SolidLogoCropped } from './logo/solid-logo-cropped.svg';
+export { default as BasicToProShield } from './basic-to-pro-shield.svg';
+export { default as ProPlusPatchstack } from './solid-security-patchstack.svg';

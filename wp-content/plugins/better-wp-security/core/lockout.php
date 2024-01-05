@@ -1474,16 +1474,12 @@ SQL,
 		}
 
 		$mail = $nc->mail();
-		$tracking_link = ITSEC_Core::is_pro()
-			? 'https://go.solidwp.com/security-site-lockout-email-ithemes-becoming-solidwp'
-			: 'https://go.solidwp.com/security-free-site-lockout-email-ithemes-becoming-solidwp';
 
 		$mail->add_header(
 			esc_html__( 'Site Lockout Notification', 'better-wp-security' ),
 			esc_html__( 'Site Lockout Notification', 'better-wp-security' ),
 			false,
 			sprintf( esc_html__( '%s lockout notification', 'better-wp-security'), $mail->get_display_url() ),
-			$tracking_link
 		);
 		$mail->add_lockouts_table( $lockouts );
 

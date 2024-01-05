@@ -11,7 +11,7 @@ import { Heading, TextWeight } from '@ithemes/ui';
 /**
  * Internal dependencies
  */
-import { AsideHeaderSlot, FirewallBannerSlot } from '../header-aside';
+import { AsideHeaderSlot, FirewallBannerSlot } from '../slot-fill';
 import {
 	ActiveUpdatesBadge,
 	VirtualPatchingBadge,

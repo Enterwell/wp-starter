@@ -28,11 +28,6 @@ class ITSEC_Admin_Notice_Network_Brute_Force_Promo implements ITSEC_Admin_Notice
 	public function get_actions() {
 		$url = ITSEC_Core::get_settings_module_url( 'network-brute-force' );
 
-		if ( ! ITSEC_Modules::is_active( 'network-brute-force' ) ) {
-			$url = add_query_arg( 'enable', 'network-brute-force', $url );
-			$url = wp_nonce_url( $url, 'itsec-enable-network-brute-force', 'itsec-enable-nonce' );
-		}
-
 		return array(
 			'register' => new ITSEC_Admin_Notice_Action_Link(
 				$url,

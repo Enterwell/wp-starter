@@ -17,3 +17,9 @@ import { createHistory } from './settings/history';
 const history = createHistory( document.location, { page: 'itsec-firewall' } );
 
 domReady( () => render( <App history={ history } />, document.getElementById( 'itsec-firewall-root' ) ) );
+
+export {
+	BeforeCreateFirewallRuleFill,
+	AsideHeaderFill,
+	FirewallBannerFill,
+} from './firewall/components';

@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit35a2bd4feb347da0d3ea2d8ef023082f
+class ComposerStaticInit30f4a1a7f1523625c670c10bf8b5f4ec
 {
     public static $files = array (
         '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/bootstrap.php',
@@ -56,9 +56,9 @@ class ComposerStaticInit35a2bd4feb347da0d3ea2d8ef023082f
     );
 
     public static $classMap = array (
-        'ComposerAutoloaderInit35a2bd4feb347da0d3ea2d8ef023082f' => __DIR__ . '/..' . '/composer/autoload_real.php',
+        'ComposerAutoloaderInit30f4a1a7f1523625c670c10bf8b5f4ec' => __DIR__ . '/..' . '/composer/autoload_real.php',
         'Composer\\Autoload\\ClassLoader' => __DIR__ . '/..' . '/composer/ClassLoader.php',
-        'Composer\\Autoload\\ComposerStaticInit35a2bd4feb347da0d3ea2d8ef023082f' => __DIR__ . '/..' . '/composer/autoload_static.php',
+        'Composer\\Autoload\\ComposerStaticInit30f4a1a7f1523625c670c10bf8b5f4ec' => __DIR__ . '/..' . '/composer/autoload_static.php',
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
         'ITSEC_Admin_Notice' => __DIR__ . '/../..' . '/core/lib/admin-notices/interface-itsec-admin-notice.php',
         'ITSEC_Admin_Notice_Action' => __DIR__ . '/../..' . '/core/lib/admin-notices/actions/interface-itsec-admin-notice-action.php',
@@ -509,10 +509,10 @@ class ComposerStaticInit35a2bd4feb347da0d3ea2d8ef023082f
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit35a2bd4feb347da0d3ea2d8ef023082f::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit35a2bd4feb347da0d3ea2d8ef023082f::$prefixDirsPsr4;
-            $loader->prefixesPsr0 = ComposerStaticInit35a2bd4feb347da0d3ea2d8ef023082f::$prefixesPsr0;
-            $loader->classMap = ComposerStaticInit35a2bd4feb347da0d3ea2d8ef023082f::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit30f4a1a7f1523625c670c10bf8b5f4ec::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit30f4a1a7f1523625c670c10bf8b5f4ec::$prefixDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInit30f4a1a7f1523625c670c10bf8b5f4ec::$prefixesPsr0;
+            $loader->classMap = ComposerStaticInit30f4a1a7f1523625c670c10bf8b5f4ec::$classMap;
 
         }, null, ClassLoader::class);
     }

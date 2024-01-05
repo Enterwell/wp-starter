@@ -6,65 +6,45 @@ import {
 	Route,
 	Switch,
 	useRouteMatch,
-	useLocation,
 	useParams,
+	useLocation,
 } from 'react-router-dom';
-import { cloneDeep, sortBy } from 'lodash';
+import { sortBy } from 'lodash';
 
 /**
  * WordPress dependencies
  */
 import { useDispatch, useSelect } from '@wordpress/data';
-import { __, sprintf } from '@wordpress/i18n';
-import { useMemo, useState } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import { useMemo } from '@wordpress/element';
 import { useInstanceId } from '@wordpress/compose';
-import { chevronDown as openedIcon, chevronUp as closedIcon, help as helpIcon } from '@wordpress/icons';
-import { ToggleControl, createSlotFill } from '@wordpress/components';
+import { createSlotFill } from '@wordpress/components';
 
 /**
  * Solid dependencies
  */
-import { Button, Text, TextSize, SurfaceVariant } from '@ithemes/ui';
+import { Button, TextSize } from '@ithemes/ui';
 
 /**
  * Internal dependencies
  */
-import {
-	ErrorList,
-	NavigationTab,
-	Markup,
-} from '@ithemes/security-ui';
-import {
-	MODULES_STORE_NAME,
-} from '@ithemes/security.packages.data';
+import { NavigationTab } from '@ithemes/security-ui';
+import { MODULES_STORE_NAME } from '@ithemes/security.packages.data';
 import {
 	useSettingsForm,
 	useAllowedSettingsFields,
 	getModuleTypes,
-	appendClassNameAtPath,
-	useModuleRequirementsValidator,
 } from '../../utils';
-import { OnboardHeader } from '../../components';
+import { OnboardHeader, ModuleCard, ModuleFormInputs } from '../../components';
 import { useNavigation } from '../../page-registration';
 import {
 	StyledModuleList,
 	StyledOnboardWrapper,
 	StyledPageHeader,
-	StyledPrimarySchemaFormInputs,
 	StyledSettingsActions,
-	StyledModulePanel,
-	StyledModulePanelHeader,
-	StyledModulePanelTrigger,
-	StyledModulePanelTitle,
-	StyledModulePanelDescription,
-	StyledModulePanelIcon,
-	StyledModulePanelBody,
-	StyledModulePanelNoSettingsDescription,
-	StyledModulePanelNotices,
 	StyledFormContainer,
 	StyledSingleModuleSettingsContainer,
 	StyledNavigation,
-	StyledErrorList,
 } from './styles';
 
 function useTypes() {
@@ -101,6 +81,7 @@ const {
 } = createSlotFill( 'ConfigurePageHeader' );
 
 export function SingleModulePage( { module } ) {
+	const { hash } = useLocation();
 	const id = useInstanceId( SingleModulePage, 'itsec-configure-single-modules-page' );
 	const { config } = useSelect( ( select ) => ( {
 		config: select( MODULES_STORE_NAME ).getEditedModule( module ),
@@ -119,6 +100,10 @@ export function SingleModulePage( { module } ) {
 		return null;
 	}
 
+	const highlightedSetting = hash.startsWith( `#${ module.id },` )
+		? hash.split( ',' )[ 1 ]
+		: hash.replace( '#', '' );
+
 	const onSave = ( e ) => {
 		e.preventDefault();
 		saveSettings( config.id, true );
@@ -129,12 +114,13 @@ export function SingleModulePage( { module } ) {
 			<StyledFormContainer>
 				<PageHeaderSlot />
 				<StyledSingleModuleSettingsContainer onSubmit={ onSave } id={ id }>
-					<ConfigureModule
+					<ModuleFormInputs
 						module={ config }
 						schema={ schema }
 						uiSchema={ uiSchema }
 						formData={ formData }
 						setFormData={ setFormData }
+						highlightedSetting={ highlightedSetting }
 					/>
 				</StyledSingleModuleSettingsContainer>
 			</StyledFormContainer>
@@ -144,6 +130,8 @@ export function SingleModulePage( { module } ) {
 }
 
 export function ModulesOfTypePage( { type, title, description } ) {
+	const { root } = useParams();
+	const { hash } = useLocation();
 	const id = useInstanceId( ModulesOfTypePage, 'itsec-configure-modules-of-type-page' );
 	const { modules: allModules } = useTypes();
 	const modules = useMemo(
@@ -167,7 +155,22 @@ export function ModulesOfTypePage( { type, title, description } ) {
 			<StyledFormContainer>
 				<PageHeaderSlot />
 				<StyledModuleList id={ id } onSubmit={ onSubmit }>
-					{ modules.map( ( module ) => <ModuleCard key={ module.id } module={ module } /> ) }
+					{ modules.map( ( module ) => {
+						const isHighlighted = hash === `#${ module.id }` || hash.startsWith( `#${ module.id },` );
+						const highlightedSetting = hash.startsWith( `#${ module.id },` )
+							? hash.split( ',' )[ 1 ]
+							: hash.replace( '#', '' );
+
+						return (
+							<ModuleCard
+								key={ module.id }
+								module={ module }
+								isHighlighted={ isHighlighted }
+								highlightedSetting={ highlightedSetting }
+								persistStatus={ root === 'settings' }
+							/>
+						);
+					} ) }
 				</StyledModuleList>
 			</StyledFormContainer>
 			<SettingsActions form={ id } modules={ moduleIds } />
@@ -205,6 +208,8 @@ export function TabbedModulesPage( { exclude } ) {
 }
 
 function TabbedModulesRoute( { allModules, children } ) {
+	const { root } = useParams();
+	const { hash } = useLocation();
 	const id = useInstanceId( TabbedModulesPage, 'itsec-configure-tabbed-modules-route' );
 	const { params } = useRouteMatch();
 
@@ -228,233 +233,26 @@ function TabbedModulesRoute( { allModules, children } ) {
 			<StyledFormContainer>
 				{ children }
 				<StyledModuleList id={ id } onSubmit={ onSubmit }>
-					{ modules.map( ( module ) => (
-						<ModuleCard key={ module.id } module={ module } />
-					) ) }
+					{ modules.map( ( module ) => {
+						const isHighlighted = hash === `#${ module.id }` || hash.startsWith( `#${ module.id },` );
+						const highlightedSetting = hash.startsWith( `#${ module.id },` )
+							? hash.split( ',' )[ 1 ]
+							: hash.replace( '#', '' );
+
+						return (
+							<ModuleCard
+								key={ module.id }
+								module={ module }
+								isHighlighted={ isHighlighted }
+								highlightedSetting={ highlightedSetting }
+								persistStatus={ root === 'settings' }
+							/>
+						);
+					} ) }
 				</StyledModuleList>
 			</StyledFormContainer>
 			<SettingsActions form={ id } modules={ moduleIds } />
 		</Page>
-	);
-}
-
-function ModuleCard( { module } ) {
-	const { root } = useParams();
-	const { hash } = useLocation();
-	const [ isOpen, setIsOpen ] = useState( false );
-	const isActive = module.status.selected === 'active';
-	const validate = useModuleRequirementsValidator();
-	const validated = validate( module, isActive ? 'run' : 'activate' );
-	const { allowedFields, filterFields } = useAllowedSettingsFields( module );
-	const {
-		schema,
-		uiSchema,
-		hasSettings,
-		formData,
-		setFormData,
-	} = useSettingsForm( module, filterFields );
-
-	if ( ! isActive ) {
-		if (
-			validated.hasErrors() &&
-			! validated.getErrorCodes().some( ( code ) => validated.getErrorData( code )[ 0 ].showMessageIfUnmet )
-		) {
-			return null;
-		}
-	}
-
-	if ( module.status.default === 'always-active' && ! hasSettings ) {
-		return null;
-	}
-
-	const canToggleStatus = module.status.default !== 'always-active' && ! validated.hasErrors();
-	const showSettings = ( () => {
-		if ( ! module.settings?.show_ui ) {
-			return false;
-		}
-
-		if ( validated.hasErrors() ) {
-			return false;
-		}
-
-		if ( Array.isArray( allowedFields ) && ! allowedFields.length ) {
-			return false;
-		}
-
-		return true;
-	} )();
-
-	const isHighlighted = hash === `#${ module.id }` || hash.startsWith( `#${ module.id },` );
-	const isExpanded = isOpen || isHighlighted;
-
-	return (
-		<StyledModulePanel isHighlighted={ isHighlighted }>
-			<StyledModulePanelHeader>
-				{ canToggleStatus && (
-					<StatusToggleSettings
-						module={ module }
-						setSettingsOpen={ setIsOpen }
-						persist={ root === 'settings' }
-					/>
-				) }
-				{ ! canToggleStatus && (
-					<Text text={ module.title } />
-				) }
-				<Button
-					icon={ helpIcon }
-					label={ __( 'View external documentation.', 'better-wp-security' ) }
-					href="https://go.solidwp.com/security-basic-help-docs"
-					target="_blank"
-					variant="tertiary"
-					isSmall
-				/>
-			</StyledModulePanelHeader>
-			{ ! showSettings && (
-				<StyledModulePanelNoSettingsDescription>
-					<Text size={ TextSize.SMALL }>
-						<Markup noWrap content={ module.description } />
-					</Text>
-				</StyledModulePanelNoSettingsDescription>
-			) }
-			{ showSettings && (
-				<StyledModulePanelTrigger
-					onClick={ () => setIsOpen( ! isOpen ) }
-					aria-expanded={ isExpanded }
-					aria-controls={ `itsec-module-settings-${ module.id }` }
-					disabled={ ! isActive }
-					type="button"
-				>
-					<StyledModulePanelTitle text={
-						sprintf(
-						/* translators: 1. Module title. */
-							__( '%s Settings', 'better-wp-security' ),
-							module.title
-						)
-					} />
-					<StyledModulePanelDescription text={ module.description } size={ TextSize.SMALL } />
-					{ isActive && showSettings && (
-						<StyledModulePanelIcon icon={ isExpanded ? closedIcon : openedIcon } />
-					) }
-				</StyledModulePanelTrigger>
-			) }
-			{ isActive && showSettings && (
-				<StyledModulePanelBody
-					isOpen={ isExpanded }
-					variant={ SurfaceVariant.PRIMARY_CONTRAST }
-					id={ `itsec-module-settings-${ module.id }` }
-				>
-					<ConfigureModule
-						module={ module }
-						schema={ schema }
-						uiSchema={ uiSchema }
-						formData={ formData }
-						setFormData={ setFormData }
-					/>
-				</StyledModulePanelBody>
-			) }
-			{ validated.hasErrors() && (
-				<StyledModulePanelNotices>
-					<ErrorList errors={ validated.getAllErrorMessages() } />
-				</StyledModulePanelNotices>
-			) }
-		</StyledModulePanel>
-	);
-}
-
-function StatusToggleSettings( { module, setSettingsOpen, persist } ) {
-	const isActive = module.status.selected === 'active';
-	const [ toggling, setIsToggling ] = useState( false );
-	const { activateModule, deactivateModule, editModule } = useDispatch(
-		MODULES_STORE_NAME
-	);
-
-	const onToggleStatus = async ( checked ) => {
-		setIsToggling( true );
-		if ( checked ) {
-			await ( persist
-				? activateModule( module.id )
-				: editModule( module.id, { status: { selected: 'active' } } )
-			);
-			setSettingsOpen( true );
-		} else {
-			await ( persist
-				? deactivateModule( module.id )
-				: editModule( module.id, { status: { selected: 'inactive' } } )
-			);
-		}
-		setIsToggling( false );
-	};
-
-	return (
-		<ToggleControl
-			label={ module.title }
-			checked={ isActive }
-			onChange={ onToggleStatus }
-			disabled={ toggling }
-			aria-label={ sprintf(
-				/* translators: 1. The module name. */
-				__( 'Enable the “%s” module.', 'better-wp-security' ),
-				module.title
-			) }
-			aria-describedby={ `itsec-module-description--${ module.id }` }
-			__nextHasNoMarginBottom
-		/>
-	);
-}
-
-function ConfigureModule( { module, schema, uiSchema: uiSchemaRaw, formData, setFormData } ) {
-	const id = useInstanceId(
-		ConfigureModule,
-		`itsec-configure-${ module.id }`
-	);
-	const { hash } = useLocation();
-
-	const { apiError } = useSelect(
-		( select ) => ( {
-			apiError: select( MODULES_STORE_NAME ).getError( module.id ),
-		} ),
-		[ module.id ]
-	);
-
-	const highlightedSetting = hash.startsWith( `#${ module.id },` )
-		? hash.split( ',' )[ 1 ]
-		: hash.replace( '#', '' );
-
-	const uiSchema = useMemo( () => {
-		if ( ! highlightedSetting ) {
-			return uiSchemaRaw;
-		}
-
-		return appendClassNameAtPath(
-			uiSchemaRaw ? cloneDeep( uiSchemaRaw ) : {},
-			[ highlightedSetting, 'classNames' ],
-			'itsec-highlighted-search-result'
-		);
-	}, [ uiSchemaRaw, highlightedSetting ] );
-
-	const formContext = useMemo(
-		() => ( {
-			module: module.id,
-			disableInlineErrors: true,
-		} ),
-		[ module.id ]
-	);
-
-	return (
-		<>
-			<StyledErrorList apiError={ apiError } />
-			<StyledPrimarySchemaFormInputs
-				tagName="div"
-				id={ id }
-				schema={ schema }
-				uiSchema={ uiSchema }
-				formData={ formData }
-				onChange={ setFormData }
-				idPrefix={ `itsec_${ module.id }` }
-				formContext={ formContext }
-				showErrorList={ false }
-			/>
-		</>
 	);
 }
 

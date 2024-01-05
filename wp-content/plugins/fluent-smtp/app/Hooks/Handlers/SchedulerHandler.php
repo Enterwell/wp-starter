@@ -4,6 +4,7 @@ namespace FluentMail\App\Hooks\Handlers;
 
 use FluentMail\App\Models\Logger;
 use FluentMail\App\Models\Settings;
+use FluentMail\App\Services\NotificationHelper;
 use FluentMail\Includes\Support\Arr;
 
 class SchedulerHandler
@@ -13,9 +14,12 @@ class SchedulerHandler
     public function register()
     {
         add_action($this->dailyActionName, array($this, 'handleScheduledJobs'));
-        add_action('fluentmail_email_sending_failed', array($this, 'maybeHandleFallbackConnection'), 10, 2);
+        add_action('fluentmail_email_sending_failed', array($this, 'maybeHandleFallbackConnection'), 10, 3);
 
         add_action('fluentsmtp_renew_gmail_token', array($this, 'renewGmailToken'));
+
+        add_action('fluentmail_email_sending_failed_no_fallback', array($this, 'maybeSendNotification'), 10, 3);
+
     }
 
     public function handleScheduledJobs()
@@ -141,10 +145,10 @@ class SchedulerHandler
             'domain_name' => $this->getDomainName()
         ];
 
-        $emailBody    = (string)fluentMail('view')->make('admin.digest_email', $data);
+        $emailBody = (string)fluentMail('view')->make('admin.digest_email', $data);
         $emailSubject = $reportingDate . ' email sending stats for ' . $this->getDomainName();
 
-        $headers      = array('Content-Type: text/html; charset=UTF-8');
+        $headers = array('Content-Type: text/html; charset=UTF-8');
 
         update_option('_fluentmail_last_email_digest', date('Y-m-d H:i:s'));
 
@@ -155,11 +159,11 @@ class SchedulerHandler
     private function getDomainName()
     {
         $parts = parse_url(site_url());
-        $url   = $parts['host'] . (isset($parts['path']) ? $parts['path'] : '');
+        $url = $parts['host'] . (isset($parts['path']) ? $parts['path'] : '');
         return untrailingslashit($url);
     }
 
-    public function maybeHandleFallbackConnection($logId, $handler)
+    public function maybeHandleFallbackConnection($logId, $handler, $data = [])
     {
         if (defined('FLUENTMAIL_EMAIL_TESTING')) {
             return false;
@@ -170,12 +174,14 @@ class SchedulerHandler
         $fallbackConnectionId = \FluentMail\Includes\Support\Arr::get($settings, 'misc.fallback_connection');
 
         if (!$fallbackConnectionId) {
+            do_action('fluentmail_email_sending_failed_no_fallback', $logId, $handler, $data);
             return false;
         }
 
         $fallbackConnection = \FluentMail\Includes\Support\Arr::get($settings, 'connections.' . $fallbackConnectionId);
 
         if (!$fallbackConnection) {
+            do_action('fluentmail_email_sending_failed_no_fallback', $logId, $handler, $data);
             return false;
         }
 
@@ -213,7 +219,7 @@ class SchedulerHandler
     public function callGmailApiForNewToken($settings)
     {
         if (Arr::get($settings, 'key_store') == 'wp_config') {
-            $settings['client_id']     = defined('FLUENTMAIL_GMAIL_CLIENT_ID') ? FLUENTMAIL_GMAIL_CLIENT_ID : '';
+            $settings['client_id'] = defined('FLUENTMAIL_GMAIL_CLIENT_ID') ? FLUENTMAIL_GMAIL_CLIENT_ID : '';
             $settings['client_secret'] = defined('FLUENTMAIL_GMAIL_CLIENT_SECRET') ? FLUENTMAIL_GMAIL_CLIENT_SECRET : '';
         }
 
@@ -250,6 +256,44 @@ class SchedulerHandler
         }
     }
 
+
+    public function maybeSendNotification($rowId, $handler, $logData = [])
+    {
+        $channel = NotificationHelper::getActiveChannelSettings();
+
+        if (!$channel) {
+            return false;
+        }
+
+        $lastNotificationSent = get_option('_fsmtp_last_notification_sent');
+        if ($lastNotificationSent && (time() - $lastNotificationSent) < 60) {
+            return false;
+        }
+
+        update_option('_fsmtp_last_notification_sent', time());
+
+        $driver = $channel['driver'];
+        if ($driver == 'telegram') {
+            $data = [
+                'token_id'      => $channel['token'],
+                'provider'      => $handler->getSetting('provider'),
+                'error_message' => $this->getErrorMessageFromResponse(maybe_unserialize(Arr::get($logData, 'response')))
+            ];
+
+            return NotificationHelper::sendFailedNotificationTele($data);
+        }
+
+        if ($driver == 'slack') {
+            return NotificationHelper::sendSlackMessage(NotificationHelper::formatSlackMessageBlock($handler, $logData), $channel['webhook_url'], false);
+        }
+
+        if ($driver == 'discord') {
+            return NotificationHelper::sendDiscordMessage(NotificationHelper::formatDiscordMessageBlock($handler, $logData), $channel['webhook_url'], false);
+        }
+
+        return false;
+    }
+
     private function saveNewGmailTokens($existingData, $tokens)
     {
         if (empty($tokens['access_token']) || empty($tokens['refresh_token'])) {
@@ -258,14 +302,37 @@ class SchedulerHandler
 
         $senderEmail = $existingData['sender_email'];
 
-        $existingData['access_token']  = $tokens['access_token'];
+        $existingData['access_token'] = $tokens['access_token'];
         $existingData['refresh_token'] = $tokens['refresh_token'];
-        $existingData['expire_stamp']  = $tokens['expires_in'] + time();
-        $existingData['expires_in']    = $tokens['expires_in'];
+        $existingData['expire_stamp'] = $tokens['expires_in'] + time();
+        $existingData['expires_in'] = $tokens['expires_in'];
 
         (new Settings())->updateConnection($senderEmail, $existingData);
         fluentMailGetProvider($senderEmail, true); // we are clearing the static cache here
         wp_schedule_single_event($existingData['expire_stamp'] - 360, 'fluentsmtp_renew_gmail_token');
         return true;
+    }
+
+    private function getErrorMessageFromResponse($response)
+    {
+        if (!$response || !is_array($response)) {
+            return '';
+        }
+
+        if (!empty($response['fallback_response']['message'])) {
+            $message = $response['fallback_response']['message'];
+        } else {
+            $message = Arr::get($response, 'message');
+        }
+
+        if (!$message) {
+            return '';
+        }
+
+        if (!is_string($message)) {
+            $message = json_encode($message);
+        }
+
+        return $message;
     }
 }
