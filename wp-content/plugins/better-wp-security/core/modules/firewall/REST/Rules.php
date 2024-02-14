@@ -369,8 +369,11 @@ class Rules extends \WP_REST_Controller {
 								'type'       => 'object',
 								'properties' => [
 									'parameter' => [
-										'type' => 'string',
+										'type'     => [ 'string', 'array' ],
 										'required' => true,
+										'items'    => [
+											'type' => 'string',
+										],
 									],
 								],
 							],

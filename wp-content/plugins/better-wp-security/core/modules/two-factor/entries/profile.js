@@ -26,7 +26,8 @@ export function initialize( { twoFactorOnboard } ) {
 				</UserProfileFill>
 			);
 		},
-		label: __( 'Two-Factor Authentication' ),
+		order: 3,
+		label: __( 'Two-Factor Authentication', 'better-wp-security' ),
 		scope: 'solid-security-user-profile',
 		isAvailable: ( user, currentUserId ) => {
 			return user.solid_2fa !== 'not-available' && user.solid_2fa !== null && currentUserId === user.id;

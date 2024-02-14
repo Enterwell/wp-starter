@@ -24,5 +24,9 @@
         "description": "The number of minutes a firewall violation should be remembered."
       }
     }
+  },
+  "telemetry-settings": {
+    "max_attempts_host": true,
+    "check_period": true
   }
 }

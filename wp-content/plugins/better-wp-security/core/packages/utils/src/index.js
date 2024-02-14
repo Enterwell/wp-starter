@@ -247,6 +247,26 @@ export function getSelf( object ) {
 }
 
 /**
+ * Converts a REST API URL to a REST PATH.
+ *
+ * This only works for ithemes-security routes.
+ *
+ * @param {string} url The full REST API url.
+ * @return {string|undefined} The path, or undefined if unavailable.
+ */
+export function restUrlToPath( url ) {
+	// https://security.test/wp-json/ithemes-security/v1/trusted-devices/1/d04c1b80-eaf6-4f2a-811e-d1309c725194
+
+	const index = url.indexOf( '/ithemes-security/' );
+
+	if ( index === -1 ) {
+		return undefined;
+	}
+
+	return url.substring( index );
+}
+
+/**
  * Get the href for a link with the given relation.
  *
  * @param {Object} object

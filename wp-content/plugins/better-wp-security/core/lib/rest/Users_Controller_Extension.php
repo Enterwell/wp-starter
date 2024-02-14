@@ -9,6 +9,7 @@ class Users_Controller_Extension implements Runnable {
 	public function run() {
 		add_filter( 'rest_user_collection_params', [ $this, 'register_collection_params' ] );
 		add_filter( 'rest_user_query', [ $this, 'apply_collection_params' ], 10, 2 );
+		add_filter( 'rest_prepare_user', [ $this, 'add_user_links' ], 10, 2 );
 		$this->register_fields();
 	}
 
@@ -168,6 +169,29 @@ class Users_Controller_Extension implements Runnable {
 		}
 
 		return $params;
+	}
+
+	/**
+	 * Adds links to the user object.
+	 *
+	 * @param \WP_REST_Response $response
+	 * @param \WP_User          $user
+	 *
+	 * @return \WP_REST_Response
+	 */
+	public function add_user_links( \WP_REST_Response $response, \WP_User $user ): \WP_REST_Response {
+		if (
+			\ITSEC_Core::current_user_can_manage() &&
+			\ITSEC_Lib_Fingerprinting::is_current_fingerprint_safe() &&
+			\ITSEC_Lib_Fingerprinting::applies_to_user( $user )
+		) {
+			$response->add_link(
+				\ITSEC_Lib_REST::get_link_relation( 'trusted-devices' ),
+				rest_url( '/ithemes-security/v1/trusted-devices/' . $user->ID ),
+			);
+		}
+
+		return $response;
 	}
 
 	/**

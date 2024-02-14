@@ -24,6 +24,7 @@ import { withNavigate } from '@ithemes/security-hocs';
 import { getSelf } from '@ithemes/security-utils';
 import { EmptyStateBasic, EmptyStateProHasVulnerabilities, EmptyStatePro } from '../empty-states';
 import RuleProvider from '../rule-provider';
+import { StyledActionsButton } from './styles';
 
 export default function RulesTable() {
 	const { rules, hasResolved, installType, hasVulnerabilities } = useSelect( ( select ) => ( {
@@ -99,9 +100,10 @@ function Rule( { rule } ) {
 			<td><Text text={ rule.paused_at ? __( 'Inactive', 'better-wp-security' ) : __( 'Active', 'better-wp-security' ) } /></td>
 			<td>
 				<Flex justify="start">
-					<Button
+					<StyledActionsButton
 						onClick={ onTogglePause }
 						isBusy={ isSaving }
+						isActive={ rule.paused_at }
 						text={ rule.paused_at ? __( 'Activate', 'better-wp-security' ) : __( 'Deactivate', 'better-wp-security' ) }
 					/>
 					{ rule.provider === 'user' && (

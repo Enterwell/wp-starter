@@ -21,7 +21,8 @@ export default function Nav() {
 			{ firewallRulesActive && (
 				<NavigationTab to="/rules" title={ __( 'Rules', 'better-wp-security' ) } />
 			) }
-			<NavigationTab to="/configure" title={ __( 'Configure' ) } />
+			<NavigationTab to="/ip-management" title={ __( 'IP Management', 'better-wp-security' ) } />
+			<NavigationTab to="/configure" title={ __( 'Configure', 'better-wp-security' ) } />
 			<NavigationTab to="/automated" title={ __( 'Automated', 'better-wp-security' ) } />
 		</TabbedNavigation>
 	);

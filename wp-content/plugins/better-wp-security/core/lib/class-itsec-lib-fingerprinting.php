@@ -170,7 +170,7 @@ class ITSEC_Lib_Fingerprinting {
 
 		/** @var User_Groups\Matcher $matcher */
 		$matcher = ITSEC_Modules::get_container()->get( Matcher::class );
-		$applies = $matcher->matches( User_Groups\Match_Target::for_user( $user ), $group);
+		$applies = $matcher->matches( User_Groups\Match_Target::for_user( $user ), $group );
 
 		if ( $had_filter ) {
 			add_filter( 'user_has_cap', array( 'ITSEC_Fingerprinting', 'restrict_capabilities' ), 10, 4 );

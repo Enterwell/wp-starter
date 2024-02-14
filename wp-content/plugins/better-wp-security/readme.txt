@@ -1,9 +1,9 @@
 === Solid Security – Password, Two Factor Authentication, and Brute Force Protection ===
-Contributors: ithemes, timothyblynjacobs, layotte, jthillithemes, lisacee, solidwp
+Contributors: ithemes, timothyblynjacobs, jthillithemes, lisacee, solidwp
 Tags: security, malware, two factor authentication, brute force protection, password protection
 Requires at least: 6.3
 Tested up to: 6.4
-Stable tag: 9.2.0
+Stable tag: 9.3.1
 Requires PHP: 7.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -174,6 +174,27 @@ Manage more than one WordPress site? Release lockouts and keep your themes, plug
 8. Automated vulnerability patching with Patchstack (Pro)
 
 == Changelog ==
+
+= 9.3.1 =
+* Tweak: Add a notice when a user's role is demoted from the Site Scans page.
+* Tweak: Update Privacy Policy generator text.
+* Bug Fix: Could not proceed through onboarding when BuddyPress or BuddyBoss was active.
+* Bug Fix: Some firewall rules could not be deactivated.
+* Bug Fix: Allow opting in to Telemetry via the Settings Page.
+* Bug Fix: PHP 8.2 deprecation warnings.
+
+= 9.3.0 =
+* New: The Firewall page has a new IP Management tab to provide easy access to blocking or authorizing IP addresses.
+* New: Usage Data Sharing (opt-in only) allows users to share non-personal and non-sensitive information with StellarWP to inform decisions about how to improve Solid Security in the future.
+* Enhancement: Add a snackbar notice when making changes on the Firewall Configure page.
+* Tweak: Remove some straggling references and links to iThemes.
+* Tweak: Consistently refer to 2FA as Two-Factor Authentication on the Profile page.
+* Tweak: Allow performing more Site Scan actions when the issue is muted.
+* Bug Fix: Truncate log item columns that are too long before inserting into the database.
+* Bug Fix: Consistently order the Security Profile tabs.
+* Bug Fix: Add missing text domain to new Solid Security Admin Menu items.
+* Bug Fix: Reset filters on the Vulnerabilities page when starting a Site Scan.
+* Bug Fix: PHP warning on the logs page when the File Change module logs unexpected data.
 
 = 9.2.0 =
 * New: Refreshed UI for manging per-user security settings like Two-Factor. The previous Two-Factor UI can be enabled using the SOLID_SECURITY_LEGACY_2FA_UI constant.

@@ -20,7 +20,8 @@
     "pimple/pimple": "^3.5",
     "bjeavons/zxcvbn-php": "^1.3",
     "patchstack/firewall": "dev-master",
-    "deliciousbrains/wp-background-processing": "^1.1"
+    "deliciousbrains/wp-background-processing": "^1.1",
+    "stellarwp/telemetry": "^2.3"
   },
   "repositories": [
     {

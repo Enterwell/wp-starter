@@ -86,5 +86,10 @@
         }
       }
     }
+  },
+  "telemetry-settings": {
+    "default": true,
+    "enable_ban_lists": true,
+    "server_config_limit": true
   }
 }

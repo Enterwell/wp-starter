@@ -121,5 +121,8 @@
         }
       }
     }
+  },
+  "telemetry-settings": {
+    "enable_ban": true
   }
 }

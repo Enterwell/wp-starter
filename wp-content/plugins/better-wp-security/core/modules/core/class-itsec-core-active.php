@@ -295,7 +295,7 @@ class ITSEC_Core_Active implements Runnable {
 			wp_add_inline_script( 'itsec-core-profile-front', sprintf(
 				"wp.data.dispatch('%s').receiveUser( %s );",
 				'ithemes-security/core',
-				wp_json_encode( $response->get_data() )
+				wp_json_encode( rest_get_server()->response_to_data( $response, false ) )
 			) );
 		}
 

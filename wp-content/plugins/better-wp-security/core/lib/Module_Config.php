@@ -143,6 +143,10 @@ final class Module_Config {
 		return $this->get_config()['onboard-settings'] ?? [];
 	}
 
+	public function get_telemetry_settings(): array {
+		return $this->get_config()['telemetry-settings'] ?? [];
+	}
+
 	public function get_scheduling(): array {
 		return $this->get_config()['scheduling'] ?? [];
 	}
@@ -260,6 +264,10 @@ final class Module_Config {
 
 		if ( $with->get_onboard_settings() ) {
 			$new->config['onboard-settings'] = array_merge( $new->get_onboard_settings(), $with->get_onboard_settings() );
+		}
+
+		if ( $with->get_telemetry_settings() ) {
+			$new->config['telemetry-settings'] = array_merge( $new->get_telemetry_settings(), $with->get_telemetry_settings() );
 		}
 
 		if ( $with->get_scheduling() ) {

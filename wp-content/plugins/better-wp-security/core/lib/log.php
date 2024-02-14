@@ -72,9 +72,9 @@ final class ITSEC_Log {
 	private static function add( $module, $code, $data, $type, $parent_id = 0, $overrides = array() ) {
 		if ( defined( 'WP_CLI' ) && WP_CLI ) {
 			$url = 'wp-cli';
-		} else if ( ( is_callable( 'wp_doing_cron' ) && wp_doing_cron() ) || ( defined( 'DOING_CRON' ) && DOING_CRON ) ) {
+		} elseif ( ( is_callable( 'wp_doing_cron' ) && wp_doing_cron() ) || ( defined( 'DOING_CRON' ) && DOING_CRON ) ) {
 			$url = 'wp-cron';
-		} else if ( isset( $_SERVER['HTTP_HOST'], $_SERVER['REQUEST_URI'] ) ) {
+		} elseif ( isset( $_SERVER['HTTP_HOST'], $_SERVER['REQUEST_URI'] ) ) {
 			$url = ( is_ssl() ? 'https://' : 'http://' ) . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 		} else {
 			$url = 'unknown';
@@ -100,7 +100,7 @@ final class ITSEC_Log {
 
 		if ( 'database' === $log_type ) {
 			$id = self::add_to_db( $data );
-		} else if ( 'file' === $log_type ) {
+		} elseif ( 'file' === $log_type ) {
 			$id = self::add_to_file( $data );
 		} else {
 			$id = self::add_to_db( $data );
@@ -124,7 +124,17 @@ final class ITSEC_Log {
 				$format[] = '%s';
 
 				if ( ! is_string( $value ) ) {
-					$data[$key] = serialize( $value );
+					$data[ $key ] = serialize( $value );
+				}
+			}
+
+			if ( $wpdb->get_col_length( "{$wpdb->base_prefix}itsec_logs", $key ) ) {
+
+				$col_length = $wpdb->get_col_length( "{$wpdb->base_prefix}itsec_logs", $key )['length'] - 3;
+				if ( is_string( $value ) && strlen( $value ) > $col_length ) {
+					$truncated_value = substr( $value, 0, $col_length ) . '...';
+
+					$data[ $key ] = $truncated_value;
 				}
 			}
 		}
@@ -133,6 +143,7 @@ final class ITSEC_Log {
 
 		if ( false === $result ) {
 			error_log( "Failed to insert log entry: {$wpdb->last_error}" );
+
 			return new WP_Error( 'itsec-log-failed-db-insert', sprintf( esc_html__( 'Failed to insert log entry: %s', 'better-wp-security' ), $wpdb->last_error ) );
 		}
 
@@ -191,7 +202,7 @@ final class ITSEC_Log {
 		}
 
 		$log_location = ITSEC_Modules::get_setting( 'global', 'log_location' );
-		$log_info = ITSEC_Modules::get_setting( 'global', 'log_info' );
+		$log_info     = ITSEC_Modules::get_setting( 'global', 'log_info' );
 
 		if ( empty( $log_info ) ) {
 			$log_info = substr( sanitize_title( get_bloginfo( 'name' ) ), 0, 20 ) . '-' . wp_generate_password( 30, false );
@@ -226,6 +237,7 @@ final class ITSEC_Log {
 
 	public static function get_number_of_entries( $filters = array() ) {
 		$filters['__get_count'] = true;
+
 		return self::get_entries( $filters );
 	}
 
@@ -258,7 +270,7 @@ final class ITSEC_Log {
 		global $wpdb;
 
 		$database_entry_expiration = date( 'Y-m-d H:i:s', ITSEC_Core::get_current_time_gmt() - ( ITSEC_Modules::get_setting( 'global', 'log_rotation' ) * DAY_IN_SECONDS ) );
-		$query = $wpdb->prepare( "DELETE FROM `{$wpdb->base_prefix}itsec_logs` WHERE timestamp<%s", $database_entry_expiration );
+		$query                     = $wpdb->prepare( "DELETE FROM `{$wpdb->base_prefix}itsec_logs` WHERE timestamp<%s", $database_entry_expiration );
 		$wpdb->query( $query );
 
 
@@ -275,7 +287,7 @@ final class ITSEC_Log {
 			self::delete_old_logs( $days_to_keep );
 		}
 
-		$log = self::get_log_file_path();
+		$log           = self::get_log_file_path();
 		$max_file_size = 10 * 1024 * 1024; // 10MiB
 
 		if ( ! file_exists( $log ) || filesize( $log ) < $max_file_size ) {
@@ -287,7 +299,7 @@ final class ITSEC_Log {
 
 		foreach ( $files as $index => $file ) {
 			if ( ! preg_match( '/^' . preg_quote( $log, '/' ) . '\.\d+$/', $file ) ) {
-				unset( $files[$index] );
+				unset( $files[ $index ] );
 			}
 		}
 
@@ -296,14 +308,14 @@ final class ITSEC_Log {
 
 		$files_to_delete = array();
 		$files_to_rotate = array();
-		$max_files = apply_filters( 'itsec_log_max_log_files', 100 );
+		$max_files       = apply_filters( 'itsec_log_max_log_files', 100 );
 
 		foreach ( $files as $index => $file ) {
 			$number = intval( pathinfo( $file, PATHINFO_EXTENSION ) );
 
 			if ( $number > $max_files ) {
 				$files_to_delete[] = $file;
-			} else if ( $number === $index + 1 && $number !== $max_files ) {
+			} elseif ( $number === $index + 1 && $number !== $max_files ) {
 				$files_to_rotate[] = $file;
 			}
 		}

@@ -145,6 +145,15 @@ class Scan extends \WP_REST_Controller {
 			'muted'       => (bool) get_user_meta( $item->ID, '_solid_2fa_ignore', true ),
 		] );
 
+		$response->add_link(
+			\ITSEC_Lib_REST::get_link_relation( 'send-2fa-reminder' ),
+			rest_url( sprintf( '%s/%s/%d/remind', $this->namespace, $this->rest_base, $item->ID ) ),
+			[
+				'title'     => __( 'Remind User', 'better-wp-security' ),
+				'snackbar'  => __( 'Email sent', 'better-wp-security' ),
+			]
+		);
+
 		if ( $response->get_data()['muted'] ) {
 			$response->add_link(
 				\ITSEC_Lib_REST::get_link_relation( 'unmute-issue' ),
@@ -154,14 +163,6 @@ class Scan extends \WP_REST_Controller {
 				]
 			);
 		} else {
-			$response->add_link(
-				\ITSEC_Lib_REST::get_link_relation( 'send-2fa-reminder' ),
-				rest_url( sprintf( '%s/%s/%d/remind', $this->namespace, $this->rest_base, $item->ID ) ),
-				[
-					'title'     => __( 'Remind User', 'better-wp-security' ),
-					'snackbar'  => __( 'Email sent', 'better-wp-security' ),
-				]
-			);
 			$response->add_link(
 				\ITSEC_Lib_REST::get_link_relation( 'mute-issue' ),
 				rest_url( sprintf( '%s/%s/%d/mute', $this->namespace, $this->rest_base, $item->ID ) ),

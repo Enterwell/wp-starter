@@ -49,5 +49,11 @@
         }
       ]
     }
+  },
+  "telemetry-settings": {
+    "auto_ban_admin": true,
+    "max_attempts_host": true,
+    "max_attempts_user": true,
+    "check_period": true
   }
 }

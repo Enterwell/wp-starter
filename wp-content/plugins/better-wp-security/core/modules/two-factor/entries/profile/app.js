@@ -28,7 +28,7 @@ export default function App( { twoFactorOnboard, user } ) {
 				size={ TextSize.LARGE }
 				variant={ TextVariant.DARK }
 				weight={ TextWeight.HEAVY }
-				text={ __( 'Two-Factor Authorization' ) }
+				text={ __( 'Two-Factor Authentication', 'better-wp-security' ) }
 			/>
 			<StyledTextContainer>
 				<p>

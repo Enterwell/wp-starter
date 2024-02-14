@@ -16,6 +16,7 @@ import patchstackStore from './patchstack';
 import userSecurityStore from './user-security';
 import firewallStore from './firewall';
 import logsStore from './logs';
+import trustedDevicesStore from './trusted-devices';
 import controls from './controls';
 import * as selectors from './selectors';
 import * as resolvers from './resolvers';
@@ -48,6 +49,7 @@ export {
 	userSecurityStore,
 	firewallStore,
 	logsStore,
+	trustedDevicesStore,
 };
 
 export * from './controls';

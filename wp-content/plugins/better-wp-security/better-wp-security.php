@@ -6,7 +6,7 @@
  * Description: Shield your site from cyberattacks and prevent security vulnerabilities. The only security plugin you need for a solid foundation.
  * Author: SolidWP
  * Author URI: https://solidwp.com
- * Version: 9.2.0
+ * Version: 9.3.1
  * Text Domain: better-wp-security
  * Network: True
  * License: GPLv2

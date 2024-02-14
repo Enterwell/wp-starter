@@ -144,5 +144,14 @@
     "login_errors",
     "block_tabnapping",
     "patch_thumb_file_traversal"
-  ]
+  ],
+  "telemetry-settings": {
+    "file_editor": true,
+    "disable_xmlrpc": true,
+    "allow_xmlrpc_multiauth": true,
+    "rest_api": true,
+    "valid_user_login_type": true,
+    "force_unique_nicename": true,
+    "disable_unused_author_pages": true
+  }
 }
