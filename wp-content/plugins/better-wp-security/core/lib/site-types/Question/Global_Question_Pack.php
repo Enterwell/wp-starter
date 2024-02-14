@@ -38,8 +38,10 @@ final class Global_Question_Pack implements Questions_Provider {
 				}
 
 				public function respond( Answer_Handler $handler ) {
-					$handler->enable_module( 'security-check-pro' );
-					$handler->set_setting( 'global', 'proxy', 'security-check' );
+					if ( $handler->get_answer() ) {
+						$handler->enable_module( 'security-check-pro' );
+						$handler->set_setting( 'global', 'proxy', 'security-check' );
+					}
 				}
 			};
 		}

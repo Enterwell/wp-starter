@@ -33,8 +33,8 @@ import { siteScannerStore, vulnerabilitiesStore } from '@ithemes/security.packag
  */
 import { withNavigate } from '@ithemes/security-hocs';
 import VulnerableSoftwareHeader from '../../components/vulnerable-software-header';
+import VulnerabilityTable from '../../components/vulnerability-table';
 import { StyledPageContainer, StyledPageHeader } from '../../components/styles';
-import VulnerabilityTable from './table';
 import { BeforeHeaderSlot } from '../../components/before-header';
 import {
 	StyledFilters,
@@ -150,7 +150,7 @@ export default function Active() {
 				</StyledFilterTools>
 				<StyledButtonsContainer isSmall={ isSmall }>
 					<Link to="/database" component={ withNavigate( Button ) } text={ __( 'Browse Vulnerability Database', 'better-wp-security' ) } />
-					<Link to="/scan" replace component={ withNavigate( Button ) } variant="primary" text={ __( 'Scan for vulnerabilities', 'better-wp-security' ) } />
+					<Link to="/scan" replace component={ withNavigate( Button ) } onClick={ onReset } variant="primary" text={ __( 'Scan for Vulnerabilities', 'better-wp-security' ) } />
 				</StyledButtonsContainer>
 			</StyledPageHeader>
 

@@ -1085,16 +1085,11 @@ class ITSEC_File_Change_Scanner {
 	private function generate_notification_email( $email_details ) {
 		$mail = ITSEC_Core::get_notification_center()->mail();
 
-		$tracking_link = ITSEC_Core::is_pro()
-			? 'https://go.solidwp.com/security-file-change-email-ithemes-becoming-solidwp'
-			: 'https://go.solidwp.com/security-free-file-change-ithemes-becoming-solidwp';
-
 		$mail->add_header(
 			esc_html__( 'File Change Warning', 'better-wp-security' ),
 			sprintf( esc_html__( 'File Scan Report for %s', 'better-wp-security' ), '<b>' . date_i18n( get_option( 'date_format' ) ) . '</b>' ),
 			false,
 			esc_html__( 'Files on your site have changed since the last scan. Please review the report below to verify the changes are expected.', 'better-wp-security' ),
-			$tracking_link
 		);
 
 		$mail->add_section_heading( esc_html__( 'Scan Summary', 'better-wp-security' ) );

@@ -519,8 +519,8 @@ final class ITSEC_Lockout {
 			$username = isset( $args['username'] ) ? $args['username'] : false;
 			$context  = null;
 		}
-
 		$module_details = $this->lockout_modules[ $module ];
+
 
 		$whitelisted = ITSEC_Lib::is_ip_whitelisted( $host );
 		$blacklisted = false;
@@ -1474,21 +1474,17 @@ SQL,
 		}
 
 		$mail = $nc->mail();
-		$tracking_link = ITSEC_Core::is_pro()
-			? 'https://go.solidwp.com/security-site-lockout-email-ithemes-becoming-solidwp'
-			: 'https://go.solidwp.com/security-free-site-lockout-email-ithemes-becoming-solidwp';
 
 		$mail->add_header(
 			esc_html__( 'Site Lockout Notification', 'better-wp-security' ),
 			esc_html__( 'Site Lockout Notification', 'better-wp-security' ),
 			false,
 			sprintf( esc_html__( '%s lockout notification', 'better-wp-security'), $mail->get_display_url() ),
-			$tracking_link
 		);
 		$mail->add_lockouts_table( $lockouts );
 
 		if ( $show_remove_lockout_message ) {
-			$mail->add_text( __( 'Release lockouts from the Active Lockouts dashboard card.', 'better-wp-security' ) );
+			$mail->add_text( __( 'Release lockouts from the Active Lockouts section of the Security -> Dashboard page.', 'better-wp-security' ) );
 			$mail->add_button( __( 'Visit Dashboard', 'better-wp-security' ), ITSEC_Mail::filter_admin_page_url( network_admin_url( 'admin.php?page=itsec-dashboard' ) ) );
 		}
 

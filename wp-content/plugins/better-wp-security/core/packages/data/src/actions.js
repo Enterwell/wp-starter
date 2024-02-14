@@ -56,6 +56,15 @@ export function *saveUser( id, data, optimistic = false ) {
 	}
 }
 
+export function *fetchUser( id ) {
+	const currentUserId = yield select( 'ithemes-security/core', 'getCurrentUserId' );
+	const user = yield apiFetch( {
+		path: `/wp/v2/users/${ id === currentUserId ? 'me' : id }?context=edit`,
+	} );
+
+	yield receiveUser( user );
+}
+
 export function receiveUser( user ) {
 	return {
 		type: RECEIVE_USER,

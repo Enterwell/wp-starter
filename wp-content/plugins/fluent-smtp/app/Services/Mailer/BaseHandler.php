@@ -307,12 +307,16 @@ class BaseHandler
                     $data['response'] = maybe_serialize( $row['response']);
                     $data['retries'] = $row['retries'] + 1;
                     (new Logger())->updateLog($data, ['id' => $row['id']]);
+
+                    if(!$status) {
+                        do_action('fluentmail_email_sending_failed_no_fallback', $row['id'], $this, $data);
+                    }
                 }
             } else {
                 $logId = (new Logger)->add($data);
                 if(!$status) {
                     // We have to fire an action for this failed job
-                    do_action('fluentmail_email_sending_failed', $logId, $this);
+                    do_action('fluentmail_email_sending_failed', $logId, $this, $data);
                 }
             }
         }
@@ -376,9 +380,11 @@ class BaseHandler
 
     public function getConnectionInfo($connection)
     {
-        return (string) fluentMail('view')->make('admin.general_connection_info', [
-            'connection' => $connection
-        ]);
+        return [
+            'info' => (string) fluentMail('view')->make('admin.general_connection_info', [
+                'connection' => $connection
+            ])
+        ];
     }
 
     public function getPhpMailer()
@@ -389,6 +395,16 @@ class BaseHandler
     public function setRowId($id)
     {
         $this->existing_row_id = $id;
+    }
+
+    public function addNewSenderEmail($connection, $email)
+    {
+        return new \WP_Error('not_implemented', 'Not implemented');
+    }
+
+    public function removeSenderEmail($connection, $email)
+    {
+        return new \WP_Error('not_implemented', 'Not implemented');
     }
 
 }

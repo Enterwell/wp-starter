@@ -200,7 +200,13 @@ class Repository implements Loader {
 			$sql .= sprintf( ' LIMIT %d, %d', $options->get_per_page() * ( $options->get_page() - 1 ), $options->get_per_page() );
 		}
 
-		$results = $this->wpdb->get_results( $this->wpdb->prepare( $sql, $prepare ), ARRAY_A );
+		if ( $prepare ) {
+			$execute = $this->wpdb->prepare( $sql, $prepare );
+		} else {
+			$execute = $sql;
+		}
+
+		$results = $this->wpdb->get_results( $execute, ARRAY_A );
 
 		if ( $this->wpdb->last_error ) {
 			return Result::error( new \WP_Error(

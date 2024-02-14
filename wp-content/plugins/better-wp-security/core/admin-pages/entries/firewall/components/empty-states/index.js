@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { createInterpolateElement } from '@wordpress/element';
+import { plus as newIcon } from '@wordpress/icons';
 
 /**
  * Solid dependencies
@@ -15,7 +15,8 @@ import { Button, Text, TextVariant } from '@ithemes/ui';
 import { useGlobalNavigationUrl } from '@ithemes/security-utils';
 import { FirewallBasic, FirewallNoRules, VulnerabilitySuccess } from '@ithemes/security-style-guide';
 import { HiResIcon } from '@ithemes/security-ui';
-import { StyledEmptyState, StyledContent } from './styles';
+import { withNavigate } from '@ithemes/security-hocs';
+import { StyledEmptyState, StyledContent, StyledLink } from './styles';
 
 export function EmptyStateBasic() {
 	return (
@@ -25,20 +26,14 @@ export function EmptyStateBasic() {
 				<Text
 					variant={ TextVariant.DARK }
 					weight={ 700 }
-					text={ __( 'The ability to add custom firewall rules is coming soon!', 'better-wp-security' ) }
+					text={ __( 'Your site has no firewall rules installed.', 'better-wp-security' ) }
 				/>
-				<Text
-					align="center"
-					variant={ TextVariant.DARK }
-					text={
-						createInterpolateElement(
-							__( 'Stay updated on our latest improvements on the <a>SolidWP Blog</a>.', 'better-wp-security' ),
-							{
-								// eslint-disable-next-line jsx-a11y/anchor-has-content
-								a: <a href="https://go.solidwp.com/firewall-solidwp-blog" /> }
-						)
-
-					}
+				<StyledLink
+					to="/rules/new"
+					component={ withNavigate( Button ) }
+					variant="primary"
+					icon={ newIcon }
+					text={ __( 'Create a Rule', 'better-wp-security' ) }
 				/>
 			</StyledContent>
 		</StyledEmptyState>

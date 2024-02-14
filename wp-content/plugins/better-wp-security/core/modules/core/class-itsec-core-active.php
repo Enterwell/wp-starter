@@ -28,6 +28,9 @@ class ITSEC_Core_Active implements Runnable {
 		add_action( 'admin_enqueue_scripts', array( $this, 'register_scripts' ), 0 );
 		add_action( 'wp_footer', array( $this, 'add_live_reload' ), 1000 );
 		add_action( 'admin_footer', array( $this, 'add_live_reload' ), 1000 );
+		add_action( 'init', array( $this, 'register_block' ) );
+		add_action( 'wp_print_scripts', array( $this, 'load_profile_js_jit' ) );
+		add_action( 'wp_footer', array( $this, 'load_profile_js_jit' ) );
 		add_action( 'itsec_register_tools', array( $this, 'register_tools' ) );
 		add_action( 'itsec_encryption_rotate_user_keys', array( $this, 'rotate_encrypted_user_keys' ), 10, 2 );
 		add_action( 'itsec_scheduled_enable-encryption', array( $this, 'enable_encryption' ) );
@@ -232,6 +235,88 @@ class ITSEC_Core_Active implements Runnable {
 		$name = str_replace( '/dist/', '/entry/', $name );
 
 		return 'itsec-' . str_replace( '/', '-', $name );
+	}
+
+	/**
+	 * Registers the Profile Settings block.
+	 */
+	public function register_block() {
+		register_block_type_from_metadata( __DIR__ . '/entries/profile-block/block.json', [
+			'render_callback' => [ $this, 'render_block' ],
+		] );
+		add_shortcode( 'solid_security_user_profile_settings', function () {
+			wp_enqueue_script( 'itsec-core-profile-front' );
+			wp_enqueue_style( 'itsec-core-profile-front' );
+
+			return render_block( [
+				'blockName'  => 'ithemes-security/user-profile-settings',
+				'attributes' => [],
+				'children'   => [],
+			] );
+		} );
+	}
+
+	/**
+	 * Renders the Profile Settings block.
+	 *
+	 * @return string
+	 */
+	public function render_block(): string {
+		if ( ! is_user_logged_in() ) {
+			return '';
+		}
+
+		$user = wp_get_current_user();
+		$can_manage = ITSEC_Core::current_user_can_manage();
+
+		return sprintf( '<div id="itsec-core-profile-front-root" data-user="%d" data-can-manage="%s"></div>', $user->ID, $can_manage );
+	}
+
+	/**
+	 * Loads additional JS for the Profile Block JIT.
+	 *
+	 * @return void
+	 */
+	public function load_profile_js_jit() {
+		if ( ! wp_script_is( 'itsec-core-profile-front' ) ) {
+			return;
+		}
+
+		$request = new WP_REST_Request( 'GET', '/wp/v2/users/me' );
+		$request->set_query_params( [ 'context' => 'edit' ] );
+		$response = rest_do_request( $request );
+
+		if ( ! $response->is_error() ) {
+			wp_add_inline_script( 'itsec-core-profile-front', sprintf(
+				"wp.data.dispatch('%s').receiveCurrentUserId( %d );",
+				'ithemes-security/core',
+				get_current_user_id()
+			) );
+			wp_add_inline_script( 'itsec-core-profile-front', sprintf(
+				"wp.data.dispatch('%s').receiveUser( %s );",
+				'ithemes-security/core',
+				wp_json_encode( rest_get_server()->response_to_data( $response, false ) )
+			) );
+		}
+
+		foreach ( ITSEC_Modules::get_active_modules_to_run() as $module ) {
+			$handle = "itsec-{$module}-profile";
+
+			if ( wp_script_is( $handle, 'registered' ) ) {
+				wp_enqueue_script( $handle );
+			}
+
+			if ( wp_style_is( $handle, 'registered' ) ) {
+				wp_enqueue_style( $handle );
+			}
+		}
+
+		/**
+		 * Fires when scripts are enqueued for the User Profile JS code.
+		 *
+		 * @param WP_User $user
+		 */
+		do_action( 'itsec_enqueue_profile', wp_get_current_user() );
 	}
 
 	public function register_tools( Tools_Registry $registry ) {

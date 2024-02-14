@@ -15,8 +15,8 @@ class ITSEC_Core_Admin implements Runnable {
 			add_filter( 'itsec_meta_links', array( $this, 'add_plugin_meta_links' ) );
 		}
 
-		add_action( 'after_plugin_row', array( $this, 'show_plugins_page_rebranding_banner' ), 10, 1 );
-		add_action( "wp_ajax_itsec_dismiss_rebranding_plugins_banner", array( $this, 'process_rebranding_dismissal' ) );
+		add_filter( 'stellarwp/telemetry/optin_args', [ $this, 'customize_optin' ], 10, 2 );
+		add_filter( 'debug_information', [ $this, 'add_site_health_info' ] );
 	}
 
 	public function enqueue_admin_notices() {
@@ -26,14 +26,6 @@ class ITSEC_Core_Admin implements Runnable {
 		}
 
 		global $pagenow;
-
-		if ( $pagenow === 'plugins.php' ) {
-			$nonce = wp_create_nonce( 'itsec-rebranding-nonce' );
-			wp_enqueue_script( 'itsec-plugins-rebranding-notice', plugin_dir_url( __FILE__ ) . 'js/plugins-rebranding-notice.js', array( 'jquery', 'wp-util' ), 2 );
-			wp_localize_script( 'itsec-plugins-rebranding-notice', 'ITSECAdminNotices', array(
-				'nonce' => $nonce,
-			) );
-		}
 	}
 
 	public function enqueue_dashboard_notices_integration() {
@@ -82,52 +74,105 @@ class ITSEC_Core_Admin implements Runnable {
 		return $meta;
 	}
 
-	/**
-	 * Adds a small banner to the plugins.php admin page
-	 *
-	 * @param $plugin_file
-	 *
-	 * @return void
-	 */
-	public function show_plugins_page_rebranding_banner( $plugin_file ) {
-		if ( ! get_site_option('itsec_dismissed_rebranded_plugin_notice') ) {
-			$branding_link = ITSEC_Core::is_pro()
-				? 'https://go.solidwp.com/security-notice-ithemes-becoming-solidwp'
-				: 'https://go.solidwp.com/security-free-notice-ithemes-becoming-solidwp'
-			;
-			$plugin_file_array = explode( '/', $plugin_file );
-			$core_plugin_file_array = explode( '/', \ITSEC_Core::get_plugin_file() );
-			if ( end( $plugin_file_array ) === end( $core_plugin_file_array ) ) {
-				echo '
-					<tr class="itsec-plugin-rebranding-tr">
-					<td colspan="4" style="padding: 20px 40px; background: #f0f6fc; border-left: 4px solid #72aee6; box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.1);">
-					<div class="itsec-plugin-rebranding-container">
-						<h4 class="itsec-rebranding-header">' . __( "iThemes Security is now Solid Security: More Security, Better UIs, and Improved Features", "better-wp-security" ) . '</h4>
-						<p>' . __( "We have been working hard for almost a year to bring you incredible new features in the form of our new and improved brand: SolidWP.", "better-wp-security" ) . '</p>
-						<a href="' . $branding_link . '">' . __( 'Learn More About Solid Security and SolidWP', 'better-wp-security') . '</a>
-						<span class="itsec-plugin-rebranding-notice-dismiss"></span>
-					</div>
-					</td></tr>';
+	public function customize_optin( $args, $slug ) {
+		if ( $slug === 'solid-security' ) {
+			$args['plugin_logo']        = plugins_url( '/core/packages/style-guide/src/assets/logo/color.svg', ITSEC_Core::get_plugin_file() );
+			$args['plugin_logo_width']  = 260;
+			$args['plugin_logo_height'] = 40;
+			$args['plugin_logo_alt']    = __( 'Solid Security Logo', 'better-wp-security' );
+			$args['plugin_name']        = ITSEC_Core::get_plugin_name();
+			$args['permissions_url']    = 'https://go.solidwp.com/opt-in-usage-sharing';
+			$args['tos_url']            = 'https://go.solidwp.com/solid-security-terms-usage-modal';
+			$args['privacy_url']        = 'https://go.solidwp.com/solid-security-privacy-usage-modal';
+			$args['heading']            = __( 'Help us improve Solid Security.', 'better-wp-security' );
+			$args['intro']              = $this->get_telemetry_intro();
+		}
+
+		return $args;
+	}
+
+	public function add_site_health_info( $info ) {
+		$settings_by_module = [];
+		$settings_count     = 0;
+
+		foreach ( ITSEC_Modules::get_active_modules_to_run() as $module ) {
+			$config = ITSEC_Modules::get_config( $module );
+
+			if ( $to_report = $config->get_telemetry_settings() ) {
+				$settings = ITSEC_Modules::get_settings( $module );
+
+				foreach ( $to_report as $setting => $type ) {
+					$value = $settings[ $setting ];
+
+					if ( $type === 'count' ) {
+						$value = count( $settings[ $setting ] );
+					} elseif ( $type === 'not-empty' ) {
+						if ( is_array( $value ) ) {
+							$value = (bool) array_filter( $value );
+						} else {
+							$value = (bool) $value;
+						}
+					}
+
+					$settings_count ++;
+					$settings_by_module[ $module ][ $setting ] = $value;
+				}
 			}
 		}
+
+		$info['solid-security'] = [
+			'label'  => __( 'Solid Security', 'better-wp-security' ),
+			'fields' => [
+				'pro'           => [
+					'label' => __( 'Install Type', 'better-wp-security' ),
+					'value' => ITSEC_Core::get_install_type() === 'pro' ? __( 'Pro', 'better-wp-security' ) : __( 'Basic', 'better-wp-security' ),
+					'debug' => ITSEC_Core::get_install_type(),
+				],
+				'initial_build' => [
+					'label' => __( 'Initial Build', 'better-wp-security' ),
+					'value' => ITSEC_Modules::get_setting( 'global', 'initial_build' ),
+					'debug' => ITSEC_Modules::get_setting( 'global', 'initial_build' ),
+				],
+				'activated'     => [
+					'label' => __( 'Activated', 'better-wp-security' ),
+					'value' => gmdate( get_option( 'date_format' ), ITSEC_Modules::get_setting( 'global', 'activation_timestamp' ) ),
+					'debug' => gmdate( 'Y-m-d H:i:s', ITSEC_Modules::get_setting( 'global', 'activation_timestamp' ) ),
+				],
+				'patchstack'    => [
+					'label' => __( 'Patchstack', 'better-wp-security' ),
+					'value' => ITSEC_Core::has_patchstack() ? __( 'Yes', 'better-wp-security' ) : __( 'No', 'better-wp-security' ),
+					'debug' => ITSEC_Core::has_patchstack(),
+				],
+				'modules'       => [
+					'label' => __( 'Active Features', 'better-wp-security' ),
+					'value' => implode( ', ', array_map( function ( $module ) {
+						return ITSEC_Modules::get_labels( $module )['title'];
+					}, ITSEC_Modules::get_active_modules() ) ),
+					'debug' => ITSEC_Modules::get_active_modules(),
+				],
+				'settings'      => [
+					'label' => __( 'Configured Settings', 'better-wp-security' ),
+					'value' => $settings_count,
+					'debug' => $settings_by_module,
+				],
+			],
+		];
+
+		return $info;
 	}
 
-	public function process_rebranding_dismissal() {
-		if ( ! isset( $_POST['notice_id'], $_POST['itsec_action'], $_POST['nonce'] ) ) {
-			return new WP_Error( 'itsec-admin-notices.invalid-request-format', esc_html__( 'Invalid request format', 'better-wp-security' ) );
-		}
-
-		if ( ! wp_verify_nonce( $_POST['nonce'], 'itsec-rebranding-nonce' ) ) {
-			return new WP_Error( 'itsec-admin-notices.invalid-nonce', esc_html__( 'Request Expired. Please refresh and try again.', 'better-wp-security' ) );
-		}
-
-		$result = update_site_option( 'itsec_dismissed_rebranded_plugin_notice', true );
-
-		if ( $result ) {
-			return wp_send_json_success();
-		} else {
-			return new WP_Error( 'itsec-admin-notices.updating_site_option_failed', esc_html__( 'Could not dismiss action.', 'better-wp-security' ) );
-		}
+	private function get_telemetry_intro(): string {
+		/* translators: 1. The user's name. */
+		return sprintf(
+			esc_html__(
+				'Hi %s! At Solid, we’re committed to delivering top-notch services, and your valuable insights play a crucial role in helping us achieve that goal.
+				We’re excited to invite you to participate in our opt-in program, designed to enhance your experience with Solid Security and contribute to the continuous improvement of StellarWP Products.
+				By opting in, you allow our teams to access certain data related to your website data. This information will be used responsibly to gain insights into your preferences and patterns, enabling us to tailor our services and products to better meet your needs.
+				Rest assured, we take data privacy seriously, and our usage of your information will adhere to the highest standards, respecting all relevant regulations and guidelines. Your trust means the world to us, and we are committed to maintaining the confidentiality and security of your data.
+				To join this initiative and be part of shaping the future of Solid Security and StellarWP, simply click “Allow & Continue” below.',
+				'better-wp-security'
+			),
+			wp_get_current_user()->display_name
+		);
 	}
-
 }

@@ -126,6 +126,13 @@ export function* activateModule( module ) {
 		if ( response.side_effects ) {
 			yield fetchModules();
 		}
+		yield createNotice(
+			'success',
+			__( 'Activated feature', 'better-wp-security' ),
+			{
+				type: 'snackbar',
+			}
+		);
 	} catch ( error ) {
 		yield { type: FAILED_SAVING_MODULES, errors: { [ module ]: error } };
 	}
@@ -140,6 +147,13 @@ export function* deactivateModule( module ) {
 		if ( response.side_effects ) {
 			yield fetchModules();
 		}
+		yield createNotice(
+			'success',
+			__( 'Deactivated feature', 'better-wp-security' ),
+			{
+				type: 'snackbar',
+			}
+		);
 	} catch ( error ) {
 		yield { type: FAILED_SAVING_MODULES, errors: { [ module ]: error } };
 	}

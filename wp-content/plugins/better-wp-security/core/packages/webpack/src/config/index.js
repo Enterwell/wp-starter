@@ -306,6 +306,10 @@ module.exports = function makeConfig( directory, pro ) {
 					directory,
 					'./core/packages/rjsf-theme/src/index.js'
 				),
+				'@ithemes/security-schema-form': path.resolve(
+					directory,
+					'./core/packages/schema-form/src/index.js'
+				),
 				'@ithemes/security-search': path.resolve(
 					directory,
 					'./core/packages/search/src/index.js'

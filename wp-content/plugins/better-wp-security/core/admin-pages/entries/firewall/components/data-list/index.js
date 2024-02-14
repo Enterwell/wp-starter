@@ -2,7 +2,6 @@
  * SolidWP dependencies
  */
 import {
-	Button,
 	SurfaceVariant,
 	Text,
 	TextSize,
@@ -20,6 +19,7 @@ import {
 	StyledBodyRow,
 	StyledEmptyState,
 	StyledEmptySurface,
+	StyledSettingsLink,
 } from './styles';
 
 export function DataListDescription( props ) {
@@ -68,7 +68,7 @@ export function DataListEmptyState( { title, description, actionText, actionLink
 					text={ description }
 				/>
 			</StyledEmptySurface>
-			<Button variant="link" text={ actionText } href={ actionLink } />
+			<StyledSettingsLink variant="link" text={ actionText } href={ actionLink } />
 		</StyledEmptyState>
 	);
 }

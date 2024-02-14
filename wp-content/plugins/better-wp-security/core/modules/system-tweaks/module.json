@@ -67,5 +67,12 @@
   ],
   "deprecated-settings": [
     "write_permissions"
-  ]
+  ],
+  "telemetry-settings": {
+    "protect_files": true,
+    "directory_browsing": true,
+    "uploads_php": true,
+    "plugins_php": true,
+    "themes_php": true
+  }
 }

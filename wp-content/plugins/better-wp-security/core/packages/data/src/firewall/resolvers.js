@@ -3,6 +3,7 @@
  */
 import { addQueryArgs } from '@wordpress/url';
 import apiFetch from '@wordpress/api-fetch';
+import { path } from './constant';
 
 export const getFirewallRules = () => async ( { dispatch } ) => {
 	await dispatch.query( 'main', {
@@ -19,4 +20,14 @@ export const getEditedItem = {
 		dispatch( { type: 'RECEIVE_ITEM', item } );
 	},
 	isFulfilled: ( state, self ) => state.query.bySelf[ self ]?.context === 'edit',
+};
+
+export const getItemById = {
+	fulfill: ( id ) => async ( { dispatch } ) => {
+		const response = await apiFetch( {
+			path: `${ path }/${ id }?context=edit`,
+		} );
+		dispatch( { type: 'RECEIVE_ITEM', item: response } );
+	},
+	isFulfilled: ( state, id ) => !! state.query.selfById[ id ],
 };

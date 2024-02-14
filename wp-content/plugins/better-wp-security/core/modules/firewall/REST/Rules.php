@@ -364,14 +364,27 @@ class Rules extends \WP_REST_Controller {
 					'type'       => 'object',
 					'properties' => [
 						'rules'       => [
-							'type'  => 'array',
-							'items' => [
-								'type' => 'object',
+							'type'        => 'array',
+							'items'       => [
+								'type'       => 'object',
+								'properties' => [
+									'parameter' => [
+										'type'     => [ 'string', 'array' ],
+										'required' => true,
+										'items'    => [
+											'type' => 'string',
+										],
+									],
+								],
 							],
+							'required'    => true,
+							'minItems'    => 1,
+							'uniqueItems' => true,
 						],
 						'type'        => [
-							'type' => 'string',
-							'enum' => [ 'BLOCK', 'LOG', 'REDIRECT', 'WHITELIST' ],
+							'type'     => 'string',
+							'enum'     => [ 'BLOCK', 'LOG', 'REDIRECT', 'WHITELIST' ],
+							'required' => true,
 						],
 						'type_params' => [
 							'type'   => 'string',

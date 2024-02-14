@@ -33,3 +33,4 @@ export CardFooter, {
 	FooterSchemaActions as CardFooterSchemaActions,
 } from './dashboard/components/card/footer';
 export PromoCard from './dashboard/components/edit-cards/promo-card';
+export { CardHappy } from './dashboard/components/empty-states';

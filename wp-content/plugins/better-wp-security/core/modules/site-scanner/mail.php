@@ -81,10 +81,6 @@ class ITSEC_Site_Scanner_Mail {
 			}
 		}
 
-		$tracking_link = ITSEC_Core::is_pro()
-			? 'https://go.solidwp.com/security-site-scan-email-ithemes-becoming-solidwp'
-			: 'https://go.solidwp.com/security-free-site-scan-email-ithemes-becoming-solidwp';
-
 		$mail->add_header(
 			esc_html__( 'Site Scan', 'better-wp-security' ),
 			sprintf(
@@ -93,7 +89,6 @@ class ITSEC_Site_Scanner_Mail {
 			),
 			false,
 			$lead,
-			$tracking_link
 		);
 		static::format_scan_body( $mail, $scan );
 		$mail->add_footer( false );
@@ -169,7 +164,22 @@ class ITSEC_Site_Scanner_Mail {
 					return $list;
 				}
 
-				$list[] = sprintf( '<a href="%s">%s</a>', esc_url( $issue->get_link() ), esc_html( $issue->get_description() ) );
+				if ( $issue instanceof \iThemesSecurity\Site_Scanner\Vulnerability_Issue ) {
+					$item = esc_html( $issue->get_description() ) . '<br>';
+					$item .= '<span style="margin-left: 12px; font-size: 14px;">';
+					$item .= sprintf( '<a href="%s">%s</a>', esc_url( ITSEC_Mail::filter_admin_page_url( $issue->get_link() ) ), esc_attr__( 'Manage Vulnerability', 'better-wp-security' ) );
+
+					$patchstack = $issue->get_meta()['issue']['references'][0]['refs'][0]['link'] ?? '';
+
+					if ( $patchstack ) {
+						$item .= sprintf( ' | <a href="%s">%s</a>', esc_url( $patchstack ), esc_attr__( 'View in Patchstack', 'better-wp-security' ) );
+					}
+					$item .= '</span>';
+				} else {
+					$item = sprintf( '<a href="%s">%s</a>', esc_url( $issue->get_link() ), esc_html( $issue->get_description() ) );
+				}
+
+				$list[] = $item;
 
 				return $list;
 			}, [] ), false, true, $entry->get_title() );

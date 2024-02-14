@@ -3,6 +3,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { useDispatch, useSelect } from '@wordpress/data';
+import { check as checkIcon, Icon } from '@wordpress/icons';
 
 /**
  * iThemes dependencies
@@ -14,8 +15,9 @@ import store from '../../store';
  * Internal dependencies
  */
 import { StyledActionButtons } from '../../styles';
+import { useState } from '@wordpress/element';
 
-function StandardButton( { action, isApplying, onApply } ) {
+function StandardButton( { action, isApplying, onApply, isDisabled } ) {
 	return (
 		<Button
 			isBusy={ isApplying }
@@ -25,6 +27,7 @@ function StandardButton( { action, isApplying, onApply } ) {
 					? 'muted' : 'secondary'
 			}
 			text={ action.title }
+			disabled={ isDisabled }
 		/>
 	);
 }
@@ -52,18 +55,31 @@ function DestructiveButton( { action, isApplying, onApply } ) {
 
 function IssueAction( { action, issue } ) {
 	const { applyIssueAction } = useDispatch( store );
+	const { createNotice } = useDispatch( 'core/notices' );
 	const { isApplying } = useSelect( ( select ) => ( {
 		isApplying: select( store ).isApplyingAction( issue, action.rel ),
 	} ), [ action.rel, issue ] );
+	const [ isButtonDisabled, setButtonDisabled ] = useState( false );
 
-	const onApply = () => {
-		applyIssueAction( issue, action.rel );
+	const onApply = async () => {
+		await applyIssueAction( issue, action.rel );
+		if ( action.snackbar ) {
+			createNotice( 'success', action.snackbar, {
+				type: 'snackbar',
+				context: 'ithemes-security',
+				icon: <Icon icon={ checkIcon } fill="#fff" />,
+			} );
+			setButtonDisabled( true );
+			setTimeout( function() {
+				setButtonDisabled( false );
+			}, 5000 );
+		}
 	};
 
 	return (
 		action.isDestructive
 			? ( <DestructiveButton action={ action } isApplying={ isApplying } onApply={ onApply } /> )
-			: ( <StandardButton action={ action } isApplying={ isApplying } onApply={ onApply } /> )
+			: ( <StandardButton action={ action } isApplying={ isApplying } onApply={ onApply } isDisabled={ isButtonDisabled } /> )
 	);
 }
 
@@ -76,6 +92,7 @@ export default function SiteScanIssueActions( { issue, allowedActions } ) {
 	if ( ! availableActions ) {
 		return null;
 	}
+
 	return (
 		<StyledActionButtons>
 			{ availableActions.map( ( action ) => (

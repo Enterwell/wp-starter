@@ -1,7 +1,13 @@
 /**
+ * External dependencies
+ */
+import { identity } from 'lodash';
+
+/**
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
+import { useSelect } from '@wordpress/data';
 
 /**
  * SolidWP dependencies
@@ -11,6 +17,7 @@ import { FiltersGroupDropdown } from '@ithemes/ui';
 /**
  * Internal dependencies
  */
+import { MODULES_STORE_NAME } from '@ithemes/security.packages.data';
 import {
 	EditingModalActionFill,
 	EditingModalActionButton,
@@ -19,6 +26,10 @@ import {
 import './style.scss';
 
 export default function App() {
+	const { protectUserGroup } = useSelect( ( select ) => ( {
+		protectUserGroup: select( MODULES_STORE_NAME ).getSetting( 'two-factor', 'protect_user_group' ),
+	} ), [] );
+
 	return (
 		<>
 			<EditingModalActionFill>
@@ -32,12 +43,13 @@ export default function App() {
 			</EditingModalActionFill>
 			<UserSecurityFilterFill>
 				<FiltersGroupDropdown
-					slug="two_factor"
+					slug="solid_2fa"
 					title={ __( 'Two Factor Authentication', 'better-wp-security' ) }
 					options={ [
-						{ value: 'enabled', label: __( 'Has Enabled', 'better-wp-security' ) },
-						{ value: 'disabled', label: __( 'Does Not Have Enabled', 'better-wp-security' ) },
-					] }
+						{ value: 'enabled', label: __( 'Has Enabled', 'better-wp-security' ), summary: __( '2FA Enabled', 'better-wp-security' ) },
+						protectUserGroup?.length > 0 && { value: 'enforced-not-configured', label: __( 'Enforced, Not Configured', 'better-wp-security' ), summary: __( '2FA Enforced', 'better-wp-security' ) },
+						{ value: 'not-enabled', label: __( 'Does Not Have Enabled', 'better-wp-security' ), summary: __( '2FA Not Enabled', 'better-wp-security' ) },
+					].filter( identity ) }
 				/>
 			</UserSecurityFilterFill>
 		</>

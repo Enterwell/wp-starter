@@ -95,7 +95,7 @@
       "automatic_temp_auth": {
         "type": "boolean",
         "default": true,
-        "title": "Automatically Temporarily Authorize Hosts",
+        "title": "Automatically Temporarily Authorize IPs",
         "description": "Whenever an administrator user accesses the website, Solid Security will prevent their last used IP from being locked out for 24 hours."
       },
       "lockout_white_list": {
@@ -159,18 +159,17 @@
         "title": "Proxy Header",
         "description": "Select the header your proxy server uses to forward the client IP address. If you don’t know the header, you can contact your hosting provider or select the header that shows your true IP address."
       },
-      "allow_tracking": {
-        "type": "boolean",
-        "default": false,
-        "title": "Allow Data Tracking",
-        "description": "Allow Solid Security to track plugin usage with anonymized data.",
-        "readonly": true
-      },
       "hide_admin_bar": {
         "type": "boolean",
         "default": false,
         "title": "Hide Security Menu in Admin Bar",
         "description": "Remove the Security Messages Menu from the Admin Bar. Notifications will only appear on the Solid Security dashboard and settings pages."
+      },
+      "allow_tracking": {
+        "type": "boolean",
+        "default": false,
+        "title": "Allow Data Sharing",
+        "description": "If you opt-in, some data about your usage of this plugin and future StellarWP Products will be shared with our teams (so they can work their butts off to improve). We will also share some helpful info on WordPress, and our products from time to time. If you don't opt in, that's okay! Our products still work just fine.<br>[Read more about usage sharing](https://go.solidwp.com/opt-in-usage-sharing)."
       },
       "show_error_codes": {
         "type": "boolean",
@@ -312,7 +311,7 @@
           ]
         },
         {
-          "title": "Authorized Hosts",
+          "title": "Authorized IPs",
           "fields": [
             "automatic_temp_auth",
             "lockout_white_list"
@@ -335,10 +334,11 @@
           ]
         },
         {
-          "title": "UI Tweaks",
+          "title": "Other",
           "fields": [
             "hide_admin_bar",
-            "show_error_codes"
+            "show_error_codes",
+            "allow_tracking"
           ]
         }
       ]
@@ -451,5 +451,18 @@
       "use_cron",
       "cron_test_time"
     ]
+  },
+  "telemetry-settings": {
+    "write_files": true,
+    "lockout_period": true,
+    "blacklist_period": true,
+    "blacklist": true,
+    "blacklist_count": true,
+    "automatic_temp_auth": true,
+    "lockout_white_list": "count",
+    "log_type": true,
+    "proxy": true,
+    "proxy_header": true,
+    "hide_admin_bar": true
   }
 }

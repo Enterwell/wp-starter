@@ -45,6 +45,10 @@ add_action( 'itsec-page-show', function () {
 	require_once ITSEC_Core::get_core_dir() . 'deprecated/module-settings.php';
 	do_action( 'itsec-settings-page-init' );
 
+	if ( ITSEC_Core::is_onboarded() ) {
+		do_action( 'stellarwp/telemetry/optin', 'solid-security' );
+	}
+
 	$server_type = ITSEC_Lib::get_server();
 	$onboard     = ITSEC_Modules::get_setting( 'global', 'onboard_complete' );
 

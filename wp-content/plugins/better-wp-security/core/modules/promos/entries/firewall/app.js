@@ -5,18 +5,20 @@ import { __ } from '@wordpress/i18n';
 import { createInterpolateElement } from '@wordpress/element';
 import { useSelect } from '@wordpress/data';
 import { external, closeSmall as dismissIcon } from '@wordpress/icons';
+import { Flex } from '@wordpress/components';
 
 /**
  * SolidWP dependencies
  */
-import { Button, Text, TextVariant } from '@ithemes/ui';
+import { Button, Heading, Text, TextSize, TextVariant, TextWeight } from '@ithemes/ui';
 
 /**
  * Internal dependencies
  */
-import { AsideHeaderFill, FirewallBannerFill } from '../../../../admin-pages/entries/firewall/app';
-import { useLocalStorage } from '@ithemes/security-hocs';
+import { AsideHeaderFill, FirewallBannerFill, BeforeCreateFirewallRuleFill } from '@ithemes/security.pages.firewall';
 import { coreStore } from '@ithemes/security.packages.data';
+import { useLocalStorage } from '@ithemes/security-hocs';
+import { Patchstack } from '@ithemes/security-style-guide';
 import {
 	StyledAsideHeader,
 	StyledPatchstackBanner,
@@ -24,6 +26,7 @@ import {
 	StyledPatchstackLogo,
 	StyledPatchstackButton,
 	StyledPatchstackDismiss,
+	StyledBeforeCreateRulePromo,
 } from './styles';
 
 export default function App() {
@@ -67,6 +70,11 @@ export default function App() {
 						</StyledAsideHeader>
 					) }
 				</AsideHeaderFill>
+			) }
+			{ ( installType === 'free' || ( ! hasPatchstack && ! isLiquidWeb ) ) && (
+				<BeforeCreateFirewallRuleFill>
+					<BeforeCreateRulePromo installType={ installType } />
+				</BeforeCreateFirewallRuleFill>
 			) }
 		</>
 	);
@@ -112,5 +120,44 @@ function PatchstackBanner( { installType } ) {
 				}
 			/>
 		</StyledPatchstackBanner>
+	);
+}
+
+function BeforeCreateRulePromo( { installType } ) {
+	return (
+		<StyledBeforeCreateRulePromo as="aside">
+			<Flex direction="column" gap={ 3 } expanded={ false } align="start">
+				<Patchstack height={ 12 } />
+				<Flex direction="column" gap={ 2 } expanded={ false }>
+					<Heading
+						level={ 3 }
+						size={ TextSize.LARGE }
+						weight={ TextWeight.HEAVY }
+						variant={ TextVariant.DARK }
+						text={ __( 'Confused by Firewall Rules? Automate it!', 'better-wp-security' ) }
+					/>
+					<Text
+						variant={ TextVariant.MUTED }
+						text={ installType === 'free'
+							? __( 'We know creating Firewall Rules can be complex, but thanks to our Patchstack integration, Solid Security Pro automatically patches your website vulnerabilities with no action required. Upgrade to Pro with a Patchstack license to be protected while you sleep!', 'better-wp-security' )
+							: __( 'We know creating custom Firewall Rules can be complex, but thanks to our Patchstack integration, Solid Security automatically patches your website vulnerabilities with no action required. Upgrade to a Patchstack license and be protected while you sleep!', 'better-wp-security' )
+						}
+					/>
+				</Flex>
+				<Button
+					variant="primary"
+					text={ installType === 'free'
+						? __( 'Get Solid Security Pro + Patchstack', 'better-wp-security' )
+						: __( 'Upgrade to a Patchstack License', 'better-wp-security' ) }
+					icon={ external }
+					iconPosition="right"
+					iconGap={ 0 }
+					href={ installType === 'free'
+						? 'https://go.solidwp.com/patchstack-banner-upgrade-now'
+						: 'https://go.solidwp.com/enable-patchstack'
+					}
+				/>
+			</Flex>
+		</StyledBeforeCreateRulePromo>
 	);
 }

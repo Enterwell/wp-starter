@@ -14,7 +14,8 @@ import { Button, Heading, Text, TextSize, TextVariant } from '@ithemes/ui';
 /**
  * Internal dependencies
  */
-import { ErrorList, PrimarySchemaForm } from '@ithemes/security-ui';
+import { ErrorList } from '@ithemes/security-ui';
+import { PrimarySchemaForm } from '@ithemes/security-schema-form';
 import { ONBOARD_STORE_NAME } from '../../../stores';
 import { StyledQuestion, StyledQuestionHeader } from './styles';
 import { OnboardBackActionFill } from '../../../components';

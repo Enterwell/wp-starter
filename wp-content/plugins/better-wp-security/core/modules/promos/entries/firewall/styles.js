@@ -79,3 +79,8 @@ export const StyledPatchstackDismiss = styled( Button )`
 		color: ${ ( { theme } ) => theme.colors.text.accent } !important;
 	}
 `;
+
+export const StyledBeforeCreateRulePromo = styled( Surface )`
+	padding: 1.25rem 1.5rem;
+	border-radius: 2px;
+`;

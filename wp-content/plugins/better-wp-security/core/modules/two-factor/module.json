@@ -123,6 +123,11 @@
     "exclude_type",
     "exclude_roles"
   ],
+   "telemetry-settings": {
+     "available_methods": true,
+     "custom_available_methods": true,
+     "disable_first_login": true
+   },
    "encryption": {
      "user-meta": [
        "_two_factor_totp_key"

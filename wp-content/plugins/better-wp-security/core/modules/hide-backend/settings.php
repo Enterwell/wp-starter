@@ -43,16 +43,11 @@ final class ITSEC_Hide_Backend_Settings extends Config_Settings {
 
 		$mail = $nc->mail();
 
-		$tracking_link = ITSEC_Core::is_pro()
-			? 'https://go.solidwp.com/security-new-login-email-ithemes-becoming-solidwp'
-			: 'https://go.solidwp.com/security-free-new-login-ithemes-becoming-solidwp';
-
 		$mail->add_header(
 			esc_html__( 'New Login URL', 'better-wp-security' ),
 			esc_html__( 'New Login URL', 'better-wp-security' ),
 			false,
 			esc_html__( 'Your new login URL is available below', 'better-wp-security' ),
-			$tracking_link
 		);
 		$mail->add_text( ITSEC_Lib::replace_tags( $nc->get_message( 'hide-backend' ), array(
 			'login_url'  => '<code>' . esc_url( $url ) . '</code>',

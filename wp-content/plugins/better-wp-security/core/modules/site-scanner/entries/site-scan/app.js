@@ -4,6 +4,7 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
+import { Icon } from '@wordpress/components';
 import {
 	brush as themeIcon,
 	plugins as pluginIcon,
@@ -83,10 +84,11 @@ function VulnerabilityIssue( { issue } ) {
 						<ScanIssueText>
 							{ __( 'The software needs to be updated to have the latest improvements released by the developer. ', 'better-wp-security' ) }
 							{ createInterpolateElement(
-								__( 'View the <a>Vulnerability Details</a> for more info.', 'better-wp-security' ),
+								__( 'View the <a>Vulnerability Details <icon/></a> for more info.', 'better-wp-security' ),
 								{
 									// eslint-disable-next-line jsx-a11y/anchor-has-content
-									a: <a href={ detailsUrl } />,
+									a: <a href={ detailsUrl } target="_blank" rel="noreferrer"></a>,
+									icon: <Icon icon={ external } size={ 15 } />,
 								}
 							) }
 						</ScanIssueText>

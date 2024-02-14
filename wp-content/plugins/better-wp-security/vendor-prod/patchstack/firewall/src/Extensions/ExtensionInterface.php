@@ -1,6 +1,6 @@
 <?php
 /**
- * @license GNU AGPLv3
+ * @license GPL-3.0-or-later
  *
  * Modified using Strauss.
  * @see https://github.com/BrianHenryIE/strauss

@@ -120,6 +120,22 @@ class Vulnerabilities extends \WP_REST_Controller {
 			$options->set_types( $request['software_type'] );
 		}
 
+		if ( $request['first_seen_after'] ) {
+			$options->set_first_seen_after( new \DateTimeImmutable( $request['first_seen_after'], new \DateTimeZone( 'UTC' ) ) );
+		}
+
+		if ( $request['first_seen_before'] ) {
+			$options->set_first_seen_before( new \DateTimeImmutable( $request['first_seen_before'], new \DateTimeZone( 'UTC' ) ) );
+		}
+
+		if ( $request['last_seen_after'] ) {
+			$options->set_last_seen_after( new \DateTimeImmutable( $request['last_seen_after'], new \DateTimeZone( 'UTC' ) ) );
+		}
+
+		if ( $request['last_seen_before'] ) {
+			$options->set_last_seen_before( new \DateTimeImmutable( $request['last_seen_before'], new \DateTimeZone( 'UTC' ) ) );
+		}
+
 		$vulnerabilities = $this->repository->get_vulnerabilities( $options );
 		$count_result    = $this->repository->count_vulnerabilities( $options );
 
@@ -127,9 +143,31 @@ class Vulnerabilities extends \WP_REST_Controller {
 			return $vulnerabilities->as_rest_response();
 		}
 
+		$patchable_ids = [];
+
+		if ( $request['patchable'] ) {
+			$vulnerability_ids = array_map( function ( Vulnerability $vulnerability ) {
+				return $vulnerability->get_id();
+			}, $vulnerabilities->get_data() );
+
+			$patchable = \ITSEC_Site_Scanner_API::get_available_firewall_rules( $vulnerability_ids );
+
+			if ( ! $patchable->is_success() ) {
+				return $patchable->as_rest_response();
+			}
+
+			$patchable_ids = $patchable->get_data();
+		}
+
 		$data = [];
 
 		foreach ( $vulnerabilities->get_data() as $vulnerability ) {
+			if ( $request['patchable'] === true && ! in_array( $vulnerability->get_id(), $patchable_ids, true ) ) {
+				continue;
+			} elseif ( $request['patchable'] === false && in_array( $vulnerability->get_id(), $patchable_ids, true ) ) {
+				continue;
+			}
+
 			$data[] = $this->prepare_response_for_collection(
 				$this->prepare_item_for_response( $vulnerability, $request )
 			);
@@ -490,7 +528,7 @@ class Vulnerabilities extends \WP_REST_Controller {
 		unset( $params['search'] );
 		$params['context']['default'] = 'view';
 
-		$params['resolution']    = [
+		$params['resolution'] = [
 			'type'  => 'array',
 			'items' => [
 				'type' => 'string',
@@ -506,6 +544,7 @@ class Vulnerabilities extends \WP_REST_Controller {
 				],
 			],
 		];
+
 		$params['software_type'] = [
 			'type'  => 'array',
 			'items' => [
@@ -516,6 +555,30 @@ class Vulnerabilities extends \WP_REST_Controller {
 					Vulnerability::T_WORDPRESS
 				],
 			]
+		];
+
+		$params['patchable'] = [
+			'type' => 'boolean',
+		];
+
+		$params['first_seen_after'] = [
+			'type'   => 'string',
+			'format' => 'date-time',
+		];
+
+		$params['first_seen_before'] = [
+			'type'   => 'string',
+			'format' => 'date-time',
+		];
+
+		$params['last_seen_after'] = [
+			'type'   => 'string',
+			'format' => 'date-time',
+		];
+
+		$params['last_seen_before'] = [
+			'type'   => 'string',
+			'format' => 'date-time',
 		];
 
 		return $params;

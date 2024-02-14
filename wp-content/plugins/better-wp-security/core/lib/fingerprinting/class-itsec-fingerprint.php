@@ -518,19 +518,10 @@ class ITSEC_Fingerprint implements JsonSerializable {
 		return $updated;
 	}
 
-	/**
-	 * Get a user's fingerprints.
-	 *
-	 * @param WP_User $user
-	 * @param array   $args
-	 *
-	 * @return ITSEC_Fingerprint[]
-	 */
-	public static function get_all_for_user( WP_User $user, array $args ) {
-
+	private static function build_where_clause( string $sql, WP_User $user, array $args ) {
 		global $wpdb;
 
-		$sql     = "SELECT * FROM {$wpdb->base_prefix}itsec_fingerprints WHERE `fingerprint_user` = %s";
+		$sql     .= "WHERE `fingerprint_user` = %s";
 		$prepare = array( $user->ID );
 
 		if ( ! empty( $args['status'] ) ) {
@@ -548,9 +539,61 @@ class ITSEC_Fingerprint implements JsonSerializable {
 			$prepare = array_merge( $prepare, wp_parse_slug_list( $args['exclude'] ) );
 		}
 
-		$sql .= ' ORDER BY `fingerprint_last_seen` DESC';
+		if ( ! empty( $args['last_seen_before'] ) ) {
+			$before    = date( 'Y-m-d H:i:s', $args['last_seen_before'] );
+			$sql       .= ' AND `fingerprint_last_seen` <= %s';
+			$prepare[] = $before;
+		}
 
-		$rows = $wpdb->get_results( $wpdb->prepare( $sql, $prepare ) );
+		if ( ! empty( $args['last_seen_after'] ) ) {
+			$after     = date( 'Y-m-d H:i:s', $args['last_seen_after'] );
+			$sql       .= ' AND `fingerprint_last_seen` >= %s';
+			$prepare[] = $after;
+		}
+
+		if ( ! empty( $args['search'] ) ) {
+			$sql .= ' AND `fingerprint_data` LIKE %s';
+			$prepare[] = '%"%' . $wpdb->esc_like( $args['search'] )  . '%"%';
+		}
+
+		return [
+			'sql'     => $sql,
+			'prepare' => $prepare,
+		];
+	}
+
+	/**
+	 * Get a user's fingerprints.
+	 *
+	 * @param WP_User $user
+	 * @param array   $args
+	 *
+	 * @return ITSEC_Fingerprint[]
+	 */
+	public static function get_all_for_user( WP_User $user, array $args ) {
+
+		global $wpdb;
+
+		$sql = "SELECT * FROM {$wpdb->base_prefix}itsec_fingerprints ";
+
+		$build_results = self::build_where_clause( $sql, $user, $args );
+
+		$build_results['sql'] .= ' ORDER BY `fingerprint_last_seen` DESC';
+
+		if (
+			! empty( $args['page'] ) &&
+			! empty( $args['per_page'] ) &&
+			is_int( $args['per_page'] ) &&
+			is_int( $args['page'] )
+		) {
+			$limit = $args['per_page'];
+			if ( $limit > 0 ) {
+				$offset               = ( $args['page'] - 1 ) * $limit;
+				$build_results['sql'] .= " LIMIT $offset,$limit";
+			}
+		}
+
+		$rows = $wpdb->get_results( $wpdb->prepare( $build_results['sql'], $build_results['prepare'] ) );
 
 		$fingerprints = array();
 
@@ -561,6 +604,24 @@ class ITSEC_Fingerprint implements JsonSerializable {
 		}
 
 		return $fingerprints;
+	}
+
+	/**
+	 * @param WP_User $user
+	 * @param array   $args
+	 *
+	 * @return integer
+	 */
+	public static function count_all_for_user( WP_User $user, array $args ) {
+		global $wpdb;
+
+		$sql = "SELECT COUNT(*) FROM {$wpdb->base_prefix}itsec_fingerprints ";
+
+		$args['count'] = true;
+
+		$build_results = self::build_where_clause( $sql, $user, $args );
+
+		return $wpdb->get_var( $wpdb->prepare( $build_results['sql'], $build_results['prepare'] ) );
 	}
 
 	/**
