@@ -125,9 +125,6 @@ class ITSEC_Notify {
 		$data_proxy = new ITSEC_Notify_Data_Proxy( $data );
 
 		$mail = $nc->mail( 'digest' );
-		$tracking_link = ITSEC_Core::is_pro()
-			? 'https://go.solidwp.com/security-digest-email-ithemes-becoming-solidwp'
-			: 'https://go.solidwp.com/security-free-digest-email-ithemes-becoming-solidwp';
 		$mail->add_header(
 			$title,
 			$banner_title,

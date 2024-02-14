@@ -18,6 +18,10 @@ final class ITSEC_Admin_Page_Loader {
 
 		// Filters for validating user settings
 		add_filter( 'itsec-user-setting-valid-itsec-settings-view', array( $this, 'validate_view' ), null, 2 );
+
+		add_action( 'show_user_profile', array( $this, 'render_profile_fields' ), 9 );
+		add_action( 'edit_user_profile', array( $this, 'render_profile_fields' ), 9 );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_profile_scripts' ) );
 	}
 
 	public function add_admin_pages() {
@@ -142,6 +146,85 @@ final class ITSEC_Admin_Page_Loader {
 		$this->load_file( 'page-%s.php' );
 
 		do_action( 'itsec-page-ajax' );
+	}
+
+	/**
+	 * Render the profile fields for managing user security.
+	 *
+	 * @param WP_User $user
+	 */
+	public function render_profile_fields( $user ) {
+		?>
+		<div id="itsec-profile-root" data-user="<?php echo esc_attr( $user->ID ); ?>" data-can-manage="<?php echo esc_attr( ITSEC_Core::current_user_can_manage() ); ?>"></div>
+		<noscript>
+			<div class="notice notice-warning notice-alt below-h2"><p><?php esc_html_e( 'You must enable JavaScript to manage Solid Security Settings.', 'better-wp-security' ); ?></p></div>
+		</noscript>
+		<?php
+	}
+
+	/**
+	 * Enqueues JavaScript for the profile fields manager.
+	 *
+	 * @return void
+	 */
+	public function enqueue_profile_scripts() {
+		global $pagenow, $user_id;
+
+		if ( $pagenow !== 'profile.php' && $pagenow !== 'user-edit.php' ) {
+			return;
+		}
+
+		$user = get_userdata( $user_id );
+
+		if ( ! $user ) {
+			return;
+		}
+
+		$preload_requests = [];
+		$preload = ITSEC_Lib::preload_rest_requests( $preload_requests );
+
+		wp_enqueue_script( 'itsec-pages-profile' );
+		wp_enqueue_style( 'itsec-pages-profile' );
+		wp_add_inline_script(
+			'itsec-pages-profile',
+			sprintf( 'wp.apiFetch.use( wp.apiFetch.createPreloadingMiddleware( %s ) );', wp_json_encode( $preload ) )
+		);
+
+		$request = new WP_REST_Request( 'GET', '/wp/v2/users/me' );
+		$request->set_query_params( [ 'context' => 'edit' ] );
+		$response = rest_do_request( $request );
+
+		if ( ! $response->is_error() ) {
+			wp_add_inline_script( 'itsec-pages-profile', sprintf(
+				"wp.data.dispatch('%s').receiveCurrentUserId( %d );",
+				'ithemes-security/core',
+				$user->ID
+			) );
+			wp_add_inline_script( 'itsec-pages-profile', sprintf(
+				"wp.data.dispatch('%s').receiveUser( %s );",
+				'ithemes-security/core',
+				wp_json_encode( $response->get_data() )
+			) );
+		}
+
+		foreach ( ITSEC_Modules::get_active_modules_to_run() as $module ) {
+			$handle = "itsec-{$module}-profile";
+
+			if ( wp_script_is( $handle, 'registered' ) ) {
+				wp_enqueue_script( $handle );
+			}
+
+			if ( wp_style_is( $handle, 'registered' ) ) {
+				wp_enqueue_style( $handle );
+			}
+		}
+
+		/**
+		 * Fires when scripts are enqueued for the User Profile JS code.
+		 *
+		 * @param WP_User $user
+		 */
+		do_action( 'itsec_enqueue_profile', $user );
 	}
 
 	private function load_file( $file ) {

@@ -32,16 +32,16 @@ class ITSEC_Two_Factor_On_Board extends ITSEC_Login_Interstitial {
 	 */
 	public function show_to_user( WP_User $user, $requested ) {
 
-		if ( $this->two_factor->is_user_excluded( $user ) ) {
-			return false;
-		}
-
 		if ( ! $this->get_available_providers( $user ) ) {
 			return false;
 		}
 
 		if ( $requested ) {
 			return true;
+		}
+
+		if ( $this->two_factor->is_user_excluded( $user ) ) {
+			return false;
 		}
 
 		if ( $this->two_factor->get_available_providers_for_user( $user, false ) ) {

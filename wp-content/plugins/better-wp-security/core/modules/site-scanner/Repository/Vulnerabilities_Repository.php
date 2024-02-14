@@ -146,7 +146,13 @@ class Vulnerabilities_Repository {
 			$sql .= sprintf( ' LIMIT %d, %d', $options->get_per_page() * ( $options->get_page() - 1 ), $options->get_per_page() );
 		}
 
-		$results = $this->wpdb->get_results( $this->wpdb->prepare( $sql, $prepare ), ARRAY_A );
+		if ( $prepare ) {
+			$prepared = $this->wpdb->prepare( $sql, $prepare );
+		} else {
+			$prepared = $sql;
+		}
+
+		$results = $this->wpdb->get_results( $prepared, ARRAY_A );
 
 		if ( $this->wpdb->last_error ) {
 			return Result::error( new \WP_Error(
@@ -175,7 +181,13 @@ class Vulnerabilities_Repository {
 		[ $where, $prepare ] = $this->build_where_clause( $options );
 		$sql .= $where;
 
-		$count = $this->wpdb->get_var( $this->wpdb->prepare( $sql, $prepare ) );
+		if ( $prepare ) {
+			$prepared = $this->wpdb->prepare( $sql, $prepare );
+		} else {
+			$prepared = $sql;
+		}
+
+		$count = $this->wpdb->get_var( $prepared );
 
 		if ( $this->wpdb->last_error ) {
 			return Result::error( new \WP_Error(
@@ -225,6 +237,26 @@ class Vulnerabilities_Repository {
 					return '(`software_type` = %s)';
 				}, $software ) )
 			);
+		}
+
+		if ( $first_seen_after = $options->get_first_seen_after() ) {
+			$wheres[]  = '`first_seen` > %s';
+			$prepare[] = $first_seen_after->format( 'Y-m-d H:i:s' );
+		}
+
+		if ( $first_seen_before = $options->get_first_seen_before() ) {
+			$wheres[]  = '`first_seen` < %s';
+			$prepare[] = $first_seen_before->format( 'Y-m-d H:i:s' );
+		}
+
+		if ( $last_seen_after = $options->get_last_seen_after() ) {
+			$wheres[]  = '`last_seen` > %s';
+			$prepare[] = $last_seen_after->format( 'Y-m-d H:i:s' );
+		}
+
+		if ( $last_seen_before = $options->get_last_seen_before() ) {
+			$wheres[]  = '`last_seen` < %s';
+			$prepare[] = $last_seen_before->format( 'Y-m-d H:i:s' );
 		}
 
 		if ( ! $wheres ) {

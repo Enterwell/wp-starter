@@ -6,12 +6,12 @@
  * Description: Shield your site from cyberattacks and prevent security vulnerabilities. The only security plugin you need for a solid foundation.
  * Author: SolidWP
  * Author URI: https://solidwp.com
- * Version: 9.0.0
+ * Version: 9.2.0
  * Text Domain: better-wp-security
  * Network: True
  * License: GPLv2
  * Requires PHP: 7.3
- * Requires at least: 6.2
+ * Requires at least: 6.3
  */
 
 if ( version_compare( phpversion(), '7.3.0', '<' ) ) {
@@ -24,9 +24,9 @@ if ( version_compare( phpversion(), '7.3.0', '<' ) ) {
 	return;
 }
 
-if ( version_compare( $GLOBALS['wp_version'], '6.2', '<' ) ) {
+if ( version_compare( $GLOBALS['wp_version'], '6.3', '<' ) ) {
 	function itsec_minimum_wp_version_notice() {
-		echo '<div class="notice notice-error"><p>' . esc_html__( 'Solid Security Basic requires WordPress 6.2 or later.', 'better-wp-security' ) . '</p></div>';
+		echo '<div class="notice notice-error"><p>' . esc_html__( 'Solid Security Basic requires WordPress 6.3 or later.', 'better-wp-security' ) . '</p></div>';
 	}
 
 	add_action( 'admin_notices', 'itsec_minimum_wp_version_notice' );

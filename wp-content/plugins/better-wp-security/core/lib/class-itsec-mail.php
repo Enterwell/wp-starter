@@ -16,7 +16,7 @@ final class ITSEC_Mail {
 		$this->name          = $name;
 	}
 
-	public function add_header( $title, $banner_title, $use_site_logo = false, $sub_title = '', $tracking_link = '' ) {
+	public function add_header( $title, $banner_title, $use_site_logo = false, $sub_title = '' ) {
 		if ( strlen( $sub_title ) ) {
 			$header = $this->get_template( 'header-subtitle.html' );
 		} else {
@@ -48,11 +48,6 @@ final class ITSEC_Mail {
 			'banner_title'      => $banner_title,
 			'logo'              => $logo,
 			'title'             => $title,
-			'icon_url'          => plugin_dir_url( ITSEC_Core::get_core_dir() . 'img/mail/index.php' ) . "rebrand_icon.png",
-			'branding_title'    => esc_html__( 'iThemes Security is now Solid Security', 'better-wp-security' ),
-			'text'              => esc_html__( 'We have been working hard for almost a year to bring you incredible new features in the form of our new and improved brand: SolidWP. Discover what’s new!', 'better-wp-security' ),
-			'link_href'         => $tracking_link,
-			'link_text'         => esc_html__( 'Learn More about Solid Security', 'better-wp-security' ),
 			'sub_title'         => $sub_title
 		);
 
@@ -650,7 +645,7 @@ final class ITSEC_Mail {
 	}
 
 	private function build_list_item_paragraphs( $item ): string {
-		return "<p style=\"Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:helvetica, 'helvetica neue', arial, verdana, sans-serif;line-height:23px;color:#3c1596;font-size:15px\"><u>{$item}</u></p>";
+		return "<p style=\"Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:helvetica, 'helvetica neue', arial, verdana, sans-serif;line-height:23px;font-size:15px\">{$item}</p>";
 	}
 
 	/**

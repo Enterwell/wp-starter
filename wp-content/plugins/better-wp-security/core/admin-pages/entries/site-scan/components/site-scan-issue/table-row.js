@@ -83,7 +83,7 @@ export default function TableRow( { icon, issue, isLarge, children } ) {
 				) }
 				<StyledAction>
 					<Button
-						aria-controls={ `solid-scan-result-${ issue }` }
+						aria-controls={ `solid-scan-result-${ issue.component + '-' + issue.id }` }
 						aria-expanded={ isExpanded }
 						icon={ isExpanded ? chevronUp : chevronDown }
 						iconPosition="right"
@@ -95,7 +95,7 @@ export default function TableRow( { icon, issue, isLarge, children } ) {
 					/>
 				</StyledAction>
 			</tr>
-			<StyledRowDetailsContainer as="tr" id={ `solid-scan-result-${ issue }` } isExpanded={ isExpanded } variant="tertiary">
+			<StyledRowDetailsContainer as="tr" id={ `solid-scan-result-${ issue.component + '-' + issue.id }` } isExpanded={ isExpanded } variant="tertiary">
 				<td colSpan={ isLarge ? 5 : 4 }>
 					<StyledDetailsContainer>
 						{ children }

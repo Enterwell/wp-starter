@@ -103,11 +103,11 @@ export default function VulnerableSoftware( { card, config, eqProps } ) {
 				{ isSmall
 					? <StyledBrandSmall>
 						<Text weight={ 600 } text={ __( 'Powered by', 'better-wp-security' ) } />
-						<Patchstack />
+						<Patchstack height={ 21 } />
 					</StyledBrandSmall>
 					: <StyledBrand>
 						<Text size={ TextSize.SMALL } weight={ 600 } text={ __( 'Powered by', 'better-wp-security' ) } />
-						<Patchstack alt={ __( 'Patchstack', 'better-wp-security' ) } />
+						<Patchstack height={ 21 } alt={ __( 'Patchstack', 'better-wp-security' ) } />
 					</StyledBrand>
 				}
 			</CardHeader>

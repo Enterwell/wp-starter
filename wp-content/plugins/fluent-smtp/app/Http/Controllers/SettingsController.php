@@ -16,10 +16,10 @@ class SettingsController extends Controller
         $this->verify();
 
         try {
-            $settings = $settings->get();
+            $setting = $settings->get();
 
             return $this->sendSuccess([
-                'settings' => $settings
+                'settings' => $setting
             ]);
 
         } catch (Exception $e) {
@@ -82,6 +82,7 @@ class SettingsController extends Controller
             $data['connection'] = $connection;
 
             $this->validateConnection($provider, $connection);
+
             $provider->checkConnection($connection);
 
             $data['valid_senders'] = $provider->getValidSenders($connection);
@@ -98,11 +99,11 @@ class SettingsController extends Controller
             ]);
 
         } catch (ValidationException $e) {
-            return $this->sendError($e->errors(), $e->getCode());
+            return $this->sendError($e->errors(), 422);
         } catch (Exception $e) {
             return $this->sendError([
                 'message' => $e->getMessage()
-            ], $e->getCode());
+            ], 422);
         }
     }
 
@@ -178,7 +179,7 @@ class SettingsController extends Controller
         return $this->sendError([
             'message' => $response->get_error_message(),
             'errors'  => $response->get_error_data()
-        ], 423);
+        ], 422);
     }
 
     public function validateConnection($provider, $connection)
@@ -219,9 +220,83 @@ class SettingsController extends Controller
 
         $provider = $factory->make($connection['provider']);
 
+        return $this->sendSuccess($provider->getConnectionInfo($connection));
+    }
+
+    public function addNewSenderEmail(Request $request, Settings $settings, Factory $factory)
+    {
+        $this->verify();
+
+        $connectionId = $request->get('connection_id');
+        $connections = $settings->getConnections();
+
+        if (!isset($connections[$connectionId]['provider_settings'])) {
+            return $this->sendSuccess([
+                'info' => __('Sorry no connection found. Please reload the page and try again', 'fluent-smtp')
+            ]);
+        }
+
+        $connection = $connections[$connectionId]['provider_settings'];
+
+        $provider = $factory->make($connection['provider']);
+        $email = sanitize_email($request->get('new_sender'));
+
+        if (!is_email($email)) {
+            return $this->sendError([
+                'message' => __('Please provide a valid email address', 'fluent-smtp')
+            ]);
+        }
+
+        $result = $provider->addNewSenderEmail($connection, $email);
+
+        if (is_wp_error($result)) {
+            return $this->sendError([
+                'message' => $result->get_error_message()
+            ]);
+        }
+
         return $this->sendSuccess([
-            'info' => $provider->getConnectionInfo($connection)
+            'message' => __('Email has been added successfully', 'fluent-smtp')
         ]);
+
+    }
+
+    public function removeSenderEmail(Request $request, Settings $settings, Factory $factory)
+    {
+        $this->verify();
+
+        $connectionId = $request->get('connection_id');
+        $connections = $settings->getConnections();
+
+        if (!isset($connections[$connectionId]['provider_settings'])) {
+            return $this->sendSuccess([
+                'info' => __('Sorry no connection found. Please reload the page and try again', 'fluent-smtp')
+            ]);
+        }
+
+        $connection = $connections[$connectionId]['provider_settings'];
+
+        $provider = $factory->make($connection['provider']);
+        $email = sanitize_email($request->get('email'));
+
+        if (!is_email($email)) {
+            return $this->sendError([
+                'message' => __('Please provide a valid email address', 'fluent-smtp')
+            ]);
+        }
+
+        $result = $provider->removeSenderEmail($connection, $email);
+
+        if (is_wp_error($result)) {
+            return $this->sendError([
+                'message' => $result->get_error_message()
+            ]);
+        }
+
+        return $this->sendSuccess([
+            'message' => __('Email has been removed successfully', 'fluent-smtp')
+        ]);
+
     }
 
     public function installPlugin(Request $request)
@@ -396,7 +471,7 @@ class SettingsController extends Controller
         if (!is_email($email)) {
             return $this->sendError([
                 'message' => 'Sorry! The provider email is not valid'
-            ], 423);
+            ], 422);
         }
 
         $shareEssentials = 'no';
@@ -570,9 +645,13 @@ class SettingsController extends Controller
 
     public function getNotificationSettings()
     {
+        $settings = (new Settings())->notificationSettings();
         $this->verify();
+
+        $settings['telegram_notify_token'] = '';
+
         return $this->sendSuccess([
-            'settings' => (new Settings())->notificationSettings()
+            'settings' => $settings
         ]);
     }
 
@@ -592,6 +671,9 @@ class SettingsController extends Controller
             'notify_email' => '{site_admin}',
             'notify_days'  => ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
         ];
+
+        $oldSettings = (new Settings())->notificationSettings();
+        $defaults = wp_parse_args($defaults, $oldSettings);
 
         $settings = wp_parse_args($settings, $defaults);
 

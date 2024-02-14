@@ -96,7 +96,7 @@ server {
                 include snippets/fastcgi-php.conf;
                 # Run PHP files through PHP-FPM service
                 # Change version if needed
-                fastcgi_pass unix:/run/php/php8.1-fpm.sock;
+                fastcgi_pass unix:/run/php/php8.2-fpm.sock;
         }
 }
 ```
@@ -171,7 +171,7 @@ List of recommended (and tested) environment requirements:
 - Linux distribution (native or WSL)
 - Nginx v1.18.0+
 - MySQL/MariaDB distribution v10.6.11+ (or MySQL alternative)
-- PHP v8.1+ with PHP-FPM
+- PHP v8.2+ with PHP-FPM
 - Composer v2+
 - NodeJS v18+ (LTS)
 - Git

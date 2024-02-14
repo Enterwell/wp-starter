@@ -278,9 +278,6 @@ class ITSEC_Backup {
 
 		$nc   = ITSEC_Core::get_notification_center();
 		$mail = $nc->mail();
-		$tracking_link = ITSEC_Core::is_pro()
-			? 'https://go.solidwp.com/security-database-backup-email-ithemes-becoming-solidwp'
-			: 'https://go.solidwp.com/security-free-database-backup-email-ithemes-becoming-solidwp';
 
 		$mail->add_header(
 			esc_html__( 'Database Backup', 'better-wp-security' ),
@@ -288,7 +285,6 @@ class ITSEC_Backup {
 				'<b>' . date_i18n( get_option( 'date_format' ) ) . '</b>' ),
 			false,
 			esc_html__( 'Attached is the database backup file for your site.', 'better-wp-security' ),
-			$tracking_link
 		);
 
 		$mail->add_section_heading( esc_html__( 'Website', 'better-wp-security' ) );

@@ -32,6 +32,10 @@ class ITSEC_Hide_Backend {
 		add_filter( 'comment_moderation_text', array( $this, 'filter_comment_moderation_text' ) );
 		add_filter( 'itsec_notify_admin_page_url', array( $this, 'filter_notify_admin_page_urls' ) );
 
+		add_filter( 'comment_form_defaults', array( $this, 'filter_comment_form_defaults' ), 20 );
+		add_filter( 'comment_reply_link', array( $this, 'filter_comment_reply_link' ), 20 );
+		add_filter( 'post_comments_link', array( $this, 'filter_post_comments_link' ), 20 );
+
 		remove_action( 'template_redirect', 'wp_redirect_admin_locations', 1000 );
 	}
 
@@ -386,6 +390,54 @@ class ITSEC_Hide_Backend {
 		if ( ! empty( $_REQUEST['action'] ) && 'register' === $_REQUEST['action'] ) {
 			wp_enqueue_style( 'itsec-hide-backend-login-page', plugins_url( 'css/login-page.css', __FILE__ ) );
 		}
+	}
+
+	/**
+	 * Removes the login URL from the comment form
+	 *
+	 * @param array $defaults The default fields.
+	 *
+	 * @return array
+	 */
+	public function filter_comment_form_defaults( $defaults ) {
+		$defaults['must_log_in'] = sprintf(
+			'<p class="must-log-in">%s</p>',
+			__( 'You must be logged in to post a comment.', 'better-wp-security' )
+		);
+
+		return $defaults;
+	}
+
+	/**
+	 * Removes the comment reply link if a user is logged out
+	 * and comment registration is required.
+	 *
+	 * @param string $html The HTML to display.
+	 *
+	 * @return string
+	 */
+	public function filter_comment_reply_link( $html ) {
+		if ( get_option( 'comment_registration' ) && ! is_user_logged_in() ) {
+			return '';
+		}
+
+		return $html;
+	}
+
+	/**
+	 * Removes the post reply link if a user is logged out
+	 * and comment registration is required.
+	 *
+	 * @param string $html The HTML to display.
+	 *
+	 * @return string
+	 */
+	public function filter_post_comments_link( $html ) {
+		if ( get_option( 'comment_registration' ) && ! is_user_logged_in() ) {
+			return '';
+		}
+
+		return $html;
 	}
 
 	/**

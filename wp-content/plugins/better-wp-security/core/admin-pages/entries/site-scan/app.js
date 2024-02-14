@@ -12,6 +12,7 @@ import { SlotFillProvider, Popover } from '@wordpress/components';
 import { PluginArea } from '@wordpress/plugins';
 import { __ } from '@wordpress/i18n';
 import { useDispatch, useSelect } from '@wordpress/data';
+import { store as noticesStore } from '@wordpress/notices';
 
 /**
  * iThemes dependencies
@@ -39,14 +40,17 @@ import {
 	StyledPageContainer,
 	StyledHeadingText,
 	StyledScanSurface,
+	StyledSnackbarList,
 } from './styles';
 import './style.scss';
 
 export default function App( { history } ) {
 	const { startScan } = useDispatch( store );
-	const { components, issues } = useSelect( ( select ) => ( {
+	const { removeNotice } = useDispatch( noticesStore );
+	const { components, issues, snackbarNotices } = useSelect( ( select ) => ( {
 		components: select( store ).getScanComponents(),
 		issues: select( store ).getIssues(),
+		snackbarNotices: select( noticesStore ).getNotices( 'ithemes-security' ),
 	} ), [] );
 	const onClick = () => {
 		startScan();
@@ -89,6 +93,10 @@ export default function App( { history } ) {
 
 								</StyledPageContainer>
 							</Switch>
+							<StyledSnackbarList
+								notices={ snackbarNotices }
+								onRemove={ ( id ) => ( removeNotice( id, 'ithemes-security' ) ) }
+							/>
 						</SlotFillProvider>
 					</StyledApp>
 				</QueryParamProvider>

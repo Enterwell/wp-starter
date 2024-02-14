@@ -11,7 +11,7 @@ pool:
   vmImage: ubuntu-latest
 
 variables:
-  phpVersion: '8.1'
+  phpVersion: '8.2'
   nodeVersion: '18.x'
   rootFolder: $(System.DefaultWorkingDirectory)
   pluginFolder: $(rootFolder)/wp-content/plugins/ewplugin

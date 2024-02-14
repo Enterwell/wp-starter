@@ -802,7 +802,7 @@ if ( ! class_exists( 'ITSEC_Core' ) ) {
 		 * @return bool
 		 */
 		public static function has_patchstack(): bool {
-			if ( ! self::is_licensed() ) {
+			if ( ! self::is_licensed() || 'free' === self::get_install_type() ) {
 				return false;
 			}
 
@@ -1018,7 +1018,14 @@ if ( ! class_exists( 'ITSEC_Core' ) ) {
 				$page = 'itsec-' . $page;
 			}
 
-			return network_admin_url( sprintf( 'admin.php?page=%s&path=%s', $page, urlencode( $path ) ) );
+			$parts = explode( '#', $path );
+			$path = $parts[0];
+			$hash = '';
+			if ( count( $parts ) > 1 ) {
+				$hash = '#' . $parts[1];
+			}
+
+			return network_admin_url( sprintf( 'admin.php?page=%s&path=%s%s', $page, urlencode( $path ), $hash ) );
 		}
 
 		/**

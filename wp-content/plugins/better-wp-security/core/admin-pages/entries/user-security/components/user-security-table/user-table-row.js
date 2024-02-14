@@ -38,7 +38,7 @@ import {
 	StyledUserDetailText,
 	StyledUserDetailTH,
 	StyledUserDetailTR,
-	StyledUserSelectTD,
+	StyledUser,
 } from './styles';
 
 function statusIcon( status ) {
@@ -99,32 +99,36 @@ export function UserTableRow( { user, isMedium, isLarge } ) {
 	return (
 		<>
 			<tr key={ user.id }>
-				<StyledUserSelectTD>
-					<StyledCheckboxControl
-						checked={ isChecked }
-						onChange={ ( ) => {
-							toggleSelectedUser( user );
-						} }
-						label={
-							sprintf(
-							/* translators: 1. Select User in Table. */
-								__( 'Select %s in Table', 'better-wp-security' ),
-								user.name
-							)
-						}
-						hideLabelFromVision
-					/>
-					<StyledUserAvatar
-						src={ user.avatar_urls[ 48 ] }
-						alt=""
-					/>
-					<StyledButton
-						text={ user.name }
-						href={ user.solid_edit_user_link }
-						variant="link"
-						align="left"
-					/>
-				</StyledUserSelectTD>
+				<td>
+					<StyledUser>
+						<StyledCheckboxControl
+							checked={ isChecked }
+							onChange={ ( ) => {
+								toggleSelectedUser( user );
+							} }
+							label={
+								sprintf(
+									/* translators: 1. Select User in Table. */
+									__( 'Select %s in Table', 'better-wp-security' ),
+									user.name
+								)
+							}
+							hideLabelFromVision
+						/>
+						{ user?.avatar_urls?.[ 48 ] && (
+							<StyledUserAvatar
+								src={ user?.avatar_urls?.[ 48 ] }
+								alt=""
+							/>
+						) }
+						<StyledButton
+							text={ user.name }
+							href={ user.solid_edit_user_link }
+							variant="link"
+							align="left"
+						/>
+					</StyledUser>
+				</td>
 				{ isMedium && (
 					<td>
 						<Text

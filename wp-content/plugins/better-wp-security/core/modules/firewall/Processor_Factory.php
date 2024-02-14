@@ -28,10 +28,20 @@ class Processor_Factory {
 	 * @return Processor
 	 */
 	public function make( bool $loading_early ): Processor {
+		$blockRules = $allowRules = [];
+
+		foreach ( $this->rules->load_rules() as $rule ) {
+			if ( $rule['type'] === 'WHITELIST' ) {
+				$allowRules[] = $rule;
+			} else {
+				$blockRules[] = $rule;
+			}
+		}
+
 		return new Processor(
 			$this->extension,
-			$this->rules->load_rules(),
-			[],
+			$blockRules,
+			$allowRules,
 			[
 				'mustUsePluginCall' => $loading_early,
 				'autoblockTime'     => \ITSEC_Modules::get_setting( 'global', 'lockout_period' ),

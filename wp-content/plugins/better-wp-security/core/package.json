@@ -62,7 +62,7 @@
     "react-hooks-global-state": "^1.0.1",
     "react-resizable": "^1.11.1",
     "react-router-dom": "^5.2.0",
-    "react-select": "^3.2.0",
+    "react-select": "^5.8.0",
     "react-transition-group": "^2.9.0",
     "recharts": "^2.0.9",
     "rememo": "^3.0.0",

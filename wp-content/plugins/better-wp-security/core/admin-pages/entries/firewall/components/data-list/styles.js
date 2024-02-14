@@ -6,7 +6,7 @@ import styled from '@emotion/styled';
 /**
  * SolidWP dependencies
  */
-import { Surface } from '@ithemes/ui';
+import { Button, Surface } from '@ithemes/ui';
 
 export const StyledListContainer = styled.div`
 	display: flex;
@@ -52,4 +52,9 @@ export const StyledEmptySurface = styled( Surface )`
 	gap: 0.75rem;
 	margin: 0.75rem 0;
 	padding: 1rem 0.75rem;
+`;
+
+export const StyledSettingsLink = styled( Button )`
+	width: fit-content;
+	align-self: center;
 `;

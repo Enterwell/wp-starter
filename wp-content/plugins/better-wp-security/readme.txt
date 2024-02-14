@@ -1,9 +1,9 @@
 === Solid Security – Password, Two Factor Authentication, and Brute Force Protection ===
 Contributors: ithemes, timothyblynjacobs, layotte, jthillithemes, lisacee, solidwp
 Tags: security, malware, two factor authentication, brute force protection, password protection
-Requires at least: 6.2
-Tested up to: 6.3
-Stable tag: 9.0.0
+Requires at least: 6.3
+Tested up to: 6.4
+Stable tag: 9.2.0
 Requires PHP: 7.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -174,6 +174,37 @@ Manage more than one WordPress site? Release lockouts and keep your themes, plug
 8. Automated vulnerability patching with Patchstack (Pro)
 
 == Changelog ==
+
+= 9.2.0 =
+* New: Refreshed UI for manging per-user security settings like Two-Factor. The previous Two-Factor UI can be enabled using the SOLID_SECURITY_LEGACY_2FA_UI constant.
+* New: A new block "Solid Security User Security Settings" let's you display this UI on the front-end of your website. The [solid_security_user_profile_settings] shortcode can be used if you're not yet using the Block Editor.
+* Important: Solid Security now requires WordPress 6.3 or later.
+* Enhancement: Display a snackbar notice when sending a 2FA reminder from the Site Scan page.
+* Enhancement: Include a link directly to the Patchstack database in the Site Scanner alert email.
+* Tweak: Remove iThemes Security is now Solid Security banners from the admin.
+* Bug Fix: Trying to enable Network Brute Force from the Security messages center linked to the wrong place.
+* Bug Fix: During onboarding, a double scrollbar was displayed on some screen sizes.
+
+= 9.1.0 =
+* New: Add support for creating custom firewall rules.
+* Enhancement: Add support for configuring firewall settings from the Firewall page.
+* Bug Fix: The firewall page would appear empty when geolocation could not retrieve a country code.
+
+= 9.0.3 =
+* Bug Fix: Remove an extra folder containing duplicate plugin files
+
+= 9.0.2 =
+* Bug Fix: Adding missing dist files to SVN
+
+= 9.0.1 =
+* Security: Don't disclose the login URL when using Hide Backend on a site with comments enabled and comment registration required. Thanks to Naveen Muthusamy for disclosing this issue.
+* Hardening: Check for the promote_user capability when using Privilege Escalation in addition to edit_user.
+* Tweak: Remove the iThemes Security is now Solid Security banner from admin-facing email notifications.
+* Bug Fix: Prevent the User Security page from crashing when "Show Avatars" is disabled in the WordPress discussion settings.
+* Bug Fix: Fix some filters on the User Security page not working as expected.
+* Bug Fix: Fix spacing on the Two-Factor form when backup methods are enabled.
+* Bug Fix: Fix fatal error when there is an error retrieving Patchstack license information.
+* Bug Fix: Styling issues on WordPress 6.4.
 
 = 9.0.0 =
 * New: iThemes Security is now Solid Security! Learn More: https://go.solidwp.com/security-welcome-to-solidwp

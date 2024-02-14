@@ -2,8 +2,8 @@
 Contributors: techjewel, wpmanageninja, heera, adreastrian
 Tags: smtp, amazon ses, fluent smtp, wordpress smtp, sendgrid smtp, mailgun smtp, mail, mailer, phpmailer, wp_mail, email, sendinblue, wp smtp
 Requires at least: 5.5
-Tested up to: 6.3
-Stable tag: 2.2.6
+Tested up to: 6.4
+Stable tag: 2.2.71
 Requires PHP: 7.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -148,6 +148,9 @@ Do you want to know how many and which emails your site is sending? Fluent SMTP 
 
 Optionally, You can turn off this feature, and then only failed emails will be logged so you can take a look. Fluent SMTP uses a custom Database table so your WordPress Tables will not be bloated (we care).
 
+== 🚀 Realtime Notification on Email Failures via Telegram, Slack, and Discord 🚀 ==
+Fluent SMTP has a unique feature that will notify you in real-time if any email fails to send. You can set up your Telegram, Slack, or Discord channel and Fluent SMTP will send you a notification if any email fails to send. This is super helpful for debugging and monitoring your site's email health.
+
 == 🚀 Security 🚀 ==
 Fluent SMTP is built by professionals and security and scalability in mind. Fluent SMTP provides several options for you to keep your email sending secure and safe.
 
@@ -282,6 +285,14 @@ Please <a href="https://wpmanageninja.com/support-tickets/">submit an issue in o
 
 == Changelog ==
 
+= 2.2.71 (Date: Jan 01, 2024 =
+* Hot Fix: Fixing the issue with Input Fields
+
+= 2.2.7 (Date: Jan 01, 2024) =
+* Added RealTime Email Failure Notification via Telegram / Slack / Discord
+* Added Option to add additional email addresses for Amazon SES
+* Improve the UI
+
 = 2.2.6 (Date: Oct 01, 2023) =
 * Enable Encryption for All SMTP Connections Keys
 * Migrate SendInBlue API to Brevo API
@@ -308,7 +319,7 @@ Please <a href="https://wpmanageninja.com/support-tickets/">submit an issue in o
 = 2.2.1 (Date: Nov 08, 2022) =
 * Refactored Google API integration
 * Fix encoding issues for Outlook API connection
-* ElasticMail Attachment issues fixed
+* ElasticEmail Attachment issues fixed
 * Fixed digest email esc_* issues
 * Added contributors to the plugin's about page.
 * UI&UX Improvements

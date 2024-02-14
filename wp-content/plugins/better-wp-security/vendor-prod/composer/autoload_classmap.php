@@ -6,9 +6,9 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
-    'ComposerAutoloaderInit35a2bd4feb347da0d3ea2d8ef023082f' => $vendorDir . '/composer/autoload_real.php',
+    'ComposerAutoloaderInit30f4a1a7f1523625c670c10bf8b5f4ec' => $vendorDir . '/composer/autoload_real.php',
     'Composer\\Autoload\\ClassLoader' => $vendorDir . '/composer/ClassLoader.php',
-    'Composer\\Autoload\\ComposerStaticInit35a2bd4feb347da0d3ea2d8ef023082f' => $vendorDir . '/composer/autoload_static.php',
+    'Composer\\Autoload\\ComposerStaticInit30f4a1a7f1523625c670c10bf8b5f4ec' => $vendorDir . '/composer/autoload_static.php',
     'Composer\\InstalledVersions' => $vendorDir . '/composer/InstalledVersions.php',
     'ITSEC_Admin_Notice' => $baseDir . '/core/lib/admin-notices/interface-itsec-admin-notice.php',
     'ITSEC_Admin_Notice_Action' => $baseDir . '/core/lib/admin-notices/actions/interface-itsec-admin-notice-action.php',

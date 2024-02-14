@@ -31,7 +31,6 @@ class Settings
 
         $key = $inputs['connection_key'];
 
-
         if (isset($connections[$key])) {
             $mappings = array_filter($mappings, function ($mappingKey) use ($key) {
                 return $mappingKey != $key;
@@ -97,7 +96,7 @@ class Settings
             $misc['default_connection'] = $uniqueKey;
             $settings['misc'] = $misc;
         }
-        
+
         fluentMailSetSettings($settings);
 
         return $settings;
@@ -231,9 +230,24 @@ class Settings
     public function notificationSettings()
     {
         $defaults = [
-            'enabled'      => 'no',
-            'notify_email' => '{site_admin}',
-            'notify_days'  => ['Mon']
+            'enabled'        => 'no',
+            'notify_email'   => '{site_admin}',
+            'notify_days'    => ['Mon'],
+            'active_channel' => '',
+            'telegram'       => [
+                'status' => 'no',
+                'token'  => ''
+            ],
+            'slack'          => [
+                'status'      => 'no',
+                'token'       => '',
+                'webhook_url' => ''
+            ],
+            'discord'        => [
+                'status'       => 'no',
+                'channel_name' => '',
+                'webhook_url'  => ''
+            ],
         ];
 
         $settings = get_option('_fluent_smtp_notify_settings', []);
