@@ -6,7 +6,7 @@
  * Time: 14:55
  */
 
-namespace EwStarter;
+namespace EwStarter\Helpers;
 
 /**
  * Class Random_Values_Helper

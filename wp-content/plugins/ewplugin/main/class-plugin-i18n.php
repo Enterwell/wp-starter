@@ -1,6 +1,6 @@
 <?php
 
-namespace EwStarter;
+namespace EwStarter\Main;
 
 /**
  * Define the internationalization functionality.
@@ -20,16 +20,16 @@ class Plugin_i18n {
 	 *
 	 * @since    1.0.0
 	 * @access   private
-	 * @var      string    $domain    The domain identifier for this plugin.
+	 * @var      string $domain The domain identifier for this plugin.
 	 */
-	private $domain;
+	private string $domain;
 
 	/**
 	 * Load the plugin text domain for translation.
 	 *
 	 * @since    1.0.0
 	 */
-	public function load_plugin_textdomain() {
+	public function load_plugin_textdomain(): void {
 
 		load_plugin_textdomain(
 			$this->domain,
@@ -42,10 +42,11 @@ class Plugin_i18n {
 	/**
 	 * Set the domain equal to that of the specified domain.
 	 *
+	 * @param string $domain The domain that represents the locale of this plugin.
+	 *
 	 * @since    1.0.0
-	 * @param    string    $domain    The domain that represents the locale of this plugin.
 	 */
-	public function set_domain( $domain ) {
+	public function set_domain( string $domain ): void {
 		$this->domain = $domain;
 	}
 

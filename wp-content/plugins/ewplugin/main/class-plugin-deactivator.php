@@ -1,6 +1,6 @@
 <?php
 
-namespace EwStarter;
+namespace EwStarter\Main;
 
 /**
  * Fired during plugin deactivation.

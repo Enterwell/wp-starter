@@ -6,7 +6,13 @@
  * Time: 14:48
  */
 
-namespace EwStarter;
+namespace EwStarter\Controllers;
+
+use Exception;
+use WP_REST_Request;
+use WP_REST_Response;
+use EwStarter\Exceptions\Validation_Exception;
+use EwStarter\Services\User_Applications_Service;
 
 /**
  * Class User_Applications_Controller
@@ -16,11 +22,11 @@ class User_Applications_Controller extends APlugin_Controller {
 	/**
 	 * @var User_Applications_Service
 	 */
-	private $user_applications_service;
+	private User_Applications_Service $user_applications_service;
 
 	/**
 	 * User_Applications_Controller constructor.
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function __construct() {
 		parent::__construct( 'user-applications' );
@@ -49,11 +55,11 @@ class User_Applications_Controller extends APlugin_Controller {
 	/**
 	 * Creates user application
 	 *
-	 * @param \WP_REST_Request $request
+	 * @param WP_REST_Request $request
 	 *
-	 * @return \WP_REST_Response
+	 * @return WP_REST_Response
 	 */
-	public function create_user_application( \WP_REST_Request $request ): \WP_REST_Response {
+	public function create_user_application( WP_REST_Request $request ): WP_REST_Response {
 		try {
 			// Create user application from params
 			$user_application = $this->user_applications_service->create_user_application( $request->get_params() );
@@ -61,7 +67,7 @@ class User_Applications_Controller extends APlugin_Controller {
 			return $this->ok( $user_application );
 		} catch ( Validation_Exception $e ) {
 			return $this->bad_request( $e->getMessage() );
-		} catch ( \Exception $e ) {
+		} catch ( Exception $e ) {
 			return $this->exception_response( $e );
 		}
 	}
