@@ -1,5 +1,8 @@
 <?php
 
+use EwStarter\Exceptions\Validation_Exception;
+use EwStarter\Services\User_Applications_Service;
+
 /**
  * User applications service tests.
  *
@@ -7,9 +10,9 @@
  */
 class Test_User_Applications_Service extends WP_UnitTestCase {
 	/**
-	 * @var \EwStarter\User_Applications_Service
+	 * @var User_Applications_Service
 	 */
-	private $user_applications_service;
+	private User_Applications_Service $user_applications_service;
 
 	/**
 	 * Activate plugin before
@@ -17,7 +20,7 @@ class Test_User_Applications_Service extends WP_UnitTestCase {
 	 */
 	public function set_up() {
 		parent::set_up();
-		$this->user_applications_service    = new \EwStarter\User_Applications_Service();
+		$this->user_applications_service    = new User_Applications_Service();
 	}
 
 	/**
@@ -40,7 +43,7 @@ class Test_User_Applications_Service extends WP_UnitTestCase {
 
 	/**
 	 * Tests user application create.
-	 * @throws \EwStarter\Validation_Exception
+	 * @throws Validation_Exception
 	 */
 	public function test_user_application_create() {
 		$request_data     = $this->get_test_user_application_request_data();
@@ -58,7 +61,7 @@ class Test_User_Applications_Service extends WP_UnitTestCase {
 
 	/**
 	 * Tests user application that has invalid image file extension.
-	 * @throws \EwStarter\Validation_Exception
+	 * @throws Validation_Exception
 	 */
 	public function test_user_application_create_invalid_image_extension() {
 		$request_data = $this->get_test_user_application_request_data();
@@ -87,11 +90,11 @@ class Test_User_Applications_Service extends WP_UnitTestCase {
 
 	/**
 	 * Tests user application create with validation fields.
-	 * @throws \EwStarter\Validation_Exception
+	 * @throws Validation_Exception
 	 */
 	public function test_user_application_create_validation_fields() {
 		// We expect validation exception
-		$this->expectException( \EwStarter\Validation_Exception::class );
+		$this->expectException( Validation_Exception::class );
 
 		$request_data = $this->get_test_user_application_request_data();
 		unset( $request_data['firstName'] );
@@ -102,11 +105,11 @@ class Test_User_Applications_Service extends WP_UnitTestCase {
 
 	/**
 	 * Tests user application create with validation - image base64 is not valid.
-	 * @throws \EwStarter\Validation_Exception
+	 * @throws Validation_Exception
 	 */
 	public function test_user_application_create_validation_image_invalid_base64() {
 		// We expect validation exception
-		$this->expectException( \EwStarter\Validation_Exception::class );
+		$this->expectException( Validation_Exception::class );
 
 		$request_data                = $this->get_test_user_application_request_data();
 		$request_data['invoiceFile'] = 'invalid-base-64';
@@ -116,7 +119,7 @@ class Test_User_Applications_Service extends WP_UnitTestCase {
 
 	/**
 	 * Tests user application create with validation - base64 file is not an image.
-	 * @throws \EwStarter\Validation_Exception
+	 * @throws Validation_Exception
 	 */
 	public function test_user_application_create_validation_not_image_base64() {
 		// We expect validation exception

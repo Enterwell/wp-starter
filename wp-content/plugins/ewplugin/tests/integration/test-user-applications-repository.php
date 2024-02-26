@@ -5,6 +5,10 @@
  * @package Ewplugin
  */
 
+use EwStarter\Models\User_Application;
+use EwStarter\Repositories\User_Applications_Repository;
+use EwStarter\Tests\Helpers\Plugin_Test_Case;
+
 /**
  * User application repository test.
  *
@@ -14,9 +18,9 @@
  */
 class User_Applications_Repository_Test extends Plugin_Test_Case {
 	/**
-	 * @var \EwStarter\User_Applications_Repository
+	 * @var User_Applications_Repository
 	 */
-	private $user_applications_repository;
+	private User_Applications_Repository $user_applications_repository;
 
 	/**
 	 * Activate plugin before
@@ -24,15 +28,15 @@ class User_Applications_Repository_Test extends Plugin_Test_Case {
 	 */
 	public function set_up() {
 		parent::set_up();
-		$this->user_applications_repository = new \EwStarter\User_Applications_Repository();
+		$this->user_applications_repository = new User_Applications_Repository();
 	}
 
 	/**
 	 * Returns user application for testing.
-	 * @return \EwStarter\User_Application
+	 * @return User_Application
 	 */
 	private function get_test_user_application() {
-		$user_application                    = new \EwStarter\User_Application();
+		$user_application                    = new User_Application();
 		$user_application->first_name        = 'John';
 		$user_application->last_name         = 'Doe';
 		$user_application->email             = 'john@doe.com';

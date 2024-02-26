@@ -1,6 +1,6 @@
 <?php
 
-namespace EwStarter;
+namespace EwStarter\Admin;
 
 /**
  * The admin-specific functionality of the plugin.
@@ -21,7 +21,7 @@ class Plugin_Admin {
 	 * @access   private
 	 * @var      string    $plugin_name    The ID of this plugin.
 	 */
-	private $plugin_name;
+	private string $plugin_name;
 
 	/**
 	 * The version of this plugin.
@@ -30,7 +30,7 @@ class Plugin_Admin {
 	 * @access   private
 	 * @var      string    $version    The current version of this plugin.
 	 */
-	private $version;
+	private string $version;
 
 	/**
 	 * Initialize the class and set its properties.
@@ -49,7 +49,7 @@ class Plugin_Admin {
 	 *
 	 * @since    1.0.0
 	 */
-	public function enqueue_styles() {
+	public function enqueue_styles(): void {
 	}
 
 	/**
@@ -57,7 +57,7 @@ class Plugin_Admin {
 	 *
 	 * @since    1.0.0
 	 */
-	public function enqueue_scripts() {
+	public function enqueue_scripts(): void {
 	}
 
 }

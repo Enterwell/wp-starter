@@ -29,12 +29,5 @@ function _manually_load_plugin() {
 }
 tests_add_filter( 'muplugins_loaded', '_manually_load_plugin' );
 
-// Load our plugins activator and deactivator classes
-require dirname(__FILE__, 2) . '/includes/class-plugin-activator.php';
-require dirname(__FILE__, 2) . '/includes/class-plugin-deactivator.php';
-
 // Start up the WP testing environment.
 require $_tests_dir . '/includes/bootstrap.php';
-
-// Load helpers
-require dirname( __FILE__ ) . '/helpers/class-plugin-test-case.php';

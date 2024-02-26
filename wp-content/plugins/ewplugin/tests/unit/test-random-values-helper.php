@@ -5,6 +5,8 @@
  * @package Ewplugin
  */
 
+use EwStarter\Helpers\Random_Values_Helper;
+
 /**
  * Random values helper test case.
  */
@@ -17,7 +19,7 @@ class Random_Values_Helper_Test extends WP_UnitTestCase {
 		$expected_length = 10;
 
 		// Get random string
-		$random_string = \EwStarter\Random_Values_Helper::get_random_string($expected_length);
+		$random_string = Random_Values_Helper::get_random_string($expected_length);
 
 		// Actual length
 		$actual_length = strlen($random_string);

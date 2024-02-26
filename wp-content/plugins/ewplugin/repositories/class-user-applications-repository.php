@@ -6,10 +6,11 @@
  * Time: 13:33
  */
 
-namespace EwStarter;
+namespace EwStarter\Repositories;
 
 use Ew\WpHelpers\Classes\Db_Data;
 use Ew\WpHelpers\Repositories\ARepository;
+use EwStarter\Models\User_Application;
 
 /**
  * Class User_Applications_Repository
@@ -95,7 +96,7 @@ class User_Applications_Repository extends ARepository {
 	 *
 	 * @return          mixed
 	 */
-	protected function _construct_object( $table_row, $object_data = null ) {
+	protected function _construct_object( $table_row, $object_data = null ): User_Application {
 		return new User_Application( $table_row );
 	}
 
@@ -106,7 +107,7 @@ class User_Applications_Repository extends ARepository {
 	 *
 	 * @throws \Exception
 	 */
-	private function validate( User_Application $user_application ) {
+	private function validate( User_Application $user_application ): void {
 		$errors        = [];
 		$required_vars = [
 			'first_name',

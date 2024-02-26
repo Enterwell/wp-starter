@@ -6,7 +6,7 @@
  * Time: 12:12
  */
 
-namespace EwStarter;
+namespace EwStarter\Exceptions;
 
 /**
  * Base template class for validation exception.

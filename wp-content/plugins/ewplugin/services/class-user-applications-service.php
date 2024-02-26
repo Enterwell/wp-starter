@@ -1,9 +1,12 @@
 <?php
 
-namespace EwStarter;
+namespace EwStarter\Services;
 
 use Ew\WpHelpers\Classes\Request_Validation_Result;
 use Ew\WpHelpers\Services\Validation_Service;
+use EwStarter\Exceptions\Validation_Exception;
+use EwStarter\Models\User_Application;
+use EwStarter\Repositories\User_Applications_Repository;
 
 /**
  * Class User_Applications_Service
@@ -22,12 +25,12 @@ class User_Applications_Service extends Validation_Service {
 	/**
 	 * @var User_Applications_Repository
 	 */
-	private $user_applications_repository;
+	private User_Applications_Repository $user_applications_repository;
 
 	/**
 	 * @var Files_Service
 	 */
-	private $files_service;
+	private Files_Service $files_service;
 
 	/**
 	 * User_Applications_Service constructor.
@@ -41,7 +44,7 @@ class User_Applications_Service extends Validation_Service {
 	/**
 	 * Validate user application create request.
 	 *
-	 * @param $r
+	 * @param array $r
 	 *
 	 * @return Request_Validation_Result
 	 */
