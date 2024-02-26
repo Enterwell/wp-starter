@@ -1,6 +1,6 @@
 <?php
 /**
- * @license GNU AGPLv3
+ * @license GPL-3.0-or-later
  *
  * Modified using Strauss.
  * @see https://github.com/BrianHenryIE/strauss
@@ -109,9 +109,8 @@ class Processor
     public function launch($mustExit = true)
     {
         // Determine if the user is temporarily blocked from the site before we do anything else.
-        if (
-            $this->extension->isBlocked($this->autoblockMinutes, $this->autoblockTime, $this->autoblockAttempts) && !$this->extension->canBypass($this->mustUsePluginCall)
-        ) {
+        $isWhitelisted = $this->extension->canBypass($this->mustUsePluginCall);
+        if (!$isWhitelisted && $this->extension->isBlocked($this->autoblockMinutes, $this->autoblockTime, $this->autoblockAttempts)) {
             $this->extension->forceExit(22);
         }
 
@@ -124,9 +123,6 @@ class Processor
         if (count($this->firewallRules) == 0 && count($this->whitelistRules) == 0) {
             return true;
         }
-
-        // Determine if the current request is whitelisted or not.
-        $isWhitelisted = $this->extension->canBypass($this->mustUsePluginCall);
 
         // Merge the rules together. First iterate through the whitelist rules because
         // we want to whitelist the request if there's a whitelist rule match.
@@ -257,6 +253,7 @@ class Processor
                                 return true;
                             } else {
                                 $inclusiveHits++;
+                                break 2;
                             }
                         }
                     }
@@ -334,25 +331,25 @@ class Processor
         }
 
         // If a scalar is a ctype alnum with underscores, dashes and spaces.
-        if ($matchType == 'ctype_special' && is_scalar($value)) {
+        if ($matchType == 'ctype_special' && is_scalar($value) && $value != '') {
             $value = str_replace([' ', '_', '-', ','], '', $value);
             $isClean = (bool) (@preg_match('/^[\w$\x{0080}-\x{FFFF}]*$/u', $value) > 0);
             return $isClean === $matchValue;
         }
 
         // If a scaler is a ctype digit.
-        if ($matchType == 'ctype_digit' && is_scalar($value)) {
+        if ($matchType == 'ctype_digit' && is_scalar($value) && $value != '') {
             return @ctype_digit($value) === $matchValue;
         }
 
         // If a scaler is a ctype alnum.
-        if ($matchType == 'ctype_alnum' && is_scalar($value)) {
+        if ($matchType == 'ctype_alnum' && is_scalar($value) && $value != '') {
             $isClean = (bool) (@preg_match('/^[\w$\x{0080}-\x{FFFF}]*$/u', $value) > 0);
             return $isClean === $matchValue;
         }
 
         // If a scalar is numeric.
-        if ($matchType == 'is_numeric' && is_scalar($value)) {
+        if ($matchType == 'is_numeric' && is_scalar($value) && $value != '') {
             return @is_numeric($value) === $matchValue;
         }
 
@@ -377,7 +374,7 @@ class Processor
         }
 
         // If the user does not have a WP privilege.
-        if ($matchType == 'current_user_cannot' && is_scalar($matchValue) && function_exists('current_user_can') && !$this->mustUsePluginCall) {
+        if ($matchType == 'current_user_cannot' && is_scalar($matchValue) && function_exists('current_user_can') && function_exists('wp_get_current_user') && !$this->mustUsePluginCall) {
             return @!current_user_can($matchValue);
         }
 

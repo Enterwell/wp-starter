@@ -24,13 +24,13 @@ export { UserProfileFill };
 
 const styleSheetIds = [ 'wp-components-css' ];
 
-async function getAvailablePlugins( plugins, user, currentUserId ) {
+async function getAvailablePlugins( plugins, user, currentUserId, canManage ) {
 	if ( ! user ) {
 		return Promise.resolve( [] );
 	}
 
 	return await Promise.allSettled( plugins.map( ( plugin ) =>
-		Promise.resolve( plugin.isAvailable( user, currentUserId ) )
+		Promise.resolve( plugin.isAvailable( user, currentUserId, canManage ) )
 			.then( ( isAvailable ) => {
 				return isAvailable ? plugin : null;
 			} )
@@ -51,8 +51,8 @@ export default function App( { plugins, canManage, userId, useShadow } ) {
 
 	const { value: availablePlugins } = useAsync(
 		useCallback( () =>
-			getAvailablePlugins( plugins, user, currentUserId ),
-		[ plugins, user, currentUserId ]
+			getAvailablePlugins( plugins, user, currentUserId, canManage ),
+		[ plugins, user, currentUserId, canManage ]
 		),
 	);
 
@@ -60,12 +60,15 @@ export default function App( { plugins, canManage, userId, useShadow } ) {
 		return null;
 	}
 
-	const tabs = availablePlugins.map( ( plugin ) => (
-		{
-			title: plugin.label,
-			name: plugin.name,
-		} )
-	);
+	const tabs = availablePlugins
+		.map( ( plugin ) => (
+			{
+				title: plugin.label,
+				name: plugin.name,
+				order: plugin.order,
+			} )
+		)
+		.sort( ( a, b ) => a.order - b.order );
 
 	const children = (
 		<StyledProfileContainer>

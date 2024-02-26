@@ -74,7 +74,7 @@ final class ITSEC_File_Change_Logs {
 		$entry = $this->filter_entry_for_list_display( $entry, $code, $code_data );
 
 		$details['module']['content']      = $entry['module_display'];
-		$details['description']['content'] = $entry['description'];
+		$details['description']['content'] = ! empty( $entry['description'] ) ? $entry['description'] : $code;
 
 		if ( 'changes-found' === $code || 'no-changes-found' === $code ) {
 			$details['memory'] = array(

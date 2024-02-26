@@ -444,6 +444,21 @@
         "type": "string"
       }
     },
+    "telemetry-settings": {
+      "description": "List of settings to include in telemetry.",
+      "type": "object",
+      "additionalProperties": {
+        "type": [
+          "string",
+          "boolean"
+        ],
+        "enum": [
+          true,
+          "count",
+          "not-empty"
+        ]
+      }
+    },
     "import-export": {
       "type": "object",
       "additionalProperties": false,

@@ -13,3 +13,4 @@ export { default as LogsTable } from './logs-table';
 export { default as TopBlockedIPs } from './top-blocked-ips';
 export { default as LogsTablePagination } from './logs-table-pagination';
 export * from './slot-fill';
+export { default as ModuleSettings } from './module-settings';

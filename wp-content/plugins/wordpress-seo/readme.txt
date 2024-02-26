@@ -5,7 +5,7 @@ License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html
 Tags: SEO, XML sitemap, Content analysis, Readability, Schema
 Tested up to: 6.4
-Stable tag: 21.7
+Stable tag: 22.0
 Requires PHP: 7.2.5
 
 Improve your WordPress SEO: Write better content and have a fully optimized WordPress site using the Yoast SEO plugin.
@@ -342,50 +342,52 @@ Your question has most likely been answered on our help center: [yoast.com/help/
 
 == Changelog ==
 
-= 21.7 =
+= 22.0 =
 
-Release date: 2023-12-12
+Release date: 2024-02-06
 
-Yoast SEO 21.7 is out now. In this release, we bring an improved first-time configuration, making it easier for people to get started. Also, we fixed several bugs and added some enhancements. Find out more about what's new in Yoast SEO 21.7 in [our release post](https://yoa.st/release-12-12-23)!
-
-#### Enhancements
-
-* Removes a superfluous warning in the first time configuration when the site environment is non-production.
+Yoast SEO 22.0 is out today. This release comes with many behind-the-scenes improvements and general enhancements. Find out more about what's new in Yoast SEO 22.0 in [our release post](https://yoa.st/release-6-2-24)!
 
 #### Bugfixes
 
-* Fixes a bug where an additional `Organization, Person` schema piece would be wrongly generated for author pages when a website representing an organization was set to represent a person different from the author.
-* Fixes a bug where the initial state for the website name would be empty when saving the site representation step in the first time configuration.
-* Fixes a bug where modifications to the analysis data would not be included in the Insights analysis.
-* Fixes a bug where the "view" button for tracking SEO performance would have the wrong size when editing a post in Elementor and Classic editor.
+* Fixes a bug where the `get_head` REST route would return a `rest_invalid_param` if the URL contains a multiple words search string. Props to @lucymtc.
+* Fixes a bug where using a `blog` prefix in the permalink structure with _Strip category base_ enabled would prevent the blog page from being accessible.
 
-#### Other
+= 21.9.1 =
 
-* Adds checks to ensure that the plugin has no known incompatibilities with PHP 8.3.
-* Improves the discoverability of the security policy.
-* Improves the instructions in the first-time configuration so that they're easier to follow.
-* Improves the new installation screen layout and design.
-* Provides a filter to add a list of shortcodes so they can be parsed and then included in our content analysis in Classic editor.
-
-= 21.6 =
-
-Release date: 2023-11-28
-
-Discover what's new in Yoast SEO 21.6! Have you seen our AI-powered tool that helps you easily craft engaging titles and meta descriptions? Ready for even more AI capabilities? Upgrade to Premium and unlock full access to AI-driven SEO tools to take your website to new heights. Start optimizing smarter, not harder! Find out more about what's new in Yoast SEO 21.6 in [our release post](https://yoa.st/release-28-11-23)!
-
-#### Enhancements
-
-* Improves the _Track SEO performance_ functionality by adding a graph that plots keyphrase trends over time.
+Release date: 2024-01-25
 
 #### Bugfixes
 
-* Fixes a bug where encoded characters would be stripped from canonical URLs in the taxonomy metabox. Props to [@stodorovic](https://github.com/stodorovic).
-* Fixes a bug where the Wincher integration would cause PHP warnings with PHP 8+.
+* Fixes a bug where a fatal error would occur when upgrading Yoast SEO on certain setups.
+* Fixes a bug where the image tag would be missing in the home page entry of the XML sitemap when using a static front page.
+
+= 21.9 =
+
+Release date: 2024-01-23
+
+We've just released Yoast SEO 21.9. This release comes with many behind-the-scenes improvements and general enhancements. Find out more about what's new in Yoast SEO 21.9 in [our release post](https://yoa.st/release-23-1-24)!
+
+#### Enhancements
+
+* Adds a filter to add images to the front page in sitemaps.
+* Adds a filter to allow adding images to terms in sitemaps.
+* Clears rewrite rules only for the strip category base option.
+* Removes the clearing of rewrite rules on every option update.
+* Replaces the sitemap rewrite rules mechanism, props to [felixarntz](https://github.com/felixarntz).
+
+#### Bugfixes
+
+* Fixes a bug where a post would be saved when trying to dismiss a notification while editing.
+* Fixes a bug where editing a product would either crash or be slow when there is a high number of registered attributes.
+* Fixes a bug where the Yoast plugin icon in the block editor would not have any horizontal spacing anymore when rendered in "compact" mode.
 
 #### Other
 
-* Adds a notification when WooCommerce's new beta product editor is enabled.
-* Adds defensive coding to the suppress warnings on archive pages with the `/%category%/%postname%/` permalink structure. Props to [@Mte90](https://github.com/Mte90).
+* Be explicit about required PHP extensions.
+* Improves PHP 8.2 compatibility.
+* Sets the minimum supported WordPress version to 6.3.
+* Removes the `WEBPAGE_HASH` constant that had been deprecated in Yoast SEO 19.3 (July 2022).
 
 = Earlier versions =
 For the changelog of earlier versions, please refer to [the changelog on yoast.com](https://yoa.st/yoast-seo-changelog).

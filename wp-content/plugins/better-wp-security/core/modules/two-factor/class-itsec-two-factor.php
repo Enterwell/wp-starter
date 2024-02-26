@@ -75,6 +75,8 @@ class ITSEC_Two_Factor {
 		add_filter( 'itsec_two-factor-confirm-email_notification_strings', array( $this, 'two_factor_confirm_email_method_strings' ) );
 		add_filter( 'itsec_two-factor-reminder_notification_strings', array( $this, 'two_factor_reminder_strings' ) );
 
+		add_filter( 'debug_information', [ $this, 'add_site_health_info' ], 11 );
+
 		$this->matcher = ITSEC_Modules::get_container()->get( Matcher::class );
 		$this->load_helper();
 
@@ -959,6 +961,27 @@ Click the button to continue or manually enter the authentication code below to 
 			
 {{ $requester_display_name }} from {{ $site_title }} has asked that you set up Two Factor Authentication.', 'better-wp-security' ),
 		);
+	}
+
+	public function add_site_health_info( $info ) {
+		if ( wp_is_large_user_count() ) {
+			return $info;
+		}
+
+		$query = new WP_User_Query( [
+			'solid_2fa' => 'enabled',
+			'fields'    => 'ID',
+			'blog_id'   => get_main_site_id(),
+		] );
+		$total = count( $query->get_results() );
+
+		$info['solid-security']['fields']['two-factor-users'] = [
+			'label' => __( 'Two-Factor Users', 'better-wp-security' ),
+			'value' => $total,
+			'debug' => $total,
+		];
+
+		return $info;
 	}
 
 	public function get_helper() {

@@ -1030,7 +1030,7 @@
 9.0.1 - 2023-10-31 - Timothy Jacobs, Lisa Canini, Jared Hill, John Hooks
 	Security: Don't disclose the login URL when using Hide Backend on a site with comments enabled and comment registration required. Thanks to Naveen Muthusamy for disclosing this issue.
 	Hardening: Check for the promote_user capability when using Privilege Escalation in addition to edit_user.
-	Tweak: Remove the iThemes Security is now Solid Security banner from admin-facing email notifications.
+	Tweak: Remove the iThemes Security is now Solid Security banner from admin-facing email notifications.config/
 	Bug Fix: Prevent the User Security page from crashing when "Show Avatars" is disabled in the WordPress discussion settings.
 	Bug Fix: Fix some filters on the User Security page not working as expected.
 	Bug Fix: Fix spacing on the Two-Factor form when backup methods are enabled.
@@ -1053,3 +1053,22 @@
 	Tweak: Remove iThemes Security is now Solid Security banners from the admin.
 	Bug Fix: Trying to enable Network Brute Force from the Security messages center linked to the wrong place.
 	Bug Fix: During onboarding, a double scrollbar was displayed on some screen sizes.
+9.3.0 - 2024-01-25 - Timothy Jacobs, Lisa Canini, Jared Hill
+	New: The Firewall page has a new IP Management tab to provide easy access to blocking or authorizing IP addresses.
+	New: Usage Data Sharing (opt-in only) allows users to share non-personal and non-sensitive information with StellarWP to inform decisions about how to improve Solid Security in the future.
+	Enhancement: Add a snackbar notice when making changes on the Firewall Configure page.
+	Tweak: Remove some straggling references and links to iThemes.
+	Tweak: Consistently refer to 2FA as Two-Factor Authentication on the Profile page.
+	Tweak: Allow performing more Site Scan actions when the issue is muted.
+	Bug Fix: Truncate log item columns that are too long before inserting into the database.
+	Bug Fix: Consistently order the Security Profile tabs.
+	Bug Fix: Add missing text domain to new Solid Security Admin Menu items.
+	Bug Fix: Reset filters on the Vulnerabilities page when starting a Site Scan.
+	Bug Fix: PHP warning on the logs page when the File Change module logs unexpected data.
+9.3.1 - 2024-02-07 - Timothy Jacobs, Lisa Canini, Jared Hill
+	Tweak: Add a notice when a user's role is demoted from the Site Scans page.
+	Tweak: Update Privacy Policy generator text.
+	Bug Fix: Could not proceed through onboarding when BuddyPress or BuddyBoss was active.
+	Bug Fix: Some firewall rules could not be deactivated.
+	Bug Fix: Allow opting in to Telemetry via the Settings Page.
+	Bug Fix: PHP 8.2 deprecation warnings.

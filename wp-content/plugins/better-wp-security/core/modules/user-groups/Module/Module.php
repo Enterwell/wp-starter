@@ -48,6 +48,7 @@ class Module implements Runnable, Import_Export_Source {
 		add_action( 'itsec_change_admin_user_id', [ $this, 'on_change_admin_user_id' ], 10, 3 );
 		add_filter( 'itsec_rest_user_actions_schema', [ $this, 'add_user_actions' ] );
 		add_action( 'itsec_user_action_add-user-groups', [ $this, 'apply_add_user_groups_action' ], 10, 3 );
+		add_filter( 'debug_information', [ $this, 'add_site_health_info' ], 11 );
 	}
 
 	public function trigger_setting_registration() {
@@ -190,6 +191,37 @@ class Module implements Runnable, Import_Export_Source {
 				// There isn't any way for the user to action this. For now we'll swallow it.
 			}
 		}
+	}
+
+	public function add_site_health_info( $info ) {
+		$settings    = $this->settings_registry->get_settings();
+		$user_groups = array_map(
+			function ( User_Group $group ) use ( $settings ) {
+				$enabled = array_filter( $settings, function ( Settings_Registration $setting ) use ( $group ) {
+					$groups = \ITSEC_Modules::get_setting( $setting->get_module(), $setting->get_setting() );
+
+					return is_array( $groups ) && in_array( $group->get_id(), $groups, true );
+				} );
+
+				return [
+					'roles'     => $group->get_roles(),
+					'canonical' => $group->get_canonical_roles(),
+					'users'     => count( $group->get_users() ),
+					'settings'  => array_map( function ( Settings_Registration $setting ) {
+						return $setting->get_module() . '.' . $setting->get_setting();
+					}, array_values( $enabled ) ),
+				];
+			},
+			$this->repository->all()
+		);
+
+		$info['solid-security']['fields']['user_groups'] = [
+			'label' => __( 'User Groups', 'better-wp-security' ),
+			'value' => count( $user_groups ),
+			'debug' => array_values( $user_groups ),
+		];
+
+		return $info;
 	}
 
 	public function get_export_slug(): string {

@@ -10,11 +10,10 @@ return static function ( Container $c ) {
 		return new ITSEC_Dashboard( $c[ Matcher::class ] );
 	};
 
-	$c->extend( 'dashboard.cards', function ( $cards ) use ( $c ) {
+	ITSEC_Lib::extend_if_able( $c,'dashboard.cards', function ( $cards ) use ( $c ) {
 		$cards[] = new Security_Summary_Card(
 			$c[ Scans_Repository::class ],
 		);
-		$cards[] = new ITSEC_Dashboard_Card_Active_Lockouts();
 		$cards[] = new ITSEC_Dashboard_Card_Line_Graph( 'brute-force', __( 'Threats Blocked', 'better-wp-security' ), [
 			[
 				'events' => [ 'local-brute-force', 'network-brute-force', 'firewall-block' ],
@@ -43,10 +42,6 @@ return static function ( Container $c ) {
 				return $itsec_lockout->get_lockouts( 'all', array( 'return' => 'count', 'current' => false ) );
 			},
 		] );
-
-		if ( $c['ban-hosts.repositories'] ) {
-			$cards[] = new ITSEC_Dashboard_Card_Banned_Users();
-		}
 
 		return $cards;
 	} );

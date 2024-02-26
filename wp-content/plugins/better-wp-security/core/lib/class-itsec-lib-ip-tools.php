@@ -197,7 +197,7 @@ class ITSEC_Lib_IP_Tools {
 
 		$bin2mask_method = '_bin2mask_v' . $version;
 
-		return call_user_func( array( 'self', $bin2mask_method ), $bin_mask );
+		return call_user_func( array( 'ITSEC_Lib_IP_Tools', $bin2mask_method ), $bin_mask );
 	}
 
 	/**
@@ -368,7 +368,7 @@ class ITSEC_Lib_IP_Tools {
 
 		$wild_to_cidr_method = "_ipv{$version}_wild_to_ip_cidr";
 
-		return call_user_func( array( 'self', $wild_to_cidr_method ), $ip );
+		return call_user_func( array( 'ITSEC_Lib_IP_Tools', $wild_to_cidr_method ), $ip );
 	}
 
 	/**
@@ -498,7 +498,7 @@ class ITSEC_Lib_IP_Tools {
 
 		$cidr_to_wild_method = "_ipv{$version}_cidr_to_ip_regex";
 
-		return call_user_func( array( 'self', $cidr_to_wild_method ), $ip_parts );
+		return call_user_func( array( 'ITSEC_Lib_IP_Tools', $cidr_to_wild_method ), $ip_parts );
 	}
 
 	/**
@@ -633,7 +633,7 @@ class ITSEC_Lib_IP_Tools {
 		$regex = implode( ':', array_reverse( $chunks ) );
 
 		// Replace multiple chunks of all zeros with a regular expression that makes them optional but still enforces accurate matching
-		$regex = preg_replace_callback( '/0\?0\?0\?0\?(\:0\?0\?0\?0\?)+/', array( 'self', 'ipv6_regex_preg_replace_callback' ), $regex );
+		$regex = preg_replace_callback( '/0\?0\?0\?0\?(\:0\?0\?0\?0\?)+/', array( 'ITSEC_Lib_IP_Tools', 'ipv6_regex_preg_replace_callback' ), $regex );
 
 		return $regex;
 	}

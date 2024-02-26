@@ -6,7 +6,8 @@ import styled from '@emotion/styled';
 /**
  * Internal dependencies
  */
-import { ErrorList, PrimarySchemaFormInputs } from '@ithemes/security-ui';
+import { ErrorList } from '@ithemes/security-ui';
+import { PrimarySchemaFormInputs } from '@ithemes/security-schema-form';
 
 export const StyledErrorList = styled( ErrorList )`
 	margin: 0 1.5rem 1rem;

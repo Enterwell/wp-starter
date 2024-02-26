@@ -39,10 +39,10 @@ final class ITSEC_Admin_Page_Loader {
 		}
 
 		if ( $onboarded ) {
-			$page_refs[] = add_submenu_page( $parent, __( 'Site Scans', 'better-wp-security' ), __( 'Site Scans' ), $capability, 'itsec-site-scan', array( $this, 'show_page' ) );
-			$page_refs[] = add_submenu_page( $parent, __( 'Firewall', 'better-wp-security' ), __( 'Firewall' ), $capability, 'itsec-firewall', array( $this, 'show_page' ) );
-			$page_refs[] = add_submenu_page( $parent, __( 'Vulnerabilities', 'better-wp-security' ), __( 'Vulnerabilities' ), $capability, 'itsec-vulnerabilities', array( $this, 'show_page' ) );
-			$page_refs[] = add_submenu_page( $parent, __( 'User Security', 'better-wp-security' ), __( 'User Security' ), $capability, 'itsec-user-security', array( $this, 'show_page' ) );
+			$page_refs[] = add_submenu_page( $parent, __( 'Site Scans', 'better-wp-security' ), __( 'Site Scans', 'better-wp-security' ), $capability, 'itsec-site-scan', array( $this, 'show_page' ) );
+			$page_refs[] = add_submenu_page( $parent, __( 'Firewall', 'better-wp-security' ), __( 'Firewall', 'better-wp-security' ), $capability, 'itsec-firewall', array( $this, 'show_page' ) );
+			$page_refs[] = add_submenu_page( $parent, __( 'Vulnerabilities', 'better-wp-security' ), __( 'Vulnerabilities', 'better-wp-security' ), $capability, 'itsec-vulnerabilities', array( $this, 'show_page' ) );
+			$page_refs[] = add_submenu_page( $parent, __( 'User Security', 'better-wp-security' ), __( 'User Security', 'better-wp-security' ), $capability, 'itsec-user-security', array( $this, 'show_page' ) );
 		}
 
 		$page_refs[] = add_submenu_page( $parent, __( 'Solid Security Settings', 'better-wp-security' ), $onboarded ? __( 'Settings', 'better-wp-security' ) : __( 'Setup', 'better-wp-security' ), $capability, 'itsec', array(
@@ -203,7 +203,7 @@ final class ITSEC_Admin_Page_Loader {
 			wp_add_inline_script( 'itsec-pages-profile', sprintf(
 				"wp.data.dispatch('%s').receiveUser( %s );",
 				'ithemes-security/core',
-				wp_json_encode( $response->get_data() )
+				wp_json_encode( rest_get_server()->response_to_data( $response, false ) )
 			) );
 		}
 

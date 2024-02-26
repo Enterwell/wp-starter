@@ -74,7 +74,7 @@
         "type": "boolean",
         "default": true,
         "title": "Compare Files Online",
-        "description": "When any WordPress core file or file in an iThemes plugin or theme has been changed on your system, this feature will compare it with the version on WordPress.org or iThemes (as appropriate) to determine if the change was malicious. Currently this feature only works with WordPress core files, plugins on the WordPress.org directory and iThemes plugins and themes (plugins and themes from other sources will be added as available)."
+        "description": "When any WordPress core file or file in a SolidWP plugin has been changed on your system, this feature will compare it with the version on WordPress.org or SolidWP (as appropriate) to determine if the change was malicious. Currently this feature only works with WordPress core files, plugins on the WordPress.org directory and SolidWP plugins (plugins and themes from other sources will be added as available)."
       },
       "expected_hashes": {
         "type": "object",
@@ -131,5 +131,10 @@
   },
   "removed-settings": [
     "notify_admin"
-  ]
+  ],
+  "telemetry-settings": {
+    "file_list": "count",
+    "types": "count",
+    "compare_file_hashes": true
+  }
 }

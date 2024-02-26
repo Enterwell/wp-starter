@@ -36,7 +36,7 @@ const StyledApply = styled( Button )`
 
 function getPeriodLabel( period ) {
 	if ( ! period ) {
-		return '';
+		return 'No dates chosen';
 	}
 
 	const now = new window.Date();

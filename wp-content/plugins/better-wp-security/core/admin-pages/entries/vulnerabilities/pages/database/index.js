@@ -159,7 +159,7 @@ export default function Database() {
 					</StyledFilterTools>
 					<StyledButtonsContainer>
 						<Link to="/active" component={ withNavigate( Button ) } text={ __( 'Stop Browsing Database', 'better-wp-security' ) } />
-						<Link to="/scan" replace component={ withNavigate( Button ) } variant="primary" text={ __( 'Scan for vulnerabilities', 'better-wp-security' ) } />
+						<Link to="/scan" replace component={ withNavigate( Button ) } variant="primary" text={ __( 'Scan for Vulnerabilities', 'better-wp-security' ) } />
 					</StyledButtonsContainer>
 				</StyledPageHeader>
 				<Surface as="section">

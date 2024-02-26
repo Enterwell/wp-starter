@@ -1,6 +1,6 @@
 <?php
 /**
- * @license GNU AGPLv3
+ * @license GPL-3.0-or-later
  *
  * Modified using Strauss.
  * @see https://github.com/BrianHenryIE/strauss
@@ -72,6 +72,7 @@ class Request
             case 'log':
                 return [
                     'post' => $_POST,
+                    'files' => $_FILES,
                     'raw' => $this->getParameterValues('raw')
                 ];
                 break;
@@ -123,7 +124,7 @@ class Request
 
                 // If it's not an array, no need to continue.
                 if (!is_array($data)) {
-                    return [$data];
+                    $data = [$data];
                 }
             default:
                 break;
@@ -417,10 +418,16 @@ class Request
 
             // Merge together if the shortcode occurs more than once.
             if (isset($return[$shortcode[2]])) {
+
+                // Shortcode index must not be a string.
+                if (is_string($return[$shortcode[2]])) {
+                    continue;
+                }
+
                 $atts = @\shortcode_parse_atts($shortcode[3]);
                 foreach ($atts as $key => $value) {
                     if (isset($return[$shortcode[2]][$key])) {
-                        $return[$shortcode[2]][$key] .= $value;
+                        $return[$shortcode[2]][$key] = $return[$shortcode[2]][$key] . $value;
                     } else {
                         $return[$shortcode[2]][$key] = $value;
                     }

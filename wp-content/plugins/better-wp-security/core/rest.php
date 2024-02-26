@@ -3,6 +3,7 @@
 use iThemesSecurity\Ban_Hosts;
 use iThemesSecurity\Lib\REST\Geolocation_Controller;
 use iThemesSecurity\Lib\REST\Lockout_Stats_Controller;
+use iThemesSecurity\Lib\REST\Lockouts_Controller;
 use iThemesSecurity\Lib\REST\Logs_Controller;
 use iThemesSecurity\Lib\REST\Modules_Controller;
 use iThemesSecurity\Lib\REST\Settings_Controller;
@@ -10,6 +11,7 @@ use iThemesSecurity\Lib\REST\Site_Types_Controller;
 use iThemesSecurity\Lib\REST\Tools_Controller;
 use iThemesSecurity\Lib\REST\User_Actions_Controller;
 use iThemesSecurity\Lib\REST\Users_Controller_Extension;
+use iThemesSecurity\Lib\REST\Trusted_Devices_Controller;
 
 class ITSEC_REST {
 	public function run() {
@@ -43,6 +45,8 @@ class ITSEC_REST {
 		ITSEC_Modules::get_container()->get( Logs_Controller::class )->register_routes();
 		ITSEC_Modules::get_container()->get( Geolocation_Controller::class )->register_routes();
 		ITSEC_Modules::get_container()->get( Lockout_Stats_Controller::class )->register_routes();
+		ITSEC_Modules::get_container()->get( Trusted_Devices_Controller::class )->register_routes();
+		ITSEC_Modules::get_container()->get( Lockouts_Controller::class )->register_routes();
 		ITSEC_Modules::get_container()->get( Users_Controller_Extension::class )->run();
 
 		foreach ( ITSEC_Modules::get_container()->get( 'rest.controllers' ) as $controller ) {

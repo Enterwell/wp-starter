@@ -39,7 +39,7 @@ export function NoVulnerabilitiesEmptyState( { getScans } ) {
 							__( 'Last Scan: %s', 'better-wp-security' ),
 							dateI18n( 'm/d/Y', getScans[ 0 ]?.time )
 						) } />
-				<Link to="/scan" replace component={ withNavigate( Button ) } variant="primary" text={ __( 'Scan for vulnerabilities', 'better-wp-security' ) } />
+				<Link to="/scan" replace component={ withNavigate( Button ) } variant="primary" text={ __( 'Scan for Vulnerabilities', 'better-wp-security' ) } />
 			</StyledSuccess>
 		</StyledSuccessPanel>
 	);

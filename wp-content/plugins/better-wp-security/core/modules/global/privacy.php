@@ -8,6 +8,7 @@ final class ITSEC_Global_Privacy {
 
 		add_filter( 'itsec_get_privacy_policy_for_security_logs', array( $this, 'get_privacy_policy_for_security_logs' ) );
 		add_filter( 'itsec_get_privacy_policy_for_retention', array( $this, 'get_privacy_policy_for_retention' ) );
+		add_filter( 'itsec_get_privacy_policy_for_cookies', array( $this, 'get_privacy_policy_for_cookies' ) );
 	}
 
 	public function get_privacy_policy_for_security_logs( $policy ) {
@@ -40,6 +41,14 @@ final class ITSEC_Global_Privacy {
 		} else {
 			return max( $this->settings['log_rotation'], $this->settings['file_log_rotation'] );
 		}
+	}
+
+	public function get_privacy_policy_for_cookies( $policy ) {
+		$suggested_text = '<strong class="privacy-policy-tutorial">' . __( 'Suggested text:', 'better-wp-security' ) . ' </strong>';
+
+		$policy .= "<p>$suggested_text " . esc_html__( 'A cookie named “itsec_interstitial_browser” is created to track a user’s login process to implement enhanced security features.', 'better-wp-security' ) . "</p>\n";
+
+		return $policy;
 	}
 }
 new ITSEC_Global_Privacy();

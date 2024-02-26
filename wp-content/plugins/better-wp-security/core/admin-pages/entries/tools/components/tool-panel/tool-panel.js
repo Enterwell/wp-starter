@@ -35,7 +35,8 @@ import {
 	Text,
 	TextVariant,
 } from '@ithemes/ui';
-import { ErrorList, PrimarySchemaFormInputs } from '@ithemes/security-ui';
+import { ErrorList } from '@ithemes/security-ui';
+import { PrimarySchemaFormInputs } from '@ithemes/security-schema-form';
 
 /**
  * Internal dependencies
