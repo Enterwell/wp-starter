@@ -130,6 +130,7 @@
         name: "{{ mysql_user }}"
         password: "{{ mysql_password }}"
         priv: "{{ mysql_db }}.*: ALL,GRANT"
+        column_case_sensitive: false
       become: true
       tags: [ mysql ]
 
