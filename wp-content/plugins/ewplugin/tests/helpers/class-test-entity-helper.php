@@ -11,7 +11,7 @@ use EwStarter\Models\User_Application;
 class Test_Entity_Helper {
 	public function get_test_user_application_request_data( ?callable $modify_request_data = null ): array {
 		$random_string = Random_Values_Helper::get_random_string( 5 );
-		$invoice_file  = file_get_contents(PLUGIN_DIR . '/tests/helpers/assets/invoice-base64.txt');
+		$invoice_file  = file_get_contents( PLUGIN_DIR . '/tests/helpers/assets/invoice-base64.txt' );
 
 		$request_data = [
 			'firstName'       => "John$random_string",
@@ -44,7 +44,7 @@ class Test_Entity_Helper {
 		$user_application->postal_code       = '10000';
 		$user_application->invoice_file      = "/path-to/file$random_string.jpg";
 
-		if ( $modify_application !== null ) {
+		if ( is_callable( $modify_application ) ) {
 			$modify_application( $user_application );
 		}
 
