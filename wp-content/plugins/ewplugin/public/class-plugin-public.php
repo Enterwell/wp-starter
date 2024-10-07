@@ -2,6 +2,8 @@
 
 namespace EwStarter\Public;
 
+use EwStarter\Public\Interfaces\Plugin_Public_Interface;
+
 /**
  * The public-facing functionality of the plugin.
  *
@@ -12,37 +14,7 @@ namespace EwStarter\Public;
  * @subpackage EWPlugin/public
  * @author     Enterwell <info@enterwell.net>
  */
-class Plugin_Public {
-
-	/**
-	 * The ID of this plugin.
-	 *
-	 * @since    1.0.0
-	 * @var      string $plugin_name The ID of this plugin.
-	 */
-	private string $plugin_name;
-
-	/**
-	 * The version of this plugin.
-	 *
-	 * @since    1.0.0
-	 * @var      string $version The current version of this plugin.
-	 */
-	private string $version;
-
-	/**
-	 * Initialize the class and set its properties.
-	 *
-	 * @param string $plugin_name The name of the plugin.
-	 * @param string $version The version of this plugin.
-	 *
-	 * @since    1.0.0
-	 */
-	public function __construct( string $plugin_name, string $version ) {
-		$this->plugin_name = $plugin_name;
-		$this->version     = $version;
-	}
-
+class Plugin_Public implements Plugin_Public_Interface {
 	/**
 	 * Register the stylesheets for the public-facing side of the site.
 	 *
