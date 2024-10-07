@@ -2,6 +2,7 @@
 
 use DI\DependencyException;
 use DI\NotFoundException;
+use EwStarter\Exceptions\Test_Exception;
 use EwStarter\Exceptions\Validation_Exception;
 use EwStarter\Repositories\User_Applications_Repository;
 use EwStarter\Services\Files_Service;
@@ -67,7 +68,7 @@ class Test_Unit_User_Applications_Service extends Unit_Test_Case {
 	 * @throws Validation_Exception
 	 */
 	public function test_create_user_application_failed_save_to_uploads() {
-		$this->expectException( ErrorException::class );
+		$this->expectException( Test_Exception::class );
 
 		$request_data = $this->entity_helper->get_test_user_application_request_data();
 
@@ -77,7 +78,7 @@ class Test_Unit_User_Applications_Service extends Unit_Test_Case {
 				$mock
 					->shouldReceive( 'check_filetype_and_ext' )
 					->withAnyArgs()
-					->andThrow( ErrorException::class );
+					->andThrow( Test_Exception::class );
 			}
 		);
 		$service->create_user_application( $request_data );
@@ -93,7 +94,7 @@ class Test_Unit_User_Applications_Service extends Unit_Test_Case {
 	 * @throws Validation_Exception
 	 */
 	public function test_create_user_application_failed_db_save() {
-		$this->expectException( ErrorException::class );
+		$this->expectException( Test_Exception::class );
 
 		$request_data = $this->entity_helper->get_test_user_application_request_data();
 
@@ -102,7 +103,7 @@ class Test_Unit_User_Applications_Service extends Unit_Test_Case {
 				$mock
 					->shouldReceive( 'save' )
 					->withAnyArgs()
-					->andThrow( ErrorException::class );
+					->andThrow( Test_Exception::class);
 			},
 			function ( MockInterface $mock ) {
 				$mock
