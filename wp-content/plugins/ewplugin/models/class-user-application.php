@@ -1,6 +1,8 @@
 <?php
 
-namespace EwStarter;
+namespace EwStarter\Models;
+
+use DateTime;
 
 /**
  * Class User_Application
@@ -17,61 +19,61 @@ class User_Application {
 	 *
 	 * @since 1.0.0
 	 */
-	public $id;
+	public int $id;
 
 	/**
 	 * @var string
 	 * @since 1.0.0
 	 */
-	public $first_name;
+	public string $first_name;
 
 	/**
 	 * @var string
 	 * @since 1.0.0
 	 */
-	public $last_name;
+	public string $last_name;
 
 	/**
 	 * @var string
 	 * @since 1.0.0
 	 */
-	public $email;
+	public string $email;
 
 	/**
 	 * @var string
 	 * @since 1.0.0
 	 */
-	public $phone;
+	public string $phone;
 
 	/**
 	 * @var string
 	 * @since 1.0.0
 	 */
-	public $street_and_number;
+	public string $street_and_number;
 
 	/**
 	 * @var string
 	 * @since 1.0.0
 	 */
-	public $city;
+	public string $city;
 
 	/**
 	 * @var string
 	 * @since 1.0.0
 	 */
-	public $postal_code;
+	public string $postal_code;
 
 	/**
 	 * @var string
 	 * @since 1.0.0
 	 */
-	public $invoice_file;
+	public string $invoice_file;
 
 	/**
-	 * @var \DateTime
+	 * @var DateTime
 	 * @since 1.0.0
 	 */
-	public $date_created;
+	public DateTime $date_created;
 
 	/**
 	 * User_Application constructor.
@@ -81,7 +83,7 @@ class User_Application {
 	 */
 	public function __construct( array $row = [] ) {
 		// Init current date as date created
-		$this->date_created = new \DateTime();
+		$this->date_created = new DateTime();
 
 		// We construct empty object
 		if ( empty( $row ) ) {
@@ -99,6 +101,6 @@ class User_Application {
 		$this->city              = $row['city'];
 		$this->postal_code       = $row['postal_code'];
 		$this->invoice_file      = $row['invoice_file'];
-		$this->date_created      = \DateTime::createFromFormat( DATE_ATOM, $row['date_created'] );
+		$this->date_created      = DateTime::createFromFormat( DATE_ATOM, $row['date_created'] );
 	}
 }

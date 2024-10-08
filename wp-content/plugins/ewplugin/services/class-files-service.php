@@ -6,7 +6,9 @@
  * Time: 12:23
  */
 
-namespace EwStarter;
+namespace EwStarter\Services;
+
+use EwStarter\Helpers\Random_Values_Helper;
 
 /**
  * Class Files_Service

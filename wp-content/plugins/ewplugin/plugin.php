@@ -3,7 +3,7 @@
  * The plugin bootstrap file
  *
  * This file is read by WordPress to generate the plugin information in the plugin
- * admin area. This file also includes all of the dependencies used by the plugin,
+ * admin area. This file also includes all the dependencies used by the plugin,
  * registers the activation and deactivation functions, and defines a function
  * that starts the plugin.
  *
@@ -29,47 +29,12 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
-/**
- * The code that runs during plugin activation.
- * This action is documented in includes/class-plugin-activator.php
- */
-function activate_ew_plugin() {
-	require_once plugin_dir_path( __FILE__ ) . 'includes/class-plugin-activator.php';
-	\EwStarter\Plugin_Activator::activate();
+$autoload_file_path = plugin_dir_path( __FILE__ ) . 'vendor/autoload.php';
+
+if ( ! file_exists( $autoload_file_path ) ) {
+	throw new Exception( 'Run composer install' );
+} else {
+	// Load composer and dependencies
+	require_once $autoload_file_path;
+	require_once plugin_dir_path( __FILE__ ) . 'load-plugin.php';
 }
-
-/**
- * The code that runs during plugin deactivation.
- * This action is documented in includes/class-plugin-deactivator.php
- */
-function deactivate_ew_plugin() {
-	require_once plugin_dir_path( __FILE__ ) . 'includes/class-plugin-deactivator.php';
-	\EwStarter\Plugin_Deactivator::deactivate();
-}
-
-register_activation_hook( __FILE__, 'activate_ew_plugin' );
-register_deactivation_hook( __FILE__, 'deactivate_ew_plugin' );
-
-/**
- * The core plugin class that is used to define internationalization,
- * admin-specific hooks, and public-facing site hooks.
- */
-require plugin_dir_path( __FILE__ ) . 'includes/class-plugin.php';
-
-/**
- * Begins execution of the plugin.
- *
- * Since everything within the plugin is registered via hooks,
- * then kicking off the plugin from this point in the file does
- * not affect the page life cycle.
- *
- * @since    1.0.0
- */
-function run_ew_plugin() {
-
-	$plugin = new \EwStarter\Plugin();
-	$plugin->run();
-
-}
-
-run_ew_plugin();
