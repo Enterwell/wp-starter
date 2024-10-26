@@ -8,6 +8,7 @@
 
 namespace EwStarter\Controllers;
 
+use EwStarter\Services\Interfaces\User_Applications_Service_Interface;
 use Exception;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -20,18 +21,18 @@ use EwStarter\Services\User_Applications_Service;
  */
 class User_Applications_Controller extends APlugin_Controller {
 	/**
-	 * @var User_Applications_Service
+	 * @var User_Applications_Service_Interface
 	 */
-	private User_Applications_Service $user_applications_service;
+	private User_Applications_Service_Interface $user_applications_service;
 
 	/**
 	 * User_Applications_Controller constructor.
 	 * @throws Exception
 	 */
-	public function __construct() {
+	public function __construct( User_Applications_Service_Interface $user_applications_service ) {
 		parent::__construct( 'user-applications' );
 
-		$this->user_applications_service = new User_Applications_Service();
+		$this->user_applications_service = $user_applications_service;
 	}
 
 	/**

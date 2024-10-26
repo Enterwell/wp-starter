@@ -9,12 +9,40 @@
 namespace EwStarter\Services;
 
 use EwStarter\Helpers\Random_Values_Helper;
+use EwStarter\Services\Interfaces\Files_Service_Interface;
+use Exception;
 
 /**
  * Class Files_Service
  * @package EwStarter
  */
-class Files_Service {
+class Files_Service implements Files_Service_Interface {
+	public function check_filetype_and_ext( string $file_content, string $file_name ): string {
+		// Save file to tmp location
+		$tmp_file = $this->save_file_to_uploads( $file_content, $file_name, 'tmp' );
+
+		// WordPress validate file and extension
+		$validate = wp_check_filetype_and_ext( $tmp_file, $file_name );
+
+		if ( $validate['ext'] === false ) {
+			throw new Exception( 'File type/ext is not valid!' );
+		}
+
+		// Remove tmp file
+		$this->unlink( $tmp_file );
+
+		return ! empty( $validate['proper_filename'] ) ? $validate['proper_filename'] : $file_name;
+	}
+
+	/**
+	 * @param string $file_path
+	 *
+	 * @return void
+	 */
+	public function unlink( string $file_path ): void {
+		unlink( $file_path );
+	}
+
 	/**
 	 * @param string $file_content
 	 * @param string $file_name

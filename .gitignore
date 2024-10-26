@@ -6,6 +6,7 @@
 *.log
 .htaccess
 .svn
+.env
 sitemap.xml
 sitemap.xml.gz
 wp-config.php

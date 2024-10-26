@@ -20,12 +20,12 @@ spl_autoload_register( function ( $src_class ) {
 
 	$file_name_parts = array_map( 'strtolower', explode( '_', $class_name ) );
 	if ( $file_name_parts[ count( $file_name_parts ) - 1 ] === 'interface' ) {
-		// Remove interface from the end of the file name
 		array_pop( $file_name_parts );
 		$file_path = PLUGIN_DIR . implode( '/', $class_folder ) . '/interface-' . implode( '-', $file_name_parts ) . '.php';
 	} else {
 		$file_path = PLUGIN_DIR . implode( '/', $class_folder ) . '/class-' . implode( '-', $file_name_parts ) . '.php';
 	}
+
 
 	if ( file_exists( $file_path ) ) {
 		require_once $file_path;

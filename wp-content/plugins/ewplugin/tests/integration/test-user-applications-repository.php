@@ -5,9 +5,11 @@
  * @package Ewplugin
  */
 
+use DI\DependencyException;
+use DI\NotFoundException;
 use EwStarter\Models\User_Application;
-use EwStarter\Repositories\User_Applications_Repository;
-use EwStarter\Tests\Helpers\Plugin_Test_Case;
+use EwStarter\Repositories\Interfaces\User_Applications_Repository_Interface;
+use EwStarter\Tests\Helpers\Test_Case;
 
 /**
  * User application repository test.
@@ -16,37 +18,24 @@ use EwStarter\Tests\Helpers\Plugin_Test_Case;
  * User application EDIT is not tested since usually we don't edit once
  * created user applications.
  */
-class User_Applications_Repository_Test extends Plugin_Test_Case {
+class User_Applications_Repository_Test extends Test_Case {
 	/**
-	 * @var User_Applications_Repository
+	 * @var User_Applications_Repository_Interface
 	 */
-	private User_Applications_Repository $user_applications_repository;
+	private User_Applications_Repository_Interface $user_applications_repository;
 
 	/**
-	 * Activate plugin before
-	 * @throws Exception
+	 * @param string|null $name
+	 * @param array $data
+	 * @param string $dataName
+	 *
+	 * @throws DependencyException
+	 * @throws NotFoundException
 	 */
-	public function set_up() {
-		parent::set_up();
-		$this->user_applications_repository = new User_Applications_Repository();
-	}
+	public function __construct( ?string $name = null, array $data = [], string $dataName = '' ) {
+		parent::__construct( $name, $data, $dataName );
 
-	/**
-	 * Returns user application for testing.
-	 * @return User_Application
-	 */
-	private function get_test_user_application() {
-		$user_application                    = new User_Application();
-		$user_application->first_name        = 'John';
-		$user_application->last_name         = 'Doe';
-		$user_application->email             = 'john@doe.com';
-		$user_application->phone             = '0000000';
-		$user_application->street_and_number = 'Baker Street 10';
-		$user_application->city              = 'Zagreb';
-		$user_application->postal_code       = '10000';
-		$user_application->invoice_file      = '/path-to/file.jpg';
-
-		return $user_application;
+		$this->user_applications_repository = $this->container->get( User_Applications_Repository_Interface::class );
 	}
 
 	/**
@@ -54,13 +43,13 @@ class User_Applications_Repository_Test extends Plugin_Test_Case {
 	 */
 	public function test_user_application_save() {
 		// Create test user application
-		$user_application = $this->get_test_user_application();
+		$user_application = $this->entity_helper->get_test_user_application();
 
 		// Save user application
 		$user_application = $this->user_applications_repository->save( $user_application );
 
 		// Assert that id is filled
-		$this->assertNotEmpty($user_application->id, '!empty($user_application->id)');
+		$this->assertNotEmpty( $user_application->id, '!empty($user_application->id)' );
 
 		// Get user application from the db
 		$db_user_application = $this->user_applications_repository->get( $user_application->id );
@@ -86,8 +75,9 @@ class User_Applications_Repository_Test extends Plugin_Test_Case {
 		$this->expectException( Exception::class );
 
 		// Create user application without invoice file
-		$user_application = $this->get_test_user_application();
-		unset( $user_application->invoice_file );
+		$user_application = $this->entity_helper->get_test_user_application( function ( User_Application $application ) {
+			unset( $application->invoice_file );
+		} );
 
 		$this->user_applications_repository->save( $user_application );
 	}
@@ -100,10 +90,12 @@ class User_Applications_Repository_Test extends Plugin_Test_Case {
 		// Expect exception
 		$this->expectException( Exception::class );
 
-		// Create user application without invoice file
-		$user_application = $this->get_test_user_application();
-		unset( $user_application->first_name );
-		unset( $user_application->email );
+		// Create user application without user data
+		$user_application = $this->entity_helper->get_test_user_application( function ( User_Application $application ) {
+			unset( $application->first_name );
+			unset( $application->email );
+		} );
+
 
 		$this->user_applications_repository->save( $user_application );
 	}
@@ -117,8 +109,9 @@ class User_Applications_Repository_Test extends Plugin_Test_Case {
 		$this->expectException( Exception::class );
 
 		// Create user application without invoice file
-		$user_application        = $this->get_test_user_application();
-		$user_application->email = 'invalid@email';
+		$user_application = $this->entity_helper->get_test_user_application( function ( User_Application $application ) {
+			$application->email = 'invalid@email';
+		} );
 
 		$this->user_applications_repository->save( $user_application );
 	}

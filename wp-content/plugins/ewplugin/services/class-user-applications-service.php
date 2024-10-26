@@ -2,11 +2,15 @@
 
 namespace EwStarter\Services;
 
+use DateTime;
 use Ew\WpHelpers\Classes\Request_Validation_Result;
 use Ew\WpHelpers\Services\Validation_Service;
 use EwStarter\Exceptions\Validation_Exception;
 use EwStarter\Models\User_Application;
-use EwStarter\Repositories\User_Applications_Repository;
+use EwStarter\Repositories\Interfaces\User_Applications_Repository_Interface;
+use EwStarter\Services\Interfaces\Files_Service_Interface;
+use EwStarter\Services\Interfaces\User_Applications_Service_Interface;
+use Exception;
 
 /**
  * Class User_Applications_Service
@@ -16,29 +20,29 @@ use EwStarter\Repositories\User_Applications_Repository;
  *
  * @package EwStarter
  */
-class User_Applications_Service extends Validation_Service {
+class User_Applications_Service extends Validation_Service implements User_Applications_Service_Interface {
 	/**
 	 * Invoice files folder name.
 	 */
 	const INVOICE_FILES_FOLDER = 'EwStarter-invoice-files';
 
 	/**
-	 * @var User_Applications_Repository
+	 * @var User_Applications_Repository_Interface
 	 */
-	private User_Applications_Repository $user_applications_repository;
+	private User_Applications_Repository_Interface $user_applications_repository;
 
 	/**
-	 * @var Files_Service
+	 * @var Files_Service_Interface
 	 */
-	private Files_Service $files_service;
+	private Files_Service_Interface $files_service;
 
 	/**
 	 * User_Applications_Service constructor.
-	 * @throws \Exception
+	 * @throws Exception
 	 */
-	public function __construct() {
-		$this->user_applications_repository = new User_Applications_Repository();
-		$this->files_service                = new Files_Service();
+	public function __construct( User_Applications_Repository_Interface $user_applications_repository, Files_Service_Interface $files_service ) {
+		$this->user_applications_repository = $user_applications_repository;
+		$this->files_service                = $files_service;
 	}
 
 	/**
@@ -94,7 +98,7 @@ class User_Applications_Service extends Validation_Service {
 	 *
 	 * @return User_Application
 	 * @throws Validation_Exception
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function create_user_application( array $r ): User_Application {
 		// Validate request
@@ -120,16 +124,16 @@ class User_Applications_Service extends Validation_Service {
 			$user_application->street_and_number = sanitize_text_field( $r['streetAndNumber'] );
 			$user_application->city              = sanitize_text_field( $r['city'] );
 			$user_application->postal_code       = sanitize_text_field( $r['postalCode'] );
-			$user_application->date_created      = new \DateTime();
+			$user_application->date_created      = new DateTime();
 
 			$user_application->invoice_file = $invoice_file_path;
 
 			// Return saved user application
 			return $this->user_applications_repository->save( $user_application );
-		} catch ( \Exception $e ) {
+		} catch ( Exception $e ) {
 			if ( ! empty( $invoice_file_path ) ) {
 				// Delete saved invoice file
-				unlink( $invoice_file_path );
+				$this->files_service->unlink( $invoice_file_path );
 			}
 			throw $e;
 		}
@@ -142,27 +146,11 @@ class User_Applications_Service extends Validation_Service {
 	 * @param string $invoice_file_name
 	 *
 	 * @return string
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	private function save_invoice_file( string $invoice_file_content, string $invoice_file_name ): string {
-		// Save file to tmp location
-		$tmp_file = $this->files_service->save_file_to_uploads( $invoice_file_content, $invoice_file_name, 'tmp' );
+		$valid_invoice_file_name = $this->files_service->check_filetype_and_ext( $invoice_file_content, $invoice_file_name );
 
-		// WordPress validate file and extension
-		$validate = wp_check_filetype_and_ext( $tmp_file, $invoice_file_name );
-
-		// Remove tmp file
-		unlink( $tmp_file );
-
-		if ( $validate['ext'] === false ) {
-			throw new \Exception( 'File type/ext is not valid!' );
-		}
-
-		if ( ! empty( $validate['proper_filename'] ) ) {
-			// Set proper file name
-			$invoice_file_name = $validate['proper_filename'];
-		}
-
-		return $this->files_service->save_file_to_uploads( $invoice_file_content, $invoice_file_name, static::INVOICE_FILES_FOLDER );
+		return $this->files_service->save_file_to_uploads( $invoice_file_content, $valid_invoice_file_name, static::INVOICE_FILES_FOLDER );
 	}
 }
