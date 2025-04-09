@@ -65,11 +65,11 @@ import('renamer').then(function (rnm) {
         paths: ['azure-pipelines-build.yml', 'azure-pipelines-qa.yml', '.gitignore', '.ansible/vars']
     });
 
-    // Replace plugin name in includes/class-plugin.php
+    // Replace plugin name in main/class-plugin.php
     replace({
         regex: 'ew-plugin',
         replacement: config.pluginNameForFileNames,
-        paths: ['wp-content/plugins/ewplugin/includes/class-plugin.php']
+        paths: ['wp-content/plugins/ewplugin/main/class-plugin.php']
     });
 
     // Replace domain
