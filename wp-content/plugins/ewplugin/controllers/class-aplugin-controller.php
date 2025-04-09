@@ -22,8 +22,8 @@ abstract class APlugin_Controller extends AController {
 	 *
 	 * 'books-plugin' is base route for books plugin.
 	 *
-	 * @since   1.0.0
 	 * @return  string
+	 * @since   1.0.0
 	 */
 	public function get_base_route() {
 		return $this->base_route;
@@ -38,8 +38,8 @@ abstract class APlugin_Controller extends AController {
 	 *
 	 * 'v1' is API version for our Books plugin.
 	 *
-	 * @since   1.0.0
 	 * @return  string
+	 * @since   1.0.0
 	 */
 	public function get_version() {
 		return $this->version;

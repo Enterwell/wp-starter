@@ -84,7 +84,9 @@ class Plugin {
 	}
 
 	private function load_env(): void {
-		// TODO: Check if .env exists
+		if ( ! file_exists( PLUGIN_DIR . '.env' ) ) {
+			return;
+		}
 		$dotenv = Dotenv::createImmutable( PLUGIN_DIR );
 		$dotenv->load();
 	}

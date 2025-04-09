@@ -10,8 +10,8 @@ use EwStarter\Main\Interfaces\Plugin_Activator_Interface;
  * This class defines all code necessary to run during the plugin's activation.
  *
  * @since      1.0.0
- * @package    Fitness
- * @subpackage Fitness/includes
+ * @package    EWPlugin
+ * @subpackage EWPlugin/includes
  * @author     Enterwell <info@enterwell.net>
  */
 class Plugin_Activator implements Plugin_Activator_Interface {
@@ -86,7 +86,7 @@ class Plugin_Activator implements Plugin_Activator_Interface {
 				postal_code VARCHAR(64),
 				invoice_file TEXT,
 			    PRIMARY KEY  id (id)
-			) {$charset_collate}:"
+			) {$charset_collate};"
 		];
 	}
 }

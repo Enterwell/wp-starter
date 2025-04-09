@@ -13,7 +13,6 @@ use Exception;
 use WP_REST_Request;
 use WP_REST_Response;
 use EwStarter\Exceptions\Validation_Exception;
-use EwStarter\Services\User_Applications_Service;
 
 /**
  * Class User_Applications_Controller
