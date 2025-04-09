@@ -2,6 +2,8 @@
 
 namespace EwStarter\Main;
 
+use EwStarter\Main\Interfaces\Plugin_i18n_Interface;
+
 /**
  * Define the internationalization functionality.
  *
@@ -13,8 +15,7 @@ namespace EwStarter\Main;
  * @subpackage EWPlugin/includes
  * @author     Enterwell <info@enterwell.net>
  */
-class Plugin_i18n {
-
+class Plugin_i18n implements Plugin_i18n_Interface {
 	/**
 	 * The domain specified for this plugin.
 	 *
@@ -22,7 +23,14 @@ class Plugin_i18n {
 	 * @access   private
 	 * @var      string $domain The domain identifier for this plugin.
 	 */
-	private string $domain;
+	private $domain;
+
+	/**
+	 * @param string $domain
+	 */
+	public function __construct( string $domain ) {
+		$this->domain = $domain;
+	}
 
 	/**
 	 * Load the plugin text domain for translation.
@@ -30,24 +38,10 @@ class Plugin_i18n {
 	 * @since    1.0.0
 	 */
 	public function load_plugin_textdomain(): void {
-
 		load_plugin_textdomain(
 			$this->domain,
 			false,
 			dirname( dirname( plugin_basename( __FILE__ ) ) ) . '/languages/'
 		);
-
 	}
-
-	/**
-	 * Set the domain equal to that of the specified domain.
-	 *
-	 * @param string $domain The domain that represents the locale of this plugin.
-	 *
-	 * @since    1.0.0
-	 */
-	public function set_domain( string $domain ): void {
-		$this->domain = $domain;
-	}
-
 }

@@ -2,6 +2,8 @@
 
 namespace EwStarter\Main;
 
+use EwStarter\Main\Interfaces\Plugin_Loader_Interface;
+
 /**
  * Register all actions and filters for the plugin.
  *
@@ -13,7 +15,7 @@ namespace EwStarter\Main;
  * @subpackage EWPlugin/includes
  * @author     Enterwell <info@enterwell.net>
  */
-class Plugin_Loader {
+class Plugin_Loader implements Plugin_Loader_Interface {
 
 	/**
 	 * The array of actions registered with WordPress.

@@ -11,12 +11,13 @@ namespace EwStarter\Repositories;
 use Ew\WpHelpers\Classes\Db_Data;
 use Ew\WpHelpers\Repositories\ARepository;
 use EwStarter\Models\User_Application;
+use EwStarter\Repositories\Interfaces\User_Applications_Repository_Interface;
 
 /**
  * Class User_Applications_Repository
  * @package EwStarter
  */
-class User_Applications_Repository extends ARepository {
+class User_Applications_Repository extends ARepository implements User_Applications_Repository_Interface {
 	/**
 	 * User_Applications_Repository constructor.
 	 * @throws \Exception
@@ -28,12 +29,12 @@ class User_Applications_Repository extends ARepository {
 	/**
 	 * Saves user application.
 	 *
-	 * @since 1.0.0
-	 *
 	 * @param User_Application $user_application
 	 *
 	 * @return User_Application
 	 * @throws \Exception
+	 * @since 1.0.0
+	 *
 	 */
 	public function save( User_Application $user_application ): User_Application {
 		$this->validate( $user_application );
@@ -89,12 +90,12 @@ class User_Applications_Repository extends ARepository {
 	 * Additional data could be WP_Post object or any other data related
 	 * to object that is not stored in object table.
 	 *
-	 * @since   1.0.0
-	 *
 	 * @param array $table_row
 	 * @param mixed $object_data
 	 *
 	 * @return          mixed
+	 * @since   1.0.0
+	 *
 	 */
 	protected function _construct_object( $table_row, $object_data = null ): User_Application {
 		return new User_Application( $table_row );
@@ -140,11 +141,11 @@ class User_Applications_Repository extends ARepository {
 	/**
 	 * Gets db data for UA (prepared for db action)
 	 *
-	 * @since 1.0.0
-	 *
 	 * @param User_Application $user_application
 	 *
 	 * @return array
+	 * @since 1.0.0
+	 *
 	 */
 	private function get_db_data( User_Application $user_application ): array {
 		$db_data = new Db_Data();

@@ -2,6 +2,8 @@
 
 namespace EwStarter\Main;
 
+use EwStarter\Main\Interfaces\Plugin_Activator_Interface;
+
 /**
  * Fired during plugin activation.
  *
@@ -12,29 +14,39 @@ namespace EwStarter\Main;
  * @subpackage EWPlugin/includes
  * @author     Enterwell <info@enterwell.net>
  */
-class Plugin_Activator {
+class Plugin_Activator implements Plugin_Activator_Interface {
 	/**
-	 * Database version
-	 * Should be updated every time we modify the database
+	 * DB version.
+	 *
+	 * @var string
 	 */
-	const DB_VERSION = '0.0.1';
+	protected string $db_version;
 
 	/**
-	 * Database version option name
+	 *  DB version option name.
+	 *
+	 * @var string
 	 */
-	const DB_VERSION_OPTION_NAME = '_ew_plugin_db_version';
+	protected string $db_version_option_name;
 
+
+	public function __construct( string $db_version, string $db_version_name ) {
+		$this->db_version             = $db_version;
+		$this->db_version_option_name = $db_version_name;
+
+	}
 
 	/**
 	 * Function that is called on plugin activation.
 	 *
 	 * @since    1.0.0
 	 */
-	public static function activate() {
-		$version = get_option( static::DB_VERSION_OPTION_NAME, false );
+	public function activate(): void {
+		// Check if dependent plugins are activated
+		$version = get_option( $this->db_version_option_name, false );
 
 		// If version is same do not create any tables.
-		if ( $version == static::DB_VERSION ) {
+		if ( $version == $this->db_version ) {
 			return;
 		}
 
@@ -46,13 +58,13 @@ class Plugin_Activator {
 		dbDelta( $queries );
 
 		// Update the version option in database
-		update_option( static::DB_VERSION_OPTION_NAME, static::DB_VERSION );
+		update_option( $this->db_version_option_name, $this->db_version );
 	}
 
 	/**
 	 * Gets all queries to create on db.
 	 */
-	private static function get_queries() {
+	private function get_queries() {
 		global $wpdb;
 		$wp_prefix       = $wpdb->prefix;
 		$charset_collate = $wpdb->get_charset_collate();
@@ -60,6 +72,7 @@ class Plugin_Activator {
 		// Get table names.
 		$user_applications_table = "{$wp_prefix}user_applications";
 
+		/** @noinspection SqlNoDataSourceInspection */
 		return [
 			"CREATE TABLE {$user_applications_table} (
 				id BIGINT UNSIGNED NOT NULL auto_increment,
