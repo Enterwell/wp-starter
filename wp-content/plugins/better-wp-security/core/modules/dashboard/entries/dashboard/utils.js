@@ -521,6 +521,10 @@ function _sortCardsToMatchApiLayout( cards, layout ) {
 			return -1;
 		}
 
+		if ( ! keyedLayout[ aId ].position.mobile && ! keyedLayout[ bId ].position.mobile ) {
+			return 0;
+		}
+
 		const aY = keyedLayout[ aId ].position.mobile.y,
 			bY = keyedLayout[ bId ].position.mobile.y,
 			aX = keyedLayout[ aId ].position.mobile.x,

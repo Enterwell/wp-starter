@@ -1072,3 +1072,26 @@
 	Bug Fix: Some firewall rules could not be deactivated.
 	Bug Fix: Allow opting in to Telemetry via the Settings Page.
 	Bug Fix: PHP 8.2 deprecation warnings.
+9.3.2 - 2024-03-22 - Timothy Jacobs, Lisa Canini, Jared Hill
+	Important: "Automatic (Insecure)" IP detection has been removed. Read more: https://go.solidwp.com/firewall-features-not-available
+	Enhancement: Allow generating a new Two-Factor TOTP secret from the WP-Login UI.
+	Bug Fix: The SolidWP logo appeared too large in some email clients.
+	Bug Fix: An error would occur if we could not determine the length of database columns while saving log items.
+9.3.3 - 2024-06-19 - Timothy Jacobs, Lisa Canini, Jared Hill
+	Enhancement: Improve highlighting settings search results.
+	Bug Fix: Crash during the onboarding process when starting over in some paths.
+	Bug Fix: Checkbox styling issue on WordPress 6.6.
+	Bug Fix: Fire an action when a vulnerability is unresolved due to plugin activation.
+9.3.4 - 2024-11-11 - Timothy Jacobs
+	Important: Solid Security now requires WordPress 6.5 or later.
+	Tweak: Add a new `solid_security_mail_site_logo` filter to modify the Site Logo used in email notifications.
+	Bug Fix: PHP fatal error on shutdown due to missing Event class on some sites.
+	Bug Fix: PHP warning on Site Health page.
+	Bug Fix: PHP warning in the SSL module on some server setups.
+9.3.5 - 2024-11-19 - Timothy Jacobs
+	Bug Fix: PHP warning about translations being loaded too early.
+9.3.6 - 2024-12-04 - Timothy Jacobs
+	Enhancement: Better surface Login Security features during onboarding.
+9.3.7 - 2025-03-24 - Timothy Jacobs, Zach Tirrell
+	Enhancement: Use block API Version 3 for the Security Profile block.
+	Bug Fix: PHP warning when HTTP_HOST not set.

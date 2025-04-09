@@ -19,13 +19,15 @@ class SlackController extends Controller
 
         if (!is_email($userEmail)) {
             return $this->sendError([
-                'message' => __('Please provide a valid email address', 'fluent-mail')
+                'message' => __('Please provide a valid email address', 'fluent-smtp')
             ], 422);
         }
 
+        $nonce = wp_create_nonce('fluent_smtp_slack_register_site');
+
         $payload = [
             'admin_email' => $userEmail,
-            'smtp_url'    => admin_url('options-general.php?page=fluent-mail#/'),
+            'smtp_url'    => admin_url('options-general.php?_slacK_nonce='.$nonce.'&page=fluent-mail#/'),
             'site_url'    => site_url(),
             'site_title'  => get_bloginfo('name'),
             'site_lang'   => get_bloginfo('language'),

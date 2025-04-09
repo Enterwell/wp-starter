@@ -162,6 +162,12 @@
 
 .itsec-screen--totp img {
 	max-width: 100%;
+	aspect-ratio: 1/1;
+}
+
+#itsec-2fa-on-board .itsec-totp__regenerate-secret {
+	display: block;
+	margin: 0 auto 1rem auto;
 }
 
 #itsec-2fa-on-board .itsec-totp__view-secret {

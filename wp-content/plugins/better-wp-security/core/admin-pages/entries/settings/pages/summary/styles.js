@@ -11,7 +11,7 @@ import { Flex } from '@wordpress/components';
 /**
  * Solid dependencies
  */
-import { List, Button } from '@ithemes/ui';
+import { List, Button, Surface } from '@ithemes/ui';
 
 /**
  * Internal dependencies
@@ -65,4 +65,13 @@ export const StyledFeaturesList = styled( List )`
 
 export const StyledUpgradeButton = styled( Button )`
 	align-self: start;
+`;
+
+export const StyledResolveVulnerabilities = styled( Surface )`
+	padding: 1.5rem 2rem;
+	border: 1px solid ${ ( { theme } ) => theme.colors.border.normal };
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+	width: 100%;
 `;

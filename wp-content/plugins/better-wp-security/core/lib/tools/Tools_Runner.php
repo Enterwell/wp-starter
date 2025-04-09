@@ -18,6 +18,15 @@ final class Tools_Runner implements Runnable {
 	public function __construct( Tools_Registry $registry ) { $this->registry = $registry; }
 
 	public function run() {
+		add_action( 'after_setup_theme', \Closure::fromCallable( [ $this, 'register_tools' ] ) );
+	}
+
+	/**
+	 * Registers tools after most of WP has loaded.
+	 *
+	 * @return void
+	 */
+	protected function register_tools(): void {
 		/**
 		 * Fires when tools should be registered.
 		 *

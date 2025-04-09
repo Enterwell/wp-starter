@@ -36,7 +36,7 @@ export default function CheckboxControl( {
 			label={ heading }
 			id={ id }
 			help={ help }
-			className={ className }
+			className={ classnames( 'components-checkbox-control', className ) }
 		>
 			<span className="components-checkbox-control__input-container">
 				<input

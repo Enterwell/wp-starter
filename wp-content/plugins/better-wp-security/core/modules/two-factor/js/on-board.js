@@ -220,13 +220,18 @@
 		onEnable: function ( e ) {
 			e.preventDefault();
 
-			this.model.set( 'status', this.model.isConfigured() ? 'enabled' : 'not-configured' );
+			if ( this.model.get( 'status' ) !== 'enabled' ) {
+				this.model.set( 'status', this.model.isConfigured() ? 'enabled' : 'not-configured' );
+			}
 		},
 
 		onConfigure: function ( e ) {
 			e.preventDefault();
 
-			this.model.set( 'status', this.model.isConfigured() ? 'enabled' : 'not-configured' );
+			if ( this.model.get( 'status' ) !== 'enabled' ) {
+				this.model.set( 'status', this.model.isConfigured() ? 'enabled' : 'not-configured' );
+			}
+
 			this.state.set( 'screen', this.model.get( 'id' ) );
 		},
 
@@ -370,8 +375,8 @@
 			this.$notice && this.$notice.remove();
 		},
 
-		onInterstitialStateChange: function( newState, prevState ) {
-			if ( newState.email_verified && ! prevState.email_verified ) {
+		onInterstitialStateChange: function ( newState, prevState ) {
+			if ( newState.email_verified && !prevState.email_verified ) {
 				this.$notice && this.$notice.remove();
 
 				this.model.set( 'status', 'enabled' );
@@ -404,6 +409,7 @@
 
 		events: {
 			'click .itsec-totp__view-secret'            : 'onViewSecret',
+			'click .itsec-totp__regenerate-secret'      : 'onRegenerateSecret',
 			'click .itsec-screen__actions--continue'    : 'onContinue',
 			'click .itsec-screen__actions--cancel'      : 'onCancel',
 			'click .itsec-screen__actions--back'        : 'onBack',
@@ -422,6 +428,24 @@
 			this.state.set( 'totp', _.extend( {}, this.state.get( 'totp' ), { show_secret: true } ) );
 		},
 
+		onRegenerateSecret: function ( e ) {
+			e.preventDefault();
+
+			this.state.set( 'totp', _.extend( {}, this.state.get( 'totp' ), { isRegenerating: true } ) );
+
+			ajax( { itsec_method: 'regenerate-totp-secret' } ).done( (function ( data ) {
+				this.model.set( 'status', 'not-configured' );
+				this.model.set( 'config', _.extend( {}, this.model.get( 'config' ), {
+					secret: data.secret,
+					qr    : data.qr,
+				} ) );
+			}).bind( this ) ).fail( (function ( data ) {
+				this.$notice = addNotice( data.message, 'itsec-regenerate-totp-secret-message', 'error' );
+			}).bind( this ) ).always( (function () {
+				this.state.set( 'totp', _.extend( {}, this.state.get( 'totp' ), { isRegenerating: false } ) );
+			}).bind( this ) );
+		},
+
 		onContinue: function ( e ) {
 			e.preventDefault();
 
@@ -431,7 +455,10 @@
 		onCancel: function ( e ) {
 			e.preventDefault();
 
-			this.model.set( 'status', 'disabled' );
+			if ( this.model.get( 'status' ) === 'not-configured' ) {
+				this.model.set( 'status', 'disabled' );
+			}
+
 			this.state.set( 'screen', 'providers' );
 		},
 
@@ -462,6 +489,7 @@
 				d: {
 					show_secret: this.state.get( 'totp' ).show_secret,
 					device     : this.state.get( 'totp' ).device,
+					disabled   : this.state.get( 'totp' ).isRegenerating,
 				}
 			}
 		}
@@ -690,10 +718,11 @@
 			complete      : false,
 			submit        : false,
 			totp          : {
-				show_secret : false,
-				isConfirming: false,
-				code        : '',
-				device      : 'ios',
+				show_secret   : false,
+				isConfirming  : false,
+				isRegenerating: false,
+				code          : '',
+				device        : 'ios',
 			},
 			email         : {
 				code        : '',

@@ -1,36 +1,36 @@
-/******/ (function() { // webpackBootstrap
+/******/ (() => { // webpackBootstrap
 /******/ 	"use strict";
 /******/ 	// The require scope
 /******/ 	var __webpack_require__ = {};
 /******/ 	
 /************************************************************************/
 /******/ 	/* webpack/runtime/define property getters */
-/******/ 	!function() {
+/******/ 	(() => {
 /******/ 		// define getter functions for harmony exports
-/******/ 		__webpack_require__.d = function(exports, definition) {
+/******/ 		__webpack_require__.d = (exports, definition) => {
 /******/ 			for(var key in definition) {
 /******/ 				if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
 /******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
 /******/ 				}
 /******/ 			}
 /******/ 		};
-/******/ 	}();
+/******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/hasOwnProperty shorthand */
-/******/ 	!function() {
-/******/ 		__webpack_require__.o = function(obj, prop) { return Object.prototype.hasOwnProperty.call(obj, prop); }
-/******/ 	}();
+/******/ 	(() => {
+/******/ 		__webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
+/******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/make namespace object */
-/******/ 	!function() {
+/******/ 	(() => {
 /******/ 		// define __esModule on exports
-/******/ 		__webpack_require__.r = function(exports) {
+/******/ 		__webpack_require__.r = (exports) => {
 /******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
 /******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 /******/ 			}
 /******/ 			Object.defineProperty(exports, '__esModule', { value: true });
 /******/ 		};
-/******/ 	}();
+/******/ 	})();
 /******/ 	
 /************************************************************************/
 var __webpack_exports__ = {};
@@ -39,8 +39,9 @@ __webpack_require__.r(__webpack_exports__);
 
 // EXPORTS
 __webpack_require__.d(__webpack_exports__, {
-  compileCSS: function() { return /* binding */ compileCSS; },
-  getCSSRules: function() { return /* binding */ getCSSRules; }
+  compileCSS: () => (/* binding */ compileCSS),
+  getCSSRules: () => (/* binding */ getCSSRules),
+  getCSSValueFromRawStyle: () => (/* reexport */ getCSSValueFromRawStyle)
 });
 
 ;// CONCATENATED MODULE: ./node_modules/tslib/tslib.es6.mjs
@@ -58,7 +59,7 @@ LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
 OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 PERFORMANCE OF THIS SOFTWARE.
 ***************************************************************************** */
-/* global Reflect, Promise, SuppressedError, Symbol */
+/* global Reflect, Promise, SuppressedError, Symbol, Iterator */
 
 var extendStatics = function(d, b) {
   extendStatics = Object.setPrototypeOf ||
@@ -169,8 +170,8 @@ function __awaiter(thisArg, _arguments, P, generator) {
 }
 
 function __generator(thisArg, body) {
-  var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-  return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+  var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
+  return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
   function verb(n) { return function (v) { return step([n, v]); }; }
   function step(op) {
       if (f) throw new TypeError("Generator is already executing.");
@@ -274,8 +275,9 @@ function __await(v) {
 function __asyncGenerator(thisArg, _arguments, generator) {
   if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
   var g = generator.apply(thisArg, _arguments || []), i, q = [];
-  return i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () { return this; }, i;
-  function verb(n) { if (g[n]) i[n] = function (v) { return new Promise(function (a, b) { q.push([n, v, a, b]) > 1 || resume(n, v); }); }; }
+  return i = Object.create((typeof AsyncIterator === "function" ? AsyncIterator : Object).prototype), verb("next"), verb("throw"), verb("return", awaitReturn), i[Symbol.asyncIterator] = function () { return this; }, i;
+  function awaitReturn(f) { return function (v) { return Promise.resolve(v).then(f, reject); }; }
+  function verb(n, f) { if (g[n]) { i[n] = function (v) { return new Promise(function (a, b) { q.push([n, v, a, b]) > 1 || resume(n, v); }); }; if (f) i[n] = f(i[n]); } }
   function resume(n, v) { try { step(g[n](v)); } catch (e) { settle(q[0][3], e); } }
   function step(r) { r.value instanceof __await ? Promise.resolve(r.value.v).then(fulfill, reject) : settle(q[0][2], r); }
   function fulfill(value) { resume("next", value); }
@@ -308,10 +310,19 @@ var __setModuleDefault = Object.create ? (function(o, v) {
   o["default"] = v;
 };
 
+var ownKeys = function(o) {
+  ownKeys = Object.getOwnPropertyNames || function (o) {
+    var ar = [];
+    for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+    return ar;
+  };
+  return ownKeys(o);
+};
+
 function __importStar(mod) {
   if (mod && mod.__esModule) return mod;
   var result = {};
-  if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+  if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
   __setModuleDefault(result, mod);
   return result;
 }
@@ -341,16 +352,18 @@ function __classPrivateFieldIn(state, receiver) {
 function __addDisposableResource(env, value, async) {
   if (value !== null && value !== void 0) {
     if (typeof value !== "object" && typeof value !== "function") throw new TypeError("Object expected.");
-    var dispose;
+    var dispose, inner;
     if (async) {
-        if (!Symbol.asyncDispose) throw new TypeError("Symbol.asyncDispose is not defined.");
-        dispose = value[Symbol.asyncDispose];
+      if (!Symbol.asyncDispose) throw new TypeError("Symbol.asyncDispose is not defined.");
+      dispose = value[Symbol.asyncDispose];
     }
     if (dispose === void 0) {
-        if (!Symbol.dispose) throw new TypeError("Symbol.dispose is not defined.");
-        dispose = value[Symbol.dispose];
+      if (!Symbol.dispose) throw new TypeError("Symbol.dispose is not defined.");
+      dispose = value[Symbol.dispose];
+      if (async) inner = dispose;
     }
     if (typeof dispose !== "function") throw new TypeError("Object not disposable.");
+    if (inner) dispose = function() { try { inner.call(this); } catch (e) { return Promise.reject(e); } };
     env.stack.push({ value: value, dispose: dispose, async: async });
   }
   else if (async) {
@@ -369,28 +382,46 @@ function __disposeResources(env) {
     env.error = env.hasError ? new _SuppressedError(e, env.error, "An error was suppressed during disposal.") : e;
     env.hasError = true;
   }
+  var r, s = 0;
   function next() {
-    while (env.stack.length) {
-      var rec = env.stack.pop();
+    while (r = env.stack.pop()) {
       try {
-        var result = rec.dispose && rec.dispose.call(rec.value);
-        if (rec.async) return Promise.resolve(result).then(next, function(e) { fail(e); return next(); });
+        if (!r.async && s === 1) return s = 0, env.stack.push(r), Promise.resolve().then(next);
+        if (r.dispose) {
+          var result = r.dispose.call(r.value);
+          if (r.async) return s |= 2, Promise.resolve(result).then(next, function(e) { fail(e); return next(); });
+        }
+        else s |= 1;
       }
       catch (e) {
-          fail(e);
+        fail(e);
       }
     }
+    if (s === 1) return env.hasError ? Promise.reject(env.error) : Promise.resolve();
     if (env.hasError) throw env.error;
   }
   return next();
 }
 
-/* harmony default export */ var tslib_es6 = ({
+function __rewriteRelativeImportExtension(path, preserveJsx) {
+  if (typeof path === "string" && /^\.\.?\//.test(path)) {
+      return path.replace(/\.(tsx)$|((?:\.d)?)((?:\.[^./]+?)?)\.([cm]?)ts$/i, function (m, tsx, d, ext, cm) {
+          return tsx ? preserveJsx ? ".jsx" : ".js" : d && (!ext || !cm) ? m : (d + ext + "." + cm.toLowerCase() + "js");
+      });
+  }
+  return path;
+}
+
+/* harmony default export */ const tslib_es6 = ({
   __extends,
   __assign,
   __rest,
   __decorate,
   __param,
+  __esDecorate,
+  __runInitializers,
+  __propKey,
+  __setFunctionName,
   __metadata,
   __awaiter,
   __generator,
@@ -413,6 +444,7 @@ function __disposeResources(env) {
   __classPrivateFieldIn,
   __addDisposableResource,
   __disposeResources,
+  __rewriteRelativeImportExtension,
 });
 
 ;// CONCATENATED MODULE: ./node_modules/lower-case/dist.es2015/index.js
@@ -560,7 +592,7 @@ function generateRule(style, options, path, ruleKey) {
   return styleValue ? [{
     selector: options?.selector,
     key: ruleKey,
-    value: getCSSVarFromStyleValue(styleValue)
+    value: getCSSValueFromRawStyle(styleValue)
   }] : [];
 }
 
@@ -589,7 +621,7 @@ function generateBoxRules(style, options, path, ruleKeys, individualProperties =
     });
   } else {
     const sideRules = individualProperties.reduce((acc, side) => {
-      const value = getCSSVarFromStyleValue(getStyleValueByPath(boxStyle, [side]));
+      const value = getCSSValueFromRawStyle(getStyleValueByPath(boxStyle, [side]));
       if (value) {
         acc.push({
           selector: options?.selector,
@@ -605,13 +637,21 @@ function generateBoxRules(style, options, path, ruleKeys, individualProperties =
 }
 
 /**
- * Returns a CSS var value from incoming style value following the pattern `var:description|context|slug`.
+ * Returns a WordPress CSS custom var value from incoming style preset value,
+ * if one is detected.
  *
- * @param styleValue A raw style value.
+ * The preset value is a string and follows the pattern `var:description|context|slug`.
  *
- * @return string A CSS var value.
+ * Example:
+ *
+ * `getCSSValueFromRawStyle( 'var:preset|color|heavenlyBlue' )` // returns 'var(--wp--preset--color--heavenly-blue)'
+ *
+ * @param styleValue A string representing a raw CSS value. Non-strings won't be processed.
+ *
+ * @return A CSS custom var value if the incoming style value is a preset value.
  */
-function getCSSVarFromStyleValue(styleValue) {
+
+function getCSSValueFromRawStyle(styleValue) {
   if (typeof styleValue === 'string' && styleValue.startsWith(VARIABLE_REFERENCE_PREFIX)) {
     const variable = styleValue.slice(VARIABLE_REFERENCE_PREFIX.length).split(VARIABLE_PATH_SEPARATOR_TOKEN_ATTRIBUTE).map(presetVariable => paramCase(presetVariable, {
       splitRegexp: [/([a-z0-9])([A-Z])/g,
@@ -743,7 +783,7 @@ const borderLeft = {
   name: 'borderLeft',
   generate: createBorderEdgeGenerateFunction('left')
 };
-/* harmony default export */ var border = ([color, borderStyle, width, radius, borderTop, borderRight, borderBottom, borderLeft]);
+/* harmony default export */ const border = ([color, borderStyle, width, radius, borderTop, borderRight, borderBottom, borderLeft]);
 
 ;// CONCATENATED MODULE: ./node_modules/@wordpress/style-engine/build-module/styles/color/background.js
 /**
@@ -757,7 +797,7 @@ const background = {
     return generateRule(style, options, ['color', 'background'], 'backgroundColor');
   }
 };
-/* harmony default export */ var color_background = (background);
+/* harmony default export */ const color_background = (background);
 
 ;// CONCATENATED MODULE: ./node_modules/@wordpress/style-engine/build-module/styles/color/gradient.js
 /**
@@ -771,7 +811,7 @@ const gradient = {
     return generateRule(style, options, ['color', 'gradient'], 'background');
   }
 };
-/* harmony default export */ var color_gradient = (gradient);
+/* harmony default export */ const color_gradient = (gradient);
 
 ;// CONCATENATED MODULE: ./node_modules/@wordpress/style-engine/build-module/styles/color/text.js
 /**
@@ -785,7 +825,7 @@ const text_text = {
     return generateRule(style, options, ['color', 'text'], 'color');
   }
 };
-/* harmony default export */ var color_text = (text_text);
+/* harmony default export */ const color_text = (text_text);
 
 ;// CONCATENATED MODULE: ./node_modules/@wordpress/style-engine/build-module/styles/color/index.js
 /**
@@ -794,7 +834,7 @@ const text_text = {
 
 
 
-/* harmony default export */ var styles_color = ([color_text, color_gradient, color_background]);
+/* harmony default export */ const styles_color = ([color_text, color_gradient, color_background]);
 
 ;// CONCATENATED MODULE: ./node_modules/@wordpress/style-engine/build-module/styles/dimensions/index.js
 /**
@@ -808,7 +848,13 @@ const minHeight = {
     return generateRule(style, options, ['dimensions', 'minHeight'], 'minHeight');
   }
 };
-/* harmony default export */ var dimensions = ([minHeight]);
+const aspectRatio = {
+  name: 'aspectRatio',
+  generate: (style, options) => {
+    return generateRule(style, options, ['dimensions', 'aspectRatio'], 'aspectRatio');
+  }
+};
+/* harmony default export */ const dimensions = ([minHeight, aspectRatio]);
 
 ;// CONCATENATED MODULE: ./node_modules/@wordpress/style-engine/build-module/styles/background/index.js
 /**
@@ -820,32 +866,48 @@ const backgroundImage = {
   name: 'backgroundImage',
   generate: (style, options) => {
     const _backgroundImage = style?.background?.backgroundImage;
-    const _backgroundSize = style?.background?.backgroundSize;
-    const styleRules = [];
-    if (!_backgroundImage) {
-      return styleRules;
-    }
-    if (_backgroundImage?.source === 'file' && _backgroundImage?.url) {
-      styleRules.push({
+
+    /*
+     * The background image can be a string or an object.
+     * If the background image is a string, it could already contain a url() function,
+     * or have a linear-gradient value.
+     */
+    if (typeof _backgroundImage === 'object' && _backgroundImage?.url) {
+      return [{
         selector: options.selector,
         key: 'backgroundImage',
         // Passed `url` may already be encoded. To prevent double encoding, decodeURI is executed to revert to the original string.
         value: `url( '${encodeURI(safeDecodeURI(_backgroundImage.url))}' )`
-      });
+      }];
     }
-
-    // If no background size is set, but an image is, default to cover.
-    if (!_backgroundSize) {
-      styleRules.push({
-        selector: options.selector,
-        key: 'backgroundSize',
-        value: 'cover'
-      });
-    }
-    return styleRules;
+    return generateRule(style, options, ['background', 'backgroundImage'], 'backgroundImage');
   }
 };
-/* harmony default export */ var styles_background = ([backgroundImage]);
+const backgroundPosition = {
+  name: 'backgroundPosition',
+  generate: (style, options) => {
+    return generateRule(style, options, ['background', 'backgroundPosition'], 'backgroundPosition');
+  }
+};
+const backgroundRepeat = {
+  name: 'backgroundRepeat',
+  generate: (style, options) => {
+    return generateRule(style, options, ['background', 'backgroundRepeat'], 'backgroundRepeat');
+  }
+};
+const backgroundSize = {
+  name: 'backgroundSize',
+  generate: (style, options) => {
+    return generateRule(style, options, ['background', 'backgroundSize'], 'backgroundSize');
+  }
+};
+const backgroundAttachment = {
+  name: 'backgroundAttachment',
+  generate: (style, options) => {
+    return generateRule(style, options, ['background', 'backgroundAttachment'], 'backgroundAttachment');
+  }
+};
+/* harmony default export */ const styles_background = ([backgroundImage, backgroundPosition, backgroundRepeat, backgroundSize, backgroundAttachment]);
 
 ;// CONCATENATED MODULE: ./node_modules/@wordpress/style-engine/build-module/styles/shadow/index.js
 /**
@@ -859,7 +921,7 @@ const shadow = {
     return generateRule(style, options, ['shadow'], 'boxShadow');
   }
 };
-/* harmony default export */ var styles_shadow = ([shadow]);
+/* harmony default export */ const styles_shadow = ([shadow]);
 
 ;// CONCATENATED MODULE: ./node_modules/@wordpress/style-engine/build-module/styles/outline/index.js
 /**
@@ -891,7 +953,7 @@ const outline_width = {
     return generateRule(style, options, path, ruleKey);
   }
 };
-/* harmony default export */ var outline = ([outline_color, outlineStyle, offset, outline_width]);
+/* harmony default export */ const outline = ([outline_color, outlineStyle, offset, outline_width]);
 
 ;// CONCATENATED MODULE: ./node_modules/@wordpress/style-engine/build-module/styles/spacing/padding.js
 /**
@@ -908,7 +970,7 @@ const padding = {
     });
   }
 };
-/* harmony default export */ var spacing_padding = (padding);
+/* harmony default export */ const spacing_padding = (padding);
 
 ;// CONCATENATED MODULE: ./node_modules/@wordpress/style-engine/build-module/styles/spacing/margin.js
 /**
@@ -925,7 +987,7 @@ const margin = {
     });
   }
 };
-/* harmony default export */ var spacing_margin = (margin);
+/* harmony default export */ const spacing_margin = (margin);
 
 ;// CONCATENATED MODULE: ./node_modules/@wordpress/style-engine/build-module/styles/spacing/index.js
 /**
@@ -933,7 +995,7 @@ const margin = {
  */
 
 
-/* harmony default export */ var spacing = ([spacing_margin, spacing_padding]);
+/* harmony default export */ const spacing = ([spacing_margin, spacing_padding]);
 
 ;// CONCATENATED MODULE: ./node_modules/@wordpress/style-engine/build-module/styles/typography/index.js
 /**
@@ -1001,7 +1063,7 @@ const writingMode = {
     return generateRule(style, options, ['typography', 'writingMode'], 'writingMode');
   }
 };
-/* harmony default export */ var typography = ([fontFamily, fontSize, fontStyle, fontWeight, letterSpacing, lineHeight, textColumns, textDecoration, textTransform, writingMode]);
+/* harmony default export */ const typography = ([fontFamily, fontSize, fontStyle, fontWeight, letterSpacing, lineHeight, textColumns, textDecoration, textTransform, writingMode]);
 
 ;// CONCATENATED MODULE: ./node_modules/@wordpress/style-engine/build-module/styles/index.js
 /**
@@ -1089,6 +1151,9 @@ function getCSSRules(style, options = {}) {
   });
   return rules;
 }
+
+// Export style utils.
+
 
 (window.wp = window.wp || {}).styleEngine = __webpack_exports__;
 /******/ })()

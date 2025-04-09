@@ -89,6 +89,10 @@ final class ITSEC_Setup {
 
 		ITSEC_Modules::initialize_container();
 
+		if ( ITSEC_Core::get_install_type() === 'pro' ) {
+			ITSEC_Modules::load_module_file( 'active.php', 'security-check-pro' );
+		}
+
 		// Determine build number of current data if it was not passed in.
 
 		if ( empty( $build ) ) {

@@ -888,6 +888,21 @@ if ( ! defined( 'W3TC' ) ) {
 						?>
 						/> <?php esc_html_e( 'seconds', 'w3-total-cache' ); ?>
 					<p class="description"><?php esc_html_e( 'If caching to disk, specify how frequently expired cache data is removed. For busy sites, a lower value is best.', 'w3-total-cache' ); ?></p>
+					<p class="description">
+						<?php
+						echo esc_html(
+							sprintf(
+								// translators: 1 W3TC_CACHE_FILE_EXPIRE_MAX constant name, 2 W3TC_CACHE_FILE_EXPIRE_MAX value.
+								__(
+									'Max interval is limited by the %1$s constant (%2$s seconds) which can be overridden in wp-config.php.',
+									'w3-total-cache'
+								),
+								'W3TC_CACHE_FILE_EXPIRE_MAX',
+								W3TC_CACHE_FILE_EXPIRE_MAX
+							)
+						);
+						?>
+					</p>
 				</td>
 			</tr>
 			<tr>
@@ -979,6 +994,107 @@ if ( ! defined( 'W3TC' ) ) {
 			<?php endif; ?>
 		</table>
 
+		<?php Util_Ui::postbox_footer(); ?>
+
+		<?php Util_Ui::postbox_header( esc_html__( 'Purge via WP Cron', 'w3-total-cache' ), '', 'minify_wp_cron' ); ?>
+		<table class="form-table">
+			<p>
+				<?php
+				echo wp_kses(
+					sprintf(
+						// Translators: 1 opening HTML a tag, 2 closing HTML a tag.
+						__(
+							'Enabling this will schedule a WP-Cron event that will flush the Minify Cache. If you prefer to use a system cron job instead of WP-Cron, you can schedule the following command to run at your desired interval: "wp w3tc flush minify". Visit %1$shere%2$s for more information.',
+							'w3-total-cache'
+						),
+						'<a href="' . esc_url( 'https://www.boldgrid.com/support/w3-total-cache/schedule-cache-purges/' ) . '" target="_blank">',
+						'</a>'
+					),
+					array(
+						'a' => array(
+							'href'   => array(),
+							'target' => array(),
+						),
+					)
+				);
+				?>
+			</p>
+			<?php
+			$c           = Dispatcher::config();
+			$disabled    = ! $c->get_boolean( 'minify.enabled' );
+			$wp_disabled = ! $c->get_boolean( 'minify.wp_cron' );
+
+			if ( $disabled ) {
+				echo wp_kses(
+					sprintf(
+						// Translators: 1 opening HTML div tag followed by opening HTML p tag, 2 opening HTML a tag,
+						// Translators: 3 closing HTML a tag, 4 closing HTML p tag followed by closing HTML div tag.
+						__( '%1$sMinify is disabled! Enable it %2$shere%3$s to enable this feature.%4$s', 'w3-total-cache' ),
+						'<div class="notice notice-error inline"><p>',
+						'<a href="' . esc_url( admin_url( 'admin.php?page=w3tc_general#minify' ) ) . '">',
+						'</a>',
+						'</p></div>'
+					),
+					array(
+						'div' => array(
+							'class' => array(),
+						),
+						'p'   => array(),
+						'a'   => array(
+							'href' => array(),
+						),
+					)
+				);
+			}
+
+			Util_Ui::config_item(
+				array(
+					'key'            => 'minify.wp_cron',
+					'label'          => esc_html__( 'Enable WP-Cron Event', 'w3-total-cache' ),
+					'checkbox_label' => esc_html__( 'Enable', 'w3-total-cache' ),
+					'control'        => 'checkbox',
+					'disabled'       => $disabled,
+				)
+			);
+
+			$time_options = array();
+			for ( $hour = 0; $hour < 24; $hour++ ) {
+				foreach ( array('00', '30') as $minute ) {
+					$time_value                = $hour * 60 + intval( $minute );
+					$scheduled_time            = new \DateTime( "{$hour}:{$minute}", wp_timezone() );
+					$time_label                = $scheduled_time->format( 'g:i a' );
+					$time_options[$time_value] = $time_label;
+				}
+			}
+
+			Util_Ui::config_item(
+				array(
+					'key'              => 'minify.wp_cron_time',
+					'label'            => esc_html__( 'Start Time', 'w3-total-cache' ),
+					'control'          => 'selectbox',
+					'selectbox_values' => $time_options,
+					'description'      => esc_html__( 'This setting controls the initial start time of the cron job. If the selected time has already passed, it will schedule the job for the following day at the selected time.', 'w3-total-cache' ),
+					'disabled'         => $disabled || $wp_disabled,
+				)
+			);
+
+			Util_Ui::config_item(
+				array(
+					'key'              => 'minify.wp_cron_interval',
+					'label'            => esc_html__( 'Interval', 'w3-total-cache' ),
+					'control'          => 'selectbox',
+					'selectbox_values' => array(
+						'hourly'     => esc_html__( 'Hourly', 'w3-total-cache' ),
+						'twicedaily' => esc_html__( 'Twice Daily', 'w3-total-cache' ),
+						'daily'      => esc_html__( 'Daily', 'w3-total-cache' ),
+						'weekly'     => esc_html__( 'Weekly', 'w3-total-cache' ),
+					),
+					'description'      => esc_html__( 'This setting controls the interval that the cron job should occur.', 'w3-total-cache' ),
+					'disabled'         => $disabled || $wp_disabled,
+				)
+			);
+			?>
+		</table>
 		<?php Util_Ui::postbox_footer(); ?>
 
 		<?php Util_Ui::postbox_header( esc_html__( 'Note(s):', 'w3-total-cache' ), '', 'notes' ); ?>

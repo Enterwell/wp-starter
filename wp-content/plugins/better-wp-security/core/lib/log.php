@@ -128,11 +128,13 @@ final class ITSEC_Log {
 				}
 			}
 
-			if ( $wpdb->get_col_length( "{$wpdb->base_prefix}itsec_logs", $key ) ) {
+			$col_length = $wpdb->get_col_length( "{$wpdb->base_prefix}itsec_logs", $key );
 
-				$col_length = $wpdb->get_col_length( "{$wpdb->base_prefix}itsec_logs", $key )['length'] - 3;
-				if ( is_string( $value ) && strlen( $value ) > $col_length ) {
-					$truncated_value = substr( $value, 0, $col_length ) . '...';
+			if ( is_array( $col_length ) ) {
+				$truncate_to = $col_length['length'] - 3;
+				
+				if ( is_string( $value ) && strlen( $value ) > $truncate_to ) {
+					$truncated_value = substr( $value, 0, $truncate_to ) . '...';
 
 					$data[ $key ] = $truncated_value;
 				}

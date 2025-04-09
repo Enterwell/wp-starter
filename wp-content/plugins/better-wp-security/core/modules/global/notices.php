@@ -92,9 +92,9 @@ ITSEC_Lib_Admin_Notices::register(
 				}
 
 				public function get_message() {
-					return __( 'Automatic IP detection is susceptible to IP spoofing attacks.', 'better-wp-security' ) . ' ' .
-					       __( 'We recommend enabling Security Check to securely configure IP detection.', 'better-wp-security' ) . ' ' .
-					       __( 'Alternatively, manually configure <a href="{{ $configure }}">Proxy Detection</a> based on your server setup.', 'better-wp-security' );
+					return __( 'Some firewall features are disabled because IP Detection has not been configured.', 'better-wp-security' ) . ' ' .
+					       __( 'Enable Security Check to automatically configure IP detection for your server environment.', 'better-wp-security' ) . ' ' .
+					       __( 'Alternatively, navigate to <a href="{{ $configure }}">Proxy Detection</a> to manually configure and test IP detection.', 'better-wp-security' );
 				}
 
 				public function get_meta() {
@@ -106,7 +106,7 @@ ITSEC_Lib_Admin_Notices::register(
 				}
 
 				public function show_for_context( ITSEC_Admin_Notice_Context $context ) {
-					return 'automatic' === ITSEC_Modules::get_setting( 'global', 'proxy' );
+					return 'automatic' === ITSEC_Modules::get_setting( 'global', 'proxy' ) && ITSEC_Core::is_onboarded();
 				}
 
 				public function get_actions() {

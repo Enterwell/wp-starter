@@ -14,7 +14,7 @@ import { Button, Heading, Text, TextSize, TextVariant } from '@ithemes/ui';
 /**
  * Internal dependencies
  */
-import { ErrorList } from '@ithemes/security-ui';
+import { ErrorList, Markup } from '@ithemes/security-ui';
 import { PrimarySchemaForm } from '@ithemes/security-schema-form';
 import { ONBOARD_STORE_NAME } from '../../../stores';
 import { StyledQuestion, StyledQuestionHeader } from './styles';
@@ -50,9 +50,10 @@ export default function Question( {
 					/>
 					<Text
 						as="p"
-						text={ description }
 						variant={ TextVariant.MUTED }
-					/>
+					>
+						<Markup content={ description } noWrap />
+					</Text>
 				</StyledQuestionHeader>
 				{ showErrors && (
 					<ErrorList apiError={ error } />

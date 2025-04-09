@@ -34,7 +34,7 @@ export const StyledSchemaForm = styled( SchemaForm )`
 			grid-column: label;
 			font-size: 1rem;
 			padding-right: 1rem;
-			margin-bottom: 0;
+			margin-top: 0;
 
 			&:not(:first-child) {
 				border-top: 1px solid ${ ( { theme } ) => theme.colors.border.normal };
@@ -57,6 +57,13 @@ export const StyledSchemaForm = styled( SchemaForm )`
 
 		& > .itsec-rjsf-section-title ~ .form-group {
 			grid-column: fields;
+		}
+
+		& > .itsec-rjsf-section-title:has(+ .itsec-highlighted-search-result) {
+			border-left: 5px solid ${ ( { theme } ) => theme.colors.border.info };
+			background: #f9f7fd;
+			margin-bottom: 0;
+			padding-top: 1rem !important;
 		}
 
 		& > .field-object {
@@ -94,6 +101,10 @@ export const StyledSchemaForm = styled( SchemaForm )`
 	}
 
 	.itsec-highlighted-search-result {
+		background: #f9f7fd;
+		padding-bottom: 1rem;
+		padding-top: 1rem !important;
+		
 		.components-base-control__label,
 		.components-input-control__label,
 		label,

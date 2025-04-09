@@ -96,27 +96,33 @@ class Cache_File extends Cache_Base {
 	/**
 	 * Sets data
 	 *
-	 * @param string  $key
-	 * @param mixed   $var
-	 * @param integer $expire
-	 * @param string  $group  Used to differentiate between groups of cache values
-	 * @return boolean
+	 * @param string $key        An MD5 of the DB query.
+	 * @param mixed  $content    Data to be cached.
+	 * @param int    $expiration Time to expire.  If 0, then the data will never expire.
+	 * @param string $group      Used to differentiate between groups of cache values.
+	 * @return bool
 	 */
-	function set( $key, $var, $expire = 0, $group = '' ) {
+	function set( $key, $content, $expiration = 0, $group = '' ) {
+		/**
+		 * Get the file pointer of the cache file.
+		 * The $key is transformed to a storage key (format "w3tc_INSTANCEID_HOST_BLOGID_dbcache_HASH").
+		 * The file path is in the format: CACHEDIR/db/BLOGID/GROUP/[0-9a-f]{3}/[0-9a-f]{3}/[0-9a-f]{32}.
+		 */
 		$fp = $this->fopen_write( $key, $group, 'wb' );
+
 		if ( !$fp )
 			return false;
 
 		if ( $this->_locking )
 			@flock( $fp, LOCK_EX );
 
-		if ( $expire <= 0 || $expire > W3TC_CACHE_FILE_EXPIRE_MAX )
-			$expire = W3TC_CACHE_FILE_EXPIRE_MAX;
+		if ( $expiration <= 0 || $expiration > W3TC_CACHE_FILE_EXPIRE_MAX )
+			$expiration = W3TC_CACHE_FILE_EXPIRE_MAX;
 
-		$expires_at = time() + $expire;
+		$expires_at = time() + $expiration;
 		@fputs( $fp, pack( 'L', $expires_at ) );
 		@fputs( $fp, '<?php exit; ?>' );
-		@fputs( $fp, @serialize( $var ) );
+		@fputs( $fp, @serialize( $content ) );
 		@fclose( $fp );
 
 		if ( $this->_locking )
@@ -149,9 +155,7 @@ class Cache_File extends Cache_Base {
 
 		$storage_key = $this->get_item_key( $key );
 
-		$path = $this->_cache_dir . DIRECTORY_SEPARATOR .
-			( $group ? $group . DIRECTORY_SEPARATOR : '' ) .
-			$this->_get_path( $storage_key, $group );
+		$path = $this->_cache_dir . DIRECTORY_SEPARATOR . $this->_get_path( $storage_key, $group );
 		if ( !is_readable( $path ) )
 			return array( null, $has_old_data );
 
@@ -226,9 +230,7 @@ class Cache_File extends Cache_Base {
 	function delete( $key, $group = '' ) {
 		$storage_key = $this->get_item_key( $key );
 
-		$path = $this->_cache_dir . DIRECTORY_SEPARATOR .
-			( $group ? $group . DIRECTORY_SEPARATOR : '' ) .
-			$this->_get_path( $storage_key, $group );
+		$path = $this->_cache_dir . DIRECTORY_SEPARATOR . $this->_get_path( $storage_key, $group );
 
 		if ( !file_exists( $path ) )
 			return true;
@@ -274,12 +276,47 @@ class Cache_File extends Cache_Base {
 	 */
 	function flush( $group = '' ) {
 		@set_time_limit( $this->_flush_timelimit );
-		$flush_dir = $group ?
-			$this->_cache_dir . DIRECTORY_SEPARATOR . $group .
-			DIRECTORY_SEPARATOR :
-			$this->_flush_dir;
-		Util_File::emptydir( $flush_dir, $this->_exclude );
+
+		if ( 'sitemaps' === $group ) {
+			$config = Dispatcher::config();
+			$sitemap_regex = $config->get_string( 'pgcache.purge.sitemap_regex' );
+			$this->_flush_based_on_regex( $sitemap_regex );
+		} else {
+			$flush_dir = $group ?
+				$this->_cache_dir . DIRECTORY_SEPARATOR . $group .
+				DIRECTORY_SEPARATOR :
+				$this->_flush_dir;
+			Util_File::emptydir( $flush_dir, $this->_exclude );
+		}
+
 		return true;
+	}
+
+	/**
+	 * Gets a key extension for "ahead generation" mode.
+	 * Used by AlwaysCached functionality to regenerate content
+	 *
+	 * @param string $group Used to differentiate between groups of cache values.
+	 *
+	 * @return array
+	 */
+	public function get_ahead_generation_extension( $group ) {
+		return array(
+			'before_time' => time(),
+		);
+	}
+
+	/**
+	 * Flushes group with before condition
+	 *
+	 * @param string $group Used to differentiate between groups of cache values.
+	 * @param array  $extension Used to set a condition what version to flush.
+	 *
+	 * @return void
+	 */
+	public function flush_group_after_ahead_generation( $group, $extension ) {
+		$dir = $this->_flush_dir;
+		$extension['before_time'];
 	}
 
 	/**
@@ -291,9 +328,7 @@ class Cache_File extends Cache_Base {
 	 */
 	function mtime( $key, $group = '' ) {
 		$path =
-			$this->_cache_dir . DIRECTORY_SEPARATOR .
-			( $group ? $group . DIRECTORY_SEPARATOR : '' ) .
-			$this->_get_path( $key, $group );
+			$this->_cache_dir . DIRECTORY_SEPARATOR . $this->_get_path( $key, $group );
 
 		if ( file_exists( $path ) ) {
 			return @filemtime( $path );
@@ -303,20 +338,19 @@ class Cache_File extends Cache_Base {
 	}
 
 	/**
-	 * Returns file path for key
+	 * Returns subpath for the cache file (format: [0-9a-f]{3}/[0-9a-f]{3}/[0-9a-f]{32}).
 	 *
-	 * @param string  $key
+	 * @param string $key Storage key (format: "w3tc_INSTANCEID_HOST_BLOGID_dbcache_HASH").
+	 * @param string $group Used to differentiate between groups of cache values.
 	 * @return string
 	 */
 	function _get_path( $key, $group = '' ) {
 		if ( $this->_use_wp_hash && function_exists( 'wp_hash' ) )
-			$hash = wp_hash( $key );
+			$hash = wp_hash( $key ); // Most common.
 		else
-			$hash = md5( $key );
+			$hash = md5( $key ); // Less common, but still used in some cases.
 
-		$path = sprintf( '%s/%s/%s.php', substr( $hash, 0, 3 ), substr( $hash, 3, 3 ), $hash );
-
-		return $path;
+		return ( $group ? $group . DIRECTORY_SEPARATOR : '' ) . sprintf( '%s/%s/%s.php', substr( $hash, 0, 3 ), substr( $hash, 3, 3 ), $hash );
 	}
 
 	public function get_stats_size( $timeout_time ) {
@@ -436,13 +470,25 @@ class Cache_File extends Cache_Base {
 		return $count;
 	}
 
+	/**
+	 * Open the cache file for writing and return the file pointer.
+	 *
+	 * @param string $key An MD5 of the DB query.
+	 * @param string $group Cache group.
+	 * @param string $mode File mode.  For example: 'wb' for write binary.
+	 * @return resource|false File pointer on success, false on failure.
+	 */
 	private function fopen_write( $key, $group, $mode ) {
+		// Get the storage key (format: "w3tc_INSTANCEID_HOST_BLOGID_dbcache_$key").
 		$storage_key = $this->get_item_key( $key );
 
+		// Get the subpath for the cache file (format: [0-9a-f]{3}/[0-9a-f]{3}/[0-9a-f]{32}).
 		$sub_path = $this->_get_path( $storage_key, $group );
-		$path = $this->_cache_dir . DIRECTORY_SEPARATOR .
-			( $group ? $group . DIRECTORY_SEPARATOR : '' ) . $sub_path;
 
+		// Ge the entire path of the cache file.
+		$path = $this->_cache_dir . DIRECTORY_SEPARATOR . $sub_path;
+
+		// Create the directory if it does not exist.
 		$dir = dirname( $path );
 
 		if ( !@is_dir( $dir ) ) {
@@ -450,7 +496,41 @@ class Cache_File extends Cache_Base {
 				return false;
 		}
 
-		$fp = @fopen( $path, $mode );
-		return $fp;
+		// Open the cache file for writing.
+		return @fopen( $path, $mode );
+	}
+
+	/**
+	 * Flush cache based on regex
+	 *
+	 * @since 2.7.1
+	 *
+	 * @param string  $regex
+	 */
+	private function _flush_based_on_regex( $regex ) {
+		if ( Util_Environment::is_wpmu() && ! Util_Environment::is_wpmu_subdomain() ) {
+			$domain    = get_home_url();
+			$parsed    = parse_url( $domain );
+			$host      = $parsed['host'];
+			$path      = isset( $parsed['path'] ) ? '/' . trim( $parsed['path'], '/' ) : '';
+			$flush_dir = W3TC_CACHE_PAGE_ENHANCED_DIR . DIRECTORY_SEPARATOR . $host . $path;
+		} else {
+			$flush_dir = W3TC_CACHE_PAGE_ENHANCED_DIR . DIRECTORY_SEPARATOR . Util_Environment::host();
+		}
+
+		$dir = @opendir( $flush_dir );
+		if ( $dir ) {
+			while ( ( $entry = @readdir( $dir ) ) !== false ) {
+				if ( '.' === $entry || '..' === $entry ) {
+					continue;
+				}
+
+				if ( preg_match( '~' . $regex . '~', basename( $entry ) ) ) {
+					Util_File::rmdir( $flush_dir . DIRECTORY_SEPARATOR . $entry );
+				}
+			}
+
+			@closedir( $dir );
+		}
 	}
 }

@@ -91,5 +91,11 @@
     "default": true,
     "enable_ban_lists": true,
     "server_config_limit": true
+  },
+  "requirements": {
+    "ip": {
+      "validate": "run",
+      "showMessageIfUnmet": true
+    }
   }
 }

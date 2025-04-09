@@ -1,6 +1,7 @@
 <?php
 
 use iThemesSecurity\Contracts\Runnable;
+use iThemesSecurity\Lib\Stringable_Json;
 
 class ITSEC_Core_Admin implements Runnable {
 
@@ -11,12 +12,16 @@ class ITSEC_Core_Admin implements Runnable {
 		add_action( 'admin_bar_menu', array( $this, 'admin_bar' ), 9999 );
 		add_action( 'admin_footer', array( $this, 'render_notices_root' ) );
 
+		if ( ! ITSEC_Lib_IP_Detector::is_configured() && ITSEC_Core::current_user_can_manage() ) {
+			add_action( 'admin_notices', [ $this, 'add_ip_detection_notice' ] );
+		}
+
 		if ( ! ITSEC_Core::is_pro() ) {
 			add_filter( 'itsec_meta_links', array( $this, 'add_plugin_meta_links' ) );
 		}
 
 		add_filter( 'stellarwp/telemetry/optin_args', [ $this, 'customize_optin' ], 10, 2 );
-		add_filter( 'debug_information', [ $this, 'add_site_health_info' ] );
+		add_filter( 'debug_information', [ $this, 'add_site_health_info' ], 9 );
 	}
 
 	public function enqueue_admin_notices() {
@@ -24,8 +29,6 @@ class ITSEC_Core_Admin implements Runnable {
 			wp_enqueue_script( 'itsec-core-admin-notices' );
 			wp_enqueue_style( 'itsec-core-admin-notices' );
 		}
-
-		global $pagenow;
 	}
 
 	public function enqueue_dashboard_notices_integration() {
@@ -38,6 +41,29 @@ class ITSEC_Core_Admin implements Runnable {
 		if ( $this->should_render_admin_notices() ) {
 			echo '<div id="itsec-admin-notices-root"></div>';
 		}
+	}
+
+	public function add_ip_detection_notice() {
+		if ( str_starts_with( get_current_screen()->base, 'security_page_itsec' ) ) {
+			return;
+		}
+
+		if ( ! ITSEC_Core::is_onboarded() ) {
+			return;
+		}
+
+		$url = ITSEC_Core::get_url_for_settings_route( '/settings/global#proxy' );
+		$img = plugins_url( '/core/packages/style-guide/src/assets/purple_shield.svg', ITSEC_Core::get_plugin_file() );
+
+		$text = esc_html__( 'Important: Some Solid Security features are disabled because IP Detection has not been configured.', 'better-wp-security' );
+		$text .= sprintf( ' <a href="%s">%s</a>', esc_url( $url ), esc_html__( 'Configure Now', 'better-wp-security' ) );
+
+		printf(
+			'<div class="notice notice-error"><p style="display: flex; align-items: center; gap: 8px;"><img src="%s" alt="%s" height="40" width="40"><span>%s</span></p></div>',
+			$img,
+			__( 'Solid Security Logo', 'better-wp-security' ),
+			$text
+		);
 	}
 
 	/**
@@ -153,7 +179,7 @@ class ITSEC_Core_Admin implements Runnable {
 				'settings'      => [
 					'label' => __( 'Configured Settings', 'better-wp-security' ),
 					'value' => $settings_count,
-					'debug' => $settings_by_module,
+					'debug' => new Stringable_Json( $settings_by_module ),
 				],
 			],
 		];
@@ -165,11 +191,12 @@ class ITSEC_Core_Admin implements Runnable {
 		/* translators: 1. The user's name. */
 		return sprintf(
 			esc_html__(
-				'Hi %s! At Solid, we’re committed to delivering top-notch services, and your valuable insights play a crucial role in helping us achieve that goal.
-				We’re excited to invite you to participate in our opt-in program, designed to enhance your experience with Solid Security and contribute to the continuous improvement of StellarWP Products.
-				By opting in, you allow our teams to access certain data related to your website data. This information will be used responsibly to gain insights into your preferences and patterns, enabling us to tailor our services and products to better meet your needs.
-				Rest assured, we take data privacy seriously, and our usage of your information will adhere to the highest standards, respecting all relevant regulations and guidelines. Your trust means the world to us, and we are committed to maintaining the confidentiality and security of your data.
-				To join this initiative and be part of shaping the future of Solid Security and StellarWP, simply click “Allow & Continue” below.',
+				'Hi %s, SolidWP is dedicated to delivering top-notch services, and your input helps us deliver on that promise.
+				 By opting into our feedback program, you help enhance the Solid Security experience for yourself and all of our users.
+				 When you opt in, you allow us to access certain data related to how you use our products, which we use responsibly to tailor our products to your needs.
+				 You will additionally receive updates, important product and marketing information, and exclusive offers via email. You may unsubscribe at any time.
+				 We take data privacy seriously and adhere to the highest standards respecting all relevant regulations and guidelines.
+				 To join and help shape the future of Solid Security and StellarWP, simply click “Allow & Continue” below.',
 				'better-wp-security'
 			),
 			wp_get_current_user()->display_name

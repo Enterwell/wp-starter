@@ -31,6 +31,8 @@ class ITSEC_Site_Scanner implements Runnable {
 		add_action( 'switch_theme', [ $this, 'resolve_switched_theme' ], 10, 3 );
 		add_action( 'deleted_theme', [ $this, 'resolve_deleted_theme' ], 10, 2 );
 
+		add_filter( 'debug_information', [ $this, 'add_site_health_info' ] );
+
 		if ( $this->repository instanceof Runnable ) {
 			$this->repository->run();
 		}
@@ -78,10 +80,19 @@ class ITSEC_Site_Scanner implements Runnable {
 			return;
 		}
 
+		$counts = [
+			'low'      => 0,
+			'medium'   => 0,
+			'high'     => 0,
+			'critical' => 0,
+		];
+
 		foreach ( $entry->get_issues() as $issue ) {
 			if ( ! $issue instanceof Vulnerability_Issue ) {
 				continue;
 			}
+
+			$counts[ $issue->get_severity() ] ++;
 
 			$vulnerability_ids[] = $issue->get_id();
 			$found_vulnerability = $this->vulnerabilities->for_issue( $issue );
@@ -166,6 +177,12 @@ class ITSEC_Site_Scanner implements Runnable {
 			 */
 			do_action( 'itsec_software_vulnerabilities_changed', $vulnerabilities, $existing );
 		}
+
+		$counts['total'] = array_sum( $counts );
+
+		do_action( 'stellarwp/telemetry/ithemes-security/event', 'site-scan', [
+			'vulnerabilities' => $counts,
+		] );
 	}
 
 	/**
@@ -194,6 +211,13 @@ class ITSEC_Site_Scanner implements Runnable {
 		foreach ( $vulnerabilities->get_data() as $vulnerability ) {
 			$vulnerability->unresolve();
 			$this->vulnerabilities->persist( $vulnerability );
+			/**
+			 * Fires when a vulnerability has been seen.
+			 *
+			 * @param Vulnerability       $model
+			 * @param Vulnerability_Issue $issue
+			 */
+			do_action( 'itsec_vulnerability_was_seen', $vulnerability, $vulnerability->as_issue() );
 		}
 	}
 
@@ -347,5 +371,36 @@ class ITSEC_Site_Scanner implements Runnable {
 
 			$this->vulnerabilities->persist( $vulnerability );
 		}
+	}
+
+	/**
+	 * Add vulnerability counts to Site Health.
+	 *
+	 * @param array $info
+	 *
+	 * @return array
+	 */
+	public function add_site_health_info( $info ) {
+
+		$active  = $this->vulnerabilities->count_vulnerabilities( ( new Vulnerabilities_Options() )->set_resolutions( [ '' ] ) );
+		$patched = $this->vulnerabilities->count_vulnerabilities( ( new Vulnerabilities_Options() )->set_resolutions( [ Vulnerability::R_PATCHED ] ) );
+
+		if ( $active->is_success() ) {
+			$info['solid-security']['fields']['active-vulnerabilities'] = [
+				'label' => __( 'Active Vulnerabilities', 'better-wp-security' ),
+				'value' => $active->get_data(),
+				'debug' => $active->get_data(),
+			];
+		}
+
+		if ( $patched->is_success() ) {
+			$info['solid-security']['fields']['patched-vulnerabilities'] = [
+				'label' => __( 'Patched Vulnerabilities', 'better-wp-security' ),
+				'value' => $patched->get_data(),
+				'debug' => $patched->get_data(),
+			];
+		}
+
+		return $info;
 	}
 }

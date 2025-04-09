@@ -116,6 +116,10 @@
 			</p>
 		<# } #>
 
+		<button class="button button-small itsec-totp__regenerate-secret" {{ data.d.disabled }}>
+			<?php esc_html_e( 'Generate New Secret', 'better-wp-security' ); ?>
+		</button>
+
 		<img src="{{ data.m.config.qr }}" width="300">
 
 		<# if ( data.d.show_secret ) { #>

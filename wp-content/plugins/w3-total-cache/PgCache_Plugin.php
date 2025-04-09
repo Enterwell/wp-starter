@@ -43,8 +43,7 @@ class PgCache_Plugin {
 
 		// phpcs:ignore WordPress.WP.CronInterval.ChangeDetected
 		add_filter( 'cron_schedules', array( $this, 'cron_schedules' ) );
-
-		add_action( 'w3tc_config_save', array( $this, 'w3tc_config_save' ), 10, 1 );
+		add_action( 'w3tc_pgcache_purge_wpcron', array( $this, 'w3tc_pgcache_purge_wpcron' ) );
 
 		$o = Dispatcher::component( 'PgCache_ContentGrabber' );
 
@@ -61,6 +60,7 @@ class PgCache_Plugin {
 		}
 
 		add_action( 'w3_pgcache_prime', array( $this, 'prime' ) );
+		add_action( 'save_post', array( $this, 'prime_post' ), 10, 3 );
 
 		Util_AttachToActions::flush_posts_on_actions();
 
@@ -69,10 +69,6 @@ class PgCache_Plugin {
 		if ( 'file_generic' === $this->_config->get_string( 'pgcache.engine' ) ) {
 			add_action( 'wp_logout', array( $this, 'on_logout' ), 0 );
 			add_action( 'wp_login', array( $this, 'on_login' ), 0 );
-		}
-
-		if ( $this->_config->get_boolean( 'pgcache.prime.post.enabled', false ) ) {
-			add_action( 'publish_post', array( $this, 'prime_post' ), 30 );
 		}
 
 		if ( ( $this->_config->get_boolean( 'pgcache.late_init' ) ||
@@ -144,36 +140,47 @@ class PgCache_Plugin {
 	 * @return array
 	 */
 	public function cron_schedules( $schedules ) {
-		$c = $this->_config;
+		$c               = $this->_config;
+		$pgcache_enabled = $c->get_boolean( 'pgcache.enabled' );
+		$engine          = $c->get_string( 'pgcache.engine' );
 
-		if ( $c->get_boolean( 'pgcache.enabled' ) &&
-			( 'file' === $c->get_string( 'pgcache.engine' ) ||
-			'file_generic' === $c->get_string( 'pgcache.engine' ) ) ) {
-			$v                               = $c->get_integer( 'pgcache.file.gc' );
+		if ( $pgcache_enabled && ( 'file' === $engine || 'file_generic' === $engine ) ) {
+			$interval                        = $c->get_integer( 'pgcache.file.gc' );
 			$schedules['w3_pgcache_cleanup'] = array(
-				'interval' => $v,
+				'interval' => $interval,
 				'display'  => sprintf(
 					// translators: 1 interval in seconds.
 					__( '[W3TC] Page Cache file GC (every %d seconds)', 'w3-total-cache' ),
-					$v
+					$interval
 				),
 			);
 		}
 
-		if ( $c->get_boolean( 'pgcache.enabled' ) &&
-			$c->get_boolean( 'pgcache.prime.enabled' ) ) {
-			$v                             = $c->get_integer( 'pgcache.prime.interval' );
+		if ( $pgcache_enabled && $c->get_boolean( 'pgcache.prime.enabled' ) ) {
+			$interval                      = $c->get_integer( 'pgcache.prime.interval' );
 			$schedules['w3_pgcache_prime'] = array(
-				'interval' => $v,
+				'interval' => $interval,
 				'display'  => sprintf(
 					// translators: 1 interval in seconds.
 					__( '[W3TC] Page Cache prime (every %d seconds)', 'w3-total-cache' ),
-					$v
+					$interval
 				),
 			);
 		}
 
 		return $schedules;
+	}
+
+	/**
+	 * Cron job for processing purging page cache.
+	 *
+	 * @since 2.8.0
+	 *
+	 * @return void
+	 */
+	public function w3tc_pgcache_purge_wpcron() {
+		$flusher = Dispatcher::component( 'CacheFlush' );
+		$flusher->flush_posts();
 	}
 
 	/**
@@ -251,12 +258,34 @@ class PgCache_Plugin {
 	 * Primes post.
 	 *
 	 * @param integer $post_id Post ID.
+	 * @param object  $post    Post object.
+	 * @param boolean $update  Update flag.
 	 *
-	 * @return boolean
+	 * @return void
 	 */
-	public function prime_post( $post_id ) {
-		$w3_pgcache = Dispatcher::component( 'CacheFlush' );
-		return $w3_pgcache->prime_post( $post_id );
+	public function prime_post( $post_id, $post, $update ) {
+		add_action(
+			'shutdown',
+			function () use ( $post, $update ) {
+				// Check if prime page/post/CPT on publish is enabled.
+				$publish_enabled = $this->_config->get_boolean( 'pgcache.prime.post.enabled', false );
+
+				// Check if prime page/post/CPT on update is enabled.
+				$update_enabled = $this->_config->get_boolean( 'pgcache.prime.post.update.enabled', false );
+
+				// Determine if conditions are met to prime page/post/CPT.
+				$should_prime = 'publish' === $post->post_status && ( ( $publish_enabled && ! $update ) || $update_enabled );
+
+				if ( $should_prime ) {
+					$w3_pgcache = Dispatcher::component( 'PgCache_Plugin_Admin' );
+					return $w3_pgcache->prime_post( $post->ID );
+				}
+
+				return false;
+			},
+			100001,
+			0
+		);
 	}
 
 	/**
@@ -430,17 +459,5 @@ class PgCache_Plugin {
 		}
 
 		return $header;
-	}
-
-	/**
-	 * Save config item
-	 *
-	 * @param array $config Config.
-	 */
-	public function w3tc_config_save( $config ) {
-		// frontend activity.
-		if ( $config->get_boolean( 'pgcache.cache.feed' ) ) {
-			$config->set( 'pgcache.cache.nginx_handle_xml', true );
-		}
 	}
 }

@@ -8,15 +8,17 @@ class PgCache_Environment {
 	/**
 	 * Fixes environment in each wp-admin request
 	 *
-	 * @param Config  $config
-	 * @param bool    $force_all_checks
+	 * @param Config $config           Config.
+	 * @param bool   $force_all_checks Force checks flag.
 	 *
-	 * @throws Util_Environment_Exceptions
+	 * @throws Util_Environment_Exceptions Excpetions.
 	 */
 	public function fix_on_wpadmin_request( $config, $force_all_checks ) {
-		$exs = new Util_Environment_Exceptions();
+		$exs             = new Util_Environment_Exceptions();
+		$pgcache_enabled = $config->get_boolean( 'pgcache.enabled' );
+		$engine          = $config->get_string( 'pgcache.engine' );
 
-		if ( ( !defined( 'WP_CACHE' ) || !WP_CACHE ) ) {
+		if ( ( ! defined( 'WP_CACHE' ) || ! WP_CACHE ) ) {
 			try {
 				$this->wp_config_add_directive();
 			} catch ( Util_WpFile_FilesystemOperationException $ex ) {
@@ -36,64 +38,66 @@ class PgCache_Environment {
 			}
 		}
 
-		// if no errors so far - check if rewrite actually works
+		// if no errors so far - check if rewrite actually works.
 		if ( count( $exs->exceptions() ) <= 0 ) {
 			try {
-				if ( $config->get_boolean( 'pgcache.enabled' ) &&
-					$config->get_string( 'pgcache.engine' ) == 'file_generic' ) {
+				if ( $pgcache_enabled && 'file_generic' === $engine ) {
 					$this->verify_file_generic_compatibility();
 
-					if ( $config->get_boolean( 'pgcache.debug' ) )
+					if ( $config->get_boolean( 'pgcache.debug' ) ) {
 						$this->verify_file_generic_rewrite_working();
+					}
 				}
 			} catch ( \Exception $ex ) {
 				$exs->push( $ex );
 			}
 		}
 
-		if ( count( $exs->exceptions() ) > 0 )
+		if ( count( $exs->exceptions() ) > 0 ) {
 			throw $exs;
+		}
 	}
 
 	/**
 	 * Fixes environment once event occurs
 	 *
-	 * @param Config  $config
-	 * @param string  $event
-	 * @param null|Config $old_config
-	 * @throws Util_Environment_Exceptions
+	 * @param Config      $config     Config.
+	 * @param string      $event      Event.
+	 * @param null|Config $old_config Old Config.
+	 *
+	 * @throws Util_Environment_Exceptions Exception.
 	 */
 	public function fix_on_event( $config, $event, $old_config = null ) {
-		// Schedules events
-		if ( $config->get_boolean( 'pgcache.enabled' ) &&
-			( $config->get_string( 'pgcache.engine' ) == 'file' ||
-				$config->get_string( 'pgcache.engine' ) == 'file_generic' ) ) {
-			if ( $old_config != null &&
-				$config->get_integer( 'pgcache.file.gc' ) !=
-				$old_config->get_integer( 'pgcache.file.gc' ) ) {
+		$pgcache_enabled = $config->get_boolean( 'pgcache.enabled' );
+		$engine          = $config->get_string( 'pgcache.engine' );
+
+		// Schedules events.
+		if ( $pgcache_enabled && ( 'file' === $engine || 'file_generic' === $engine ) ) {
+			$new_interval = $config->get_integer( 'pgcache.file.gc' );
+			$old_interval = $old_config ? $old_config->get_integer( 'pgcache.file.gc' ) : -1;
+
+			if ( null !== $old_config && $new_interval !== $old_interval ) {
 				$this->unschedule_gc();
 			}
 
-			if ( !wp_next_scheduled( 'w3_pgcache_cleanup' ) ) {
-				wp_schedule_event( time(),
-					'w3_pgcache_cleanup', 'w3_pgcache_cleanup' );
+			if ( ! wp_next_scheduled( 'w3_pgcache_cleanup' ) ) {
+				wp_schedule_event( time(), 'w3_pgcache_cleanup', 'w3_pgcache_cleanup' );
 			}
 		} else {
 			$this->unschedule_gc();
 		}
 
-		// Schedule prime event
-		if ( $config->get_boolean( 'pgcache.enabled' ) &&
-			$config->get_boolean( 'pgcache.prime.enabled' ) ) {
-			if ( $old_config != null &&
-				$config->get_integer( 'pgcache.prime.interval' ) !=
-				$old_config->get_integer( 'pgcache.prime.interval' ) ) {
+		// Schedule prime event.
+		if ( $pgcache_enabled && $config->get_boolean( 'pgcache.prime.enabled' ) ) {
+			$new_interval = $config->get_integer( 'pgcache.prime.interval' );
+			$old_interval = $old_config ? $old_config->get_integer( 'pgcache.prime.interval' ) : -1;
+
+			if ( null !== $old_config && $new_interval !== $old_interval ) {
 				$this->unschedule_prime();
 			}
 
-			if ( !wp_next_scheduled( 'w3_pgcache_prime' ) ) {
-				wp_schedule_event( time(),
-					'w3_pgcache_prime', 'w3_pgcache_prime' );
+			if ( ! wp_next_scheduled( 'w3_pgcache_prime' ) ) {
+				wp_schedule_event( time(), 'w3_pgcache_prime', 'w3_pgcache_prime' );
 			}
 		} else {
 			$this->unschedule_prime();
@@ -103,7 +107,9 @@ class PgCache_Environment {
 	/**
 	 * Fixes environment after plugin deactivation
 	 *
-	 * @throws Util_Environment_Exceptions
+	 * @throws Util_Environment_Exceptions Exception.
+	 *
+	 * @return void
 	 */
 	public function fix_after_deactivation() {
 		$exs = new Util_Environment_Exceptions();
@@ -119,9 +125,11 @@ class PgCache_Environment {
 
 		$this->unschedule_gc();
 		$this->unschedule_prime();
+		$this->unschedule_purge_wpcron();
 
-		if ( count( $exs->exceptions() ) > 0 )
+		if ( count( $exs->exceptions() ) > 0 ) {
 			throw $exs;
+		}
 	}
 
 	/**
@@ -289,19 +297,39 @@ class PgCache_Environment {
 
 
 	/**
-	 * scheduling stuff
+	 * Remove Garbage collection cron job.
+	 *
+	 * @return void
 	 */
 	private function unschedule_gc() {
-		if ( wp_next_scheduled( 'w3_pgcache_cleanup' ) )
+		if ( wp_next_scheduled( 'w3_pgcache_cleanup' ) ) {
 			wp_clear_scheduled_hook( 'w3_pgcache_cleanup' );
+		}
 	}
 
+	/**
+	 * Remove Prime Cache cron job.
+	 *
+	 * @return void
+	 */
 	private function unschedule_prime() {
-		if ( wp_next_scheduled( 'w3_pgcache_prime' ) )
+		if ( wp_next_scheduled( 'w3_pgcache_prime' ) ) {
 			wp_clear_scheduled_hook( 'w3_pgcache_prime' );
+		}
 	}
 
-
+	/**
+	 * Remove cron job for pagecache purge.
+	 *
+	 * @since 2.8.0
+	 *
+	 * @return void
+	 */
+	private function unschedule_purge_wpcron() {
+		if ( wp_next_scheduled( 'w3tc_pgcache_purge_wpcron' ) ) {
+			wp_clear_scheduled_hook( 'w3tc_pgcache_purge_wpcron' );
+		}
+	}
 
 	/*
 	 * wp-config modification
@@ -687,17 +715,23 @@ class PgCache_Environment {
 		$cache_path = str_replace( Util_Environment::document_root(), '', $cache_dir );
 
 		/**
-		 * Set Accept-Encoding
+		 * Set Accept-Encoding gzip
+		 */
+		if ( $config->get_boolean( 'browsercache.enabled' ) && $config->get_boolean( 'browsercache.html.compression' ) ) {
+			$rules .= "    RewriteCond %{HTTP:Accept-Encoding} gzip\n";
+			$rules .= "    RewriteRule .* - [E=W3TC_ENC:_gzip]\n";
+			$env_W3TC_ENC = '%{ENV:W3TC_ENC}';
+		}
+
+		/**
+		 * Set Accept-Encoding brotli
 		 */
 		if ( $config->get_boolean( 'browsercache.enabled' ) && $config->get_boolean( 'browsercache.html.brotli' ) ) {
 			$rules .= "    RewriteCond %{HTTP:Accept-Encoding} br\n";
 			$rules .= "    RewriteRule .* - [E=W3TC_ENC:_br]\n";
 			$env_W3TC_ENC = '%{ENV:W3TC_ENC}';
-		} else if ( $config->get_boolean( 'browsercache.enabled' ) && $config->get_boolean( 'browsercache.html.compression' ) ) {
-			$rules .= "    RewriteCond %{HTTP:Accept-Encoding} gzip\n";
-			$rules .= "    RewriteRule .* - [E=W3TC_ENC:_gzip]\n";
-			$env_W3TC_ENC = '%{ENV:W3TC_ENC}';
 		}
+
 		$rules .= "    RewriteCond %{HTTP_COOKIE} w3tc_preview [NC]\n";
 		$rules .= "    RewriteRule .* - [E=W3TC_PREVIEW:_preview]\n";
 		$env_W3TC_PREVIEW = '%{ENV:W3TC_PREVIEW}';
@@ -734,6 +768,11 @@ class PgCache_Environment {
 				array_map( array( '\W3TC\Util_Environment', 'preg_quote' ), $reject_user_agents ) ) . ") [NC]\n";
 		}
 
+		$use_cache_rules = apply_filters(
+			'w3tc_pagecache_rules_apache_rewrite_cond',
+			$use_cache_rules
+		);
+
 		/**
 		 * Make final rewrites for specific files
 		 */
@@ -751,6 +790,27 @@ class PgCache_Environment {
 		$exts = array( '.html' );
 		if ($config->get_boolean('pgcache.cache.nginx_handle_xml'))
 			$exts[] = '.xml';
+
+		/**
+		 * Filter: Allow adding additional rules at the end of the PGCACHE_CORE block, before the last rule.
+		 *
+		 * @since 2.7.1
+		 *
+		 * @param string $rules           Additional rules.
+		 * @param string $use_cache_rules Rewrite conditions for non-POST, empty query string, rejected cookies, and rejected user agents.
+		 * @param string $document_root   Document root.
+		 * @param string $uri_prefix      URI prefix, after the "w3tc_pagecache_rules_apache_uri_prefix" WP filter.
+		 * @param array  $exts            File extensions used; iterate to use them all.
+		 * @param string $env_W3TC_ENC    Encoding string: "", "_br", or "_gzip".
+		 */
+		$rules = \apply_filters(
+			'w3tc_pgcache_rules_apache_last',
+			$rules,
+			$use_cache_rules,
+			$document_root,
+			$uri_prefix,
+			$env_W3TC_ENC
+		);
 
 		foreach ( $exts as $ext ) {
 			$rules .= $use_cache_rules;
@@ -1096,17 +1156,6 @@ class PgCache_Environment {
 		}
 
 		if ( $config->get_boolean( 'browsercache.enabled' ) &&
-			 $config->get_boolean( 'browsercache.html.brotli' ) ) {
-			$rules .= "set \$w3tc_enc \"\";\n";
-
-			$rules .= "if (\$http_accept_encoding ~ br) {\n";
-			$rules .= "    set \$w3tc_enc _br;\n";
-			$rules .= "}\n";
-
-			$env_w3tc_enc = '$w3tc_enc';
-		}
-
-		if ( $config->get_boolean( 'browsercache.enabled' ) &&
 			$config->get_boolean( 'browsercache.html.compression' ) ) {
 			$rules .= "set \$w3tc_enc \"\";\n";
 
@@ -1117,8 +1166,28 @@ class PgCache_Environment {
 			$env_w3tc_enc = '$w3tc_enc';
 		}
 
+		if ( $config->get_boolean( 'browsercache.enabled' ) &&
+			$config->get_boolean( 'browsercache.html.brotli' ) ) {
+			$rules .= "set \$w3tc_enc \"\";\n";
+
+			$rules .= "if (\$http_accept_encoding ~ br) {\n";
+			$rules .= "    set \$w3tc_enc _br;\n";
+			$rules .= "}\n";
+
+			$env_w3tc_enc = '$w3tc_enc';
+		}
+
 		$key_postfix = $env_w3tc_slash . $env_w3tc_ua . $env_w3tc_ref . $env_w3tc_cookie .
 			$env_w3tc_ssl . $env_w3tc_preview;
+
+		/**
+		 * Filter: Allow modifying the key_postfix string used in the PGCACHE_CORE block.
+		 *
+		 * @since 2.7.1
+		 *
+		 * @param string $key_postfix Key postfix string.
+		 */
+		$key_postfix = \apply_filters( 'w3tc_pgcache_postfix_nginx', $key_postfix );
 
 		if ( $pgcache_engine == 'file_generic' ) {
 			$rules .= $this->for_file_generic( $config, $cache_dir,
@@ -1158,7 +1227,7 @@ class PgCache_Environment {
 			$rules .= 'set $w3tc_ext "";' . "\n";
 			$rules .= 'if (-f "$document_root' . $uri_prefix . '.html' .
 				$env_w3tc_enc . '") {' . "\n";
-			$rules .= '  set $w3tc_ext .html;' . "\n";
+			$rules .= '    set $w3tc_ext .html;' . "\n";
 			$rules .= "}\n";
 
 			$rules .= 'if (-f "$document_root' . $uri_prefix . '.xml' .
@@ -1167,7 +1236,7 @@ class PgCache_Environment {
 			$rules .= "}\n";
 
 			$rules .= 'if ($w3tc_ext = "") {' . "\n";
-			$rules .= '  set $w3tc_rewrite 0;' . "\n";
+			$rules .= '    set $w3tc_rewrite 0;' . "\n";
 			$rules .= "}\n";
 		}
 
@@ -1432,7 +1501,12 @@ class PgCache_Environment {
 
 			case 'no_cache':
 				$header_rules .= "    Header set Pragma \"no-cache\"\n";
-				$header_rules .= "    Header set Cache-Control \"max-age=0, private, no-store, no-cache, must-revalidate\"\n";
+				$header_rules .= "    Header set Cache-Control \"private, no-cache\"\n";
+				break;
+
+			case 'no_store':
+				$header_rules .= "    Header set Pragma \"no-store\"\n";
+				$header_rules .= "    Header set Cache-Control \"no-store\"\n";
 				break;
 			}
 		}

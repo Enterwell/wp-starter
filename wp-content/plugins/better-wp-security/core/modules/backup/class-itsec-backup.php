@@ -36,6 +36,8 @@ class ITSEC_Backup {
 
 		add_action( 'itsec_execute_backup_cron', array( $this, 'do_backup' ) );
 
+		add_filter( 'debug_information', [ $this, 'add_site_health_info' ] );
+
 		add_filter( 'itsec_notifications', array( $this, 'register_notification' ) );
 		add_filter( 'itsec_backup_notification_strings', array( $this, 'notification_strings' ) );
 
@@ -305,6 +307,44 @@ class ITSEC_Backup {
 		$mail->add_attachment( $file );
 
 		return $nc->send( 'backup', $mail );
+	}
+
+	/**
+	 * Add backup count to Site Health.
+	 *
+	 * @param array $info
+	 *
+	 * @return array
+	 */
+	public function add_site_health_info( $info ) {
+		$method = ITSEC_Modules::get_setting( 'backup', 'method' );
+
+		if ( 'email' === $method ) {
+			if ( 'file' === ITSEC_Modules::get_setting( 'global', 'log_type' ) ) {
+				return $info;
+			}
+
+			$count = ITSEC_Log::get_number_of_entries( [ 'module' => 'backup' ] );
+		} else {
+			$dir = trailingslashit( ITSEC_Modules::get_setting( 'backup', 'location' ) );
+
+			if ( ! $dir || ! @file_exists( $dir ) ) {
+				return $info;
+			}
+
+			$files = scandir( $dir, SCANDIR_SORT_DESCENDING );
+			$files = array_unique( $files );
+
+			$count = count( $files );
+		}
+
+		$info['solid-security']['fields']['total-backups'] = [
+			'label' => __( 'Total Backups', 'better-wp-security' ),
+			'value' => $count,
+			'debug' => $count,
+		];
+
+		return $info;
 	}
 
 	/**

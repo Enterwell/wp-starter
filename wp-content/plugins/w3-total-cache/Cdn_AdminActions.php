@@ -467,6 +467,7 @@ class Cdn_AdminActions {
 			case 'cf':
 			case 'cf2':
 			case 'azure':
+			case 'azuremi':				
 				$w3_cdn = CdnEngine::instance( $engine, $config );
 
 				@set_time_limit( $this->_config->get_integer( 'timelimit.cdn_upload' ) );
@@ -503,7 +504,7 @@ class Cdn_AdminActions {
 	/**
 	 * Redirect to the Bunny CDN signup page.
 	 *
-	 * @since X.X.X
+	 * @since 2.6.0
 	 *
 	 * @return void
 	 */

@@ -89,12 +89,13 @@ final class ITSEC_Lockout {
 			$this->register_modules();
 			$this->check_for_host_lockouts();
 		} else {
+			add_action( 'plugins_loaded', array( $this, 'register_modules' ) );
 			// Check for host lockouts
 			add_action( 'init', array( $this, 'check_for_host_lockouts' ) );
 		}
 
-		// Register all plugin modules
-		add_action( 'plugins_loaded', array( $this, 'register_modules' ) );
+		// Re-register all plugin modules when translations are available.
+		add_action( 'after_setup_theme', array( $this, 'register_modules' ), 1 );
 
 		// Ensure that locked out users are prevented from checking logins.
 		add_filter( 'authenticate', array( $this, 'check_authenticate_lockout' ), 30 );
@@ -141,6 +142,10 @@ final class ITSEC_Lockout {
 	public function check_for_host_lockouts() {
 
 		if ( defined( 'WP_CLI' ) && WP_CLI ) {
+			return;
+		}
+
+		if ( ! ITSEC_Lib_IP_Detector::is_configured() ) {
 			return;
 		}
 
@@ -764,7 +769,10 @@ final class ITSEC_Lockout {
 	 * @return void
 	 */
 	public function execute_lock( Execute_Lock\Context $context ) {
-		if ( ITSEC_Lib::is_ip_whitelisted( ITSEC_Lib::get_ip() ) ) {
+		if (
+			ITSEC_Lib_IP_Detector::is_configured() &&
+			ITSEC_Lib::is_ip_whitelisted( ITSEC_Lib::get_ip() )
+		) {
 			return;
 		}
 
@@ -1291,6 +1299,8 @@ SQL,
 	 */
 	public function register_modules() {
 
+		$translate = doing_action( 'after_setup_theme' ) || did_action( 'after_setup_theme' );
+
 		/**
 		 * Filter the available lockout modules.
 		 *
@@ -1301,8 +1311,9 @@ SQL,
 		 *                               should be permanently banned. Additionally, the 'user' and 'host' options instruct
 		 *                               security to wait for that many temporary lockout events to occur before executing
 		 *                               the lockout.
+		 * @param array $translate       Whether to load translations.
 		 */
-		$this->lockout_modules = apply_filters( 'itsec_lockout_modules', $this->lockout_modules );
+		$this->lockout_modules = apply_filters( 'itsec_lockout_modules', $this->lockout_modules, $translate );
 	}
 
 	/**
@@ -1479,7 +1490,7 @@ SQL,
 			esc_html__( 'Site Lockout Notification', 'better-wp-security' ),
 			esc_html__( 'Site Lockout Notification', 'better-wp-security' ),
 			false,
-			sprintf( esc_html__( '%s lockout notification', 'better-wp-security'), $mail->get_display_url() ),
+			sprintf( esc_html__( '%s lockout notification', 'better-wp-security' ), $mail->get_display_url() ),
 		);
 		$mail->add_lockouts_table( $lockouts );
 

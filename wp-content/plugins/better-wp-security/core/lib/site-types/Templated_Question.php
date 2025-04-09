@@ -4,7 +4,7 @@ namespace iThemesSecurity\Lib\Site_Types;
 
 abstract class Templated_Question implements Question {
 
-	/** @var Templating_Site_Type */
+	/** @var Templating_Site_Type|null */
 	protected $site_type;
 
 	/**
@@ -12,10 +12,10 @@ abstract class Templated_Question implements Question {
 	 *
 	 * @param Templating_Site_Type $site_type
 	 */
-	public function __construct( Templating_Site_Type $site_type ) { $this->site_type = $site_type; }
+	public function __construct( Templating_Site_Type $site_type = null ) { $this->site_type = $site_type; }
 
 	public function get_prompt(): string {
-		if ( $this->site_type->is_supported_question( $this->get_id() ) ) {
+		if ( $this->site_type && $this->site_type->is_supported_question( $this->get_id() ) ) {
 			return $this->site_type->make_prompt( $this->get_id() );
 		}
 
@@ -25,7 +25,7 @@ abstract class Templated_Question implements Question {
 	public function get_description(): string {
 		$description = $this->get_description_fallback();
 
-		if ( $description && $this->site_type->is_supported_question( $this->get_id() ) ) {
+		if ( $description && $this->site_type && $this->site_type->is_supported_question( $this->get_id() ) ) {
 			$description = $this->site_type->make_description( $this->get_id() ) ?: $description;
 		}
 

@@ -6,6 +6,7 @@ use iThemesSecurity\Lib\REST;
 use iThemesSecurity\Lib\Site_Types;
 use iThemesSecurity\Lib\Stellar_Container;
 use iThemesSecurity\Strauss\StellarWP\Telemetry\Config as Telemetry;
+use iThemesSecurity\Strauss\StellarWP\Telemetry\Events\Event as TelemetryEvent;
 use ITSEC_Lib_Upgrader;
 use iThemesSecurity\Strauss\Pimple\Container;
 use wpdb;
@@ -138,10 +139,6 @@ return static function ( Container $c ) {
 		return new REST\Geolocation_Controller();
 	};
 
-	$c[ REST\Trusted_Devices_Controller::class ] = static function () {
-		return new REST\Trusted_Devices_Controller();
-	};
-
 	$c[ Rest\Lockouts_Controller::class ] = static function ( Container $c ) {
 		return new Rest\Lockouts_Controller(
 			$c[ \ITSEC_Lockout::class ]
@@ -152,6 +149,10 @@ return static function ( Container $c ) {
 		return new REST\Lockout_Stats_Controller(
 			$c[ \ITSEC_Lockout::class ]
 		);
+	};
+
+	$c[ TelemetryEvent::class ] = static function ( Container $c ) {
+		return new TelemetryEvent( $c[ Strauss\StellarWP\Telemetry\Telemetry\Telemetry::class ] );
 	};
 
 	$c[ Telemetry::class ] = static function ( Container $c ) {

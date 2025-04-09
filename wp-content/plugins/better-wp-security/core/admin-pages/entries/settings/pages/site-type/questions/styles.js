@@ -2,6 +2,7 @@
  * External dependencies
  */
 import styled from '@emotion/styled';
+import { css } from '@emotion/css';
 
 export const StyledQuestion = styled.div`
 	display: flex;
@@ -10,8 +11,8 @@ export const StyledQuestion = styled.div`
 	width: 100%;
 	max-width: 530px;
 	flex-grow: 1;
-	justify-content: center;
-	margin-top: -110px;
+	justify-content: flex-start;
+	margin-top: 10vh;
 `;
 
 export const StyledQuestionHeader = styled.header`
@@ -20,10 +21,12 @@ export const StyledQuestionHeader = styled.header`
 	gap: 0.5rem;
 `;
 
-export const StyledIsClientOptions = styled.div`
+export const StyledSelectableCardContainer = styled.div`
 	display: flex;
 	gap: 3.25rem;
 `;
+
+export const alignSelfStart = css`align-self: flex-start;`;
 
 export const self = (
 	<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">

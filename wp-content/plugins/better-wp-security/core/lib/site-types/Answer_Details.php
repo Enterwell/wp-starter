@@ -27,6 +27,13 @@ interface Answer_Details {
 	public function get_enabled_modules(): array;
 
 	/**
+	 * Gets the list of modules to disable.
+	 *
+	 * @return array
+	 */
+	public function get_disabled_modules(): array;
+
+	/**
 	 * Gets the user groups to create.
 	 *
 	 * @return User_Group[]

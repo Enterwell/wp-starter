@@ -34,6 +34,13 @@ export function* selectSiteType( id ) {
 	yield resetOnboarding();
 }
 
+export function* fetchSiteTypes() {
+	const siteTypes = yield apiFetch( {
+		path: '/ithemes-security/v1/site-types',
+	} );
+	yield receiveSiteTypes( siteTypes );
+}
+
 export function clearSiteType() {
 	return { type: CLEAR_SITE_TYPE };
 }
@@ -97,10 +104,26 @@ export function* applyAnswerResponse() {
 
 			if ( config?.side_effects ) {
 				yield controls.dispatch( MODULES_STORE_NAME, 'activateModule', module );
+				yield controls.dispatch( STORE_NAME, 'fetchSiteTypes' );
 			} else {
 				yield controls.dispatch( MODULES_STORE_NAME, 'editModule', module, {
 					status: {
 						selected: 'active',
+					},
+				} );
+			}
+		}
+
+		for ( const module of answer.disabled ) {
+			const config = modules.find( ( { id } ) => id === module );
+
+			if ( config?.side_effects ) {
+				yield controls.dispatch( MODULES_STORE_NAME, 'deactivateModule', module );
+				yield controls.dispatch( STORE_NAME, 'fetchSiteTypes' );
+			} else {
+				yield controls.dispatch( MODULES_STORE_NAME, 'editModule', module, {
+					status: {
+						selected: 'inactive',
 					},
 				} );
 			}

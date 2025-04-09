@@ -21,7 +21,14 @@ class Extension implements ExtensionInterface {
 		];
 
 		if ( $blockType === 'BLOCK' ) {
-			$this->lockout->do_lockout( new Lockout\Host_Context( 'firewall' ) );
+			$context = new Lockout\Host_Context( 'firewall' );
+
+			if ( \ITSEC_Lib_IP_Detector::is_configured() ) {
+				$this->lockout->do_lockout( $context );
+			} else {
+				$this->lockout->execute_lock( $context->make_execute_lock_context() );
+			}
+
 			\ITSEC_Log::add_action( 'firewall', $code, $data );
 		} else {
 			\ITSEC_Log::add_notice( 'firewall', $code, $data );
@@ -29,10 +36,18 @@ class Extension implements ExtensionInterface {
 	}
 
 	public function canBypass( $isMuCall ) {
+		if ( ! \ITSEC_Lib_IP_Detector::is_configured() ) {
+			return false;
+		}
+
 		return \ITSEC_Lib::is_ip_whitelisted( $this->getIpAddress() );
 	}
 
 	public function isBlocked( $minutes, $blockTime, $attempts ) {
+		if ( ! \ITSEC_Lib_IP_Detector::is_configured() ) {
+			return false;
+		}
+
 		return $this->lockout->is_host_locked_out( $this->getIpAddress() );
 	}
 

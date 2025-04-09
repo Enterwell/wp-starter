@@ -42,22 +42,22 @@ final class ITSEC_Mail {
 		}
 
 		$replacements = array(
-			'lang'              => esc_attr( get_bloginfo( 'language' ) ),
-			'charset'           => esc_attr( get_bloginfo( 'charset' ) ),
-			'title_tag'         => $title,
-			'banner_title'      => $banner_title,
-			'logo'              => $logo,
-			'title'             => $title,
-			'sub_title'         => $sub_title
+			'lang'         => esc_attr( get_bloginfo( 'language' ) ),
+			'charset'      => esc_attr( get_bloginfo( 'charset' ) ),
+			'title_tag'    => $title,
+			'banner_title' => $banner_title,
+			'logo'         => $logo,
+			'title'        => $title,
+			'sub_title'    => $sub_title
 		);
 
 		$this->add_html( $this->replace_all( $header, $replacements ), 'header' );
 	}
 
 	public function add_user_header( $title, $banner_title ) {
-		$header = $this->get_template( 'header-user.html' );
-		$logoUrl   = $this->get_site_logo_url();
-		$logo = '';
+		$header  = $this->get_template( 'header-user.html' );
+		$logoUrl = $this->get_site_logo_url();
+		$logo    = '';
 
 		if ( $logoUrl ) {
 			$logo = "<img src='{$logoUrl}' alt='Logo' style='display:block;border:0;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic;font-size:12px; max-width:312px; width:100%;' title='Logo'>";
@@ -114,11 +114,11 @@ final class ITSEC_Mail {
 			$callout = $this->get_template( 'pro-callout.html' );
 
 			$replacements = array(
-				'two_factor'        => esc_html__( 'Want two-factor authentication, scheduled site scanning, ticketed support and more?', 'better-wp-security' ),
-				'get_pro'           => esc_html__( 'Get Solid Security Pro', 'better-wp-security' ),
-				'go_pro_link'       => $security_link,
-				'why_pro'           => esc_html__( 'Why Go Pro', 'better-wp-security' ),
-				'why_go_pro_image'  => $this->get_image_url(  'go-pro-shield' ),
+				'two_factor'       => esc_html__( 'Want two-factor authentication, scheduled site scanning, ticketed support and more?', 'better-wp-security' ),
+				'get_pro'          => esc_html__( 'Get Solid Security Pro', 'better-wp-security' ),
+				'go_pro_link'      => $security_link,
+				'why_pro'          => esc_html__( 'Why Go Pro', 'better-wp-security' ),
+				'why_go_pro_image' => $this->get_image_url( 'go-pro-shield' ),
 			);
 
 			$footer .= $this->replace_all( $callout, $replacements );
@@ -533,7 +533,7 @@ final class ITSEC_Mail {
 
 	private function build_file_change_table( $entries ) {
 		$template = $this->get_template( 'file-change-table.html' );
-		$html = '';
+		$html     = '';
 
 		foreach ( $entries as $entry ) {
 			$html .= $this->build_file_change_row( $entry );
@@ -547,7 +547,7 @@ final class ITSEC_Mail {
 
 		$replacements = array(
 			'entry_url'  => $entry[0],
-			'entry_date'  => $entry[1],
+			'entry_date' => $entry[1],
 			'entry_hash' => $entry[2],
 		);
 
@@ -766,7 +766,7 @@ final class ITSEC_Mail {
 		} elseif ( isset( $_SERVER['HTTP_HOST'], $_SERVER['REQUEST_URI'] ) ) {
 			$page = $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 		} else {
-			$page = 'unknown';
+			$page = __( 'unknown', 'better-wp-security' );
 		}
 
 		$this->add_text( sprintf( esc_html__( 'Debug info (source page): %s', 'better-wp-security' ), esc_html( $page ) ) );
@@ -902,19 +902,28 @@ final class ITSEC_Mail {
 	 * @return string
 	 */
 	private function get_site_logo_url() {
+		$size           = array( 300, 127 );
 		$custom_logo_id = get_theme_mod( 'custom_logo' );
 
 		if ( ! $custom_logo_id ) {
-			return '';
+			$url = '';
+		} else {
+			$image = wp_get_attachment_image_src( $custom_logo_id, $size );
+
+			if ( ! $image || empty( $image[0] ) ) {
+				$url = '';
+			} else {
+				$url = $image[0];
+			}
 		}
 
-		$image = wp_get_attachment_image_src( $custom_logo_id, array( 300, 127 ) );
-
-		if ( ! $image || empty( $image[0] ) ) {
-			return '';
-		}
-
-		return $image[0];
+		/**
+		 * Filters the URL to the Site Logo for use in email notifications.
+		 *
+		 * @param string $url
+		 * @param array  $size
+		 */
+		return apply_filters( 'solid_security_mail_site_logo', $url, $size );
 	}
 
 	private function get_template( $template ) {
@@ -968,5 +977,105 @@ final class ITSEC_Mail {
 		 * @param string $url
 		 */
 		return apply_filters( 'itsec_notify_admin_page_url', $url );
+	}
+
+	/**
+	 * Add a device.
+	 *
+	 * @param array[] $device
+	 * @param bool    $large
+	 */
+	public function add_device( $device ) {
+		$this->add_html( $this->get_device( $device ) );
+	}
+
+	/**
+	 * Build the html for the pending device
+	 *
+	 * @param array[] $device
+	 *
+	 * @return string
+	 */
+	public function get_device( $device ) {
+		$template     = $this->get_template( 'device.html' );
+		$column_left  = '';
+		$column_right = '';
+
+		foreach ( $device as $entry ) {
+			if ( $entry['position'] === 'left' ) {
+				$column_left .= $this->build_left_column( $entry );
+			} else {
+				$column_right .= $this->build_right_column( $entry );
+			}
+		}
+		$template = $this->replace_all( $template, array(
+			'column_left'  => $column_left,
+			'column_right' => $column_right
+		) );
+
+		return $template;
+	}
+
+	/**
+	 * Builds device rows.
+	 *
+	 * @param array|string $entry
+	 *
+	 * @return string
+	 */
+	private function build_left_column( $entry ) {
+		$label_style = 'color: #545454; font-size: 12px; line-height: 16px; margin-block: 0; margin-right: 16px;';
+		$value_style = 'color: #232323; font-weight: 600; font-size: 13px; line-height: 16px; margin-block-start: 4px;';
+		$left_column = '<tr>';
+		$left_column .=
+			"<td style='vertical-align: top;'>
+				<p style=\"{$label_style}\">{$entry['label']}</p>
+				<p style=\"{$value_style}\">{$entry['value']}</p>
+			</td>";
+		$left_column .= '</tr>';
+
+		return $left_column;
+	}
+
+	private function build_right_column( $entry ) {
+		$label_style  = 'color: #545454; font-size: 12px; line-height: 16px; margin-block: 0; margin-right: 16px;';
+		$value_style  = 'color: #232323; font-weight: 600; font-size: 13px; line-height: 16px; margin-block-start: 4px';
+		$right_column = '<tr>';
+		$right_column .=
+			"<td style='vertical-align: top;'>
+				<p style=\"{$label_style}\">{$entry['label']}</p>
+				<p style=\"{$value_style}\">{$entry['value']}</p>
+			</td>";
+		$right_column .= '</tr>';
+
+		return $right_column;
+	}
+
+	/**
+	 * Add device actions row
+	 */
+	public function add_device_action_row( $buttons ) {
+		$this->add_html( $this->build_device_action_row( $buttons ) );
+	}
+
+	/**
+	 * Builds device actions row
+	 */
+	public function build_device_action_row( $buttons ) {
+		$template = $this->get_template( 'device-action-row.html' );
+		$template = $this->replace_all( $template, array(
+			'block_href'           => $buttons['block']['action'],
+			'block_text'           => $buttons['block']['text'],
+			'block_bk_color'       => '#ffffff',
+			'block_border_color'   => '#d63638',
+			'block_text_color'     => '#d63638',
+			'confirm_href'         => $buttons['confirm']['action'],
+			'confirm_text'         => $buttons['confirm']['text'],
+			'confirm_bk_color'     => '#ffffff',
+			'confirm_border_color' => '#6817c5',
+			'confirm_text_color'   => '#6817c5'
+		) );
+
+		return $template;
 	}
 }

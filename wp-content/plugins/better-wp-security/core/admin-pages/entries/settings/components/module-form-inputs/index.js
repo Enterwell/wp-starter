@@ -6,7 +6,7 @@ import { cloneDeep } from 'lodash';
 /**
  * WordPress dependencies
  */
-import { useInstanceId } from '@wordpress/compose';
+import { useInstanceId, useRefEffect } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
 import { useMemo } from '@wordpress/element';
 
@@ -20,15 +20,14 @@ import {
 	StyledPrimarySchemaFormInputs,
 } from './styles';
 
-export default function ModuleFormInputs(
-	{
-		module,
-		schema,
-		uiSchema: uiSchemaRaw,
-		formData,
-		setFormData,
-		highlightedSetting }
-) {
+export default function ModuleFormInputs( {
+	module,
+	schema,
+	uiSchema: uiSchemaRaw,
+	formData,
+	setFormData,
+	highlightedSetting,
+} ) {
 	const id = useInstanceId(
 		ModuleFormInputs,
 		`itsec-configure-${ module.id }`
@@ -61,10 +60,21 @@ export default function ModuleFormInputs(
 		[ module.id ]
 	);
 
+	const ref = useRefEffect( ( form ) => {
+		if ( highlightedSetting && form?.formElement ) {
+			window.requestAnimationFrame( () => {
+				form.formElement.querySelector( '.itsec-highlighted-search-result' )?.scrollIntoView( {
+					behavior: 'smooth',
+				} );
+			} );
+		}
+	}, [ highlightedSetting ] );
+
 	return (
 		<>
 			<StyledErrorList apiError={ apiError } />
 			<StyledPrimarySchemaFormInputs
+				ref={ ref }
 				tagName="div"
 				id={ id }
 				schema={ schema }

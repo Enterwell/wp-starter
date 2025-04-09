@@ -8,7 +8,7 @@ import { __ } from '@wordpress/i18n';
  */
 import { SelectableCard } from '../../../../components';
 import Question from '../question';
-import { StyledIsClientOptions, self, client } from '../styles';
+import { StyledSelectableCardContainer, self, client } from '../styles';
 
 export default function IsClient( { question, onAnswer, isAnswering } ) {
 	return (
@@ -16,7 +16,7 @@ export default function IsClient( { question, onAnswer, isAnswering } ) {
 			prompt={ question.prompt }
 			description={ question.description }
 		>
-			<StyledIsClientOptions>
+			<StyledSelectableCardContainer>
 				<SelectableCard
 					disabled={ isAnswering }
 					onClick={ () => onAnswer( false ) }
@@ -31,7 +31,7 @@ export default function IsClient( { question, onAnswer, isAnswering } ) {
 					direction="vertical"
 					icon={ client }
 				/>
-			</StyledIsClientOptions>
+			</StyledSelectableCardContainer>
 		</Question>
 	);
 }

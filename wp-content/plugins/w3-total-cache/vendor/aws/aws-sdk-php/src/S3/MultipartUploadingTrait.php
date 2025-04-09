@@ -51,10 +51,20 @@ trait MultipartUploadingTrait
 
     protected function handleResult(CommandInterface $command, ResultInterface $result)
     {
-        $this->getState()->markPartAsUploaded($command['PartNumber'], [
-            'PartNumber' => $command['PartNumber'],
-            'ETag'       => $this->extractETag($result),
-        ]);
+        $partData = [];
+        $partData['PartNumber'] = $command['PartNumber'];
+        $partData['ETag'] = $this->extractETag($result);
+        $commandName = $command->getName();
+        $checksumResult = $commandName === 'UploadPart'
+            ? $result
+            : $result[$commandName . 'Result'];
+
+        if (isset($command['ChecksumAlgorithm'])) {
+            $checksumMemberName = 'Checksum' . strtoupper($command['ChecksumAlgorithm']);
+            $partData[$checksumMemberName] = $checksumResult[$checksumMemberName] ?? null;
+        }
+
+        $this->getState()->markPartAsUploaded($command['PartNumber'], $partData);
     }
 
     abstract protected function extractETag(ResultInterface $result);

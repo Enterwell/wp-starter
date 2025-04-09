@@ -55,5 +55,11 @@
     "max_attempts_host": true,
     "max_attempts_user": true,
     "check_period": true
+  },
+  "requirements": {
+    "ip": {
+      "validate": "run",
+      "showMessageIfUnmet": true
+    }
   }
 }

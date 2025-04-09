@@ -94,7 +94,7 @@ class PgCache_Plugin_Admin {
 						'.htaccess'
 					),
 					'cache_dir' => $flush_dir,
-					'expire' => $this->_config->get_integer( 'browsercache.html.lifetime' ),
+					'expire' => $this->_config->get_integer( 'pgcache.lifetime' ),
 					'clean_timelimit' => $this->_config->get_integer( 'timelimit.cache_gc' )
 				) );
 
@@ -175,14 +175,14 @@ class PgCache_Plugin_Admin {
 		if ( !Util_Environment::is_url( $url ) )
 			$url = home_url( $url );
 
-		$urls = array();
+		$urls = array( $url );
 		$response = Util_Http::get( $url );
 
 		if ( !is_wp_error( $response ) && $response['response']['code'] == 200 ) {
 			$url_matches = null;
 			$sitemap_matches = null;
 
-			if ( preg_match_all( '~<sitemap>(.*?)</sitemap>~is', $response['body'], $sitemap_matches ) ) {
+			if ( preg_match_all( '~<!--.*?-->(*SKIP)(*FAIL)|<sitemap>(.*?)</sitemap>~is', $response['body'], $sitemap_matches ) ) {
 				$loc_matches = null;
 
 				foreach ( $sitemap_matches[1] as $sitemap_match ) {
@@ -194,7 +194,7 @@ class PgCache_Plugin_Admin {
 						}
 					}
 				}
-			} elseif ( preg_match_all( '~<url>(.*?)</url>~is', $response['body'], $url_matches ) ) {
+			} elseif ( preg_match_all( '~<!--.*?-->(*SKIP)(*FAIL)|<url>(.*?)</url>~is', $response['body'], $url_matches ) ) {
 				$locs = array();
 				$loc_matches = null;
 				$priority_matches = null;
@@ -218,8 +218,8 @@ class PgCache_Plugin_Admin {
 
 				arsort( $locs );
 
-				$urls = array_keys( $locs );
-			} elseif ( preg_match_all( '~<rss[^>]*>(.*?)</rss>~is', $response['body'], $sitemap_matches ) ) {
+				$urls = array_merge( $urls, array_keys( $locs ) );
+			} elseif ( preg_match_all( '~<!--.*?-->(*SKIP)(*FAIL)|<rss[^>]*>(.*?)</rss>~is', $response['body'], $sitemap_matches ) ) {
 
 				// rss feed format
 				if ( preg_match_all( '~<link[^>]*>(.*?)</link>~is', $response['body'], $url_matches ) ) {
@@ -263,6 +263,10 @@ class PgCache_Plugin_Admin {
 		$new_config = $data['new_config'];
 		$old_config = $data['old_config'];
 
+		if ( $new_config->get_boolean( 'pgcache.cache.feed' ) ) {
+			$new_config->set( 'pgcache.cache.nginx_handle_xml', true );
+		}
+
 		if ( ( !$new_config->get_boolean( 'pgcache.cache.home' ) && $old_config->get_boolean( 'pgcache.cache.home' ) ) ||
 			$new_config->get_boolean( 'pgcache.reject.front_page' ) && !$old_config->get_boolean( 'pgcache.reject.front_page' ) ||
 			!$new_config->get_boolean( 'pgcache.cache.feed' ) && $old_config->get_boolean( 'pgcache.cache.feed' ) ||
@@ -271,6 +275,28 @@ class PgCache_Plugin_Admin {
 			$state = Dispatcher::config_state();
 			$state->set( 'common.show_note.flush_posts_needed', true );
 			$state->save();
+		}
+
+		// Schedule purge if enabled.
+		if ( $new_config->get_boolean( 'pgcache.enabled' ) && $new_config->get_boolean( 'pgcache.wp_cron' ) ) {
+			$new_wp_cron_time      = $new_config->get_integer( 'pgcache.wp_cron_time' );
+			$old_wp_cron_time      = $old_config ? $old_config->get_integer( 'pgcache.wp_cron_time' ) : -1;
+			$new_wp_cron_interval  = $new_config->get_string( 'pgcache.wp_cron_interval' );
+			$old_wp_cron_interval  = $old_config ? $old_config->get_string( 'pgcache.wp_cron_interval' ) : -1;
+			$schedule_needs_update = $new_wp_cron_time !== $old_wp_cron_time || $new_wp_cron_interval !== $old_wp_cron_interval;
+
+			// Clear the scheduled hook if a change in time or interval is detected.
+			if ( wp_next_scheduled( 'w3tc_pgcache_purge_wpcron' ) && $schedule_needs_update ) {
+				wp_clear_scheduled_hook( 'w3tc_pgcache_purge_wpcron' );
+			}
+
+			// Schedule if no existing cron event or settings have changed.
+			if ( ! wp_next_scheduled( 'w3tc_pgcache_purge_wpcron' ) || $schedule_needs_update ) {
+				$scheduled_timestamp_server = Util_Environment::get_cron_schedule_time( $new_wp_cron_time );
+				wp_schedule_event( $scheduled_timestamp_server, $new_wp_cron_interval, 'w3tc_pgcache_purge_wpcron' );
+			}
+		} elseif ( wp_next_scheduled( 'w3tc_pgcache_purge_wpcron' ) ) {
+			wp_clear_scheduled_hook( 'w3tc_pgcache_purge_wpcron' );
 		}
 
 		return $data;
@@ -344,11 +370,9 @@ class PgCache_Plugin_Admin {
 				}
 			}
 		} else {
-			// all request counts data available
-			$pagecache['requests'] = $summary['php']['php_requests_v'];
-			$pagecache['requests_hit'] =
-				isset( $summary['php']['php_requests_pagecache_hit'] ) ?
-				$summary['php']['php_requests_pagecache_hit'] : 0;
+			// all request counts data available.
+			$pagecache['requests']     = isset( $summary['php']['php_requests_v'] ) ? $summary['php']['php_requests_v'] : 0;
+			$pagecache['requests_hit'] = isset( $summary['php']['php_requests_pagecache_hit'] ) ? $summary['php']['php_requests_pagecache_hit'] : 0;
 
 			$requests_time_ms = Util_UsageStatistics::sum( $history,
 				'pagecache_requests_time_10ms' ) * 10;

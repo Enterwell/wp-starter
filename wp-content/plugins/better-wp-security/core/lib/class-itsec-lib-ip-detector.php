@@ -1,7 +1,5 @@
 <?php
 
-require_once( __DIR__ . '/class-itsec-ip-detector.php' );
-
 /**
  * Class ITSEC_Lib_IP_Detector
  *
@@ -11,7 +9,7 @@ class ITSEC_Lib_IP_Detector {
 
 	public static function get_proxy_types() {
 		$types = array(
-			'automatic' => esc_html__( 'Automatic (Insecure)', 'better-wp-security' ),
+			'automatic' => esc_html__( 'Unconfigured', 'better-wp-security' ),
 			'manual'    => esc_html__( 'Manual', 'better-wp-security' ),
 			'disabled'  => esc_html__( 'Disabled', 'better-wp-security' ),
 		);
@@ -38,6 +36,15 @@ class ITSEC_Lib_IP_Detector {
 			'HTTP_CLIENT_IP',
 			'HTTP_X_CLUSTER_CLIENT_IP',
 		) );
+	}
+
+	/**
+	 * Checks if IP detection is properly configured.
+	 *
+	 * @return bool
+	 */
+	public static function is_configured() {
+		return ITSEC_Modules::get_setting( 'global', 'proxy' ) !== 'automatic';
 	}
 
 	/**
@@ -76,22 +83,12 @@ class ITSEC_Lib_IP_Detector {
 		$configured = apply_filters( "itsec_build_ip_detector_for_{$proxy}", false, $detector, $args );
 
 		if ( ! $configured ) {
-			switch ( $proxy ) {
-				case 'disabled':
-					break;
-				case 'manual':
-					$header = empty( $args['header'] ) ? ITSEC_Modules::get_setting( 'global', 'proxy_header' ) : $args['header'];
+			if ( $proxy === 'manual' ) {
+				$header = empty( $args['header'] ) ? ITSEC_Modules::get_setting( 'global', 'proxy_header' ) : $args['header'];
 
-					if ( in_array( $header, $headers, true ) ) {
-						$detector->add_header( $header );
-					}
-					break;
-				case 'automatic':
-				default:
-					foreach ( $headers as $header ) {
-						$detector->add_header( $header );
-					}
-					break;
+				if ( in_array( $header, $headers, true ) ) {
+					$detector->add_header( $header );
+				}
 			}
 		}
 

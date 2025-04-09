@@ -24,8 +24,7 @@
     "manage_group": {
       "type": "multiple",
       "title": "Manage Solid Security",
-      "description": "Allow users to manage Solid Security.",
-      "default": "administrator"
+      "description": "Allow users to manage Solid Security."
     }
   },
   "settings": {
@@ -151,13 +150,13 @@
         "type": "string",
         "default": "automatic",
         "title": "Proxy Detection",
-        "description": "Determine how Solid Security identifies your visitor’s IP addresses. Choose the Security Check Scan to allow Solid Security to accurately identify malicious IPs attacking your website."
+        "description": "Configure the method Solid Security uses to identify the IP address of your site’s visitors and users. Choose “Security Check Scan” to allow Solid Security to automatically configure the correct method. When this setting is configured incorrectly, key firewall features will not work properly.<br>[Read more about IP Detection](https://go.solidwp.com/about-ip-detection)."
       },
       "proxy_header": {
         "type": "string",
         "default": "HTTP_X_FORWARDED_FOR",
         "title": "Proxy Header",
-        "description": "Select the header your proxy server uses to forward the client IP address. If you don’t know the header, you can contact your hosting provider or select the header that shows your true IP address."
+        "description": "Select the HTTP header record used by your proxy server or load balancer to forward the IP address of each site visitor. Contact your hosting provider or proxy service provider (Cloudflare, etc.) to determine the correct setting. When configured correctly, the “Detected IP” shown above should match your current IP address."
       },
       "hide_admin_bar": {
         "type": "boolean",

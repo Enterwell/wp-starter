@@ -3,6 +3,7 @@
 namespace FluentMail\App\Services\Mailer;
 
 use Exception;
+use InvalidArgumentException;
 use FluentMail\App\Models\Logger;
 use FluentMail\Includes\Support\Arr;
 use FluentMail\Includes\Core\Application;
@@ -120,6 +121,7 @@ class BaseHandler
             'to' => $recipients['to'],
             'subject' => $this->phpMailer->Subject,
             'message' => $this->phpMailer->Body,
+            'alt_body' => $this->phpMailer->AltBody,
             'attachments' => $this->phpMailer->getAttachments(),
             'custom_headers' => $customHeaders,
             'headers' => [
@@ -270,7 +272,7 @@ class BaseHandler
 
             $this->processResponse($errorResponse, false);
 
-            throw new \PHPMailer\PHPMailer\Exception($message, $code);
+            throw new \PHPMailer\PHPMailer\Exception($message, $code); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
 
         } else {
             return $this->processResponse($response, true);
@@ -281,15 +283,15 @@ class BaseHandler
     {
         if ($this->shouldBeLogged($status)) {
             $data = [
-                'to' => maybe_serialize($this->attributes['to']),
+                'to' => $this->serialize($this->attributes['to']),
                 'from' => $this->attributes['from'],
                 'subject' => sanitize_text_field($this->attributes['subject']),
                 'body' => $this->attributes['message'],
-                'attachments' => maybe_serialize($this->attributes['attachments']),
+                'attachments' => $this->serialize($this->attributes['attachments']),
                 'status'   => $status ? 'sent' : 'failed',
-                'response' => maybe_serialize($response),
-                'headers'  => maybe_serialize($this->getParam('headers')),
-                'extra'    => maybe_serialize($this->getExtraParams())
+                'response' => $this->serialize($response),
+                'headers'  => $this->serialize($this->getParam('headers')),
+                'extra'    => $this->serialize($this->getExtraParams())
             ];
 
             if($this->existing_row_id) {
@@ -297,14 +299,14 @@ class BaseHandler
                 if($row) {
                     $row['response'] = (array) $row['response'];
                     if($status) {
-                        $row['response']['fallback'] = 'Sent using fallback connection '.$this->attributes['from'];
+                        $row['response']['fallback'] = __('Sent using fallback connection ', 'fluent-smtp') . $this->attributes['from'];
                         $row['response']['fallback_response'] = $response;
                     } else {
-                        $row['response']['fallback'] = 'Tried to send using fallback but failed. '.$this->attributes['from'];
+                        $row['response']['fallback'] = __('Tried to send using fallback but failed. ', 'fluent-smtp') . $this->attributes['from'];
                         $row['response']['fallback_response'] = $response;
                     }
 
-                    $data['response'] = maybe_serialize( $row['response']);
+                    $data['response'] = $this->serialize( $row['response']);
                     $data['retries'] = $row['retries'] + 1;
                     (new Logger())->updateLog($data, ['id' => $row['id']]);
 
@@ -341,6 +343,40 @@ class BaseHandler
         $isLogOn = $miscSettings['log_emails'] == 'yes';
 
         return apply_filters('fluentmail_will_log_email', $isLogOn, $miscSettings, $this);
+    }
+
+    protected function serialize(array $data)
+    {
+        foreach ($data as $key => $item) {
+
+            if (is_array($item)) {
+                $this->serialize($item);
+            }
+
+            if (is_object($item) || is_resource($item)) {
+                throw new InvalidArgumentException(
+                    "Invalid Data: Array cannot contain an object or resource."
+                );
+            }
+
+            if (is_string($item)) {
+                if (is_serialized($item)) {
+                    throw new InvalidArgumentException(
+                        "Invalid Data: Array cannot contain serialized data."
+                    );
+                }
+
+                if (filter_var($item, FILTER_VALIDATE_EMAIL)) {
+                    $data[$key] = sanitize_email($item);
+                } elseif (filter_var($item, FILTER_VALIDATE_URL)) {
+                    $data[$key] = esc_url_raw($item);
+                } else {
+                    $data[$key] = sanitize_text_field($item);
+                }
+            }
+        }
+
+        return serialize($data);
     }
 
     protected function fireWPMailFailedAction($data)
@@ -399,12 +435,12 @@ class BaseHandler
 
     public function addNewSenderEmail($connection, $email)
     {
-        return new \WP_Error('not_implemented', 'Not implemented');
+        return new \WP_Error('not_implemented', __('Not implemented', 'fluent-smtp'));
     }
 
     public function removeSenderEmail($connection, $email)
     {
-        return new \WP_Error('not_implemented', 'Not implemented');
+        return new \WP_Error('not_implemented', __('Not implemented', 'fluent-smtp'));
     }
 
 }

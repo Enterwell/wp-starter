@@ -311,6 +311,9 @@ function w3tc_csp_reference() {
 		height: 460,
 		url: ajaxurl + '?action=w3tc_ajax&_wpnonce=' + w3tc_nonce +
 			'&w3tc_action=browsercache_quick_reference',
+		callback: function(lightbox) {
+			lightbox.resize();
+		}
 	});
 	jQuery('div#overlay,.lightbox-content').on('click', function() {
 		W3tc_Lightbox.close();
@@ -322,7 +325,7 @@ function w3tc_csp_reference() {
  *
  * Prevent enabling Bunny CDN ("bunnycdn" engine) for both CDN and CDNFSD.
  *
- * @since X.X.X
+ * @since 2.6.0
  *
  * @returns null
  */
@@ -438,45 +441,183 @@ function debounce(func){
 	};
 }
 
+/**
+ * Get the S3 bucket region from the selected location to be used for the hostname.
+ *
+ * The default location (us-east-1) returns an empty string.  All other regions return the region with a trailing dot.
+ *
+ * @since 2.7.4
+ *
+ * @param {string} location Bucket location.
+ * @returns string
+ */
+function get_bucket_region( location ) {
+	let region = '';
+
+	switch ( location ) {
+		case 'us-east-1':
+			break;
+		case 'us-east-1-e':
+			region = 'us-east-1.';
+			break;
+		default:
+			region = location + '.';
+			break;
+	}
+
+	return region;
+}
+
+/**
+ * Event callback for changing CDN Cloudfront (push) S3 bucket location.
+ *
+ * @since 2.7.2
+ *
+ * @see get_bucket_region()
+ */
+function cdn_cf_bucket_location() {
+	const id = jQuery( '#cdn_cf_bucket' ).val();
+
+	jQuery( '#cdn-cf-bucket-hostname' )
+		.text( id + '.s3.' + get_bucket_region( jQuery( '#cdn_cf_bucket_location' ).val() ) + 'amazonaws.com' );
+}
+
+/**
+ * Toggle the disk notice for dbcache.
+ *
+ * @since 2.8.0
+ */
+function toggle_dbcache_notice() {
+	jQuery('.dbcache_disk_notice').toggle(jQuery('#dbcache__engine').val() === 'file' && jQuery('#dbcache__enabled').is(':checked'));
+}
+
+/**
+ * Toggle the disk notice for objectcache.
+ *
+ * @since 2.8.0
+ */
+function toggle_objectcache_notice() {
+	jQuery('.objectcache_disk_notice').toggle(jQuery('#objectcache__engine').val() === 'file' && jQuery('#objectcache__enabled').is(':checked'));
+}
+
+/**
+ * Toggle the disk notice for fragmentcache.
+ *
+ * @since 2.8.0
+ */
+function toggle_fragmentcache_notice() {
+	jQuery('.fragmentcache_disk_notice').toggle(jQuery('#fragmentcache___engine').val() === 'file');
+}
+
 // On document ready.
 jQuery(function() {
 	// Global vars.
 	var $cdn_enabled = jQuery('#cdn__enabled'),
 		$cdn_engine = jQuery('#cdn__engine');
 
+	// Database cache disk usage warning.
+	toggle_dbcache_notice();
+	jQuery('#dbcache__enabled').change(toggle_dbcache_notice);
+	jQuery('#dbcache__engine').change(toggle_dbcache_notice);
+
+	// Object cache disk usage warning.
+	toggle_objectcache_notice();
+	jQuery('#objectcache__enabled').change(toggle_objectcache_notice);
+	jQuery('#objectcache__engine').change(toggle_objectcache_notice);
+
+	// Fragment cache disk usage warning.
+	toggle_fragmentcache_notice();
+	jQuery('#fragmentcache___engine').change(toggle_fragmentcache_notice);
+
 	// General page.
 	jQuery('.w3tc_read_technical_info').on('click', function() {
 		jQuery('.w3tc_technical_info').toggle();
 	});
 
-	jQuery('#plugin_license_key_verify').on('click', function() {
-		jQuery('.w3tc_license_verification').html("Checking...");
+	// General Settings Tab actions.
+	jQuery( document ).on( 'click', '.performance_page_w3tc_general .nav-tab', function(){
+   		const $tab         = jQuery( this ),
+		$nav_tab_wrapper = $tab.closest( ".nav-tab-wrapper" )
+    	tab_type         = $tab.attr( "data-tab-type" ),
+    	$inside          = $tab.closest( ".postbox-tabs" ).find( ".inside" );
 
-		var license_key = jQuery('#plugin_license_key').val();
+		// Highlight the selected tab.
+		$nav_tab_wrapper.find( "a" ).removeClass( "nav-tab-active" );
+		$tab.addClass( "nav-tab-active" );
 
-		if (!license_key) {
-			jQuery('.w3tc_license_verification').html('Please enter an license key and try again.');
+		// If the tab is a link, don't do anything.
+		if ( $tab.is('[href]') ) {
 			return;
 		}
-		var params = {
-			action: 'w3tc_verify_plugin_license_key',
-			license_key: license_key
-		};
 
-		jQuery.get(ajaxurl, params, function(data) {
-			if (w3tc_starts_with(data + '.', 'inactive.expired.')) {
-				jQuery('.w3tc_license_verification').html('The license key has expired. Please renew it.');
-			} else if (w3tc_starts_with(data + '.', 'active.')) {
-				jQuery('.w3tc_license_verification').html('License key is correct.');
-			} else if (w3tc_starts_with(data + '.', 'inactive.by_rooturi.activations_limit_not_reached.')) {
-				jQuery('.w3tc_license_verification').html('License key is correct and can be activated now.');
-			} else if (w3tc_starts_with(data + '.', 'inactive.by_rooturi.')) {
-				jQuery('.w3tc_license_verification').html('License key is correct but already in use on another site. See the FAQ for how to enable Pro version in development mode.');
-			} else {
-				jQuery('.w3tc_license_verification').html('The license key is not valid. Please check it and try again.');
+		// Start off by hiding everything.
+		$inside.children().hide();
+
+
+		if (! tab_type) {
+        	// Show children without a data-tab-type attribute.
+        	$inside.children(':not([data-tab-type])').show(); // Show those without data-tab-type
+    	} else {
+			// Show children with the matching data-tab-type attribute.
+			$inside.children('[data-tab-type="' + tab_type + '"]').show();
+    	}
+	} );
+
+	// Tutorial page forum links via API.
+	jQuery(document).on( 'click', '[data-tab-type="help"]', function() {
+		const $helpTab        = jQuery(this),
+		$inside               = $helpTab.closest('.postbox-tabs').find('.inside');
+		$forumTopicsContainer = $inside.find('.help-forum-topics');
+		isLoaded              = $forumTopicsContainer.attr('data-loaded') === '1';
+		tabId                 = $forumTopicsContainer.attr('data-tab-id');
+
+		// Check if topics are already loaded
+		if (isLoaded) {
+			return;
+		}
+
+		// Fetch topics from the API
+		jQuery.ajax({
+			url: ajaxurl,
+			method: 'POST',
+			data: {
+				action: 'w3tc_forums_api',
+				_wpnonce: w3tc_nonce[0],
+				tabId: tabId
+			},
+			success: function(data) {
+				// Check for timeout
+				if ( data.errors && data.errors.http_request_failed ) {
+					$forumTopicsContainer.html('HTTP Error:', data.errors.http_request_failed);
+				}
+				// Check for empty results
+				else if (Array.isArray(data) && data.length === 0) {
+					$forumTopicsContainer.html('<p>No forum topics found.</p>');
+				} else {
+					// Create a list of topics
+					const $ul       = jQuery('<ul></ul>');
+					const forumData = JSON.parse(data.body);
+					jQuery.each(forumData, function(index, topic) {
+						const $li = jQuery('<li></li>');
+						const $link = jQuery('<a></a>').addClass('w3tc-control-after').attr('href', topic.link).attr('target', '_blank'); // Open in new tab
+
+						// Decode HTML entities in topic.title
+						const decodedTitle = jQuery('<textarea />').html(topic.title).text();
+						$link.text(decodedTitle);
+
+						const $icon = jQuery('<span></span>').addClass('dashicons dashicons-external');
+						$link.append($icon);
+						$li.append($link);
+						$ul.append($li);
+					});
+					$forumTopicsContainer.html($ul);
+				}
+				// Mark topics as loaded to prevent duplicate requests
+				$forumTopicsContainer.attr('data-loaded', '1');
+			},
+			error: function() {
+				$forumTopicsContainer.html('<p>Error loading topics. Please try again later.</p>');
 			}
-		}).fail(function() {
-			jQuery('.w3tc_license_verification').html('Check failed');
 		});
 	});
 
@@ -501,14 +642,6 @@ jQuery(function() {
 	w3tc_input_enable('#pgcache_reject_roles input[type=checkbox]', jQuery('#pgcache__reject__logged_roles:checked').length);
 	jQuery('#pgcache__reject__logged_roles').on('click', function() {
 		w3tc_input_enable('#pgcache_reject_roles input[type=checkbox]', jQuery('#pgcache__reject__logged_roles:checked').length);
-	});
-
-	if (jQuery('#pgcache__cache__nginx_handle_xml').is('*'))
-		jQuery('#pgcache__cache__nginx_handle_xml').attr('checked', jQuery('#pgcache__cache__feed').is(':checked'));
-
-	jQuery('#pgcache__cache__feed').on('change', function() {
-		if (jQuery('#pgcache__cache__nginx_handle_xml').is('*'))
-			jQuery('#pgcache__cache__nginx_handle_xml').attr('checked', this.checked);
 	});
 
 	// Browsercache page.
@@ -873,6 +1006,19 @@ jQuery(function() {
 				}
 				break;
 
+			case 'azuremi':
+				jQuery.extend(params, {
+					engine: 'azuremi',
+					'config[user]': jQuery('#cdn_azuremi_user').val(),
+					'config[client_id]': jQuery('#cdn_azuremi_clientid').val(),
+					'config[container]': jQuery('#cdn_azuremi_container').val()
+				});
+
+				if (cnames.length) {
+					params['config[cname][]'] = cnames;
+				}
+				break;
+
 			case 'mirror':
 				jQuery.extend(params, {
 					engine: 'mirror'
@@ -1058,6 +1204,19 @@ jQuery(function() {
 					'config[user]': jQuery('#cdn_azure_user').val(),
 					'config[key]': jQuery('#cdn_azure_key').val(),
 					'config[container]': jQuery('#cdn_azure_container').val()
+				});
+
+				if (cnames.length) {
+					params['config[cname][]'] = cnames;
+				}
+				break;
+
+			case 'azuremi':
+				jQuery.extend(params, {
+					engine: 'azuremi',
+					'config[user]': jQuery('#cdn_azuremi_user').val(),
+					'config[clientid]': jQuery('#cdn_azuremi_clientid').val(),
+					'config[container]': jQuery('#cdn_azuremi_container').val()
 				});
 
 				if (cnames.length) {
@@ -1329,6 +1488,46 @@ jQuery(function() {
 		jQuery('.' + target_class).slideToggle();
 	});
 
+	// Test score block hover toggle.
+	jQuery('.w3tc-test-container-intro').click(
+		function() {
+       		var $testContainer = jQuery(this).next('.w3tc-test-container'),
+			    $score = jQuery(this).find('.w3tc-test-score');
+
+			if ($score.css("visibility") === "hidden") {
+				$score.css("visibility", "visible").fadeTo(300, 1); // Fade in score element
+			} else {
+				$score.fadeTo(300, 0, function() { // Fade out score element
+					jQuery(this).css("visibility", "hidden");
+				});
+			}
+
+			jQuery(this).find('.dashicons').toggleClass('dashicons-arrow-down-alt2 dashicons-arrow-up-alt2');
+
+			if ($testContainer.is(':visible')) {
+				$testContainer.stop(true, true).animate({
+					height: 'toggle',
+					opacity: 'toggle',
+					marginTop: 'toggle',
+					marginBottom: 'toggle',
+					paddingTop: 'toggle',
+					paddingBottom: 'toggle'
+				}, 300);
+			} else {
+				$testContainer.stop(true, true).css({
+					display: 'flex',
+					opacity: 0,
+					marginTop: 0,
+					marginBottom: 0
+				}).animate({
+					opacity: 1,
+					marginTop: '15px',
+					marginBottom: '15px'
+				}, 300);
+			}
+    	}
+	);
+
 	// Check for unsaved changes.
 	jQuery('#w3tc input,#w3tc select,#w3tc textarea').on('change', function() {
 		var ignore = false;
@@ -1356,6 +1555,62 @@ jQuery(function() {
 		var i = jQuery('.w3tchelp_content').first();
 		w3tc_load_faq_section(i);
 	});
+
+	// wp cron settings.
+	jQuery(document).on(
+		'change',
+		'#allcache__wp_cron',
+		function() {
+			let $enabled = jQuery(this).prop('checked');
+
+			jQuery('#allcache__wp_cron_time').prop('disabled', ! $enabled);
+        	jQuery('#allcache__wp_cron_interval').prop('disabled', ! $enabled);
+		}
+	);
+
+	jQuery(document).on(
+		'change',
+		'#pgcache__wp_cron',
+		function() {
+			let $enabled = jQuery(this).prop('checked');
+
+			jQuery('#pgcache__wp_cron_time').prop('disabled', ! $enabled);
+        	jQuery('#pgcache__wp_cron_interval').prop('disabled', ! $enabled);
+		}
+	);
+
+	jQuery(document).on(
+		'change',
+		'#dbcache__wp_cron',
+		function() {
+			let $enabled = jQuery(this).prop('checked');
+
+			jQuery('#dbcache__wp_cron_time').prop('disabled', ! $enabled);
+        	jQuery('#dbcache__wp_cron_interval').prop('disabled', ! $enabled);
+		}
+	);
+
+	jQuery(document).on(
+		'change',
+		'#minify__wp_cron',
+		function() {
+			let $enabled = jQuery(this).prop('checked');
+
+			jQuery('#minify__wp_cron_time').prop('disabled', ! $enabled);
+        	jQuery('#minify__wp_cron_interval').prop('disabled', ! $enabled);
+		}
+	);
+
+	jQuery(document).on(
+		'change',
+		'#objectcache__wp_cron',
+		function() {
+			let $enabled = jQuery(this).prop('checked');
+
+			jQuery('#objectcache__wp_cron_time').prop('disabled', ! $enabled);
+        	jQuery('#objectcache__wp_cron_interval').prop('disabled', ! $enabled);
+		}
+	);
 
 	var w3tchelp_loaded = {};
 
@@ -1424,6 +1679,17 @@ jQuery(function() {
 		jQuery(this).next().toggle();
 	});
 
+	// Footer subscribe hide response.
+	jQuery('#mc-embedded-subscribe').on('click', function(e) {
+		// Hide response after 20 seconds.
+		setTimeout(
+			function(){
+				jQuery('#w3tc-footer .response').hide();
+			},
+			20000
+		);
+	});
+
 	// Bootstrap dropdown hide on click away.
 	jQuery(document).mouseup(function(e) {
 		var dropdowns = jQuery('.dropdown-toggle');
@@ -1437,9 +1703,9 @@ jQuery(function() {
 		if (window.w3tc_ga) {
 			w3tc_ga(
 				'event',
+				'link',
 				{
 					eventCategory: 'w3tc_topnav_bar',
-					eventAction: 'link',
 					eventLabel: jQuery(this).text()
 				}
 			);
@@ -1451,9 +1717,9 @@ jQuery(function() {
 		if (window.w3tc_ga) {
 			w3tc_ga(
 				'event',
+				'anchor',
 				{
 					eventCategory: 'w3tc_options_menu',
-					eventAction: 'anchor',
 					eventLabel: jQuery(this).text()
 				}
 			);
@@ -1465,9 +1731,9 @@ jQuery(function() {
 		if (window.w3tc_ga) {
 			w3tc_ga(
 				'event',
+				'button',
 				{
 					eventCategory: 'w3tc_form_bar',
-					eventAction: 'button',
 					eventLabel: jQuery(this).text()
 				}
 			);
@@ -1479,9 +1745,9 @@ jQuery(function() {
 		if (window.w3tc_ga) {
 			w3tc_ga(
 				'event',
+				'link',
 				{
 					eventCategory: 'w3tc_footer',
-					eventAction: 'link',
 					eventLabel: jQuery(this).text()
 				}
 			);
@@ -1493,9 +1759,9 @@ jQuery(function() {
 		if (window.w3tc_ga) {
 			w3tc_ga(
 				'event',
+				'link',
 				{
 					eventCategory: 'w3tc_general_advanced_tab',
-					eventAction: 'link',
 					eventLabel: jQuery(this).attr('gatitle')
 				}
 			);
@@ -1507,9 +1773,9 @@ jQuery(function() {
 		if (window.w3tc_ga) {
 			w3tc_ga(
 				'event',
+				'link',
 				{
 					eventCategory: 'w3tc_general_extra_link_tab',
-					eventAction: 'link',
 					eventLabel: jQuery(this).attr('gatitle')
 				}
 			);
@@ -1574,6 +1840,7 @@ jQuery(function() {
 				);
 			}
 		});
+
 		jQuery('body').on('click', 'input[type="submit"]', function() {
 			var name = jQuery(this).attr('name');
 			var id = jQuery(this).attr('id');
@@ -1623,6 +1890,20 @@ jQuery(function() {
 				);
 			}
 		});
+
+		// Log if the admin notice containing the renew license button is present.
+		if (jQuery('.button-renew-plugin').length > 0) {
+			if (window.w3tc_ga) {
+				w3tc_ga(
+					'event',
+					'w3tc_error',
+					{
+						eventCategory: 'w3tc_renew_notice',
+						eventLabel: 'Renew Now'
+					}
+				);
+			}
+		}
 	}
 
 	jQuery("a").on('click', function(event) {
@@ -1642,36 +1923,50 @@ jQuery(function() {
 	});
 
 	var hash = window.location.hash;
-	if (hash !== "") {
-		// Start at top of page rather than instantly loading at the anchor point.
-		window.scrollTo(0, 0);
-		var wpadminbar_height = (jQuery(window).width() > 600 && jQuery('#wpadminbar').length) ? jQuery('#wpadminbar').outerHeight() : 0,
-			nav_bar_height = (jQuery('#w3tc-top-nav-bar').length) ? jQuery('#w3tc-top-nav-bar').outerHeight() : 0,
-			options_menu_height = (jQuery('#w3tc > #w3tc-options-menu').length) ? jQuery('#w3tc > #w3tc-options-menu').outerHeight() : 0,
-			form_bar_height = (jQuery('.w3tc_form_bar').length) ? jQuery('.w3tc_form_bar').outerHeight() : 0;
-		// Scroll to taget after .5 seconds.
-		setTimeout(
-			function() {
-				jQuery('html, body').animate({
-						scrollTop: jQuery(hash.replace(/\./g, '\\.')).offset().top - wpadminbar_height - nav_bar_height - options_menu_height - form_bar_height
-					},
-					600
-				);
-			},
-			500
-		);
+	if (hash) {
+		var $element = jQuery('#' + hash.substring(1));
+        if ($element.length) {
+			// Start at top of page rather than instantly loading at the anchor point.
+			window.scrollTo(0, 0);
+			var wpadminbar_height = (jQuery(window).width() > 600 && jQuery('#wpadminbar').length) ? jQuery('#wpadminbar').outerHeight() : 0,
+				nav_bar_height = (jQuery('#w3tc-top-nav-bar').length) ? jQuery('#w3tc-top-nav-bar').outerHeight() : 0,
+				options_menu_height = (jQuery('#w3tc > #w3tc-options-menu').length) ? jQuery('#w3tc > #w3tc-options-menu').outerHeight() : 0,
+				form_bar_height = (jQuery('.w3tc_form_bar').length) ? jQuery('.w3tc_form_bar').outerHeight() : 0;
+			// Scroll to taget after .5 seconds.
+			setTimeout(
+				function() {
+					jQuery('html, body').animate({
+							scrollTop: $element.offset().top - wpadminbar_height - nav_bar_height - options_menu_height - form_bar_height
+						},
+						600
+					);
+				},
+				500
+			);
+		}
 	}
 
 	jQuery(window).resize(
 		debounce(
 			function() {
-				console.log('resize');
 				set_sticky_bar_positions();
 				set_footer_position();
 			}
 		)
 	);
 
+	// Target notices without the 'inline' class.
+    jQuery('.notice:not(.inline), .updated:not(.inline), .update-nag:not(.inline), .error:not(.inline), .info:not(.inline), .warning:not(.inline)').each(function() {
+        // Prevent the notice from being moved.
+        jQuery(this).addClass('inline');
+    });
+
+	// Update the CDN Cloudfront (push) S3 bucket location hostname.
+	jQuery( 'body' ).on( 'change', '#cdn_cf_bucket_location', cdn_cf_bucket_location );
+	jQuery( 'body' ).on( 'keyup', '#cdn_cf_bucket', cdn_cf_bucket_location );
+
+	// Run functions after the page is loaded.
+	cdn_cf_bucket_location();
 	set_sticky_bar_positions();
 	set_footer_position();
 });

@@ -16,6 +16,7 @@ return static function ( Container $c ) {
 
 	$c[ Firewall::class ] = static function ( Container $c ) {
 		return new Firewall(
+			$c[ Rules\Repository::class ],
 			$c[ Processor_Factory::class ],
 			$c[ Ingestor::class ]
 		);

@@ -21,7 +21,7 @@ class GuzzleHandler
     /**
      * @param ClientInterface $client
      */
-    public function __construct(ClientInterface $client = null)
+    public function __construct(?ClientInterface $client = null)
     {
         $this->client = $client ?: new Client();
     }
@@ -52,12 +52,6 @@ class GuzzleHandler
                     if (
                         ($e instanceof RequestException)
                         && $e->getResponse()
-                    ) {
-                        $error['response'] = $e->getResponse();
-                    } else if (
-                        class_exists('Error')
-                        && $e instanceof \Error
-                        && $e ->getResponse()
                     ) {
                         $error['response'] = $e->getResponse();
                     }

@@ -143,7 +143,7 @@ export default function ModuleCard( { module, isHighlighted, highlightedSetting,
 			) }
 			{ validated.hasErrors() && (
 				<StyledModulePanelNotices>
-					<ErrorList errors={ validated.getAllErrorMessages() } />
+					<ErrorList title={ __( 'Feature not available', 'better-wp-security' ) } errors={ validated.getAllErrorMessages() } />
 				</StyledModulePanelNotices>
 			) }
 		</StyledModulePanel>

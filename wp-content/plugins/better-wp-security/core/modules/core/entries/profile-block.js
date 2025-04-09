@@ -9,7 +9,7 @@ import { registerBlockType } from '@wordpress/blocks';
 import edit from './profile-block/edit';
 import metadata from './profile-block/block.json';
 
-registerBlockType( metadata.name, {
+registerBlockType( metadata, {
 	icon: {
 		foreground: '#6817c5',
 		src: <svg width="10" height="12" viewBox="0 0 10 12" fill="none" xmlns="http://www.w3.org/2000/svg">

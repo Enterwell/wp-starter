@@ -529,7 +529,6 @@ if ( ! class_exists( 'ITSEC_Core' ) ) {
 			ITSEC_Modules::register_module( 'wordpress-salts', "$path/modules/salts" );
 			ITSEC_Modules::register_module( 'wordpress-tweaks', "$path/modules/wordpress-tweaks" );
 			ITSEC_Modules::register_module( 'security-check-pro', "$path/modules/security-check-pro" );
-			ITSEC_Modules::register_module( 'sync-connect', "$path/modules/sync-connect" );
 			ITSEC_Modules::register_module( 'site-scanner', "$path/modules/site-scanner" );
 			ITSEC_Modules::register_module( 'malware-scheduling', "$path/modules/malware-scheduling" );
 			ITSEC_Modules::register_module( 'hide-backend', "$path/modules/hide-backend" );

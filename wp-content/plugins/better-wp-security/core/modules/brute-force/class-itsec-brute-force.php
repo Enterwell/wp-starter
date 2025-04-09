@@ -11,7 +11,7 @@ class ITSEC_Brute_Force {
 		$this->settings = ITSEC_Modules::get_settings( 'brute-force' );
 
 		add_filter( 'authenticate', array( $this, 'authenticate' ), 10000, 2 ); // Set a very late priority so that we run after actual authentication takes place.
-		add_filter( 'itsec_lockout_modules', array( $this, 'itsec_lockout_modules' ) );
+		add_filter( 'itsec_lockout_modules', array( $this, 'itsec_lockout_modules' ), 10, 2 );
 		add_filter( 'jetpack_get_default_modules', array( $this, 'jetpack_get_default_modules' ) ); //disable jetpack protect via Geoge Stephanis
 
 	}
@@ -83,21 +83,12 @@ class ITSEC_Brute_Force {
 
 	}
 
-	/**
-	 * Register Brute Force for lockout
-	 *
-	 * @since 4.0
-	 *
-	 * @param array $lockout_modules array of lockout modules
-	 *
-	 * @return array                   array of lockout modules
-	 */
-	public function itsec_lockout_modules( $lockout_modules ) {
+	public function itsec_lockout_modules( $lockout_modules, $translate ) {
 
 		$lockout_modules['brute_force'] = array(
 			'type'   => 'brute_force',
-			'reason' => __( 'Too many bad login attempts', 'better-wp-security' ),
-			'label'  => __( 'Brute Force', 'better-wp-security' ),
+			'reason' => $translate ? __( 'Too many bad login attempts', 'better-wp-security' ) : 'Too many bad login attempts',
+			'label'  => $translate ? __( 'Brute Force', 'better-wp-security' ) : 'Brute Force',
 			'host'   => $this->settings['max_attempts_host'],
 			'user'   => $this->settings['max_attempts_user'],
 			'period' => $this->settings['check_period'],
@@ -105,8 +96,8 @@ class ITSEC_Brute_Force {
 
 		$lockout_modules['brute_force_admin_user'] = array(
 			'type'   => 'brute_force_admin_user',
-			'reason' => __( 'User tried to login as "admin."', 'better-wp-security' ),
-			'label'  => __( 'Brute Force "admin" Username', 'better-wp-security' ),
+			'reason' => $translate ? __( 'User tried to login as "admin."', 'better-wp-security' ) : 'User tried to login as "admin."',
+			'label'  => $translate ? __( 'Brute Force "admin" Username', 'better-wp-security' ) : 'Brute Force "admin" Username',
 			'host'   => 1,
 			'user'   => 1,
 			'period' => $this->settings['check_period']

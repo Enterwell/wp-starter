@@ -54,6 +54,17 @@ export const getQueryResults = createSelector(
 );
 
 /**
+ * Checks if the given query has been made yet.
+ *
+ * @param {Object} state   State object.
+ * @param {string} queryId Query id.
+ * @return {boolean} True if the query has completed.
+ */
+export function hasQueried( state, queryId ) {
+	return !! state.queries[ queryId ];
+}
+
+/**
  * Gets the link header from a query result.
  *
  * @param {Object} state   State object.

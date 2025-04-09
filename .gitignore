@@ -29,3 +29,5 @@ wp-content/advanced-cache.php
 wp-content/w3tc-config
 wp-content/cache
 wp-content/uploads
+wp-content/upgrade
+wp-content/upgrade-temp-backup

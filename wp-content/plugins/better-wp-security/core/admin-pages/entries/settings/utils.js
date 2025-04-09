@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useHistory, useLocation, useParams, useRouteMatch } from 'react-router-dom';
+import { useHistory, useLocation, useParams, useRouteMatch, Link } from 'react-router-dom';
 import { createLocation } from 'history';
 import { pickBy, get, set, isEmpty, every } from 'lodash';
 import classnames from 'classnames';
@@ -11,8 +11,10 @@ import classnames from 'classnames';
  */
 import {
 	createContext,
+	createInterpolateElement,
 	useCallback,
 	useContext,
+	useMemo,
 } from '@wordpress/element';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __, _n, sprintf } from '@wordpress/i18n';
@@ -20,7 +22,7 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { WPError } from '@ithemes/security-utils';
+import { useGlobalNavigationUrl, WPError } from '@ithemes/security-utils';
 import {
 	CORE_STORE_NAME,
 	MODULES_STORE_NAME,
@@ -166,14 +168,19 @@ export function getModuleTypes() {
 }
 
 export function useModuleRequirementsValidator() {
-	const { featureFlags, siteInfo, requirementsInfo } = useSelect(
+	const { featureFlags, siteInfo, requirementsInfo, proxy } = useSelect(
 		( select ) => ( {
 			featureFlags: select( CORE_STORE_NAME ).getFeatureFlags(),
 			siteInfo: select( CORE_STORE_NAME ).getSiteInfo(),
 			requirementsInfo: select( CORE_STORE_NAME ).getRequirementsInfo(),
+			proxy: select( MODULES_STORE_NAME ).getEditedSetting( 'global', 'proxy' ),
 		} ),
 		[]
 	);
+
+	const { root } = useParams();
+	const proxyPath = root && `/${ root }/global#proxy`;
+	const proxyUrl = useGlobalNavigationUrl( 'settings', '/settings/global' ) + '#proxy';
 
 	const isVersionAtLeast = ( version, atLeast ) => {
 		return version.localeCompare( atLeast, undefined, { numeric: true, sensitivity: 'base' } ) >= 0;
@@ -269,9 +276,27 @@ export function useModuleRequirementsValidator() {
 				}
 			}
 
+			if ( module.requirements.ip && isForMode( module.requirements.ip ) ) {
+				if ( proxy === 'automatic' ) {
+					error.add(
+						'ip',
+						createInterpolateElement(
+							__( 'You must select an IP Detection method in <a>Global Settings</a>. <help>Learn more</help>.', 'better-wp-security' ),
+							{
+								// eslint-disable-next-line jsx-a11y/anchor-has-content
+								a: proxyPath ? <Link to={ proxyPath } /> : <a href={ proxyUrl } />,
+								// eslint-disable-next-line jsx-a11y/anchor-has-content
+								help: <a href="https://go.solidwp.com/firewall-features-not-available" />,
+							}
+						),
+						module.requirements.ip
+					);
+				}
+			}
+
 			return error;
 		},
-		[ featureFlags, siteInfo, requirementsInfo ]
+		[ featureFlags, siteInfo, requirementsInfo, proxy, proxyPath, proxyUrl ]
 	);
 }
 
@@ -289,4 +314,54 @@ export function appendClassNameAtPath( object, path, className ) {
 	set( object, path, classnames( get( object, path ), className ) );
 
 	return object;
+}
+
+export function useHighlightedVulnerabilities( issues, count ) {
+	const getSeverity = ( score ) => {
+		if ( score < 3 ) {
+			return 'low';
+		}
+		if ( score < 7 ) {
+			return 'medium';
+		}
+		if ( score < 9 ) {
+			return 'high';
+		}
+		return 'critical';
+	};
+
+	return useMemo( () => {
+		const grouped = {};
+
+		for ( const issue of issues ) {
+			const key = `${ issue.software.type.slug }:${ issue.software.slug }`;
+
+			if ( ! grouped[ key ] ) {
+				grouped[ key ] = {
+					software: issue.software,
+					critical: 0,
+					high: 0,
+					medium: 0,
+					low: 0,
+					maxScore: 0,
+				};
+			}
+
+			grouped[ key ][ getSeverity( issue.details.score ) ]++;
+
+			if ( issue.details.score > grouped[ key ].maxScore ) {
+				grouped[ key ].maxScore = issue.details.score;
+			}
+		}
+
+		const sorted = Object.values( grouped );
+		sorted.sort( ( a, b ) => b.maxScore - a.maxScore );
+		const show = sorted.slice( 0, count );
+		const remaining = sorted.slice( count ).reduce( ( acc, software ) => acc + software.critical + software.high + software.medium + software.low, 0 );
+
+		return {
+			show,
+			remaining,
+		};
+	}, [ issues, count ] );
 }

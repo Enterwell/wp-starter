@@ -111,7 +111,7 @@ class ITSEC_Notification_Center_Validator extends Config_Validator {
 				if ( $contact_errors ) {
 					$this->add_error( new WP_Error(
 						'itsec-validator-notification-center-invalid-type-notifications[user_list]-invalid-contacts',
-						wp_sprintf( esc_html__( 'Unknown contacts for %1$s, %2$l.', 'better-wp-security' ), $strings['label'], $contact_errors )
+						wp_sprintf( esc_html__( 'Unknown contacts for %1$s, %2$l.', 'better-wp-security' ), $strings['label'] ?? $notification, $contact_errors )
 					) );
 
 					if ( ITSEC_Core::is_interactive() ) {
@@ -124,7 +124,7 @@ class ITSEC_Notification_Center_Validator extends Config_Validator {
 				} elseif ( ! in_array( $settings['recipient_type'], array( 'default', 'custom' ), true ) ) {
 					$this->add_error( new WP_Error(
 						'itsec-validator-notification-center-invalid-type-notifications[recipient_type]-array',
-						wp_sprintf( esc_html__( 'Unknown recipient type for %s.', 'better-wp-security' ), $strings['label'] )
+						wp_sprintf( esc_html__( 'Unknown recipient type for %s.', 'better-wp-security' ), $strings['label'] ?? $notification )
 					) );
 
 					if ( ITSEC_Core::is_interactive() ) {
@@ -206,7 +206,7 @@ class ITSEC_Notification_Center_Validator extends Config_Validator {
 			} elseif ( ! empty( $settings['subject'] ) ) {
 				$subject = trim( wp_strip_all_tags( $settings['subject'], true ) );
 
-				if ( $subject === $strings['subject'] ) {
+				if ( $subject === ( $strings['subject'] ?? '' ) ) {
 					$subject = null;
 				}
 
@@ -222,7 +222,7 @@ class ITSEC_Notification_Center_Validator extends Config_Validator {
 					$this->check_unknown_tags( $message, $config['tags'], $strings['label'] );
 				}
 
-				if ( $message === $strings['message'] ) {
+				if ( $message === ( $strings['message'] ?? '' ) ) {
 					$message = null;
 				}
 

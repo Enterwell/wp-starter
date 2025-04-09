@@ -78,7 +78,7 @@ class Converter
             ];
             $commonSettings = wp_parse_args($commonSettings, $localSettings);
             unset($commonSettings['force_from_email']);
-        } else if ($mailer == 'sendinblue' || $mailer == 'sendgrid' || $mailer == 'pepipostapi') {
+        } else if ($mailer == 'sendinblue' || $mailer == 'sendgrid' || $mailer == 'pepipostapi' || $mailer == 'smtp2go') {
             $local = Arr::get($wpMailSettings, $mailer, []);
             $localSettings = [
                 'api_key'   => $this->maybeFromWPMailDefined($mailer, 'api_key', Arr::get($local, 'api_key')),
@@ -105,10 +105,10 @@ class Converter
         }
 
         return [
-            'title'       => 'Import data from your current plugin (WP Mail SMTP)',
-            'subtitle'    => 'We have detected other SMTP plugin\'s settings available on your site. Click bellow to pre-populate the values',
+            'title'       => __('Import data from your current plugin (WP Mail SMTP)', 'fluent-smtp'),
+            'subtitle'    => __('We have detected other SMTP plugin\'s settings available on your site. Click bellow to pre-populate the values', 'fluent-smtp'),
             'settings'    => $commonSettings,
-            'button_text' => 'Import From WP Mail SMTP'
+            'button_text' => __('Import From WP Mail SMTP', 'fluent-smtp')
         ];
     }
 
@@ -397,11 +397,11 @@ class Converter
         ];
 
         return [
-            'title'       => 'Import data from your current plugin (Easy WP SMTP)',
-            'subtitle'    => 'We have detected other SMTP plugin\'s settings available on your site. Click bellow to pre-populate the values',
+            'title'       => __('Import data from your current plugin (Easy WP SMTP)', 'fluent-smtp'),
+            'subtitle'    => __('We have detected other SMTP plugin\'s settings available on your site. Click bellow to pre-populate the values', 'fluent-smtp'),
             'driver'      => 'smtp',
             'settings'    => $commonSettings,
-            'button_text' => 'Import From Easy WP SMTP'
+            'button_text' => __('Import From Easy WP SMTP', 'fluent-smtp')
         ];
 
     }

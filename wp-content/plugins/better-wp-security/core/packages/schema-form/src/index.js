@@ -9,6 +9,7 @@ import { Link } from 'react-router-dom';
 import { Card, CardBody, Flex, FlexItem } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useInstanceId } from '@wordpress/compose';
+import { forwardRef } from '@wordpress/element';
 
 /**
  * iThemes dependencies
@@ -89,10 +90,11 @@ export function PrimarySchemaForm( {
 	);
 }
 
-export function PrimarySchemaFormInputs( { className, ...rest } ) {
+export const PrimarySchemaFormInputs = forwardRef( ( { className, ...rest }, ref ) => {
 	return (
 		<StyledSchemaForm
 			{ ...rest }
+			ref={ ref }
 			className={ className }
 			additionalMetaSchemas={ [
 				require( 'ajv/lib/refs/json-schema-draft-04.json' ),
@@ -101,7 +103,7 @@ export function PrimarySchemaFormInputs( { className, ...rest } ) {
 			<></>
 		</StyledSchemaForm>
 	);
-}
+} );
 
 export function PrimarySchemaFormActions( {
 	id,

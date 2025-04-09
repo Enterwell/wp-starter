@@ -107,6 +107,7 @@ final class ITSEC_Notification_Center {
 	 */
 	public function clear_notifications_cache() {
 		$this->notifications = null;
+		$this->strings       = [];
 	}
 
 	/**
@@ -149,6 +150,50 @@ final class ITSEC_Notification_Center {
 		$settings = $this->get_notification_settings( $notification );
 
 		return ! empty( $settings['enabled'] );
+	}
+
+	/**
+	 * Enables a notification.
+	 *
+	 * @param string $notification
+	 *
+	 * @return bool
+	 */
+	public function enable_notification( string $notification ): bool {
+		return $this->set_notification_status( $notification, true );
+	}
+
+	/**
+	 * Disables a notification.
+	 *
+	 * @param string $notification
+	 *
+	 * @return bool
+	 */
+	public function disable_notification( string $notification ): bool {
+		return $this->set_notification_status( $notification, false );
+	}
+
+	private function set_notification_status( string $notification, bool $status ): bool {
+		$config = $this->get_notification( $notification );
+
+		if ( ! $config ) {
+			return false;
+		}
+
+		if ( empty( $config['optional'] ) ) {
+			return false;
+		}
+
+		$settings = ITSEC_Modules::get_setting( 'notification-center', 'notifications' );
+
+		$settings[ $notification ]['enabled'] = $status;
+		$settings[ $notification ]['subject'] = $settings[ $notification ]['subject'] ?? '';
+		$settings[ $notification ]['message'] = $settings[ $notification ]['message'] ?? '';
+
+		$result = ITSEC_Modules::set_setting( 'notification-center', 'notifications', $settings );
+
+		return is_array( $result ) && $result['saved'];
 	}
 
 	/**
@@ -622,7 +667,7 @@ final class ITSEC_Notification_Center {
 
 		if ( $display ) {
 			$href = esc_attr( "#itsec-notification-center-notification-settings--{$display}" );
-			echo '<a href="' . $href .'" class="itsec-notification-center-link" data-module-link="notification-center">' . esc_html__( 'Notification Center', 'better-wp-security' ) . '</a>';
+			echo '<a href="' . $href . '" class="itsec-notification-center-link" data-module-link="notification-center">' . esc_html__( 'Notification Center', 'better-wp-security' ) . '</a>';
 		}
 	}
 

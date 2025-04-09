@@ -32,11 +32,11 @@ abstract class Config_Password_Requirement implements Password_Requirement {
 	}
 
 	public function get_title(): string {
-		return $this->get_config()['title'] ?? $this->config->translate( Module_Config::T_ABOUT )->get_title();
+		return $this->get_translated_config()['title'] ?? $this->config->translate( Module_Config::T_ABOUT )->get_title();
 	}
 
 	public function get_description(): string {
-		return $this->get_config()['description'] ?? $this->config->translate( Module_Config::T_ABOUT )->get_description();
+		return $this->get_translated_config()['description'] ?? $this->config->translate( Module_Config::T_ABOUT )->get_description();
 	}
 
 	public function get_meta_key(): string {
@@ -99,6 +99,10 @@ abstract class Config_Password_Requirement implements Password_Requirement {
 	}
 
 	private function get_config(): array {
+		return $this->config->get_password_requirements()[ $this->get_code() ];
+	}
+
+	private function get_translated_config(): array {
 		return $this->config->translate( Module_Config::T_PASSWORD_REQUIREMENTS )
 		                    ->get_password_requirements()[ $this->get_code() ];
 	}

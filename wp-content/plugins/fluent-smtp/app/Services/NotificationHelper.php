@@ -2,7 +2,7 @@
 
 namespace FluentMail\App\Services;
 
-
+use InvalidArgumentException;
 use FluentMail\App\Models\Settings;
 use FluentMail\Includes\Support\Arr;
 
@@ -188,7 +188,7 @@ class NotificationHelper
     public static function sendSlackMessage($message, $webhookUrl, $blocking = false)
     {
 
-        if(is_array($message)) {
+        if (is_array($message)) {
             $body = wp_json_encode($message);
         } else {
             $body = wp_json_encode(array('text' => $message));
@@ -301,7 +301,7 @@ class NotificationHelper
 
     public static function formatSlackMessageBlock($handler, $logData = [])
     {
-        $sendingTo = maybe_unserialize(Arr::get($logData, 'to'));
+        $sendingTo = self::unserialize(Arr::get($logData, 'to'));
 
         if (is_array($sendingTo)) {
             $sendingTo = Arr::get($sendingTo, '0.email', '');
@@ -311,7 +311,7 @@ class NotificationHelper
             $sendingTo = Arr::get($logData, 'to');
         }
 
-        $heading = sprintf('[%s] Failed to send email', get_bloginfo('name'));
+        $heading = sprintf(__('[%s] Failed to send email', 'fluent-smtp'), get_bloginfo('name'));
 
         return [
             'text'   => $heading,
@@ -349,7 +349,7 @@ class NotificationHelper
                     'type' => 'section',
                     'text' => [
                         'type' => "mrkdwn",
-                        'text' => "*Error Message:*\n ```" . self::getErrorMessageFromResponse(maybe_unserialize(Arr::get($logData, 'response'))) . "```"
+                        'text' => "*Error Message:*\n ```" . self::getErrorMessageFromResponse(self::unserialize(Arr::get($logData, 'response'))) . "```"
                     ]
                 ],
                 [
@@ -365,7 +365,7 @@ class NotificationHelper
 
     public static function formatDiscordMessageBlock($handler, $logData = [])
     {
-        $sendingTo = maybe_unserialize(Arr::get($logData, 'to'));
+        $sendingTo = self::unserialize(Arr::get($logData, 'to'));
 
         if (is_array($sendingTo)) {
             $sendingTo = Arr::get($sendingTo, '0.email', '');
@@ -375,15 +375,15 @@ class NotificationHelper
             $sendingTo = Arr::get($logData, 'to');
         }
 
-        $heading = sprintf('[%s] Failed to send email', get_bloginfo('name'));
+        $heading = sprintf(__('[%s] Failed to send email', 'fluent-smtp'), get_bloginfo('name'));
 
         $content = '## ' . $heading . "\n";
-        $content .= '**Website URL:** ' . site_url() . "\n";
-        $content .= '**Sending Driver:** ' . strtoupper($handler->getSetting('provider')) . "\n";
-        $content .= '**To Email Address:** ' . $sendingTo . "\n";
-        $content .= '**Email Subject:** ' . Arr::get($logData, 'subject') . "\n";
-        $content .= '**Error Message:** ```' . self::getErrorMessageFromResponse(maybe_unserialize(Arr::get($logData, 'response'))) . "```\n";
-        $content .= '[View Failed Email(s)](' . admin_url('options-general.php?page=fluent-mail#/logs?per_page=10&page=1&status=failed&search=') . ')';
+        $content .= __('**Website URL:** ', 'fluent-smtp') . site_url() . "\n";
+        $content .= __('**Sending Driver:** ', 'fluent-smtp') . strtoupper($handler->getSetting('provider')) . "\n";
+        $content .= __('**To Email Address:** ', 'fluent-smtp') . $sendingTo . "\n";
+        $content .= __('**Email Subject:** ', 'fluent-smtp') . Arr::get($logData, 'subject') . "\n";
+        $content .= __('**Error Message:** ```', 'fluent-smtp') . self::getErrorMessageFromResponse(self::unserialize(Arr::get($logData, 'response'))) . "```\n";
+        $content .= __('[View Failed Email(s)](', 'fluent-smtp') . admin_url('options-general.php?page=fluent-mail#/logs?per_page=10&page=1&status=failed&search=') . ')';
 
         return $content;
     }
@@ -409,5 +409,17 @@ class NotificationHelper
         }
 
         return $message;
+    }
+
+    protected static function unserialize($data)
+    {
+        if (is_serialized($data)) {
+            if (preg_match('/(^|;)O:[0-9]+:/', $data)) {
+                return '';
+            }
+            return unserialize(trim($data), ['allowed_classes' => false]);
+        }
+
+        return $data;
     }
 }

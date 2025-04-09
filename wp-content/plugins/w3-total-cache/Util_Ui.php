@@ -3,6 +3,7 @@ namespace W3TC;
 
 use DOMDocument;
 
+
 class Util_Ui {
 	/**
 	 * Returns button html
@@ -201,24 +202,27 @@ class Util_Ui {
 	 * @param string $class
 	 * @param string $id
 	 * @param string $adv_link
+	 * @param string $premium_link
 	 * @param array  $extra_links
 	 * @return void
 	 */
-	public static function postbox_header_tabs( $title, $description = '', $class = '', $id = '', $adv_link = '', $extra_links = array() ) {
+	public static function postbox_header_tabs( $title, $description = '', $class = '', $id = '', $adv_link = '', $premium_link = '', $tutorials_tab = '', $extra_links = array() ) {
 		$display_id         = ( ! empty( $id ) ) ? ' id="' . esc_attr( $id ) . '"' : '';
 		$description        = ( ! empty( $description ) ) ? '<div class="postbox-description">' . wp_kses( $description, self::get_allowed_html_for_wp_kses_from_content( $description ) ) . '</div>' : '';
-		$basic_settings_tab = ( ! empty( $adv_link ) ) ? '<a class="nav-tab nav-tab-active no-link">' . esc_html__( 'Basic Settings', 'w3-total-cache' ) . '</a>' : '';
+		$basic_settings_tab = ( ! empty( $adv_link ) ) ? '<a class="w3tc-basic-settings nav-tab nav-tab-active no-link">' . esc_html__( 'Basic Settings', 'w3-total-cache' ) . '</a>' : '';
 		$adv_settings_tab   = ( ! empty( $adv_link ) ) ? '<a class="nav-tab link-tab" href="' . esc_url( $adv_link ) . '" gatitle="' . esc_attr( $id ) . '">' . esc_html__( 'Advanced Settings', 'w3-total-cache' ) . '<span class="dashicons dashicons-arrow-right-alt2"></span></a>' : '';
+		$premium_link_tab   = ( ! empty( $premium_link ) ) ? '<a class="nav-tab link-tab ' . esc_attr( $id ) . '" data-tab-type="premium-services">' . esc_html__( 'Premium Services', 'w3-total-cache' ) . '</a>' : '';
+		$tutorials_tab      = ( ! empty( $premium_link ) ) ? '<a class="nav-tab link-tab ' . esc_attr( $id ) . '" data-tab-type="help">' . esc_html__( 'Help', 'w3-total-cache' ) . '</a>' : '';
 
 		$extra_link_tabs = '';
 		foreach ( $extra_links as $extra_link_text => $extra_link ) {
-			$extra_link_tabs .= '<a class="nav-tab link-tab" href="' . esc_url( $extra_link ) . '" gatitle="' . esc_attr( $extra_link_text ) . '">' . esc_html( $extra_link_text ) . '<span class="dashicons dashicons-arrow-right-alt2"></span></a>';
+			$extra_link_tabs .= '<a class="nav-tab link-tab" href="' . esc_url( $extra_link ) . '" gatitle="' . esc_attr( $extra_link_text ) . '">' . esc_html( $extra_link_text ) . '</a>';
 		}
 
 		echo '<div' . $display_id . ' class="postbox-tabs ' . esc_attr( $class ) . '">
 			<h3 class="postbox-title"><span>' . wp_kses( $title, self::get_allowed_html_for_wp_kses_from_content( $title ) ) . '</span></h3>
 			' . $description . '
-			<h2 class="nav-tab-wrapper">' . $basic_settings_tab . $adv_settings_tab . $extra_link_tabs . '</h2>
+			<h2 class="nav-tab-wrapper">' . $basic_settings_tab . $adv_settings_tab . $premium_link_tab . $tutorials_tab . $extra_link_tabs . '</h2>
 			<div class="inside">';
 	}
 
@@ -229,6 +233,49 @@ class Util_Ui {
 	 */
 	public static function postbox_footer() {
 		echo '</div></div>';
+	}
+
+	/**
+	 * Retrieves a specific tab's content based on the provided key and tab type.
+	 *
+	 * @since 2.8.3
+	 *
+	 * This function dynamically loads content for a specified tab type (e.g., tutorials, premium services)
+	 * based on a given configuration key. It uses a mapping to fetch the correct tab content, which is then
+	 * wrapped in a `<div>` element with a `data-tab-type` attribute for identification.
+	 *
+	 * @param string $key      The configuration key used to retrieve tab settings.
+	 * @param string $tab_type The type of tab to retrieve (e.g., 'tutorials', 'premium-services').
+	 *
+	 * @return string|null     The HTML content for the specified tab, or null if the tab or key is not found.
+	 *
+	 * Usage:
+	 * ```
+	 * echo wp_kses_post( Util_Ui::get_tab('example_key', 'tutorials');  // Retrieves the tutorials tab for 'example_key'
+	 * ```
+	 */
+	public static function get_tab( string $key, string $tab_type ) : ?string {
+
+		// If for any reason the key or tab type is empty, return an empty string.
+		if ( empty( $key ) || empty( $tab_type ) ) {
+			return '';
+		}
+
+		require_once 'ConfigSettingsTabs.php';
+		$configs = Config_Tab_Settings::get_config( $key );
+
+		// Define a mapping of tab types to the corresponding config keys.
+		$tab_mapping = array(
+			'help'             => 'help',
+			'premium-services' => 'premium_support',
+		);
+
+		// Check if the provided tab type exists in the mapping and in the configs.
+		if ( isset( $tab_mapping[ $tab_type ] ) && isset( $configs['tabs'][ $tab_mapping[ $tab_type ] ] ) ) {
+			return '<div data-tab-type="' . esc_attr( $tab_type ) . '">' . $configs['tabs'][ $tab_mapping[ $tab_type ] ] . '</div>';
+		}
+
+		return null;
 	}
 
 	public static function button_config_save( $id = '', $extra = '' ) {
@@ -302,7 +349,7 @@ class Util_Ui {
 			<?php
 			if ( ! is_network_admin() ) {
 				?>
-				<input type="submit" class="w3tc-button-save btn btn-primary btn-sm" name="w3tc_save_options" value="<?php esc_html_e( 'Save Settings', 'w3-total-cache' ); ?>"/>
+				<input type="submit" id="<?php echo esc_attr( $b1_id ); ?>" class="w3tc-button-save btn btn-primary btn-sm" name="w3tc_save_options" value="<?php esc_html_e( 'Save Settings', 'w3-total-cache' ); ?>"/>
 				<button type="button" class="btn btn-primary btn-sm dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 					<span class="sr-only">Toggle Dropdown</span>
 				</button>
@@ -358,39 +405,39 @@ class Util_Ui {
 					);
 				}
 				if ( $config->get_boolean( 'pgcache.enabled' ) ) {
-					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_pgcache" value="' . esc_html__( 'Empty Page Cache', 'w3-total-cache' ) . '"/>';
+					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_pgcache" value="' . esc_attr__( 'Empty Page Cache', 'w3-total-cache' ) . '"/>';
 				}
 				if ( $config->get_boolean( 'browsercache.cssjs.replace' ) || $config->get_boolean( 'browsercache.other.replace' ) ) {
-					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_browser_cache" value="' . esc_html__( 'Empty Browser Cache', 'w3-total-cache' ) . '"/>';
+					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_browser_cache" value="' . esc_attr__( 'Empty Browser Cache', 'w3-total-cache' ) . '"/>';
 				}
 				if ( $config->get_boolean( 'minify.enabled' ) ) {
-					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_minify" value="' . esc_html__( 'Empty Minify Cache', 'w3-total-cache' ) . '"/>';
+					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_minify" value="' . esc_attr__( 'Empty Minify Cache', 'w3-total-cache' ) . '"/>';
 				}
 				if ( $config->get_boolean( 'dbcache.enabled' ) ) {
-					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_dbcache" value="' . esc_html__( 'Empty Database Cache', 'w3-total-cache' ) . '"/>';
+					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_dbcache" value="' . esc_attr__( 'Empty Database Cache', 'w3-total-cache' ) . '"/>';
 				}
 				if ( $config->getf_boolean( 'objectcache.enabled' ) ) {
-					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_objectcache" value="' . esc_html__( 'Empty Object Cache', 'w3-total-cache' ) . '"/>';
+					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_objectcache" value="' . esc_attr__( 'Empty Object Cache', 'w3-total-cache' ) . '"/>';
 				}
 				if ( $config->get_boolean( 'cdn.enabled' ) || $config->get_boolean( 'cdnfsd.enabled' ) ) {
 					$disable = ( $config->get_boolean( 'cdn.enabled' ) && Cdn_Util::can_purge_all( $config->get_string( 'cdn.engine' ) ) ) ||
 						( $config->get_boolean( 'cdnfsd.enabled' ) && Cdn_Util::can_purge_all( $config->get_string( 'cdnfsd.engine' ) ) ) ?
 							'' : ' disabled="disabled" ';
-					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_cdn"' . $disable . ' value="' . esc_html__( 'Empty CDN Cache', 'w3-total-cache' ) . '"/>';
+					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_cdn"' . $disable . ' value="' . esc_attr__( 'Empty CDN Cache', 'w3-total-cache' ) . '"/>';
 				}
 				if ( $config->is_extension_active_frontend( 'fragmentcache' ) && Util_Environment::is_w3tc_pro( $config ) && ! empty( $config->get_string( array( 'fragmentcache', 'engine' ) ) ) ) {
-					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_fragmentcache" value="' . esc_html__( 'Empty Fragment Cache', 'w3-total-cache' ) . '"/>';
+					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_fragmentcache" value="' . esc_attr__( 'Empty Fragment Cache', 'w3-total-cache' ) . '"/>';
 				}
 				if ( $config->get_boolean( 'varnish.enabled' ) ) {
-					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_varnish" value="' . esc_html__( 'Empty Varnish Cache', 'w3-total-cache' ) . '"/>';
+					echo '<input type="submit" class="dropdown-item" name="w3tc_flush_varnish" value="' . esc_attr__( 'Empty Varnish Cache', 'w3-total-cache' ) . '"/>';
 				}
 				if ( $config->is_extension_active_frontend( 'cloudflare' ) ) {
-					echo '<input type="submit" class="dropdown-item" name="w3tc_cloudflare_flush" value="' . esc_html__( 'Empty CloudFlare Cache', 'w3-total-cache' ) . '"/>';
+					echo '<input type="submit" class="dropdown-item" name="w3tc_cloudflare_flush" value="' . esc_attr__( 'Empty Cloudflare Cache', 'w3-total-cache' ) . '"/>';
 				}
 				$opcode_enabled = ( Util_Installed::opcache() || Util_Installed::apc_opcache() );
 				if ( $opcode_enabled ) {
 					$disable = $opcode_enabled ? '' : ' disabled="disabled" ';
-					echo '<input type="submit" class="dropdown-item" name="w3tc_opcache_flush"' . $disable . ' value="' . esc_html__( 'Empty OpCode Cache', 'w3-total-cache' ) . '"/>';
+					echo '<input type="submit" class="dropdown-item" name="w3tc_opcache_flush"' . $disable . ' value="' . esc_attr__( 'Empty OpCode Cache', 'w3-total-cache' ) . '"/>';
 				}
 				?>
 			</div>
@@ -701,7 +748,9 @@ class Util_Ui {
 	 */
 	public static function radiogroup( $name, $value, $values,
 			$disabled = false, $separator = '' ) {
-		$first = true;
+		$c      = Dispatcher::config();
+		$is_pro = Util_Environment::is_w3tc_pro( $c );
+		$first  = true;
 		foreach ( $values as $key => $label_or_array ) {
 			if ( $first ) {
 				$first = false;
@@ -743,7 +792,13 @@ class Util_Ui {
 					$name . '__' . $key
 				);
 
-				self::pro_wrap_maybe_end( $name . '__' . $key );
+				if ( ! $is_pro && isset( $label_or_array['intro_label'] ) && isset( $label_or_array['score'] ) && isset( $label_or_array['score_label'] ) && isset( $label_or_array['score_description'] ) && isset( $label_or_array['score_link'] ) ) {
+					$score_block = self::get_score_block( $label_or_array['intro_label'], $label_or_array['score'], $label_or_array['score_label'], $label_or_array['score_description'], $label_or_array['score_link'] );
+					echo wp_kses( $score_block, self::get_allowed_html_for_wp_kses_from_content( $score_block ) );
+				}
+
+				$show_learn_more = isset( $label_or_array['show_learn_more'] ) && is_bool( $label_or_array['show_learn_more'] ) ? $label_or_array['show_learn_more'] : true;
+				self::pro_wrap_maybe_end( $name . '__' . $key, $show_learn_more );
 			}
 		}
 	}
@@ -1095,11 +1150,19 @@ class Util_Ui {
 			);
 		}
 
+		if ( $is_w3tc_free && isset( $a['intro_label'] ) && isset( $a['score'] ) && isset( $a['score_label'] ) && isset( $a['score_description'] ) && isset( $a['score_link'] ) ) {
+			$score_block = self::get_score_block( $a['score'], $a['score_label'], $a['score_description'], $a['score_link'] );
+			echo wp_kses( $score_block, self::get_allowed_html_for_wp_kses_from_content( $score_block ) );
+		}
+
 		echo ( isset( $a['style'] ) ? '</th>' : '</td>' );
 		echo "</tr>\n";
 	}
 
 	public static function config_item_extension_enabled( $a ) {
+		$c      = Dispatcher::config();
+		$is_pro = Util_Environment::is_w3tc_pro( $c );
+
 		if ( 'w3tc_single_column' === $a['label_class'] ) {
 			echo '<tr><th colspan="2">';
 		} else {
@@ -1116,7 +1179,6 @@ class Util_Ui {
 			self::pro_wrap_maybe_start();
 		}
 
-		$c = Dispatcher::config();
 		self::checkbox2(
 			array(
 				'name'     => 'extension__' . self::config_key_to_http_name( $a['extension_id'] ),
@@ -1130,8 +1192,14 @@ class Util_Ui {
 			echo '<p class="description">' . wp_kses( $a['description'], self::get_allowed_html_for_wp_kses_from_content( $a['description'] ) ) . '</p>';
 		}
 
+		if ( ! $is_pro && isset( $a['intro_label'] ) && isset( $a['score'] ) && isset( $a['score_label'] ) && isset( $a['score_description'] ) && isset( $a['score_link'] ) ) {
+			$score_block = self::get_score_block( $a['intro_label'], $a['score'], $a['score_label'], $a['score_description'], $a['score_link'] );
+			echo wp_kses( $score_block, self::get_allowed_html_for_wp_kses_from_content( $score_block ) );
+		}
+
 		if ( isset( $a['pro'] ) ) {
-			self::pro_wrap_maybe_end( 'extension__' . self::config_key_to_http_name( $a['extension_id'] ) );
+			$show_learn_more = isset( $a['show_learn_more'] ) && is_bool( $a['show_learn_more'] ) ? $a['show_learn_more'] : true;
+			self::pro_wrap_maybe_end( 'extension__' . self::config_key_to_http_name( $a['extension_id'] ), $show_learn_more );
 		}
 
 		echo ( isset( $a['style'] ) ? '</th>' : '</td>' );
@@ -1139,7 +1207,9 @@ class Util_Ui {
 	}
 
 	public static function config_item_pro( $a ) {
-		$a = self::config_item_preprocess( $a );
+		$c      = Dispatcher::config();
+		$is_pro = Util_Environment::is_w3tc_pro( $c );
+		$a      = self::config_item_preprocess( $a );
 
 		if ( 'w3tc_single_column' === $a['label_class'] ) {
 			echo '<tr><th colspan="2">';
@@ -1154,7 +1224,7 @@ class Util_Ui {
 		}
 
 		// If wrap_separate is not set we wrap everything.
-		if ( ! isset( $a['wrap_separate'] ) ) {
+		if ( ! isset( $a['wrap_separate'] ) && ! isset( $a['no_wrap'] ) ) {
 			self::pro_wrap_maybe_start();
 		}
 
@@ -1165,9 +1235,9 @@ class Util_Ui {
 		}
 
 		// If wrap_separate is set we wrap only the description.
-		if ( isset( $a['wrap_separate'] ) ) {
+		if ( isset( $a['wrap_separate'] ) && ! isset( $a['no_wrap'] ) ) {
 			// If not pro we add a spacer for better separation of control element and wrapper.
-			if ( ! Util_Environment::is_w3tc_pro( Dispatcher::config() ) ) {
+			if ( ! $is_pro ) {
 				echo '<br/><br/>';
 			}
 			self::pro_wrap_maybe_start();
@@ -1177,7 +1247,15 @@ class Util_Ui {
 			self::pro_wrap_description( $a['excerpt'], $a['description'], $a['control_name'] );
 		}
 
-		self::pro_wrap_maybe_end( $a['control_name'] );
+		if ( ! $is_pro && ! isset( $a['no_wrap'] ) && isset( $a['intro_label'] ) && isset( $a['score'] ) && isset( $a['score_label'] ) && isset( $a['score_description'] ) && isset( $a['score_link'] ) ) {
+			$score_block = self::get_score_block( $a['intro_label'], $a['score'], $a['score_label'], $a['score_description'], $a['score_link'] );
+			echo wp_kses( $score_block, self::get_allowed_html_for_wp_kses_from_content( $score_block ) );
+		}
+
+		if ( ! isset( $a['no_wrap'] ) ) {
+			$show_learn_more = isset( $a['show_learn_more'] ) && is_bool( $a['show_learn_more'] ) ? $a['show_learn_more'] : true;
+			self::pro_wrap_maybe_end( $a['control_name'], $show_learn_more );
+		}
 
 		if ( 'w3tc_no_trtd' !== $a['label_class'] ) {
 			echo ( isset( $a['style'] ) ? '</th>' : '</td>' );
@@ -1189,7 +1267,7 @@ class Util_Ui {
 		$c = Dispatcher::config();
 
 		if ( ! isset( $a['value'] ) || is_null( $a['value'] ) ) {
-			$a['value'] = $c->get( $a['key'] );
+			$a['value'] = $c->get( $a['key'] ) ?? '';
 			if ( is_array( $a['value'] ) ) {
 				$a['value'] = implode( "\n", $a['value'] );
 			}
@@ -1313,18 +1391,20 @@ class Util_Ui {
 		}
 	}
 
-	public static function pro_wrap_maybe_end( $button_data_src ) {
+	public static function pro_wrap_maybe_end( $button_data_src, $show_learn_more = true ) {
 		if ( Util_Environment::is_w3tc_pro( Dispatcher::config() ) ) {
 			return;
 		}
 
 		?>
 			</div>
+			<?php if ( $show_learn_more ) { ?>
 			<div class="w3tc-gopro-action">
 				<button class="button w3tc-gopro-button button-buy-plugin" data-src="<?php echo esc_attr( $button_data_src ); ?>">
 					Learn more about Pro
 				</button>
 			</div>
+			<?php } ?>
 		</div>
 		<?php
 	}
@@ -1340,18 +1420,20 @@ class Util_Ui {
 		<?php
 	}
 
-	public static function pro_wrap_maybe_end2( $button_data_src ) {
+	public static function pro_wrap_maybe_end2( $button_data_src, $show_unlock_feature = true ) {
 		if ( Util_Environment::is_w3tc_pro( Dispatcher::config() ) ) {
 			return;
 		}
 
 		?>
 			</p>
+			<?php if ( $show_unlock_feature ) { ?>
 			<div style="text-align: right">
 				<button class="button w3tc-gopro-button button-buy-plugin" data-src="<?php echo esc_attr( $button_data_src ); ?>">
 					Unlock Feature
 				</button>
 			</div>
+			<?php } ?>
 		</div>
 		<?php
 	}
@@ -1503,8 +1585,10 @@ class Util_Ui {
 	public static function print_breadcrumb() {
 		$page         = ! empty( Util_Admin::get_current_extension() ) ? Util_Admin::get_current_extension() : Util_Admin::get_current_page();
 		$page_mapping = Util_PageUrls::get_page_mapping( $page );
-		$parent       = isset( $page_mapping['parent_name'] ) ? '<span class="dashicons dashicons-arrow-right-alt2"></span><a href="' . esc_url( $page_mapping['parent_link'] ) . '">' . esc_html( $page_mapping['parent_name'] ) . '</a>' : '';
-		$current      = '<span class="dashicons dashicons-arrow-right-alt2"></span><span>' . esc_html( $page_mapping['page_name'] ) . '</span>';
+		$parent       = isset( $page_mapping['parent_name'] ) ?
+			'<span class="dashicons dashicons-arrow-right-alt2"></span><a href="' . esc_url( $page_mapping['parent_link'] ) . '">' . esc_html( $page_mapping['parent_name'] ) . '</a>' : '';
+		$current      = isset( $page_mapping['page_name'] ) ?
+			'<span class="dashicons dashicons-arrow-right-alt2"></span><span>' . esc_html( $page_mapping['page_name'] ) . '</span>' : '';
 		?>
 		<p id="w3tc-breadcrumb">
 			<span class="dashicons dashicons-admin-home"></span>
@@ -1589,6 +1673,10 @@ class Util_Ui {
 							'text' => esc_html__( 'Browser Cache', 'w3-total-cache' ),
 						),
 						array(
+							'id'   => 'allcache_wp_cron',
+							'text' => esc_html__( 'Purge via WP Cron', 'w3-total-cache' ),
+						),
+						array(
 							'id'   => 'cdn',
 							'text' => wp_kses(
 								sprintf(
@@ -1670,6 +1758,7 @@ class Util_Ui {
 					<a href="#purge_policy"><?php esc_html_e( 'Purge Policy', 'w3-total-cache' ); ?></a> |
 					<a href="#rest"><?php esc_html_e( 'Rest API', 'w3-total-cache' ); ?></a> |
 					<a href="#advanced"><?php esc_html_e( 'Advanced', 'w3-total-cache' ); ?></a> |
+					<a href="#pgcache_wp_cron"><?php esc_html_e( 'Purge via WP Cron', 'w3-total-cache' ); ?></a> |
 					<a href="#notes"><?php esc_html_e( 'Note(s)', 'w3-total-cache' ); ?></a>
 				</div>
 				<?php
@@ -1743,6 +1832,7 @@ class Util_Ui {
 						?>
 					</a> |
 					<a href="#advanced"><?php esc_html_e( 'Advanced', 'w3-total-cache' ); ?></a> |
+					<a href="#minify_wp_cron"><?php esc_html_e( 'Purge via WP Cron', 'w3-total-cache' ); ?></a> |
 					<a href="#notes"><?php esc_html_e( 'Note(s)', 'w3-total-cache' ); ?></a>
 				</div>
 				<?php
@@ -1752,7 +1842,8 @@ class Util_Ui {
 				?>
 				<div id="w3tc-options-menu">
 					<a href="#general"><?php esc_html_e( 'General', 'w3-total-cache' ); ?></a> |
-					<a href="#advanced"><?php esc_html_e( 'Advanced', 'w3-total-cache' ); ?></a>
+					<a href="#advanced"><?php esc_html_e( 'Advanced', 'w3-total-cache' ); ?></a> |
+					<a href="#dbcache_wp_cron"><?php esc_html_e( 'Purge via WP Cron', 'w3-total-cache' ); ?></a>
 				</div>
 				<?php
 				break;
@@ -1760,7 +1851,8 @@ class Util_Ui {
 			case 'w3tc_objectcache':
 				?>
 				<div id="w3tc-options-menu">
-					<!--<a href="#advanced"><?php esc_html_e( 'Advanced', 'w3-total-cache' ); ?></a>-->
+					<a href="#advanced"><?php esc_html_e( 'Advanced', 'w3-total-cache' ); ?></a> |
+					<a href="#objectcache_wp_cron"><?php esc_html_e( 'Purge via WP Cron', 'w3-total-cache' ); ?></a>
 				</div>
 				<?php
 				break;
@@ -1857,11 +1949,16 @@ class Util_Ui {
 					$subnav_links = array( '<a href="#lazy-loading">' . esc_html__( 'Lazy Loading', 'w3-total-cache' ) . '</a>' );
 
 					if ( UserExperience_DeferScripts_Extension::is_enabled() ) {
-						$subnav_links[] = '<a href="#application">' . esc_html__( 'Delay Scripts', 'w3-total-cache' ) . '</a>';
+						$subnav_links[] = '<a href="#defer-scripts">' . esc_html__( 'Delay Scripts', 'w3-total-cache' ) . '</a>';
+					}
+
+					if ( UserExperience_Remove_CssJs_Extension::is_enabled() ) {
+						$subnav_links[] = '<a href="#remove-cssjs">' . esc_html__( 'Remove CSS/JS On Homepage', 'w3-total-cache' ) . '</a>';
+						$subnav_links[] = '<a href="#remove-cssjs-singles">' . esc_html__( 'Remove CSS/JS Individually', 'w3-total-cache' ) . '</a>';
 					}
 
 					if ( UserExperience_Preload_Requests_Extension::is_enabled() ) {
-						$subnav_links[] = '<a href="#application">' . esc_html__( 'Preload Requests', 'w3-total-cache' ) . '</a>';
+						$subnav_links[] = '<a href="#preload-requests">' . esc_html__( 'Preload Requests', 'w3-total-cache' ) . '</a>';
 					}
 
 					// If there's only 1 meta box on the page, no need for nav links.
@@ -1974,6 +2071,16 @@ class Util_Ui {
 						</div>
 						<?php
 						break;
+					case 'alwayscached':
+						?>
+						<div id="w3tc-options-menu">
+							<a href="#queue"><?php esc_html_e( 'Queue', 'w3-total-cache' ); ?></a> |
+							<a href="#exclusions"><?php esc_html_e( 'Exclusions', 'w3-total-cache' ); ?></a> |
+							<a href="#cron"><?php esc_html_e( 'Cron', 'w3-total-cache' ); ?></a> |
+							<a href="#purge-all-behavior"><?php esc_html_e( 'Purge All Behavior', 'w3-total-cache' ); ?></a>
+						</div>
+						<?php
+						break;
 				}
 			default:
 				?>
@@ -1981,5 +2088,48 @@ class Util_Ui {
 				<?php
 				break;
 		}
+	}
+
+	/**
+	 * Gets the HTML markup for the Test Score Block.
+	 *
+	 * @param string $intro_label       Intro Label.
+	 * @param string $score             Score Value.
+	 * @param string $score_label       Score Label.
+	 * @param string $score_description Score Description.
+	 * @param string $score_link        Score Link.
+	 */
+	public static function get_score_block( $intro_label, $score, $score_label, $score_description, $score_link ) {
+		$score_block = '
+			<div class="w3tc-test-container-intro">
+				<span class="w3tc-test-score">' . $score . '</span><b>' . esc_html( $intro_label ) . '</b><span class="dashicons dashicons-arrow-down-alt2" ></span>
+			</div>
+			<div class="w3tc-test-container">
+				<div class="w3tc-test-score-container">
+					<div class="w3tc-test-score">' . $score . '</div>
+					<p class="w3tc-test-score-label">' . $score_label . '</p>
+				</div>
+				<div class="w3tc-test-description">
+					<p>' . $score_description . ' <a target="_blank" href="' . esc_url( $score_link ) . '">' . esc_html__( 'Review the testing results', 'w3-total-cache' ) . '</a>' . esc_html__( ' to see how.', 'w3-total-cache' ) . '</p>
+					<br/>
+					<p><input type="button" class="button-primary btn button-buy-plugin" data-src="test_score_upgrade" value="' . esc_attr__( 'Upgrade to', 'w3-total-cache' ) . ' W3 Total Cache Pro">' . esc_html__( ' and improve your PageSpeed Scores today!', 'w3-total-cache' ) . '</p>
+				</div>
+			</div>';
+		return $score_block;
+	}
+
+	/**
+	 * Prints the Google PageSpeed score block that is built into the config_item_xxx methods.
+	 * This allows for manual printing in places that may need it.
+	 *
+	 * @param string $intro_label       Intro Label.
+	 * @param string $score             Score Value.
+	 * @param string $score_label       Score Label.
+	 * @param string $score_description Score Description.
+	 * @param string $score_link        Score Link.
+	 */
+	public static function print_score_block( $intro_label, $score, $score_label, $score_description, $score_link ) {
+		$score_block = self::get_score_block( $intro_label, $score, $score_label, $score_description, $score_link );
+		echo wp_kses( $score_block, self::get_allowed_html_for_wp_kses_from_content( $score_block ) );
 	}
 }

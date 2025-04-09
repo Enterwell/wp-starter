@@ -66,6 +66,10 @@ class Root_AdminActivation {
 					// missing exception handle?
 				}
 			}
+
+			if ( ! get_option( 'w3tc_install_date' ) ) {
+				update_option( 'w3tc_install_date', current_time( 'mysql' ) );
+			}
 		} catch ( Util_Environment_Exceptions $e ) {
 			// missing exception handle?
 		} catch ( \Exception $e ) {
@@ -136,5 +140,11 @@ class Root_AdminActivation {
 		// Delete cron events.
 		require_once __DIR__ . '/Extension_ImageService_Cron.php';
 		Extension_ImageService_Cron::delete_cron();
+
+		// Check if data cleanup is required.
+		if ( get_option( 'w3tc_remove_data' ) ) {
+			$config = Dispatcher::config();
+			Root_Environment::delete_plugin_data( $config );
+		}
 	}
 }

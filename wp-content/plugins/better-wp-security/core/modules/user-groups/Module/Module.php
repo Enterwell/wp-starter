@@ -8,6 +8,7 @@ use iThemesSecurity\Import_Export\Export\Export;
 use iThemesSecurity\Import_Export\Import\Import_Context;
 use iThemesSecurity\Import_Export\Import\Transformation;
 use iThemesSecurity\Lib\Result;
+use iThemesSecurity\Lib\Stringable_Json;
 use iThemesSecurity\Module_Config;
 use iThemesSecurity\User_Groups\Everybody_Else;
 use iThemesSecurity\User_Groups\Match_Target;
@@ -218,7 +219,7 @@ class Module implements Runnable, Import_Export_Source {
 		$info['solid-security']['fields']['user_groups'] = [
 			'label' => __( 'User Groups', 'better-wp-security' ),
 			'value' => count( $user_groups ),
-			'debug' => array_values( $user_groups ),
+			'debug' => new Stringable_Json( array_values( $user_groups ) ),
 		];
 
 		return $info;

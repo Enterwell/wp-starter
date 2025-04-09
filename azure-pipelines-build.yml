@@ -8,10 +8,10 @@ trigger:
   - main
 
 pool:
-  vmImage: ubuntu-latest
+  vmImage: ubuntu-22.04
 
 variables:
-  phpVersion: '8.2'
+  phpVersion: '8.4'
   nodeVersion: '18.x'
   rootFolder: $(System.DefaultWorkingDirectory)
   pluginFolder: $(rootFolder)/wp-content/plugins/ewplugin
@@ -20,6 +20,20 @@ variables:
 steps:
   - checkout: self
     persistCredentials: true
+
+  - script: |
+      # Install required dependencies for adding repositories
+      sudo apt install -y software-properties-common ca-certificates apt-transport-https
+
+      # Add the Ondřej Surý PPA for PHP
+      sudo add-apt-repository ppa:ondrej/php -y
+
+      # Update package list again to include PHP packages from the new repository
+      sudo apt update
+
+      # Install PHP and commonly used extensions
+      sudo apt install -y php$(phpVersion) php$(phpVersion)-fpm php$(phpVersion)-common php$(phpVersion)-mysql php$(phpVersion)-mbstring php$(phpVersion)-xml php$(phpVersion)-gd php$(phpVersion)-curl php$(phpVersion)-imagick php$(phpVersion)-zip php$(phpVersion)-memcached php$(phpVersion)-xdebug
+    displayName: Install PHP $(phpVersion)
 
   - task: Bash@3
     displayName: Set PHP version to $(phpVersion)

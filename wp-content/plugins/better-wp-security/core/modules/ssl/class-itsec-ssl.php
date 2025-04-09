@@ -64,7 +64,7 @@ class ITSEC_SSL {
 			add_filter( 'script_loader_src', array( $this, 'script_loader_src' ) );
 			add_filter( 'style_loader_src', array( $this, 'style_loader_src' ) );
 			add_filter( 'upload_dir', array( $this, 'upload_dir' ) );
-		} elseif ( 'cli' !== php_sapi_name() && ! ITSEC_Core::doing_data_upgrade() && 'GET' === $_SERVER['REQUEST_METHOD'] ) {
+		} elseif ( 'cli' !== php_sapi_name() && ! ITSEC_Core::doing_data_upgrade() && isset( $_SERVER['REQUEST_METHOD'] ) && 'GET' === $_SERVER['REQUEST_METHOD'] ) {
 			$this->redirect_to_https();
 		}
 	}
@@ -78,7 +78,12 @@ class ITSEC_SSL {
 			return set_url_scheme( wp_validate_redirect( home_url( $_SERVER['REQUEST_URI'] ), home_url() ), 'https' );
 		} );
 
-		$redirect = "https://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}";
+		if ( isset( $_SERVER['HTTP_HOST'] ) ) {
+			$redirect = "https://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}";
+		} else {
+			$redirect = set_url_scheme( wp_validate_redirect( home_url( $_SERVER['REQUEST_URI'] ), home_url() ), 'https' );
+		}
+		
 		wp_safe_redirect( $redirect, 301, 'Solid Security' );
 		exit();
 	}

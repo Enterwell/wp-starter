@@ -588,6 +588,9 @@
               }
             }
           ]
+        },
+        "ip": {
+          "$ref": "#/definitions/requirement"
         }
       },
       "additionalProperties": false

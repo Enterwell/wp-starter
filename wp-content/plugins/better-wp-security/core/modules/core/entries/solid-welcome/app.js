@@ -21,7 +21,7 @@ import { solidTheme } from '@ithemes/ui';
 import { coreStore } from '@ithemes/security.packages.data';
 import { store as noticesStore } from '@ithemes/security.core.admin-notices-api';
 import { CardOne, CardTwo, CardThree, CardFour } from './components';
-import PageControl from './components/page-controller';
+import { PageControl } from '@ithemes/security-ui';
 import { StyledWelcomeModal } from './styles';
 
 export default function App( { onClose } ) {

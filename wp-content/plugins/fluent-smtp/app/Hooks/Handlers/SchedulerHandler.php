@@ -45,7 +45,7 @@ class SchedulerHandler
             return;
         }
 
-        $currentDay = date('D');
+        $currentDay = gmdate('D');
         if (!in_array($currentDay, $settings['notify_days'])) {
             return;
         }
@@ -70,12 +70,12 @@ class SchedulerHandler
                 return false; // we don't want to send another email if sent time within 20 hours
             }
         } else {
-            $lastDigestSent = date('Y-m-d', strtotime('-7 days'));
+            $lastDigestSent = gmdate('Y-m-d', strtotime('-7 days'));
         }
 
         // Let's create the stats
-        $startDate = date('Y-m-d 00:00:01', (strtotime($lastDigestSent) - 86400));
-        $endDate = date('Y-m-d 23:59:59', strtotime('-1 days'));
+        $startDate = gmdate('Y-m-d 00:00:01', (strtotime($lastDigestSent) - 86400));
+        $endDate = gmdate('Y-m-d 23:59:59', strtotime('-1 days'));
 
         $reportingDays = floor((strtotime($endDate) - strtotime($startDate)) / 86400);
 
@@ -104,14 +104,14 @@ class SchedulerHandler
         }
 
         $sentSubTitle = sprintf(
-            __('Showing %1$s of %2$s different subject lines sent in the past %3$s'),
+            __('Showing %1$s of %2$s different subject lines sent in the past %3$s', 'fluent-smtp'),
             number_format_i18n(count($sentStats['subjects'])),
             number_format_i18n($sentStats['unique_subjects']),
             ($reportingDays < 2) ? 'day' : $reportingDays . ' days'
         );
 
         $failedSubTitle = sprintf(
-            __('Showing %1$s of %2$s different subject lines failed in the past %3$s'),
+            __('Showing %1$s of %2$s different subject lines failed in the past %3$s', 'fluent-smtp'),
             number_format_i18n(count($failedStats['subjects'])),
             number_format_i18n($failedStats['unique_subjects']),
             ($reportingDays < 2) ? 'day' : $reportingDays . ' days'
@@ -126,7 +126,7 @@ class SchedulerHandler
             $failedTitle .= ' <span style="font-size: 12px; vertical-align: middle;">(' . number_format_i18n($failedCount) . ')</span>';
         }
 
-        $reportingDate = date(get_option('date_format'), strtotime($startDate));
+        $reportingDate = gmdate(get_option('date_format'), strtotime($startDate));
 
         $data = [
             'sent'        => [
@@ -150,7 +150,7 @@ class SchedulerHandler
 
         $headers = array('Content-Type: text/html; charset=UTF-8');
 
-        update_option('_fluentmail_last_email_digest', date('Y-m-d H:i:s'));
+        update_option('_fluentmail_last_email_digest', gmdate('Y-m-d H:i:s'));
 
         return wp_mail($sendToArray, $emailSubject, $emailBody, $headers);
 
@@ -247,7 +247,7 @@ class SchedulerHandler
             $result = $this->saveNewGmailTokens($settings, $newTokens);
 
             if (!$result) {
-                return new \WP_Error('api_error', 'Failed to renew the token');
+                return new \WP_Error('api_error', __('Failed to renew the token', 'fluent-smtp'));
             }
 
             return true;

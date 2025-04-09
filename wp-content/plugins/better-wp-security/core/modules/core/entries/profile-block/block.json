@@ -1,5 +1,6 @@
 {
   "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
   "name": "ithemes-security/user-profile-settings",
   "title": "Solid Security User Security Settings",
   "category": "widgets",

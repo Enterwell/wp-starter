@@ -198,7 +198,7 @@ final class ITSEC_Admin_Page_Loader {
 			wp_add_inline_script( 'itsec-pages-profile', sprintf(
 				"wp.data.dispatch('%s').receiveCurrentUserId( %d );",
 				'ithemes-security/core',
-				$user->ID
+				$response->get_data()['id']
 			) );
 			wp_add_inline_script( 'itsec-pages-profile', sprintf(
 				"wp.data.dispatch('%s').receiveUser( %s );",

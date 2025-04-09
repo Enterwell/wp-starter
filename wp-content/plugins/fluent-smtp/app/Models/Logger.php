@@ -3,6 +3,7 @@
 namespace FluentMail\App\Models;
 
 use Exception;
+use InvalidArgumentException;
 use FluentMail\Includes\Support\Arr;
 
 class Logger extends Model
@@ -157,16 +158,53 @@ class Logger extends Model
     protected function formatResult($result)
     {
         $result = is_array($result) ? $result : func_get_args();
-
         foreach ($result as $key => $row) {
-            $result[$key]            = array_map('maybe_unserialize', (array) $row);
+            $result[$key]            = $this->maybeUnserialize((array)$row);
             $result[$key]['id']      = (int)$result[$key]['id'];
             $result[$key]['retries'] = (int)$result[$key]['retries'];
             $result[$key]['from']    = htmlspecialchars($result[$key]['from']);
-            $result[$key]['subject'] = esc_attr($result[$key]['subject']);
+            $result[$key]['subject'] = wp_kses_post(
+                wp_unslash($result[$key]['subject'])
+            );
         }
 
         return $result;
+    }
+
+    protected function maybeUnserialize(array $data)
+    {
+        foreach ($data as $key => $value) {
+            if ($this->isUnserializable($key)) {
+                $data[$key] = $this->unserialize($value);
+            }
+        }
+        
+        return $data;
+    }
+
+    protected function isUnserializable($key)
+    {
+        $allowedFields = [
+            'to',
+            'headers',
+            'attachments',
+            'response',
+            'extra'
+        ];
+        
+        return in_array($key, $allowedFields);
+    }
+
+    protected function unserialize($data)
+    {
+        if (is_serialized($data)) {
+            if (preg_match('/(^|;)O:[0-9]+:/', $data)) {
+                return $data;
+            }
+            return unserialize(trim($data), ['allowed_classes' => false]);
+        }
+
+        return $data;
     }
 
     protected function formatHeaders($headers)
@@ -282,9 +320,9 @@ class Logger extends Model
             ->where('id', $id)
             ->first();
 
-        $row->extra = maybe_unserialize($row->extra);
+        $row->extra = $this->unserialize($row->extra);
 
-        $row->response = maybe_unserialize($row->response);
+        $row->response = $this->unserialize($row->response);
 
         return (array)$row;
     }
@@ -293,14 +331,19 @@ class Logger extends Model
     {
         $email = $this->find($id);
 
-        $email['to']          = maybe_unserialize($email['to']);
-        $email['headers']     = maybe_unserialize($email['headers']);
-        $email['attachments'] = maybe_unserialize($email['attachments']);
-        $email['extra']       = maybe_unserialize($email['extra']);
+        $email['to']          = $this->unserialize($email['to']);
+        $email['headers']     = $this->unserialize($email['headers']);
+        $email['attachments'] = $this->unserialize($email['attachments']);
+        $email['extra']       = $this->unserialize($email['extra']);
 
         $headers = [];
 
         foreach ($email['headers'] as $key => $value) {
+
+            if($key == 'content-type' && $value == 'multipart/alternative') {
+                $value = 'text/html';
+            }
+
             if (is_array($value)) {
                 $values = [];
                 $value = array_filter($value);
@@ -363,10 +406,10 @@ class Logger extends Model
 
             if ($this->updateLog($updateData, ['id' => $id])) {
                 $email                = $this->find($id);
-                $email['to']          = maybe_unserialize($email['to']);
-                $email['headers']     = maybe_unserialize($email['headers']);
-                $email['attachments'] = maybe_unserialize($email['attachments']);
-                $email['extra']       = maybe_unserialize($email['extra']);
+                $email['to']          = $this->unserialize($email['to']);
+                $email['headers']     = $this->unserialize($email['headers']);
+                $email['attachments'] = $this->unserialize($email['attachments']);
+                $email['extra']       = $this->unserialize($email['extra']);
                 return $email;
             }
         } catch (\PHPMailer\PHPMailer\Exception $e) {
@@ -394,7 +437,7 @@ class Logger extends Model
     {
         try {
 
-            $date = date('Y-m-d H:i:s', current_time('timestamp') - $days * DAY_IN_SECONDS);
+            $date = gmdate('Y-m-d H:i:s', current_time('timestamp') - $days * DAY_IN_SECONDS);
             $query = $this->db->prepare("DELETE FROM {$this->table} WHERE `created_at` < %s", $date);
             return $this->db->query($query);
 

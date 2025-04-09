@@ -88,14 +88,21 @@ class WPSEO_Admin_Asset_Manager {
 	 * @return void
 	 */
 	public function register_script( WPSEO_Admin_Asset $script ) {
-		$url = $script->get_src() ? $this->get_url( $script, WPSEO_Admin_Asset::TYPE_JS ) : false;
+		$url  = $script->get_src() ? $this->get_url( $script, WPSEO_Admin_Asset::TYPE_JS ) : false;
+		$args = [
+			'in_footer' => $script->is_in_footer(),
+		];
+
+		if ( $script->get_strategy() !== '' ) {
+			$args['strategy'] = $script->get_strategy();
+		}
 
 		wp_register_script(
 			$this->prefix . $script->get_name(),
 			$url,
 			$script->get_deps(),
 			$script->get_version(),
-			$script->is_in_footer()
+			$args
 		);
 
 		if ( in_array( 'wp-i18n', $script->get_deps(), true ) ) {
@@ -313,6 +320,9 @@ class WPSEO_Admin_Asset_Manager {
 				self::PREFIX . 'externals-contexts',
 				self::PREFIX . 'externals-redux',
 			],
+			'general-page'             => [
+				self::PREFIX . 'api-client',
+			],
 		];
 
 		$plugin_scripts   = $this->load_generated_asset_file(
@@ -361,7 +371,7 @@ class WPSEO_Admin_Asset_Manager {
 				'wp-components',
 				'wp-element',
 				'wp-i18n',
-				self::PREFIX . 'yoast-components',
+				self::PREFIX . 'components-new-package',
 				self::PREFIX . 'externals-components',
 			],
 			'version' => $scripts['installation-success']['version'],
@@ -402,7 +412,7 @@ class WPSEO_Admin_Asset_Manager {
 				self::PREFIX . 'externals-redux',
 				self::PREFIX . 'analysis',
 				self::PREFIX . 'react-select',
-				self::PREFIX . 'yoast-components',
+				self::PREFIX . 'components-new-package',
 			],
 			'version' => $scripts['workouts']['version'],
 		];
@@ -503,7 +513,6 @@ class WPSEO_Admin_Asset_Manager {
 			'helpers'                     => 'helpers-package',
 			'jed'                         => 'jed-package',
 			'chart.js'                    => 'chart.js-package',
-			'legacy-components'           => 'components-package',
 			'network-admin-script'        => 'network-admin',
 			'redux'                       => 'redux-package',
 			'replacement-variable-editor' => 'replacement-variable-editor-package',
@@ -575,12 +584,20 @@ class WPSEO_Admin_Asset_Manager {
 				],
 			],
 			[
+				'name' => 'block-editor',
+				'src'  => 'block-editor-' . $flat_version,
+			],
+			[
 				'name' => 'ai-generator',
 				'src'  => 'ai-generator-' . $flat_version,
 				'deps' => [
 					self::PREFIX . 'tailwind',
 					self::PREFIX . 'introductions',
 				],
+			],
+			[
+				'name' => 'ai-fix-assessments',
+				'src'  => 'ai-fix-assessments-' . $flat_version,
 			],
 			[
 				'name' => 'introductions',
@@ -628,7 +645,11 @@ class WPSEO_Admin_Asset_Manager {
 			[
 				'name' => 'structured-data-blocks',
 				'src'  => 'structured-data-blocks-' . $flat_version,
-				'deps' => [ 'wp-edit-blocks' ],
+				'deps' => [
+					'dashicons',
+					'forms',
+					'wp-edit-blocks',
+				],
 			],
 			[
 				'name' => 'elementor',
@@ -637,6 +658,11 @@ class WPSEO_Admin_Asset_Manager {
 			[
 				'name' => 'tailwind',
 				'src'  => 'tailwind-' . $flat_version,
+				// Note: The RTL suffix is not added here.
+				// Tailwind and our UI library provide styling that should be standalone compatible with RTL.
+				// To make it easier we should use the logical properties and values when possible.
+				// If there are exceptions, we can use the Tailwind modifier, e.g. `rtl:yst-space-x-reverse`.
+				'rtl'  => false,
 			],
 			[
 				'name' => 'new-settings',
@@ -651,6 +677,11 @@ class WPSEO_Admin_Asset_Manager {
 			[
 				'name' => 'academy',
 				'src'  => 'academy-' . $flat_version,
+				'deps' => [ self::PREFIX . 'tailwind' ],
+			],
+			[
+				'name' => 'general-page',
+				'src'  => 'general-page-' . $flat_version,
 				'deps' => [ self::PREFIX . 'tailwind' ],
 			],
 			[

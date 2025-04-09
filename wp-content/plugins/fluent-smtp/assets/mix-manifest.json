@@ -8,6 +8,7 @@
     "/images/disc.svg": "/images/disc.svg",
     "/images/fluentsmtp-white.png": "/images/fluentsmtp-white.png",
     "/images/fluentsmtp.png": "/images/fluentsmtp.png",
+    "/images/index.php": "/images/index.php",
     "/images/logo.svg": "/images/logo.svg",
     "/images/mail_signature.png": "/images/mail_signature.png",
     "/images/provider-aws-ses.svg": "/images/provider-aws-ses.svg",
@@ -21,6 +22,7 @@
     "/images/provider-sendgrid.svg": "/images/provider-sendgrid.svg",
     "/images/provider-sendinblue.svg": "/images/provider-sendinblue.svg",
     "/images/provider-smtp.svg": "/images/provider-smtp.svg",
+    "/images/provider-smtp2go.svg": "/images/provider-smtp2go.svg",
     "/images/provider-sparkpost.svg": "/images/provider-sparkpost.svg",
     "/images/slack.svg": "/images/slack.svg",
     "/images/tele.svg": "/images/tele.svg",
@@ -31,6 +33,7 @@
     "/libs/chartjs/Chart.min.js": "/libs/chartjs/Chart.min.js",
     "/libs/chartjs/vue-chartjs.js": "/libs/chartjs/vue-chartjs.js",
     "/libs/chartjs/vue-chartjs.min.js": "/libs/chartjs/vue-chartjs.min.js",
+    "/libs/index.php": "/libs/index.php",
     "/libs/purify/purify.js": "/libs/purify/purify.js",
     "/libs/purify/purify.min.js": "/libs/purify/purify.min.js"
 }

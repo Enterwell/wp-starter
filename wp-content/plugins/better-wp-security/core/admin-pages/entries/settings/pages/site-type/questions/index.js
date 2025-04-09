@@ -7,7 +7,7 @@ import { useParams } from 'react-router-dom';
  * WordPress dependencies
  */
 import { useSelect, useDispatch } from '@wordpress/data';
-import { useEffect, useLayoutEffect, memo } from '@wordpress/element';
+import { useEffect, useLayoutEffect } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -66,7 +66,7 @@ function useNextQuestion() {
 		return question;
 	}
 
-	const Component = memo( component || SchemaQuestion );
+	const Component = component || SchemaQuestion;
 
 	return (
 		<Component

@@ -176,6 +176,10 @@ $keys = array(
 			'\bfound_rows\(\)'
 		)
 	),
+	'dbcache.wpcli_disk' => array(
+		'type' => 'boolean',
+		'default' => false,
+	),
 
 	'docroot_fix.enable' => array(
 		'type' => 'boolean',
@@ -272,7 +276,7 @@ $keys = array(
 	),
 	'objectcache.file.gc' => array(
 		'type' => 'integer',
-		'default' => 3600
+		'default' => 600,
 	),
 	'objectcache.file.locking' => array(
 		'type' => 'boolean',
@@ -339,20 +343,8 @@ $keys = array(
 		'default' => 0
 	),
 	'objectcache.groups.global' => array(
-		'type' => 'array',
-		'default' => array(
-			'users',
-			'userlogins',
-			'usermeta',
-			'user_meta',
-			'site-transient',
-			'site-options',
-			'site-lookup',
-			'blog-lookup',
-			'blog-details',
-			'rss',
-			'global-posts'
-		)
+		'type'    => 'array',
+		'default' => array(),
 	),
 	'objectcache.groups.nonpersistent' => array(
 		'type' => 'array',
@@ -368,6 +360,10 @@ $keys = array(
 	'objectcache.purge.all' => array(
 		'type' => 'boolean',
 		'default' => false
+	),
+	'objectcache.wpcli_disk' => array(
+		'type' => 'boolean',
+		'default' => false,
 	),
 
 	'pgcache.configuration_overloaded' => array(
@@ -485,7 +481,7 @@ $keys = array(
 	// name backwards-compatible. in reality works for apache too
 	'pgcache.cache.nginx_handle_xml' => array(
 		'type' => 'boolean',
-		'default' => false
+		'default' => true
 	),
 	'pgcache.cache.ssl' => array(
 		'type' => 'boolean',
@@ -672,7 +668,7 @@ $keys = array(
 	),
 	'pgcache.purge.sitemap_regex' => array(
 		'type' => 'string',
-		'default' => '([a-z0-9_\-]*?)sitemap([a-z0-9_\-]*)?\.xml'
+		'default' => '([a-z0-9_\-]*?)sitemap([a-z0-9_\-]*)?\.(?:xml|xsl)'
 	),
 	'pgcache.prime.enabled' => array(
 		'type' => 'boolean',
@@ -691,6 +687,10 @@ $keys = array(
 		'default' => ''
 	),
 	'pgcache.prime.post.enabled' => array(
+		'type' => 'boolean',
+		'default' => false
+	),
+	'pgcache.prime.post.update.enabled' => array(
 		'type' => 'boolean',
 		'default' => false
 	),
@@ -1179,7 +1179,7 @@ $keys = array(
 	),
 	'cdn.engine' => array(
 		'type' => 'string',
-		'default' => 'stackpath2'
+		'default' => ''
 	),
 	'cdn.uploads.enable' => array(
 		'type' => 'boolean',
@@ -1508,6 +1508,26 @@ $keys = array(
 		'default' => array()
 	),
 	'cdn.azure.ssl' => array(
+		'type' => 'string',
+		'default' => 'auto'
+	),
+	'cdn.azuremi.user' => array(
+		'type' => 'string',
+		'default' => ''
+	),
+	'cdn.azuremi.clientid' => array(
+		'type' => 'string',
+		'default' => ''
+	),
+	'cdn.azuremi.container' => array(
+		'type' => 'string',
+		'default' => ''
+	),
+	'cdn.azuremi.cname' => array(
+		'type' => 'array',
+		'default' => array()
+	),
+	'cdn.azuremi.ssl' => array(
 		'type' => 'string',
 		'default' => 'auto'
 	),
@@ -2531,10 +2551,6 @@ $keys = array(
 	'widget.latest_news.items' => array(
 		'type' => 'integer',
 		'default' => 5
-	),
-	'widget.pagespeed.enabled' => array(
-		'type' => 'boolean',
-		'default' => false
 	),
 	'widget.pagespeed.access_token' => array(
 		'type' => 'string',

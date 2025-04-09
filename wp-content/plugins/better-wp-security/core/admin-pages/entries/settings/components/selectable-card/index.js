@@ -29,6 +29,7 @@ export default function SelectableCard( {
 	direction = 'horizontal',
 	className,
 	disabled,
+	isSelected,
 } ) {
 	return (
 		<StyledButtonWrapper
@@ -36,6 +37,7 @@ export default function SelectableCard( {
 			className={ className }
 			variant="none"
 			disabled={ disabled }
+			aria-pressed={ isSelected }
 		>
 			<StyledSelectableCard direction={ direction }>
 				<StyledIconContainer variant={ SurfaceVariant.SECONDARY }>

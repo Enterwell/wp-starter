@@ -40,6 +40,7 @@ domReady( () => {
 
 export * from './settings/components';
 export { OnboardSiteTypeBeforeFill } from './settings/pages/site-type/chooser';
+export { OnboardSiteTypeIpDetectionFill } from './settings/pages/site-type/questions/questions/ip-detection';
 export {
 	Page,
 	ChildPages,

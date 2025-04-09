@@ -110,10 +110,13 @@ class Root_Environment {
 	public function get_required_rules( $config ) {
 		$required_rules = array();
 		foreach ( $this->get_handlers() as $h ) {
-			$required_rules_current = $h->get_required_rules( $config );
+			if ( method_exists( $h, 'get_required_rules' ) ) {
+				$required_rules_current = $h->get_required_rules( $config );
 
-			if ( !is_null( $required_rules_current ) )
-				$required_rules = array_merge( $required_rules, $required_rules_current );
+				if ( ! is_null( $required_rules_current ) ) {
+					$required_rules = array_merge( $required_rules, $required_rules_current );
+				}
+			}
 		}
 
 		$required_rules = apply_filters( 'w3tc_environment_get_required_rules',
@@ -174,6 +177,7 @@ class Root_Environment {
 			new DbCache_Environment(),
 			new Cdn_Environment(),
 			new Extension_ImageService_Environment(),
+			new Extension_AlwaysCached_Environment(),
 		);
 
 		return $a;
@@ -198,5 +202,55 @@ class Root_Environment {
 
 		}
 		return $instructions_descriptors;
+	}
+
+	/**
+	 * Deletes all W3 Total Cache data from the database.
+	 *
+	 * phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery
+	 * phpcs:disable WordPress.DB.DirectDatabaseQuery.NoCaching
+	 * phpcs:disable WordPress.PHP.DevelopmentFunctions.error_log_error_log
+	 *
+	 * @since 2.8.3
+	 *
+	 * @param Config $config Config.
+	 *
+	 * @return void
+	 */
+	public static function delete_plugin_data( $config ) {
+		global $wpdb;
+
+		$license_key = $config->get_string( 'plugin.license_key' );
+		if ( ! empty( $license_key ) ) {
+			Licensing_Core::deactivate_license( $license_key );
+		}
+
+		// Define prefixes for options and transients.
+		$prefixes = array(
+			'w3tc_',                    // General options prefix.
+			'w3tcps_',                  // Additional options prefix.
+			'_transient_w3tc_',         // Transient prefix.
+			'_transient_timeout_w3tc_', // Transient timeout prefix.
+		);
+
+		// Delete options and transients with defined prefixes.
+		foreach ( $prefixes as $prefix ) {
+			$query        = 'SELECT `option_name` FROM ' . $wpdb->options . ' WHERE `option_name` LIKE "' . $prefix . '%";';
+			$option_names = $wpdb->get_col( $query ); // phpcs:ignore WordPress.DB.PreparedSQL
+
+			foreach ( $option_names as $option_name ) {
+				delete_option( $option_name );
+			}
+		}
+
+		// Remove plugin-created directories.
+		$directories = array(
+			defined( 'W3TC_CACHE_DIR' ) ? W3TC_CACHE_DIR : WP_CONTENT_DIR . '/cache',
+			defined( 'W3TC_CONFIG_DIR' ) ? W3TC_CONFIG_DIR : WP_CONTENT_DIR . '/w3tc-config',
+		);
+
+		foreach ( $directories as $dir ) {
+			Util_File::rmdir( $dir );
+		}
 	}
 }

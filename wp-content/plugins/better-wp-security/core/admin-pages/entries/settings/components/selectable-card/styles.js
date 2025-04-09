@@ -23,7 +23,8 @@ export const StyledButtonWrapper = styled.button`
 	background: none;
 	width: 100%;
 
-	&:focus {
+	&:focus,
+	&[aria-pressed="true"] {
 		box-shadow: 0 0 0 var(--wp-admin-border-width-focus) ${ ( { theme } ) => theme.colors.primary.base };
 		outline: 3px solid transparent;
 	}

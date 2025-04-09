@@ -1,0 +1,43 @@
+<tr>
+	<td class="button-row" style="padding:0;Margin:0;padding-left:40px;padding-right:40px;padding-bottom:40px">
+		<table style="width: 100%">
+			<tr>
+				<td align="left" class="es-m-txt-c" style="padding:0;Margin:0">
+					<!--[if mso]>
+					<a href="{{ $block_href }}" target="_blank" hidden>
+						<v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" esdevVmlButton href="{{ $block_href }}" style="height:35px; v-text-anchor:middle; width:111px" arcsize="6%" stroke="{{ $block_border_color }}" fillcolor="{{ $block_bk_color }}">
+						<w:anchorlock></w:anchorlock>
+						<center style='color:{{ $block_text_color }}; font-family:helvetica, "helvetica neue", arial, verdana, sans-serif; font-size:12px; font-weight:400; line-height:12px;  mso-text-raise:1px'>
+							{{ $block_text }}
+						</center>
+						</v:roundrect>
+					</a>
+					<![endif]--><!--[if !mso]><!-- -->
+					<span class="msohide es-button-border" style="border-style:solid;border-color:{{ $block_border_color }};background:{{ $block_bk_color }};border-width:1px;display:inline-block;border-radius:2px;width:250px;mso-hide:all">
+						<a href="{{ $block_href }}" class="es-button es-button-1690568108431" target="_blank"
+							style="mso-style-priority:100 !important;text-decoration:none;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;color:{{ $block_text_color }};font-size:13px;padding:10px;display:inline-block;background:{{ $block_bk_color }};border-radius:2px;font-family:helvetica, 'helvetica neue', arial, verdana, sans-serif;font-weight:normal;font-style:normal;line-height:16px;width:90%;text-align:center;mso-padding-alt:0;mso-border-alt:10px solid {{ $block_bk_color }}">{{ $block_text }}</a>
+					</span>
+					<!--<![endif]-->
+				</td>
+
+				<td align="right" class="es-m-txt-c" style="padding:0;Margin:0"><!--[if mso]>
+					<a href="{{ $confirm_href }}" target="_blank" hidden>
+						<v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" esdevVmlButton href="{{ $confirm_href }}"
+								 style="height:35px; v-text-anchor:middle; width:111px" arcsize="6%" stroke="f" fillcolor="{{ $block_bk_color }}">
+						<w:anchorlock></w:anchorlock>
+						<center style='color:{{ $block_text_color }}; font-family:helvetica, "helvetica neue", arial, verdana, sans-serif; font-size:12px; font-weight:400; line-height:12px;  mso-text-raise:1px'>
+							{{ $confirm_text }}
+						</center>
+					</v:roundrect>
+					</a>
+					<![endif]--><!--[if !mso]><!-- -->
+					<span class="msohide es-button-border" style="border-style:solid;border-color:{{ $confirm_border_color }};background:{{ $confirm_bk_color }};border-width:1px;display:inline-block;border-radius:2px;width:250px;mso-hide:all">
+						<a href="{{ $confirm_href }}" class="es-button es-button-1690568108431" target="_blank"
+							style="mso-style-priority:100 !important;text-decoration:none;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;color:{{ $confirm_text_color }};font-size:13px;padding:10px;display:inline-block;background:{{ $confirm_bk_color }};border-radius:2px;font-family:helvetica, 'helvetica neue', arial, verdana, sans-serif;font-weight:normal;font-style:normal;line-height:16px;width:90%;text-align:center;mso-padding-alt:0;mso-border-alt:10px solid {{ $confirm_bk_color }}">{{ $confirm_text }}</a>
+					</span>
+					<!--<![endif]-->
+				</td>
+			</tr>
+		</table>
+	</td>
+</tr>

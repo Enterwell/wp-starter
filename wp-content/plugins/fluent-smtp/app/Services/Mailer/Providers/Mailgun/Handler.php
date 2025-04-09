@@ -24,7 +24,7 @@ class Handler extends BaseHandler
             return $this->postSend();
         }
 
-        return $this->handleResponse(new \WP_Error(422, 'Something went wrong!', []) );
+        return $this->handleResponse(new \WP_Error(422, __('Something went wrong!', 'fluent-smtp'), []));
     }
 
     protected function setUrl()
@@ -45,8 +45,12 @@ class Handler extends BaseHandler
             'h:X-Mailer'     => 'FluentMail - Mailgun',
             'h:Content-Type' => $content_type
         ];
+
         if (stripos($content_type, 'html') === false) {
             $body['text'] = $this->getBody();
+        } else if ($content_type == 'multipart/alternative') {
+            $body['html'] = $this->getBody();
+            $body['text'] = $this->phpMailer->AltBody;
         } else {
             $body['html'] = $this->getBody();
         }
@@ -91,17 +95,17 @@ class Handler extends BaseHandler
 
             $isOKCode = $responseCode == $this->emailSentCode;
 
-            if($isOKCode) {
+            if ($isOKCode) {
                 $responseBody = \json_decode($responseBody, true);
             }
 
-            if($isOKCode && isset($responseBody['id'])) {
+            if ($isOKCode && isset($responseBody['id'])) {
                 $returnResponse = [
-                    'id' => Arr::get($responseBody,'id'),
+                    'id'      => Arr::get($responseBody, 'id'),
                     'message' => Arr::get($responseBody, 'message')
                 ];
             } else {
-                $returnResponse = new \WP_Error($responseCode, 'Mailgun API Error', $responseBody);
+                $returnResponse = new \WP_Error($responseCode, __('Mailgun API Error', 'fluent-smtp'), $responseBody);
             }
         }
 

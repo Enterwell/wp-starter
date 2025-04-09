@@ -4,15 +4,15 @@ namespace iThemesSecurity\Lib\Site_Types\Type;
 
 use iThemesSecurity\Exception\Invalid_Argument_Exception;
 use iThemesSecurity\Lib\Site_Types\Question\Client_Question_Pack;
-use iThemesSecurity\Lib\Site_Types\Question\End_Users_Question_Pack;
-use iThemesSecurity\Lib\Site_Types\Has_End_Users;
 use iThemesSecurity\Lib\Site_Types\Question;
 use iThemesSecurity\Lib\Site_Types\Question\Global_Question_Pack;
 use iThemesSecurity\Lib\Site_Types\Question\Login_Security_Question_Pack;
+use iThemesSecurity\Lib\Site_Types\Question\Site_Scan_Question;
 use iThemesSecurity\Lib\Site_Types\Templating_Site_Type;
 
-final class Network implements Templating_Site_Type, Has_End_Users {
+final class Network implements Templating_Site_Type {
 	const TEMPLATES = [
+		Question::SCAN_SITE,
 		Question::SELECT_END_USERS,
 		Question::END_USERS_TWO_FACTOR,
 		Question::END_USERS_PASSWORD_POLICY,
@@ -36,15 +36,11 @@ final class Network implements Templating_Site_Type, Has_End_Users {
 
 	public function get_questions(): array {
 		return array_merge(
-			( new Global_Question_Pack() )->get_questions(),
+			[ new Site_Scan_Question( $this ) ],
+			( new Login_Security_Question_Pack() )->get_questions(),
 			( new Client_Question_Pack() )->get_questions(),
-			( new End_Users_Question_Pack( $this ) )->get_questions(),
-			( new Login_Security_Question_Pack( $this ) )->get_questions()
+			( new Global_Question_Pack() )->get_questions(),
 		);
-	}
-
-	public function get_end_users_group_label(): string {
-		return __( 'Members', 'better-wp-security' );
 	}
 
 	public function is_supported_question( string $question_id ): bool {
@@ -53,6 +49,8 @@ final class Network implements Templating_Site_Type, Has_End_Users {
 
 	public function make_prompt( string $question_id ): string {
 		switch ( $question_id ) {
+			case Question::SCAN_SITE:
+				return __( 'Before we configure Solid Security, let’s scan your network for vulnerabilities…', 'better-wp-security' );
 			case Question::SELECT_END_USERS:
 				return __( 'Select your members', 'better-wp-security' );
 			case Question::END_USERS_TWO_FACTOR:

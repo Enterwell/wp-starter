@@ -1,11 +1,11 @@
 /**
  * WordPress dependencies
  */
-import { Button } from '@wordpress/components';
+import { Button, Flex } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import apiFetch from '@wordpress/api-fetch';
 import { useSelect } from '@wordpress/data';
-import { useCallback } from '@wordpress/element';
+import { createInterpolateElement, useCallback } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -13,15 +13,17 @@ import { useCallback } from '@wordpress/element';
 import { RjsfFieldFill } from '@ithemes/security-rjsf-theme';
 import { useAsync } from '@ithemes/security-hocs';
 import { MODULES_STORE_NAME } from '@ithemes/security.packages.data';
+import { OnboardSiteTypeIpDetectionFill } from '@ithemes/security.pages.settings';
 import './style.scss';
+import { Text } from '@ithemes/ui';
 
-function useDetectedIp() {
-	const { proxy, proxyHeader, schema } = useSelect( ( select ) => ( {
-		proxy: select( MODULES_STORE_NAME ).getEditedSetting(
+function useDetectedIp( proxyProvided, proxyHeaderProvided ) {
+	const { proxySetting, proxyHeaderSetting, schema } = useSelect( ( select ) => ( {
+		proxySetting: select( MODULES_STORE_NAME ).getEditedSetting(
 			'global',
 			'proxy'
 		),
-		proxyHeader: select( MODULES_STORE_NAME ).getEditedSetting(
+		proxyHeaderSetting: select( MODULES_STORE_NAME ).getEditedSetting(
 			'global',
 			'proxy_header'
 		),
@@ -29,7 +31,10 @@ function useDetectedIp() {
 			'global',
 			'proxy'
 		),
-	} ) );
+	} ), [] );
+
+	const proxy = proxyProvided || proxySetting;
+	const proxyHeader = proxyHeaderProvided || proxyHeaderSetting;
 
 	const execute = useCallback( () => {
 		const data = {
@@ -107,6 +112,32 @@ function AuthorizedHosts( { value, onChange, ip } ) {
 	);
 }
 
+function Onboard( { proxy, proxyHeader } ) {
+	const { label } = useDetectedIp( proxy, proxyHeader );
+
+	return (
+		<Flex direction="column" align="start">
+			<Text
+				as="p"
+				text={ createInterpolateElement(
+					__( 'Select the configuration that causes the “Detected IP” shown below to match your current IP address. <a>Don’t know your IP?</a>', 'better-wp-security' ),
+					{
+						// eslint-disable-next-line jsx-a11y/anchor-has-content
+						a: <a
+							href="https://go.solidwp.com/ip-checker"
+							target="_blank" rel="noreferrer"
+						/>,
+					}
+				) }
+			/>
+
+			<div className="itsec-global-detected-ip">
+				<span>{ label }</span>
+			</div>
+		</Flex>
+	);
+}
+
 export default function App() {
 	const { label, detectIp, ip } = useDetectedIp();
 
@@ -124,6 +155,11 @@ export default function App() {
 			<RjsfFieldFill name="itsec_global_proxy">
 				{ () => <ProxyIP label={ label } detectIp={ detectIp } /> }
 			</RjsfFieldFill>
+			<OnboardSiteTypeIpDetectionFill>
+				{ ( { proxy, proxyHeader } ) =>
+					<Onboard proxy={ proxy } proxyHeader={ proxyHeader } />
+				}
+			</OnboardSiteTypeIpDetectionFill>
 		</>
 	);
 }

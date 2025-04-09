@@ -45,7 +45,6 @@ class ITSEC_REST {
 		ITSEC_Modules::get_container()->get( Logs_Controller::class )->register_routes();
 		ITSEC_Modules::get_container()->get( Geolocation_Controller::class )->register_routes();
 		ITSEC_Modules::get_container()->get( Lockout_Stats_Controller::class )->register_routes();
-		ITSEC_Modules::get_container()->get( Trusted_Devices_Controller::class )->register_routes();
 		ITSEC_Modules::get_container()->get( Lockouts_Controller::class )->register_routes();
 		ITSEC_Modules::get_container()->get( Users_Controller_Extension::class )->run();
 

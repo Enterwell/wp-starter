@@ -35,7 +35,7 @@ final class ITSEC_Security_Check_Pro {
 	}
 
 	public function add_security_check_proxy_type( $proxy_types ) {
-		return ITSEC_Lib::array_insert_before( 'automatic', $proxy_types, 'security-check', esc_html__( 'Security Check Scan (Recommended)', 'better-wp-security' ) );
+		return ITSEC_Lib::array_insert_after( 'automatic', $proxy_types, 'security-check', esc_html__( 'Security Check Scan (Recommended)', 'better-wp-security' ) );
 	}
 
 	/**

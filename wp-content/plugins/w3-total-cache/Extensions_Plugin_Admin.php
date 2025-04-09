@@ -35,6 +35,7 @@ class Extensions_Plugin_Admin {
 		add_filter( 'w3tc_extensions', array( '\W3TC\Extension_Genesis_Plugin_Admin', 'w3tc_extensions' ), 10, 2 );
 		add_filter( 'w3tc_extensions_hooks', array( '\W3TC\Extension_Genesis_Plugin_Admin', 'w3tc_extensions_hooks' ) );
 		add_filter( 'w3tc_notes_genesis_theme', array( '\W3TC\Extension_Genesis_Plugin_Admin', 'w3tc_notes_genesis_theme' ) );
+		add_filter( 'w3tc_extensions', array( '\W3TC\Extension_AlwaysCached_Plugin_Admin', 'w3tc_extensions' ), 10, 2 );
 		add_filter( 'w3tc_extensions', array( '\W3TC\Extension_NewRelic_Plugin_Admin', 'w3tc_extensions' ), 10, 2 );
 		add_filter( 'w3tc_extensions', array( '\W3TC\Extension_Swarmify_Plugin_Admin', 'w3tc_extensions' ), 10, 2 );
 		add_filter( 'w3tc_extensions', array( '\W3TC\Extension_WordPressSeo_Plugin_Admin', 'w3tc_extensions' ), 10, 2 );
@@ -65,14 +66,42 @@ class Extensions_Plugin_Admin {
 	}
 
 	/**
-	 * Adds menu.
+	 * Adds menu (administrators only).
 	 *
 	 * @param array $menu Menu.
 	 * @return array
 	 */
 	public function w3tc_admin_menu( $menu ) {
+		if ( ! \user_can( \get_current_user_id(), 'manage_options' ) ) {
+			return;
+		}
+
+		$extension_val = Util_Request::get_string( 'extension' );
+		$extension     = ( ! empty( $extension_val ) ? esc_attr( $extension_val ) : '' );
+		$page_title    = '';
+
+		switch ( $extension ) {
+			case 'alwayscached':
+				$page_title = __( 'Always Cached Extension Settings', 'w3-total-cache' );
+				break;
+			case 'amp':
+				$page_title = __( 'AMP Extension Settings', 'w3-total-cache' );
+				break;
+			case 'cloudflare':
+				$page_title = __( 'Cloudflare Extension Settings', 'w3-total-cache' );
+				break;
+			case 'swarmify':
+				$page_title = __( 'Swarmify Extension Settings', 'w3-total-cache' );
+				break;
+			case 'genesis.theme':
+				$page_title = __( 'Genesis Extension Settings', 'w3-total-cache' );
+				break;
+			default:
+				$page_title = __( 'Extensions', 'w3-total-cache' );
+		}
+
 		$menu['w3tc_extensions'] = array(
-			'page_title'     => __( 'Extensions', 'w3-total-cache' ),
+			'page_title'     => $page_title,
 			'menu_text'      => __( 'Extensions', 'w3-total-cache' ),
 			'visible_always' => false,
 			'order'          => 1900,
@@ -102,9 +131,13 @@ class Extensions_Plugin_Admin {
 	}
 
 	/**
-	 * Admin init.
+	 * Admin init (administrators only).
 	 */
 	public function admin_init() {
+		if ( ! \user_can( \get_current_user_id(), 'manage_options' ) ) {
+			return;
+		}
+
 		// Used to load even inactive extensions if they want to.
 		$s     = get_option( 'w3tc_extensions_hooks' );
 		$hooks = @json_decode( $s, true ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
@@ -156,9 +189,13 @@ class Extensions_Plugin_Admin {
 	}
 
 	/**
-	 * Alters the active state of multiple extensions.
+	 * Alters the active state of multiple extensions (administrators only).
 	 */
 	public function change_extensions_status() {
+		if ( ! \user_can( \get_current_user_id(), 'manage_options' ) ) {
+			return;
+		}
+
 		$message    = '';
 		$extensions = Util_Request::get_array( 'checked' );
 		$action     = Util_Request::get( 'action' );
@@ -190,9 +227,13 @@ class Extensions_Plugin_Admin {
 	}
 
 	/**
-	 * Alters the active state of an extension.
+	 * Alters the active state of an extension (administrators only).
 	 */
 	public function change_extension_status() {
+		if ( ! \user_can( \get_current_user_id(), 'manage_options' ) ) {
+			return;
+		}
+
 		$action = Util_Request::get_string( 'action' );
 
 		if ( in_array( $action, array( 'activate', 'deactivate' ), true ) ) {
@@ -211,13 +252,17 @@ class Extensions_Plugin_Admin {
 	}
 
 	/**
-	 * Display admin notices.
+	 * Display admin notices (administrators only).
 	 *
 	 * @since 2.2.0
 	 *
 	 * @see Extensions_Util::get_active_extensions()
 	 */
 	public function admin_notices() {
+		if ( ! \user_can( \get_current_user_id(), 'manage_options' ) ) {
+			return;
+		}
+
 		$extensions_active = Extensions_Util::get_active_extensions( $this->_config );
 
 		foreach ( $extensions_active as $id => $info ) {

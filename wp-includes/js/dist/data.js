@@ -1,10 +1,10 @@
-/******/ (function() { // webpackBootstrap
+/******/ (() => { // webpackBootstrap
+/******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
-/***/ 1919:
-/***/ (function(module) {
+/***/ 66:
+/***/ ((module) => {
 
-"use strict";
 
 
 var isMergeableObject = function isMergeableObject(value) {
@@ -142,10 +142,9 @@ module.exports = deepmerge_1;
 
 /***/ }),
 
-/***/ 2167:
-/***/ (function(module) {
+/***/ 3249:
+/***/ ((module) => {
 
-"use strict";
 
 
 function _typeof(obj) {
@@ -455,65 +454,6 @@ function () {
 module.exports = EquivalentKeyMap;
 
 
-/***/ }),
-
-/***/ 9125:
-/***/ (function(module) {
-
-function combineReducers( reducers ) {
-	var keys = Object.keys( reducers ),
-		getNextState;
-
-	getNextState = ( function() {
-		var fn, i, key;
-
-		fn = 'return {';
-		for ( i = 0; i < keys.length; i++ ) {
-			// Rely on Quoted escaping of JSON.stringify with guarantee that
-			// each member of Object.keys is a string.
-			//
-			// "If Type(value) is String, then return the result of calling the
-			// abstract operation Quote with argument value. [...] The abstract
-			// operation Quote(value) wraps a String value in double quotes and
-			// escapes characters within it."
-			//
-			// https://www.ecma-international.org/ecma-262/5.1/#sec-15.12.3
-			key = JSON.stringify( keys[ i ] );
-
-			fn += key + ':r[' + key + '](s[' + key + '],a),';
-		}
-		fn += '}';
-
-		return new Function( 'r,s,a', fn );
-	} )();
-
-	return function combinedReducer( state, action ) {
-		var nextState, i, key;
-
-		// Assumed changed if initial state.
-		if ( state === undefined ) {
-			return getNextState( reducers, {}, action );
-		}
-
-		nextState = getNextState( reducers, state, action );
-
-		// Determine whether state has changed.
-		i = keys.length;
-		while ( i-- ) {
-			key = keys[ i ];
-			if ( state[ key ] !== nextState[ key ] ) {
-				// Return immediately if a changed value is encountered.
-				return nextState;
-			}
-		}
-
-		return state;
-	};
-}
-
-module.exports = combineReducers;
-
-
 /***/ })
 
 /******/ 	});
@@ -544,126 +484,123 @@ module.exports = combineReducers;
 /******/ 	
 /************************************************************************/
 /******/ 	/* webpack/runtime/compat get default export */
-/******/ 	!function() {
+/******/ 	(() => {
 /******/ 		// getDefaultExport function for compatibility with non-harmony modules
-/******/ 		__webpack_require__.n = function(module) {
+/******/ 		__webpack_require__.n = (module) => {
 /******/ 			var getter = module && module.__esModule ?
-/******/ 				function() { return module['default']; } :
-/******/ 				function() { return module; };
+/******/ 				() => (module['default']) :
+/******/ 				() => (module);
 /******/ 			__webpack_require__.d(getter, { a: getter });
 /******/ 			return getter;
 /******/ 		};
-/******/ 	}();
+/******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/define property getters */
-/******/ 	!function() {
+/******/ 	(() => {
 /******/ 		// define getter functions for harmony exports
-/******/ 		__webpack_require__.d = function(exports, definition) {
+/******/ 		__webpack_require__.d = (exports, definition) => {
 /******/ 			for(var key in definition) {
 /******/ 				if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
 /******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
 /******/ 				}
 /******/ 			}
 /******/ 		};
-/******/ 	}();
+/******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/hasOwnProperty shorthand */
-/******/ 	!function() {
-/******/ 		__webpack_require__.o = function(obj, prop) { return Object.prototype.hasOwnProperty.call(obj, prop); }
-/******/ 	}();
+/******/ 	(() => {
+/******/ 		__webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
+/******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/make namespace object */
-/******/ 	!function() {
+/******/ 	(() => {
 /******/ 		// define __esModule on exports
-/******/ 		__webpack_require__.r = function(exports) {
+/******/ 		__webpack_require__.r = (exports) => {
 /******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
 /******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
 /******/ 			}
 /******/ 			Object.defineProperty(exports, '__esModule', { value: true });
 /******/ 		};
-/******/ 	}();
+/******/ 	})();
 /******/ 	
 /************************************************************************/
 var __webpack_exports__ = {};
-// This entry need to be wrapped in an IIFE because it need to be in strict mode.
-!function() {
-"use strict";
+// This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
+(() => {
 // ESM COMPAT FLAG
 __webpack_require__.r(__webpack_exports__);
 
 // EXPORTS
 __webpack_require__.d(__webpack_exports__, {
-  AsyncModeProvider: function() { return /* reexport */ async_mode_provider_context; },
-  RegistryConsumer: function() { return /* reexport */ RegistryConsumer; },
-  RegistryProvider: function() { return /* reexport */ context; },
-  combineReducers: function() { return /* binding */ build_module_combineReducers; },
-  controls: function() { return /* reexport */ controls; },
-  createReduxStore: function() { return /* reexport */ createReduxStore; },
-  createRegistry: function() { return /* reexport */ createRegistry; },
-  createRegistryControl: function() { return /* reexport */ createRegistryControl; },
-  createRegistrySelector: function() { return /* reexport */ createRegistrySelector; },
-  dispatch: function() { return /* reexport */ dispatch_dispatch; },
-  plugins: function() { return /* reexport */ plugins_namespaceObject; },
-  register: function() { return /* binding */ register; },
-  registerGenericStore: function() { return /* binding */ registerGenericStore; },
-  registerStore: function() { return /* binding */ registerStore; },
-  resolveSelect: function() { return /* binding */ build_module_resolveSelect; },
-  select: function() { return /* reexport */ select_select; },
-  subscribe: function() { return /* binding */ subscribe; },
-  suspendSelect: function() { return /* binding */ suspendSelect; },
-  use: function() { return /* binding */ use; },
-  useDispatch: function() { return /* reexport */ use_dispatch; },
-  useRegistry: function() { return /* reexport */ useRegistry; },
-  useSelect: function() { return /* reexport */ useSelect; },
-  useSuspenseSelect: function() { return /* reexport */ useSuspenseSelect; },
-  withDispatch: function() { return /* reexport */ with_dispatch; },
-  withRegistry: function() { return /* reexport */ with_registry; },
-  withSelect: function() { return /* reexport */ with_select; }
+  AsyncModeProvider: () => (/* reexport */ async_mode_provider_context),
+  RegistryConsumer: () => (/* reexport */ RegistryConsumer),
+  RegistryProvider: () => (/* reexport */ context),
+  combineReducers: () => (/* binding */ build_module_combineReducers),
+  controls: () => (/* reexport */ controls),
+  createReduxStore: () => (/* reexport */ createReduxStore),
+  createRegistry: () => (/* reexport */ createRegistry),
+  createRegistryControl: () => (/* reexport */ createRegistryControl),
+  createRegistrySelector: () => (/* reexport */ createRegistrySelector),
+  createSelector: () => (/* reexport */ rememo),
+  dispatch: () => (/* reexport */ dispatch_dispatch),
+  plugins: () => (/* reexport */ plugins_namespaceObject),
+  register: () => (/* binding */ register),
+  registerGenericStore: () => (/* binding */ registerGenericStore),
+  registerStore: () => (/* binding */ registerStore),
+  resolveSelect: () => (/* binding */ build_module_resolveSelect),
+  select: () => (/* reexport */ select_select),
+  subscribe: () => (/* binding */ subscribe),
+  suspendSelect: () => (/* binding */ suspendSelect),
+  use: () => (/* binding */ use),
+  useDispatch: () => (/* reexport */ use_dispatch),
+  useRegistry: () => (/* reexport */ useRegistry),
+  useSelect: () => (/* reexport */ useSelect),
+  useSuspenseSelect: () => (/* reexport */ useSuspenseSelect),
+  withDispatch: () => (/* reexport */ with_dispatch),
+  withRegistry: () => (/* reexport */ with_registry),
+  withSelect: () => (/* reexport */ with_select)
 });
 
 // NAMESPACE OBJECT: ./node_modules/@wordpress/data/build-module/redux-store/metadata/selectors.js
 var selectors_namespaceObject = {};
 __webpack_require__.r(selectors_namespaceObject);
 __webpack_require__.d(selectors_namespaceObject, {
-  countSelectorsByStatus: function() { return countSelectorsByStatus; },
-  getCachedResolvers: function() { return getCachedResolvers; },
-  getIsResolving: function() { return getIsResolving; },
-  getResolutionError: function() { return getResolutionError; },
-  getResolutionState: function() { return getResolutionState; },
-  hasFinishedResolution: function() { return hasFinishedResolution; },
-  hasResolutionFailed: function() { return hasResolutionFailed; },
-  hasResolvingSelectors: function() { return hasResolvingSelectors; },
-  hasStartedResolution: function() { return hasStartedResolution; },
-  isResolving: function() { return isResolving; }
+  countSelectorsByStatus: () => (countSelectorsByStatus),
+  getCachedResolvers: () => (getCachedResolvers),
+  getIsResolving: () => (getIsResolving),
+  getResolutionError: () => (getResolutionError),
+  getResolutionState: () => (getResolutionState),
+  hasFinishedResolution: () => (hasFinishedResolution),
+  hasResolutionFailed: () => (hasResolutionFailed),
+  hasResolvingSelectors: () => (hasResolvingSelectors),
+  hasStartedResolution: () => (hasStartedResolution),
+  isResolving: () => (isResolving)
 });
 
 // NAMESPACE OBJECT: ./node_modules/@wordpress/data/build-module/redux-store/metadata/actions.js
 var actions_namespaceObject = {};
 __webpack_require__.r(actions_namespaceObject);
 __webpack_require__.d(actions_namespaceObject, {
-  failResolution: function() { return failResolution; },
-  failResolutions: function() { return failResolutions; },
-  finishResolution: function() { return finishResolution; },
-  finishResolutions: function() { return finishResolutions; },
-  invalidateResolution: function() { return invalidateResolution; },
-  invalidateResolutionForStore: function() { return invalidateResolutionForStore; },
-  invalidateResolutionForStoreSelector: function() { return invalidateResolutionForStoreSelector; },
-  startResolution: function() { return startResolution; },
-  startResolutions: function() { return startResolutions; }
+  failResolution: () => (failResolution),
+  failResolutions: () => (failResolutions),
+  finishResolution: () => (finishResolution),
+  finishResolutions: () => (finishResolutions),
+  invalidateResolution: () => (invalidateResolution),
+  invalidateResolutionForStore: () => (invalidateResolutionForStore),
+  invalidateResolutionForStoreSelector: () => (invalidateResolutionForStoreSelector),
+  startResolution: () => (startResolution),
+  startResolutions: () => (startResolutions)
 });
 
 // NAMESPACE OBJECT: ./node_modules/@wordpress/data/build-module/plugins/index.js
 var plugins_namespaceObject = {};
 __webpack_require__.r(plugins_namespaceObject);
 __webpack_require__.d(plugins_namespaceObject, {
-  persistence: function() { return persistence; }
+  persistence: () => (persistence)
 });
 
-// EXTERNAL MODULE: ./node_modules/turbo-combine-reducers/index.js
-var turbo_combine_reducers = __webpack_require__(9125);
-var turbo_combine_reducers_default = /*#__PURE__*/__webpack_require__.n(turbo_combine_reducers);
 ;// CONCATENATED MODULE: external ["wp","deprecated"]
-var external_wp_deprecated_namespaceObject = window["wp"]["deprecated"];
+const external_wp_deprecated_namespaceObject = window["wp"]["deprecated"];
 var external_wp_deprecated_default = /*#__PURE__*/__webpack_require__.n(external_wp_deprecated_namespaceObject);
 ;// CONCATENATED MODULE: ./node_modules/@babel/runtime/helpers/esm/typeof.js
 function _typeof(o) {
@@ -1427,13 +1364,30 @@ function applyMiddleware() {
 
 
 // EXTERNAL MODULE: ./node_modules/equivalent-key-map/equivalent-key-map.js
-var equivalent_key_map = __webpack_require__(2167);
+var equivalent_key_map = __webpack_require__(3249);
 var equivalent_key_map_default = /*#__PURE__*/__webpack_require__.n(equivalent_key_map);
 ;// CONCATENATED MODULE: external ["wp","reduxRoutine"]
-var external_wp_reduxRoutine_namespaceObject = window["wp"]["reduxRoutine"];
+const external_wp_reduxRoutine_namespaceObject = window["wp"]["reduxRoutine"];
 var external_wp_reduxRoutine_default = /*#__PURE__*/__webpack_require__.n(external_wp_reduxRoutine_namespaceObject);
 ;// CONCATENATED MODULE: external ["wp","compose"]
-var external_wp_compose_namespaceObject = window["wp"]["compose"];
+const external_wp_compose_namespaceObject = window["wp"]["compose"];
+;// CONCATENATED MODULE: ./node_modules/@wordpress/data/build-module/redux-store/combine-reducers.js
+function combine_reducers_combineReducers(reducers) {
+  const keys = Object.keys(reducers);
+  return function combinedReducer(state = {}, action) {
+    const nextState = {};
+    let hasChanged = false;
+    for (const key of keys) {
+      const reducer = reducers[key];
+      const prevStateForKey = state[key];
+      const nextStateForKey = reducer(prevStateForKey, action);
+      nextState[key] = nextStateForKey;
+      hasChanged = hasChanged || nextStateForKey !== prevStateForKey;
+    }
+    return hasChanged ? nextState : state;
+  };
+}
+
 ;// CONCATENATED MODULE: ./node_modules/@wordpress/data/build-module/factory.js
 /**
  * Creates a selector function that takes additional curried argument with the
@@ -1476,10 +1430,22 @@ var external_wp_compose_namespaceObject = window["wp"]["compose"];
  * @return {Function} Registry selector that can be registered with a store.
  */
 function createRegistrySelector(registrySelector) {
+  const selectorsByRegistry = new WeakMap();
   // Create a selector function that is bound to the registry referenced by `selector.registry`
   // and that has the same API as a regular selector. Binding it in such a way makes it
   // possible to call the selector directly from another selector.
-  const selector = (...args) => registrySelector(selector.registry.select)(...args);
+  const wrappedSelector = (...args) => {
+    let selector = selectorsByRegistry.get(wrappedSelector.registry);
+    // We want to make sure the cache persists even when new registry
+    // instances are created. For example patterns create their own editors
+    // with their own core/block-editor stores, so we should keep track of
+    // the cache for each registry instance.
+    if (!selector) {
+      selector = registrySelector(wrappedSelector.registry.select);
+      selectorsByRegistry.set(wrappedSelector.registry, selector);
+    }
+    return selector(...args);
+  };
 
   /**
    * Flag indicating that the selector is a registry selector that needs the correct registry
@@ -1488,8 +1454,8 @@ function createRegistrySelector(registrySelector) {
    *
    * @type {boolean}
    */
-  selector.isRegistrySelector = true;
-  return selector;
+  wrappedSelector.isRegistrySelector = true;
+  return wrappedSelector;
 }
 
 /**
@@ -1610,7 +1576,7 @@ function resolveSelect(storeNameOrDescriptor, selectorName, ...args) {
  *
  * // Action generator using dispatch
  * export function* myAction() {
- *   yield controls.dispatch( 'core/edit-post', 'togglePublishSidebar' );
+ *   yield controls.dispatch( 'core/editor', 'togglePublishSidebar' );
  *   // do some other things.
  * }
  * ```
@@ -1652,7 +1618,7 @@ const builtinControls = {
 };
 
 ;// CONCATENATED MODULE: external ["wp","privateApis"]
-var external_wp_privateApis_namespaceObject = window["wp"]["privateApis"];
+const external_wp_privateApis_namespaceObject = window["wp"]["privateApis"];
 ;// CONCATENATED MODULE: ./node_modules/@wordpress/data/build-module/lock-unlock.js
 /**
  * WordPress dependencies
@@ -1661,7 +1627,7 @@ var external_wp_privateApis_namespaceObject = window["wp"]["privateApis"];
 const {
   lock,
   unlock
-} = (0,external_wp_privateApis_namespaceObject.__dangerousOptInToUnstableAPIsOnlyForCoreModules)('I know using unstable features means my theme or plugin will inevitably break in the next version of WordPress.', '@wordpress/data');
+} = (0,external_wp_privateApis_namespaceObject.__dangerousOptInToUnstableAPIsOnlyForCoreModules)('I acknowledge private features are not for use in themes or plugins and doing so will break in the next version of WordPress.', '@wordpress/data');
 
 ;// CONCATENATED MODULE: ./node_modules/is-promise/index.mjs
 function isPromise(obj) {
@@ -1689,77 +1655,51 @@ const promiseMiddleware = () => next => action => {
   }
   return next(action);
 };
-/* harmony default export */ var promise_middleware = (promiseMiddleware);
-
-;// CONCATENATED MODULE: ./node_modules/@wordpress/data/build-module/store/index.js
-const coreDataStore = {
-  name: 'core/data',
-  instantiate(registry) {
-    const getCoreDataSelector = selectorName => (key, ...args) => {
-      return registry.select(key)[selectorName](...args);
-    };
-    const getCoreDataAction = actionName => (key, ...args) => {
-      return registry.dispatch(key)[actionName](...args);
-    };
-    return {
-      getSelectors() {
-        return Object.fromEntries(['getIsResolving', 'hasStartedResolution', 'hasFinishedResolution', 'isResolving', 'getCachedResolvers'].map(selectorName => [selectorName, getCoreDataSelector(selectorName)]));
-      },
-      getActions() {
-        return Object.fromEntries(['startResolution', 'finishResolution', 'invalidateResolution', 'invalidateResolutionForStore', 'invalidateResolutionForStoreSelector'].map(actionName => [actionName, getCoreDataAction(actionName)]));
-      },
-      subscribe() {
-        // There's no reasons to trigger any listener when we subscribe to this store
-        // because there's no state stored in this store that need to retrigger selectors
-        // if a change happens, the corresponding store where the tracking stated live
-        // would have already triggered a "subscribe" call.
-        return () => () => {};
-      }
-    };
-  }
-};
-/* harmony default export */ var store = (coreDataStore);
+/* harmony default export */ const promise_middleware = (promiseMiddleware);
 
 ;// CONCATENATED MODULE: ./node_modules/@wordpress/data/build-module/resolvers-cache-middleware.js
-/**
- * Internal dependencies
- */
-
-
 /** @typedef {import('./registry').WPDataRegistry} WPDataRegistry */
 
 /**
  * Creates a middleware handling resolvers cache invalidation.
  *
- * @param {WPDataRegistry} registry   The registry reference for which to create
- *                                    the middleware.
- * @param {string}         reducerKey The namespace for which to create the
- *                                    middleware.
+ * @param {WPDataRegistry} registry  Registry for which to create the middleware.
+ * @param {string}         storeName Name of the store for which to create the middleware.
  *
  * @return {Function} Middleware function.
  */
-const createResolversCacheMiddleware = (registry, reducerKey) => () => next => action => {
-  const resolvers = registry.select(store).getCachedResolvers(reducerKey);
-  Object.entries(resolvers).forEach(([selectorName, resolversByArgs]) => {
-    const resolver = registry.stores?.[reducerKey]?.resolvers?.[selectorName];
+const createResolversCacheMiddleware = (registry, storeName) => () => next => action => {
+  const resolvers = registry.select(storeName).getCachedResolvers();
+  const resolverEntries = Object.entries(resolvers);
+  resolverEntries.forEach(([selectorName, resolversByArgs]) => {
+    const resolver = registry.stores[storeName]?.resolvers?.[selectorName];
     if (!resolver || !resolver.shouldInvalidate) {
       return;
     }
     resolversByArgs.forEach((value, args) => {
+      // Works around a bug in `EquivalentKeyMap` where `map.delete` merely sets an entry value
+      // to `undefined` and `map.forEach` then iterates also over these orphaned entries.
+      if (value === undefined) {
+        return;
+      }
+
       // resolversByArgs is the map Map([ args ] => boolean) storing the cache resolution status for a given selector.
       // If the value is "finished" or "error" it means this resolver has finished its resolution which means we need
       // to invalidate it, if it's true it means it's inflight and the invalidation is not necessary.
-      if (value?.status !== 'finished' && value?.status !== 'error' || !resolver.shouldInvalidate(action, ...args)) {
+      if (value.status !== 'finished' && value.status !== 'error') {
+        return;
+      }
+      if (!resolver.shouldInvalidate(action, ...args)) {
         return;
       }
 
       // Trigger cache invalidation
-      registry.dispatch(store).invalidateResolution(reducerKey, selectorName, args);
+      registry.dispatch(storeName).invalidateResolution(selectorName, args);
     });
   });
   return next(action);
 };
-/* harmony default export */ var resolvers_cache_middleware = (createResolversCacheMiddleware);
+/* harmony default export */ const resolvers_cache_middleware = (createResolversCacheMiddleware);
 
 ;// CONCATENATED MODULE: ./node_modules/@wordpress/data/build-module/redux-store/thunk-middleware.js
 function createThunkMiddleware(args) {
@@ -1946,7 +1886,7 @@ const isResolved = (state = {}, action) => {
   }
   return state;
 };
-/* harmony default export */ var metadata_reducer = (isResolved);
+/* harmony default export */ const metadata_reducer = (isResolved);
 
 ;// CONCATENATED MODULE: ./node_modules/rememo/rememo.js
 
@@ -2248,13 +2188,14 @@ function isShallowEqual(a, b, fromIndex) {
 
 ;// CONCATENATED MODULE: ./node_modules/@wordpress/data/build-module/redux-store/metadata/selectors.js
 /**
- * External dependencies
+ * WordPress dependencies
  */
 
 
 /**
  * Internal dependencies
  */
+
 
 
 /** @typedef {Record<string, import('./reducer').State>} State */
@@ -2282,10 +2223,16 @@ function getResolutionState(state, selectorName, args) {
 }
 
 /**
- * Returns the raw `isResolving` value for a given selector name,
- * and arguments set. May be undefined if the selector has never been resolved
- * or not resolved for the given set of arguments, otherwise true or false for
- * resolution started and completed respectively.
+ * Returns an `isResolving`-like value for a given selector name and arguments set.
+ * Its value is either `undefined` if the selector has never been resolved or has been
+ * invalidated, or a `true`/`false` boolean value if the resolution is in progress or
+ * has finished, respectively.
+ *
+ * This is a legacy selector that was implemented when the "raw" internal data had
+ * this `undefined | boolean` format. Nowadays the internal value is an object that
+ * can be retrieved with `getResolutionState`.
+ *
+ * @deprecated
  *
  * @param {State}      state        Data state.
  * @param {string}     selectorName Selector name.
@@ -2294,6 +2241,11 @@ function getResolutionState(state, selectorName, args) {
  * @return {boolean | undefined} isResolving value.
  */
 function getIsResolving(state, selectorName, args) {
+  external_wp_deprecated_default()('wp.data.select( store ).getIsResolving', {
+    since: '6.6',
+    version: '6.8',
+    alternative: 'wp.data.select( store ).getResolutionState'
+  });
   const resolutionState = getResolutionState(state, selectorName, args);
   return resolutionState && resolutionState.status === 'resolving';
 }
@@ -2584,10 +2536,10 @@ function invalidateResolutionForStoreSelector(selectorName) {
 }
 
 ;// CONCATENATED MODULE: ./node_modules/@wordpress/data/build-module/redux-store/index.js
+/* wp:polyfill */
 /**
  * External dependencies
  */
-
 
 
 
@@ -2609,6 +2561,8 @@ function invalidateResolutionForStoreSelector(selectorName) {
 
 
 
+
+
 /** @typedef {import('../types').DataRegistry} DataRegistry */
 /** @typedef {import('../types').ListenerFunction} ListenerFunction */
 /**
@@ -2618,7 +2572,7 @@ function invalidateResolutionForStoreSelector(selectorName) {
 /**
  * @typedef {import('../types').ReduxStoreConfig<State,Actions,Selectors>} ReduxStoreConfig
  * @template State
- * @template {Record<string,import('../../types').ActionCreator>} Actions
+ * @template {Record<string,import('../types').ActionCreator>} Actions
  * @template Selectors
  */
 
@@ -2642,10 +2596,13 @@ const trimUndefinedValues = array => {
  */
 const mapValues = (obj, callback) => Object.fromEntries(Object.entries(obj !== null && obj !== void 0 ? obj : {}).map(([key, value]) => [key, callback(value, key)]));
 
-// Convert Map objects to plain objects
-const mapToObject = (key, state) => {
+// Convert  non serializable types to plain objects
+const devToolsReplacer = (key, state) => {
   if (state instanceof Map) {
     return Object.fromEntries(state);
+  }
+  if (state instanceof window.HTMLElement) {
+    return null;
   }
   return state;
 };
@@ -2705,7 +2662,7 @@ function createBindingCache(bind) {
  * ```
  *
  * @template State
- * @template {Record<string,import('../../types').ActionCreator>} Actions
+ * @template {Record<string,import('../types').ActionCreator>} Actions
  * @template Selectors
  * @param {string}                                    key     Unique namespace identifier.
  * @param {ReduxStoreConfig<State,Actions,Selectors>} options Registered store options, with properties
@@ -2785,9 +2742,20 @@ function createReduxStore(key, options) {
           selector.registry = registry;
         }
         const boundSelector = (...args) => {
+          args = normalize(selector, args);
           const state = store.__unstableOriginalGetState();
+          // Before calling the selector, switch to the correct
+          // registry.
+          if (selector.isRegistrySelector) {
+            selector.registry = registry;
+          }
           return selector(state.root, ...args);
         };
+
+        // Expose normalization method on the bound selector
+        // in order that it can be called when fullfilling
+        // the resolver.
+        boundSelector.__unstableNormalizeArgs = selector.__unstableNormalizeArgs;
         const resolver = resolvers[selectorName];
         if (!resolver) {
           boundSelector.hasResolver = false;
@@ -2795,10 +2763,18 @@ function createReduxStore(key, options) {
         }
         return mapSelectorWithResolver(boundSelector, selectorName, resolver, store, resolversCache);
       }
-      function bindMetadataSelector(selector) {
+      function bindMetadataSelector(metaDataSelector) {
         const boundSelector = (...args) => {
           const state = store.__unstableOriginalGetState();
-          return selector(state.metadata, ...args);
+          const originalSelectorName = args && args[0];
+          const originalSelectorArgs = args && args[1];
+          const targetSelector = options?.selectors?.[originalSelectorName];
+
+          // Normalize the arguments passed to the target selector.
+          if (originalSelectorName && targetSelector) {
+            args[1] = normalize(targetSelector, originalSelectorArgs);
+          }
+          return metaDataSelector(state.metadata, ...args);
         };
         boundSelector.hasResolver = false;
         return boundSelector;
@@ -2903,7 +2879,7 @@ function instantiateReduxStore(key, options, registry, thunkArgs) {
       name: key,
       instanceId: key,
       serialize: {
-        replacer: mapToObject
+        replacer: devToolsReplacer
       }
     }));
   }
@@ -2911,7 +2887,7 @@ function instantiateReduxStore(key, options, registry, thunkArgs) {
     reducer,
     initialState
   } = options;
-  const enhancedReducer = turbo_combine_reducers_default()({
+  const enhancedReducer = combine_reducers_combineReducers({
     metadata: metadata_reducer,
     root: reducer
   });
@@ -3069,6 +3045,7 @@ function mapSelectorWithResolver(selector, selectorName, resolver, store, resolv
     }, 0);
   }
   const selectorResolver = (...args) => {
+    args = normalize(selector, args);
     fulfillSelector(args);
     return selector(...args);
   };
@@ -3076,7 +3053,52 @@ function mapSelectorWithResolver(selector, selectorName, resolver, store, resolv
   return selectorResolver;
 }
 
+/**
+ * Applies selector's normalization function to the given arguments
+ * if it exists.
+ *
+ * @param {Object} selector The selector potentially with a normalization method property.
+ * @param {Array}  args     selector arguments to normalize.
+ * @return {Array} Potentially normalized arguments.
+ */
+function normalize(selector, args) {
+  if (selector.__unstableNormalizeArgs && typeof selector.__unstableNormalizeArgs === 'function' && args?.length) {
+    return selector.__unstableNormalizeArgs(args);
+  }
+  return args;
+}
+
+;// CONCATENATED MODULE: ./node_modules/@wordpress/data/build-module/store/index.js
+const coreDataStore = {
+  name: 'core/data',
+  instantiate(registry) {
+    const getCoreDataSelector = selectorName => (key, ...args) => {
+      return registry.select(key)[selectorName](...args);
+    };
+    const getCoreDataAction = actionName => (key, ...args) => {
+      return registry.dispatch(key)[actionName](...args);
+    };
+    return {
+      getSelectors() {
+        return Object.fromEntries(['getIsResolving', 'hasStartedResolution', 'hasFinishedResolution', 'isResolving', 'getCachedResolvers'].map(selectorName => [selectorName, getCoreDataSelector(selectorName)]));
+      },
+      getActions() {
+        return Object.fromEntries(['startResolution', 'finishResolution', 'invalidateResolution', 'invalidateResolutionForStore', 'invalidateResolutionForStoreSelector'].map(actionName => [actionName, getCoreDataAction(actionName)]));
+      },
+      subscribe() {
+        // There's no reasons to trigger any listener when we subscribe to this store
+        // because there's no state stored in this store that need to retrigger selectors
+        // if a change happens, the corresponding store where the tracking stated live
+        // would have already triggered a "subscribe" call.
+        return () => () => {};
+      }
+    };
+  }
+};
+/* harmony default export */ const store = (coreDataStore);
+
 ;// CONCATENATED MODULE: ./node_modules/@wordpress/data/build-module/utils/emitter.js
+/* wp:polyfill */
 /**
  * Create an event emitter.
  *
@@ -3120,6 +3142,7 @@ function createEmitter() {
 }
 
 ;// CONCATENATED MODULE: ./node_modules/@wordpress/data/build-module/registry.js
+/* wp:polyfill */
 /**
  * WordPress dependencies
  */
@@ -3414,9 +3437,12 @@ function createRegistry(storeConfigs = {}, parent = null) {
     }
     emitter.pause();
     Object.values(stores).forEach(store => store.emitter.pause());
-    callback();
-    emitter.resume();
-    Object.values(stores).forEach(store => store.emitter.resume());
+    try {
+      callback();
+    } finally {
+      emitter.resume();
+      Object.values(stores).forEach(store => store.emitter.resume());
+    }
   }
   let registry = {
     batch,
@@ -3482,7 +3508,7 @@ function createRegistry(storeConfigs = {}, parent = null) {
  * Internal dependencies
  */
 
-/* harmony default export */ var default_registry = (createRegistry());
+/* harmony default export */ const default_registry = (createRegistry());
 
 ;// CONCATENATED MODULE: ./node_modules/is-plain-object/dist/is-plain-object.mjs
 /*!
@@ -3521,7 +3547,7 @@ function is_plain_object_isPlainObject(o) {
 
 
 // EXTERNAL MODULE: ./node_modules/deepmerge/dist/cjs.js
-var cjs = __webpack_require__(1919);
+var cjs = __webpack_require__(66);
 var cjs_default = /*#__PURE__*/__webpack_require__.n(cjs);
 ;// CONCATENATED MODULE: ./node_modules/@wordpress/data/build-module/plugins/persistence/storage/object.js
 let objectStorage;
@@ -3542,7 +3568,7 @@ const storage = {
     objectStorage = Object.create(null);
   }
 };
-/* harmony default export */ var object = (storage);
+/* harmony default export */ const object = (storage);
 
 ;// CONCATENATED MODULE: ./node_modules/@wordpress/data/build-module/plugins/persistence/storage/default.js
 /**
@@ -3560,7 +3586,7 @@ try {
 } catch (error) {
   default_storage = object;
 }
-/* harmony default export */ var storage_default = (default_storage);
+/* harmony default export */ const storage_default = (default_storage);
 
 ;// CONCATENATED MODULE: ./node_modules/@wordpress/data/build-module/plugins/persistence/index.js
 /**
@@ -3764,17 +3790,17 @@ function persistencePlugin(registry, pluginOptions) {
   };
 }
 persistencePlugin.__unstableMigrate = () => {};
-/* harmony default export */ var persistence = (persistencePlugin);
+/* harmony default export */ const persistence = (persistencePlugin);
 
 ;// CONCATENATED MODULE: ./node_modules/@wordpress/data/build-module/plugins/index.js
 
 
-;// CONCATENATED MODULE: external ["wp","element"]
-var external_wp_element_namespaceObject = window["wp"]["element"];
 ;// CONCATENATED MODULE: external ["wp","priorityQueue"]
-var external_wp_priorityQueue_namespaceObject = window["wp"]["priorityQueue"];
+const external_wp_priorityQueue_namespaceObject = window["wp"]["priorityQueue"];
+;// CONCATENATED MODULE: external ["wp","element"]
+const external_wp_element_namespaceObject = window["wp"]["element"];
 ;// CONCATENATED MODULE: external ["wp","isShallowEqual"]
-var external_wp_isShallowEqual_namespaceObject = window["wp"]["isShallowEqual"];
+const external_wp_isShallowEqual_namespaceObject = window["wp"]["isShallowEqual"];
 var external_wp_isShallowEqual_default = /*#__PURE__*/__webpack_require__.n(external_wp_isShallowEqual_namespaceObject);
 ;// CONCATENATED MODULE: ./node_modules/@wordpress/data/build-module/components/registry-provider/context.js
 /**
@@ -3797,7 +3823,7 @@ const {
  * children components. Used along with the RegistryProvider.
  *
  * You can read more about the react context api here:
- * https://reactjs.org/docs/context.html#contextprovider
+ * https://react.dev/learn/passing-data-deeply-with-context#step-3-provide-the-context
  *
  * @example
  * ```js
@@ -3832,7 +3858,7 @@ const RegistryConsumer = Consumer;
  * See <a name="#RegistryConsumer">RegistryConsumer</a> documentation for
  * example.
  */
-/* harmony default export */ var context = (Provider);
+/* harmony default export */ const context = (Provider);
 
 ;// CONCATENATED MODULE: ./node_modules/@wordpress/data/build-module/components/registry-provider/use-registry.js
 /**
@@ -3933,9 +3959,9 @@ const AsyncModeConsumer = (/* unused pure expression or super */ null && (contex
  * It is possible to nest multiple levels of AsyncModeProvider to fine-tune the rendering behavior.
  *
  * @param {boolean} props.value Enable Async Mode.
- * @return {WPComponent} The component to be rendered.
+ * @return {Component} The component to be rendered.
  */
-/* harmony default export */ var async_mode_provider_context = (context_Provider);
+/* harmony default export */ const async_mode_provider_context = (context_Provider);
 
 ;// CONCATENATED MODULE: ./node_modules/@wordpress/data/build-module/components/async-mode-provider/use-async-mode.js
 /**
@@ -3952,6 +3978,7 @@ function useAsyncMode() {
 }
 
 ;// CONCATENATED MODULE: ./node_modules/@wordpress/data/build-module/components/use-select/index.js
+/* wp:polyfill */
 /**
  * WordPress dependencies
  */
@@ -3991,6 +4018,14 @@ function Store(registry, suspense) {
   let lastIsAsync;
   let subscriber;
   let didWarnUnstableReference;
+  const storeStatesOnMount = new Map();
+  function getStoreState(name) {
+    var _registry$stores$name;
+    // If there's no store property (custom generic store), return an empty
+    // object. When comparing the state, the empty objects will cause the
+    // equality check to fail, setting `lastMapResultValid` to false.
+    return (_registry$stores$name = registry.stores[name]?.store?.getState?.()) !== null && _registry$stores$name !== void 0 ? _registry$stores$name : {};
+  }
   const createSubscriber = stores => {
     // The set of stores the `subscribe` function is supposed to subscribe to. Here it is
     // initialized, and then the `updateStores` function can add new stores to it.
@@ -4001,12 +4036,21 @@ function Store(registry, suspense) {
     // keep a set of active subscriptions;
     const activeSubscriptions = new Set();
     function subscribe(listener) {
-      // Invalidate the value right after subscription was created. React will
-      // call `getValue` after subscribing, to detect store updates that happened
-      // in the interval between the `getValue` call during render and creating
-      // the subscription, which is slightly delayed. We need to ensure that this
-      // second `getValue` call will compute a fresh value.
-      lastMapResultValid = false;
+      // Maybe invalidate the value right after subscription was created.
+      // React will call `getValue` after subscribing, to detect store
+      // updates that happened in the interval between the `getValue` call
+      // during render and creating the subscription, which is slightly
+      // delayed. We need to ensure that this second `getValue` call will
+      // compute a fresh value only if any of the store states have
+      // changed in the meantime.
+      if (lastMapResultValid) {
+        for (const name of activeStores) {
+          if (storeStatesOnMount.get(name) !== getStoreState(name)) {
+            lastMapResultValid = false;
+          }
+        }
+      }
+      storeStatesOnMount.clear();
       const onStoreChange = () => {
         // Invalidate the value on store update, so that a fresh value is computed.
         lastMapResultValid = false;
@@ -4073,6 +4117,9 @@ function Store(registry, suspense) {
       const mapResult = registry.__unstableMarkListeningStores(() => mapSelect(select, registry), listeningStores);
       if (false) {}
       if (!subscriber) {
+        for (const name of listeningStores.current) {
+          storeStatesOnMount.set(name, getStoreState(name));
+        }
         subscriber = createSubscriber(listeningStores.current);
       } else {
         subscriber.updateStores(listeningStores.current);
@@ -4115,7 +4162,11 @@ function useStaticSelect(storeName) {
 function useMappingSelect(suspense, mapSelect, deps) {
   const registry = useRegistry();
   const isAsync = useAsyncMode();
-  const store = (0,external_wp_element_namespaceObject.useMemo)(() => Store(registry, suspense), [registry]);
+  const store = (0,external_wp_element_namespaceObject.useMemo)(() => Store(registry, suspense), [registry, suspense]);
+
+  // These are "pass-through" dependencies from the parent hook,
+  // and the parent should catch any hook rule violations.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const selector = (0,external_wp_element_namespaceObject.useCallback)(mapSelect, deps);
   const {
     subscribe,
@@ -4130,7 +4181,7 @@ function useMappingSelect(suspense, mapSelect, deps) {
  * Custom react hook for retrieving props from registered selectors.
  *
  * In general, this custom React hook follows the
- * [rules of hooks](https://reactjs.org/docs/hooks-rules.html).
+ * [rules of hooks](https://react.dev/reference/rules/rules-of-hooks).
  *
  * @template {MapSelect | StoreDescriptor<any>} T
  * @param {T}         mapSelect Function called on every state change. The returned value is
@@ -4209,26 +4260,31 @@ function useSelect(mapSelect, deps) {
 }
 
 /**
- * A variant of the `useSelect` hook that has the same API, but will throw a
- * suspense Promise if any of the called selectors is in an unresolved state.
+ * A variant of the `useSelect` hook that has the same API, but is a compatible
+ * Suspense-enabled data source.
  *
- * @param {Function} mapSelect Function called on every state change. The
- *                             returned value is exposed to the component
- *                             using this hook. The function receives the
- *                             `registry.suspendSelect` method as the first
- *                             argument and the `registry` as the second one.
- * @param {Array}    deps      A dependency array used to memoize the `mapSelect`
- *                             so that the same `mapSelect` is invoked on every
- *                             state change unless the dependencies change.
+ * @template {MapSelect} T
+ * @param {T}     mapSelect Function called on every state change. The
+ *                          returned value is exposed to the component
+ *                          using this hook. The function receives the
+ *                          `registry.suspendSelect` method as the first
+ *                          argument and the `registry` as the second one.
+ * @param {Array} deps      A dependency array used to memoize the `mapSelect`
+ *                          so that the same `mapSelect` is invoked on every
+ *                          state change unless the dependencies change.
  *
- * @return {Object} Data object returned by the `mapSelect` function.
+ * @throws {Promise} A suspense Promise that is thrown if any of the called
+ * selectors is in an unresolved state.
+ *
+ * @return {ReturnType<T>} Data object returned by the `mapSelect` function.
  */
 function useSuspenseSelect(mapSelect, deps) {
   return useMappingSelect(true, mapSelect, deps);
 }
 
+;// CONCATENATED MODULE: external "ReactJSXRuntime"
+const external_ReactJSXRuntime_namespaceObject = window["ReactJSXRuntime"];
 ;// CONCATENATED MODULE: ./node_modules/@wordpress/data/build-module/components/with-select/index.js
-
 /**
  * WordPress dependencies
  */
@@ -4239,7 +4295,7 @@ function useSuspenseSelect(mapSelect, deps) {
  */
 
 
-/** @typedef {import('@wordpress/element').WPComponent} WPComponent */
+/** @typedef {import('react').ComponentType} ComponentType */
 
 /**
  * Higher-order component used to inject state-derived props using registered
@@ -4279,17 +4335,18 @@ function useSuspenseSelect(mapSelect, deps) {
  * component and update automatically if the price of a hammer ever changes in
  * the store.
  *
- * @return {WPComponent} Enhanced component with merged state data props.
+ * @return {ComponentType} Enhanced component with merged state data props.
  */
+
 const withSelect = mapSelectToProps => (0,external_wp_compose_namespaceObject.createHigherOrderComponent)(WrappedComponent => (0,external_wp_compose_namespaceObject.pure)(ownProps => {
   const mapSelect = (select, registry) => mapSelectToProps(select, ownProps, registry);
   const mergeProps = useSelect(mapSelect);
-  return (0,external_wp_element_namespaceObject.createElement)(WrappedComponent, {
+  return /*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsx)(WrappedComponent, {
     ...ownProps,
     ...mergeProps
   });
 }), 'withSelect');
-/* harmony default export */ var with_select = (withSelect);
+/* harmony default export */ const with_select = (withSelect);
 
 ;// CONCATENATED MODULE: ./node_modules/@wordpress/data/build-module/components/use-dispatch/use-dispatch-with-map.js
 /**
@@ -4319,25 +4376,24 @@ const withSelect = mapSelectToProps => (0,external_wp_compose_namespaceObject.cr
  */
 const useDispatchWithMap = (dispatchMap, deps) => {
   const registry = useRegistry();
-  const currentDispatchMap = (0,external_wp_element_namespaceObject.useRef)(dispatchMap);
+  const currentDispatchMapRef = (0,external_wp_element_namespaceObject.useRef)(dispatchMap);
   (0,external_wp_compose_namespaceObject.useIsomorphicLayoutEffect)(() => {
-    currentDispatchMap.current = dispatchMap;
+    currentDispatchMapRef.current = dispatchMap;
   });
   return (0,external_wp_element_namespaceObject.useMemo)(() => {
-    const currentDispatchProps = currentDispatchMap.current(registry.dispatch, registry);
+    const currentDispatchProps = currentDispatchMapRef.current(registry.dispatch, registry);
     return Object.fromEntries(Object.entries(currentDispatchProps).map(([propName, dispatcher]) => {
       if (typeof dispatcher !== 'function') {
         // eslint-disable-next-line no-console
         console.warn(`Property ${propName} returned from dispatchMap in useDispatchWithMap must be a function.`);
       }
-      return [propName, (...args) => currentDispatchMap.current(registry.dispatch, registry)[propName](...args)];
+      return [propName, (...args) => currentDispatchMapRef.current(registry.dispatch, registry)[propName](...args)];
     }));
   }, [registry, ...deps]);
 };
-/* harmony default export */ var use_dispatch_with_map = (useDispatchWithMap);
+/* harmony default export */ const use_dispatch_with_map = (useDispatchWithMap);
 
 ;// CONCATENATED MODULE: ./node_modules/@wordpress/data/build-module/components/with-dispatch/index.js
-
 /**
  * WordPress dependencies
  */
@@ -4348,7 +4404,7 @@ const useDispatchWithMap = (dispatchMap, deps) => {
  */
 
 
-/** @typedef {import('@wordpress/element').WPComponent} WPComponent */
+/** @typedef {import('react').ComponentType} ComponentType */
 
 /**
  * Higher-order component used to add dispatch props using registered action
@@ -4429,20 +4485,20 @@ const useDispatchWithMap = (dispatchMap, deps) => {
  * returns an object with the same keys. For example, it should not contain
  * conditions under which a different value would be returned.
  *
- * @return {WPComponent} Enhanced component with merged dispatcher props.
+ * @return {ComponentType} Enhanced component with merged dispatcher props.
  */
+
 const withDispatch = mapDispatchToProps => (0,external_wp_compose_namespaceObject.createHigherOrderComponent)(WrappedComponent => ownProps => {
   const mapDispatch = (dispatch, registry) => mapDispatchToProps(dispatch, ownProps, registry);
   const dispatchProps = use_dispatch_with_map(mapDispatch, []);
-  return (0,external_wp_element_namespaceObject.createElement)(WrappedComponent, {
+  return /*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsx)(WrappedComponent, {
     ...ownProps,
     ...dispatchProps
   });
 }, 'withDispatch');
-/* harmony default export */ var with_dispatch = (withDispatch);
+/* harmony default export */ const with_dispatch = (withDispatch);
 
 ;// CONCATENATED MODULE: ./node_modules/@wordpress/data/build-module/components/with-registry/index.js
-
 /**
  * WordPress dependencies
  */
@@ -4457,15 +4513,18 @@ const withDispatch = mapDispatchToProps => (0,external_wp_compose_namespaceObjec
  * Higher-order component which renders the original component with the current
  * registry context passed as its `registry` prop.
  *
- * @param {WPComponent} OriginalComponent Original component.
+ * @param {Component} OriginalComponent Original component.
  *
- * @return {WPComponent} Enhanced component.
+ * @return {Component} Enhanced component.
  */
-const withRegistry = (0,external_wp_compose_namespaceObject.createHigherOrderComponent)(OriginalComponent => props => (0,external_wp_element_namespaceObject.createElement)(RegistryConsumer, null, registry => (0,external_wp_element_namespaceObject.createElement)(OriginalComponent, {
-  ...props,
-  registry: registry
-})), 'withRegistry');
-/* harmony default export */ var with_registry = (withRegistry);
+
+const withRegistry = (0,external_wp_compose_namespaceObject.createHigherOrderComponent)(OriginalComponent => props => /*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsx)(RegistryConsumer, {
+  children: registry => /*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsx)(OriginalComponent, {
+    ...props,
+    registry: registry
+  })
+}), 'withRegistry');
+/* harmony default export */ const with_registry = (withRegistry);
 
 ;// CONCATENATED MODULE: ./node_modules/@wordpress/data/build-module/components/use-dispatch/use-dispatch.js
 /**
@@ -4501,8 +4560,8 @@ const withRegistry = (0,external_wp_compose_namespaceObject.createHigherOrderCom
  * action.
  *
  * ```jsx
+ * import { useCallback } from 'react';
  * import { useDispatch, useSelect } from '@wordpress/data';
- * import { useCallback } from '@wordpress/element';
  * import { store as myCustomStore } from 'my-custom-store';
  *
  * function Button( { onClick, children } ) {
@@ -4534,7 +4593,7 @@ const useDispatch = storeNameOrDescriptor => {
   } = useRegistry();
   return storeNameOrDescriptor === void 0 ? dispatch : dispatch(storeNameOrDescriptor);
 };
-/* harmony default export */ var use_dispatch = (useDispatch);
+/* harmony default export */ const use_dispatch = (useDispatch);
 
 ;// CONCATENATED MODULE: ./node_modules/@wordpress/data/build-module/dispatch.js
 /**
@@ -4598,17 +4657,14 @@ function select_select(storeNameOrDescriptor) {
 
 ;// CONCATENATED MODULE: ./node_modules/@wordpress/data/build-module/index.js
 /**
- * External dependencies
- */
-
-
-/**
  * Internal dependencies
  */
 
 
 
+
 /** @typedef {import('./types').StoreDescriptor} StoreDescriptor */
+
 
 
 
@@ -4672,7 +4728,7 @@ function select_select(storeNameOrDescriptor) {
  * @return {Function} A reducer that invokes every reducer inside the reducers
  *                    object, and constructs a state object with the same shape.
  */
-const build_module_combineReducers = (turbo_combine_reducers_default());
+const build_module_combineReducers = combine_reducers_combineReducers;
 
 /**
  * Given a store descriptor, returns an object containing the store's selectors pre-bound to state
@@ -4785,7 +4841,8 @@ const use = default_registry.use;
  */
 const register = default_registry.register;
 
-}();
+})();
+
 (window.wp = window.wp || {}).data = __webpack_exports__;
 /******/ })()
 ;

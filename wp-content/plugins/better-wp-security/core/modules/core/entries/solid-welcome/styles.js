@@ -6,7 +6,7 @@ import styled from '@emotion/styled';
 /**
  * WordPress dependencies
  */
-import { Modal, Flex } from '@wordpress/components';
+import { Modal } from '@wordpress/components';
 
 /**
  * SolidWP dependencies
@@ -34,10 +34,6 @@ export const StyledWelcomeModal = styled( Modal )`
 	.components-modal__header-heading {
 		font-size: ${ ( { theme } ) => theme.sizes.text.large };
 	}
-`;
-
-export const StyledFlexContainer = styled( Flex )`
-	margin-top: 2.5rem;
 `;
 
 export const StyledLogoBanner = styled( Surface )`
