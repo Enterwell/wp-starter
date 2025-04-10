@@ -33,13 +33,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Install PHP 8.2 to agent
+      - name: Install PHP to agent
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ env.phpVersion }}
           extensions: ${{ env.phpExtensions }}
 
-      - name: Set PHP version to ${{ env.phpVersion }}
+      - name: Set PHP version
         run: |
           sudo update-alternatives --set php /usr/bin/php${{ env.phpVersion }}
           sudo update-alternatives --set phar /usr/bin/phar${{ env.phpVersion }}
@@ -49,7 +49,7 @@ jobs:
           php -version
         shell: bash
 
-      - name: Set Node version to ${{ env.nodeVersion }}
+      - name: Set Node version
         uses: actions/setup-node@v3
         with:
           node-version: ${{ env.nodeVersion }}
