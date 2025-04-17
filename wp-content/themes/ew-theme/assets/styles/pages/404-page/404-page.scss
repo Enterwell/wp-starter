@@ -1,3 +1,19 @@
+// 404 page template
 .page-404 {
+  main {
+    min-height: 100vh;
+    position: relative;
+  }
 
+  // Title
+  &__title {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 20vw !important;
+    line-height: 100%;
+    text-align: center;
+    margin: 64px 0;
+  }
 }

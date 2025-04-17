@@ -1,12 +1,13 @@
 // Define content container class
 // This class defines main container for page content.
+@import '../common/mixins';
 
 %container {
   position: relative;
-  max-width: $max-width-page-container;
+  max-width: var(--wp--custom--layout--wide-size);
   width: 100%;
   margin: auto;
-  padding: 0 $padding-page-container;
+  padding: 0 var(--wp--custom--layout--container-padding);
   box-sizing: border-box;
   overflow: hidden;
 }

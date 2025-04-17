@@ -1,4 +1,4 @@
-<div>
-    <h2><a href="{{ post.link }}">{{ post.post_title }}</a></h2>
-    <p>{{ post.post_excerpt | raw }}</p>
-</div>
+<article>
+	<h2><a href="{{ post.link }}">{{ post.title | raw }}</a></h2>
+	<p>{{ post.excerpt | raw }}</p>
+</article>

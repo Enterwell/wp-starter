@@ -48,6 +48,7 @@ class User_Applications_Controller extends APlugin_Controller {
 			[
 				'methods'  => 'POST',
 				'callback' => [ $this, 'create_user_application' ],
+				'permission_callback' => '__return_true',
 			]
 		);
 	}

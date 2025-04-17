@@ -1,3 +1,8 @@
+// SCSS Mixins
+//
+// Note: most of these mixins can't be used with CSS variables, because CSS variables are resolved at runtime, while
+//       SCSS is precompiled
+
 // Mixin for responsive content, defines min
 // and max width of the screen on which @content styles
 // are applied

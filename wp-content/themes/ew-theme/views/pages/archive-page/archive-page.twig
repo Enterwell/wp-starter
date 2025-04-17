@@ -1,18 +1,15 @@
 {% extends 'base.twig' %}
 
 {% block content %}
-    <main>
-        <div class="c-container">
-            <h1>Archive page</h1>
+	<main>
+		<h1>Archive page</h1>
 
-            Current page: {{ vm.currentPage }}
-            Pages total: {{ vm.pagesTotal }}
-            Posts per page: {{ vm.postsPerPage }}
+		Current page: {{ vm.currentPage }}
+		Pages total: {{ vm.pagesTotal }}
+		Posts per page: {{ vm.postsPerPage }}
 
-            {% for post in vm.posts %}
-                {% include 'pages/archive-page/components/archive-page-item.twig' with {post: post} %}
-            {% endfor %}
-        </div>
-    </main>
-    {% include 'components/common/navbar.twig' %}
+		{% for post in vm.posts %}
+			{% include 'pages/archive-page/components/archive-page-item.twig' with { post } %}
+		{% endfor %}
+	</main>
 {% endblock %}

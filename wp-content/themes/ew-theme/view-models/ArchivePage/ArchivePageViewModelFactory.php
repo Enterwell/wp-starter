@@ -2,36 +2,42 @@
 
 namespace EwStarter;
 
+use WP_Query;
+
 /**
  * Class ArchivePageViewModelFactory
  * @package EwStarter
  */
 class ArchivePageViewModelFactory {
-
 	/**
 	 * Build the view model
 	 *
-	 * @param \WP_Query $wp_query
+	 * @param WP_Query|null $wpQuery
 	 *
 	 * @return ArchivePageViewModel
 	 */
-	public function build( $wp_query ) {
+	public function build( WP_Query $wpQuery = null ): ArchivePageViewModel {
+		if ( ! $wpQuery ) {
+			global $wp_query;
+			$wpQuery = $wp_query;
+		}
+
 		// Create the view model
 		$vm        = new ArchivePageViewModel();
 		$vm->posts = [];
 
 		// Set posts variable from $wp_query
-		foreach ( $wp_query->posts as $post ) {
-			$archive_item = new ArchivePageItem( $post->post_title, $post->post_excerpt, get_permalink( $post ) );
+		foreach ( $wpQuery->posts as $post ) {
+			$archiveItem = new ArchivePageItem( $post->post_title, $post->post_excerpt, get_permalink( $post ) ?: "" );
 
-			$vm->posts[] = $archive_item;
+			$vm->posts[] = $archiveItem;
 		}
 
 		// Paging variables
-		$current_page     = $wp_query->query_vars['paged'];
-		$vm->currentPage  = $current_page > 1 ? $current_page : 1;
-		$vm->pagesTotal   = $wp_query->max_num_pages;
-		$vm->postsPerPage = $wp_query->query_vars['posts_per_page'];
+		$currentPage      = $wpQuery->query_vars['paged'];
+		$vm->currentPage  = max( $currentPage, 1 );
+		$vm->pagesTotal   = $wpQuery->max_num_pages;
+		$vm->postsPerPage = $wpQuery->query_vars['posts_per_page'];
 
 		// Return view model
 		return $vm;

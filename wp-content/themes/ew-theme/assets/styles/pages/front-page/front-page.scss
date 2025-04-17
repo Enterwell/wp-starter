@@ -8,7 +8,7 @@
 
     h1 {
       &.red {
-        color: $color-red;
+        color: var(--wp--preset--color--red-dark);
       }
     }
 

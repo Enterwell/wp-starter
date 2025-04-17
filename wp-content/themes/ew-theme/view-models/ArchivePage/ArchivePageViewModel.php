@@ -2,28 +2,31 @@
 
 namespace EwStarter;
 
+use WP_Post;
+
 /**
  * Class ArchivePageViewModel
  * @package EwStarter
  */
 class ArchivePageViewModel extends BaseViewModel {
+
 	/**
-	 * @var array
+	 * @var WP_Post[]
 	 */
-	public $posts;
+	public array $posts;
 
 	/**
 	 * @var int
 	 */
-	public $currentPage;
+	public int $currentPage;
 
 	/**
 	 * @var int
 	 */
-	public $pagesTotal;
+	public int $pagesTotal;
 
 	/**
 	 * @var int
 	 */
-	public $postsPerPage;
+	public int $postsPerPage;
 }

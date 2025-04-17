@@ -1,30 +1,22 @@
 <!DOCTYPE html>
-<!--[if IE 7]>
-<html class="ie ie7" {{ function('language_attributes') }}>
-<![endif]-->
-<!--[if IE 8]>
-<html class="ie ie8" {{ function('language_attributes') }}>
-<![endif]-->
-<!--[if !(IE 7) & !(IE 8)]><!-->
 <html {{ function('language_attributes') }} class="{{ is_admin_logged_in() ? 'admin-logged-in' : '' }}">
 
     {% include 'components/head.twig' %}
-    {% include 'components/page-loading.twig' %}
 
     <body class="{{ bodyClass|default('') }} ">
+
+	{% include 'components/page-loading.twig' %}
 	{% include 'components/navbar.twig' %}
 
-	{% block content %} {% endblock %}
+	{% block content %}{% endblock %}
 
 	{% block footer %}
 		{% include 'components/footer.twig' %}
 	{% endblock %}
 
 	{# Additional scripts can be added through child templates by overriding this block #}
-	{% block scripts %}
-	{% endblock %}
+	{% block scripts %}{% endblock %}
 
     </body>
-
 </html>
 

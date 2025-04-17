@@ -4,16 +4,13 @@
  *
  */
 
-global $wp_query;
-
-// Create view model factory
-$view_model_factory = new \EwStarter\SearchPageViewModelFactory();
+global $ew_twig;
 
 // Create view model
 $view_model = [
-	'jsFile'   => '',
+	'jsFile'    => '',
 	'bodyClass' => 'search-page',
-	'vm'        => $view_model_factory->build( $wp_query )
+	'vm'        => new \EwStarter\BaseViewModel()
 ];
 
 // Render view

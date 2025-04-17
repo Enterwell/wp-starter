@@ -10,28 +10,28 @@ class ArchivePageItem {
 	/**
 	 * @var string
 	 */
-	public $post_title;
+	public string $title;
 
 	/**
 	 * @var string
 	 */
-	public $post_excerpt;
+	public string $excerpt;
 
 	/**
 	 * @var string
 	 */
-	public $link;
+	public string $link;
 
 	/**
 	 * ArchivePageItem constructor.
 	 *
-	 * @param $title
-	 * @param $excerpt
-	 * @param $link
+	 * @param string $title
+	 * @param string $excerpt
+	 * @param string $link
 	 */
-	public function __construct( $title, $excerpt, $link ) {
-		$this->post_title   = $title;
-		$this->post_excerpt = $excerpt;
-		$this->link         = $link;
+	public function __construct( string $title, string $excerpt, string $link ) {
+		$this->title   = $title;
+		$this->excerpt = $excerpt;
+		$this->link    = $link;
 	}
 }

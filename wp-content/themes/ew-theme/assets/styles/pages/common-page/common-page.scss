@@ -1,9 +1,0 @@
-// All styles common for all pages
-//
-@import "../../common/variables";
-
-$footer-padding: 19rem;
-
-main {
-  min-height: calc(100vh - #{$height-navbar} - #{$footer-padding});
-}

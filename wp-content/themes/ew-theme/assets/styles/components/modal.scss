@@ -12,7 +12,6 @@
   }
 
   // Modal container styles
-  @extend %clearfix;
   position: fixed;
   top: 0;
   left: 0;
@@ -31,7 +30,6 @@
     position: relative;
     min-width: 100vw;
     min-height: 100vh;
-    @extend %clearfix;
   }
 
   // Modal content styles

@@ -1,15 +1,99 @@
-//
-// This file contains all common variables used in whole project.
-//
+// This file contains all common variables used in whole project
+// Variables are usually defined as CSS variables in theme.json, here we're only manipulate with them
+@import 'mixins';
 
-// Page container
-$max-width-page-container: 1440px;
-$padding-page-container: 20px;
-
-// Breakpoints
-$breakpoint-tablet: 768px;
+// We define these here as well as in theme.json just so we can use them in media queries and other SCSS mixins
+$breakpoint-tablet: 834px;
 $breakpoint-mobile: 500px;
 
-// Navbars
-$height-navbar: 60px;
-$height-wp-admin-bar: 32px;
+@include respondBetween(0, $breakpoint-tablet) {
+  :root {
+    --wp--preset--font-size--h-1: 40px;
+    --wp--preset--font-size--h-2: 36px;
+    --wp--preset--font-size--h-3: 28px;
+    --wp--preset--font-size--h-4: 20px;
+    --wp--preset--font-size--h-5: 18px;
+    --wp--preset--font-size--h-6: 16px;
+    --wp--preset--font-size--b-1: 16px;
+    --wp--preset--font-size--b-2: 14px;
+    --wp--preset--font-size--b-3: 12px;
+    --wp--preset--font-size--n-1: 12px;
+    --wp--preset--font-size--sh-1: 16px;
+    --wp--preset--spacing--4: 4px;
+    --wp--preset--spacing--8: 4px;
+    --wp--preset--spacing--12: 8px;
+    --wp--preset--spacing--16: 12px;
+    --wp--preset--spacing--20: 12px;
+    --wp--preset--spacing--24: 16px;
+    --wp--preset--spacing--32: 24px;
+    --wp--preset--spacing--48: 40px;
+    --wp--preset--spacing--64: 56px;
+    --wp--preset--spacing--80: 64px;
+    --wp--preset--spacing--160: 40px;
+    --wp--preset--spacing--240: 48px;
+    --wp--custom--line-height--3-x-small: 12px;
+    --wp--custom--line-height--2-x-small: 16px;
+    --wp--custom--line-height--x-small: 18px;
+    --wp--custom--line-height--small: 24px;
+    --wp--custom--line-height--medium: 24px;
+    --wp--custom--line-height--large: 32px;
+    --wp--custom--line-height--x-large: 36px;
+    --wp--custom--line-height--2-x-large: 48px;
+    --wp--custom--letter-spacing--5-x-small: 0.12px;
+    --wp--custom--letter-spacing--4-x-small: 0.12px;
+    --wp--custom--letter-spacing--3-x-small: 0.14px;
+    --wp--custom--letter-spacing--2-x-small: 0.16px;
+    --wp--custom--letter-spacing--x-small: 0.18px;
+    --wp--custom--letter-spacing--small: 0.28px;
+    --wp--custom--letter-spacing--medium: 0.36px;
+    --wp--custom--letter-spacing--large: 0.4px;
+    --wp--custom--letter-spacing--x-large: 1.92px;
+    --wp--custom--layout--container-padding: 65px;
+  }
+}
+
+@include respondBetween(0, $breakpoint-mobile) {
+  :root {
+    --wp--preset--font-size--h-1: 36px;
+    --wp--preset--font-size--h-2: 32px;
+    --wp--preset--font-size--h-3: 28px;
+    --wp--preset--font-size--h-4: 20px;
+    --wp--preset--font-size--h-5: 18px;
+    --wp--preset--font-size--h-6: 16px;
+    --wp--preset--font-size--b-1: 16px;
+    --wp--preset--font-size--b-2: 14px;
+    --wp--preset--font-size--b-3: 12px;
+    --wp--preset--font-size--n-1: 12px;
+    --wp--preset--font-size--sh-1: 14px;
+    --wp--preset--spacing--4: 4px;
+    --wp--preset--spacing--8: 4px;
+    --wp--preset--spacing--12: 8px;
+    --wp--preset--spacing--16: 12px;
+    --wp--preset--spacing--20: 12px;
+    --wp--preset--spacing--24: 16px;
+    --wp--preset--spacing--32: 24px;
+    --wp--preset--spacing--48: 32px;
+    --wp--preset--spacing--64: 40px;
+    --wp--preset--spacing--80: 48px;
+    --wp--preset--spacing--160: 24px;
+    --wp--preset--spacing--240: 32px;
+    --wp--custom--line-height--3-x-small: 12px;
+    --wp--custom--line-height--2-x-small: 16px;
+    --wp--custom--line-height--x-small: 18px;
+    --wp--custom--line-height--small: 24px;
+    --wp--custom--line-height--medium: 24px;
+    --wp--custom--line-height--large: 28px;
+    --wp--custom--line-height--x-large: 32px;
+    --wp--custom--line-height--2-x-large: 40px;
+    --wp--custom--letter-spacing--5-x-small: 0.12px;
+    --wp--custom--letter-spacing--4-x-small: 0.12px;
+    --wp--custom--letter-spacing--3-x-small: 0.14px;
+    --wp--custom--letter-spacing--2-x-small: 0.16px;
+    --wp--custom--letter-spacing--x-small: 0.18px;
+    --wp--custom--letter-spacing--small: 0.24px;
+    --wp--custom--letter-spacing--medium: 0.32px;
+    --wp--custom--letter-spacing--large: 0.36px;
+    --wp--custom--letter-spacing--x-large: 1.68px;
+    --wp--custom--layout--container-padding: 16px;
+  }
+}

@@ -148,6 +148,14 @@ const config = Encore.getWebpackConfig();
 // TODO: check this later
 if (!Encore.isProduction()) {
   config.output.publicPath = settings.WebpackDevServerSettings.address;
+
+  config.devServer.client = {
+    "overlay": {
+      runtimeErrors: (error) => {
+        return !error.message.includes('ResizeObserver loop');
+      }
+    }
+  }
 }
 
 module.exports = config;

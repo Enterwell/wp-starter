@@ -5,10 +5,10 @@ namespace EwStarter;
 use WP_Post;
 
 /**
- * Class SinglePostViewModel
+ * Class SinglePageViewModel
  * @package EwStarter
  */
-class SinglePostViewModel extends BaseViewModel {
+class SinglePageViewModel extends BaseViewModel {
 	/**
 	 * @var string
 	 */

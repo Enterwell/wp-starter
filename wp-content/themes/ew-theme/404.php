@@ -1,10 +1,9 @@
 <?php
 /**
  * The template for displaying 404 pages (not found)
- *
- * @package WordPress
- * @subpackage Starter_Theme
  */
+
+global $ew_twig;
 
 // Create the view model
 $view_model = [

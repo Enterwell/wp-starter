@@ -10,7 +10,7 @@ class BaseViewModel {
 	/**
 	 * @var MenuViewModel
 	 */
-	public $navigationMenu;
+	public MenuViewModel $navigationMenu;
 
 	/**
 	 * BaseViewModel constructor.

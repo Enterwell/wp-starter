@@ -10,29 +10,14 @@
 // Import styles to normalize default browser styles across different browsers
 @import "common/normalize";
 
-// Import all variables for all styles
-@import "common/variables";
-
-// Import all colors for all styles
-@import "common/colors";
-
-// Import placeholder selectors
-@import "common/placeholders";
-
-// Import mixins
-@import "common/mixins";
-
 // Import core styles
 @import "common/core";
 
-// Import post content styles
-@import "common/post-content";
+// Import all variables for all styles
+@import "common/variables";
 
-// Import button styles
-@import "common/buttons";
-
-// Import fonts
-@import "../fonts/fonts";
+// Import mixins
+@import "common/mixins";
 
 // If same styles are applied to elements across different pages
 // of the project those elements should be labeled as components
@@ -63,11 +48,11 @@
 // should be defined in their respective folders inside of pages folder.
 // Those files are imported here.
 
-// Import styles common to all pages
-@import "pages/common-page/common-page";
-
 // Import home page styles
 @import "pages/home-page/home-page";
+
+// Import home page styles
+@import "pages/archive-page/archive-page";
 
 // Front page styles
 @import "pages/front-page/front-page";
@@ -80,3 +65,6 @@
 
 // Import 404 page styles
 @import "pages/404-page/404-page";
+
+// Import search page styles
+@import "pages/search-page/search-page";
