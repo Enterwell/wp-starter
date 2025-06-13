@@ -25,6 +25,9 @@ class Ew_Blocks {
 
 		// Register block category for project
 		add_filter( 'block_categories_all', [ static::class, 'add_blocks_category' ] );
+
+		// Register block styles
+		self::register_block_styles();
 	}
 
     /**
@@ -294,5 +297,65 @@ class Ew_Blocks {
 		// Gutenberg blocks
 		echo $ew_twig->entry_renderer->renderWebpackScriptTags('gutenberg_admin_blocks');
 		echo $ew_twig->entry_renderer->renderWebpackLinkTags('gutenberg_admin_blocks');
+	}
+
+	/**
+	 * Register custom block styles
+	 *
+	 * @return void
+	 */
+	public static function register_block_styles(): void {
+		register_block_style('core/button', [
+			'name' => 'text',
+			'label' => 'Text',
+		]);
+		register_block_style('core/button', [
+			'name' => 'fill-medium',
+			'label' => 'Fill Medium'
+		]);
+		register_block_style('core/button', [
+			'name' => 'fill-small',
+			'label' => 'Fill Small'
+		]);
+		register_block_style('core/button', [
+			'name' => 'outline-medium',
+			'label' => 'Outline Medium'
+		]);
+		register_block_style('core/button', [
+			'name' => 'outline-small',
+			'label' => 'Outline Small'
+		]);
+		register_block_style('core/button', [
+			'name' => 'text-medium',
+			'label' => 'Text Medium'
+		]);
+		register_block_style('core/button', [
+			'name' => 'text-small',
+			'label' => 'Text Small'
+		]);
+		register_block_style('core/button', [
+			'name' => 'fill-success',
+			'label' => 'Fill Success'
+		]);
+		register_block_style('core/button', [
+			'name' => 'fill-error',
+			'label' => 'Fill Error'
+		]);
+		register_block_style('core/button', [
+			'name' => 'outline-success',
+			'label' => 'Outline Success'
+		]);
+		register_block_style('core/button', [
+			'name' => 'outline-error',
+			'label' => 'Outline Error'
+		]);
+		register_block_style('core/button', [
+			'name' => 'text-success',
+			'label' => 'Text Success'
+		]);
+		register_block_style('core/button', [
+			'name' => 'text-error',
+			'label' => 'Text Error'
+		]);
 	}
 }
