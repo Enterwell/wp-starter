@@ -1,5 +1,5 @@
 import projectManifest from '../manifest.json';
-import {createElement} from '@wordpress/element';
+import {createElement, Fragment} from '@wordpress/element';
 import {useInnerBlocksProps, useBlockProps} from '@wordpress/block-editor';
 
 /**
@@ -59,9 +59,9 @@ class BlockRegistrationHelper {
       save: (hasInnerBlocks
         ? () => {
           const blockProps = useBlockProps.save();
-          const innerBlocksProps = useInnerBlocksProps.save(blockProps);
+          const innerBlocksProps = useInnerBlocksProps.save();
 
-          return createElement(innerBlocksElement, innerBlocksProps);
+          return createElement(innerBlocksElement, blockProps, createElement(Fragment, innerBlocksProps));
         }
         : () => null),
       ...customOptions,

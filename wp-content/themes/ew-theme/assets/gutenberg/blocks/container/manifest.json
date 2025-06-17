@@ -1,0 +1,31 @@
+{
+  "blockName": "container",
+  "category": "ew-starter",
+  "title": "Container",
+  "hasInnerBlocks": true,
+  "keywords": [
+    "container",
+    "group",
+    "wrapper"
+  ],
+  "styles": [],
+  "description": "Groups blocks in a container that sets the max width and alignment of the blocks inside.",
+  "supports": {
+    "align": [
+      "wide",
+      "full"
+    ],
+    "anchor": true,
+    "spacing": {
+      "margin": true,
+      "padding": true
+    }
+  },
+  "icon": "tagcloud",
+  "attributes": {
+    "align": {
+      "type": "string",
+      "default": "wide"
+    }
+  }
+}

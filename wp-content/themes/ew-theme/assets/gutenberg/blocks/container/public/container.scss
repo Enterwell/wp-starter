@@ -1,0 +1,19 @@
+// Container block styles
+.wp-block-ew-starter-container {
+  position: relative;
+  max-width: var(--wp--custom--layout--content-size);
+  width: 100%;
+  margin: auto;
+  padding: 0 var(--wp--custom--layout--container-padding);
+  box-sizing: border-box;
+  overflow: hidden;
+
+  &.alignwide {
+    max-width: var(--wp--custom--layout--wide-size);
+  }
+
+  &.alignfull {
+    max-width: none;
+    padding: 0;
+  }
+}
