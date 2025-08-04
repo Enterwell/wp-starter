@@ -1,0 +1,35 @@
+# Ignore IDE related files
+.vscode
+.idea
+.git
+.github
+
+# Ignore private files
+*.log
+.htaccess
+.svn
+.env
+*.sh
+
+# Ignore some other files
+azure-pipelines.yml
+changelog.md
+README.md
+.gitignore
+.gitattributes
+
+# Plugin files
+plugins/ewplugin/vendor
+plugins/ewplugin/tests/tmp
+plugins/ewplugin/test-*.xml
+plugins/ewplugin/.editorconfig
+plugins/ewplugin/.phpcs.xml.dist
+plugins/ewplugin/phpunit.xml.dist
+
+# Theme files
+node_modules
+themes/ew-theme/assets/dist/*
+themes/ew-theme/vendor
+themes/ew-theme/.editorconfig
+themes/ew-theme/.eslintignore
+themes/ew-theme/.eslintrc

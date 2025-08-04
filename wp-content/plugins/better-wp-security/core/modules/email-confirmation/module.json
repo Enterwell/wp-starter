@@ -1,6 +1,0 @@
-{
-  "id": "email-confirmation",
-  "type": "recommended",
-  "status": "always-active",
-  "title": "Email Confirmation"
-}

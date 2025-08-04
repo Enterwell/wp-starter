@@ -7,25 +7,13 @@
 .htaccess
 .svn
 .env
-sitemap.xml
-sitemap.xml.gz
-wp-config.php
-
-/readme.html
-/license.txt
 
 # Plugin files
-wp-content/plugins/ewplugin/vendor
-wp-content/plugins/ewplugin/tests/tmp
-wp-content/plugins/ewplugin/test-*.xml
+plugins/ewplugin/vendor
+plugins/ewplugin/tests/tmp
+plugins/ewplugin/test-*.xml
 
 # Theme files
 node_modules
-wp-content/themes/ew-theme/assets/dist/*
-wp-content/themes/ew-theme/vendor
-
-# Cache and wp-content files
-wp-content/advanced-cache.php
-wp-content/w3tc-config
-wp-content/cache
-wp-content/uploads
+themes/ew-theme/assets/dist/*
+themes/ew-theme/vendor
