@@ -67,7 +67,7 @@ RUN set -ex; \
     chown -R www-data:www-data /var/www/html
 
 # WP config configuration
-COPY .infra/config/wp-config.php /var/www/html
+COPY --chown="www-data:www-data" --chmod=440 .infra/config/wp-config.php /var/www/html
 
 # Download Wordpress plugins
 RUN set -ex; \
@@ -137,6 +137,9 @@ COPY .infra/config/xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
 # Production setup
 FROM application AS production-setup
 
+# Run as www-data
+USER www-data
+
 # Copy source code
 COPY plugins/ /var/www/html/wp-content/plugins/
 COPY themes/ /var/www/html/wp-content/themes/
@@ -177,6 +180,9 @@ ENV WP_MEMORY_LIMIT=128M
 ENV WP_MAX_MEMORY_LIMIT=256M
 ENV WP_CACHE=false
 
+# Run as root
+USER root
+
 # Set website code location as workdir
 WORKDIR /var/www/html
 
@@ -203,9 +209,12 @@ ENV WP_MEMORY_LIMIT=128M
 ENV WP_MAX_MEMORY_LIMIT=256M
 ENV WP_CACHE=true
 
+# Run as root
+USER root
+
 # Copy source code
-COPY plugins/ /var/www/html/wp-content/plugins/
-COPY themes/ /var/www/html/wp-content/themes/
+COPY --chown="www-data:www-data" plugins/ /var/www/html/wp-content/plugins/
+COPY --chown="www-data:www-data" themes/ /var/www/html/wp-content/themes/
 
 # Other configurations
 COPY .infra/config/sshd_config /etc/ssh/
@@ -221,9 +230,9 @@ RUN rm -rf \
     /var/www/html/wp-content/themes/ew-theme/assets/styles
 
 # Copy installed and built code
-COPY --from=production-setup /var/www/html/wp-content/plugins/ewplugin/vendor /var/www/html/wp-content/plugins/ewplugin/vendor
-COPY --from=production-setup /var/www/html/wp-content/themes/ew-theme/vendor /var/www/html/wp-content/themes/ew-theme/vendor
-COPY --from=production-setup /var/www/html/wp-content/themes/ew-theme/assets/dist /var/www/html/wp-content/themes/ew-theme/assets/dist
+COPY --from=production-setup --chown="www-data:www-data" /var/www/html/wp-content/plugins/ewplugin/vendor /var/www/html/wp-content/plugins/ewplugin/vendor
+COPY --from=production-setup --chown="www-data:www-data" /var/www/html/wp-content/themes/ew-theme/vendor /var/www/html/wp-content/themes/ew-theme/vendor
+COPY --from=production-setup --chown="www-data:www-data" /var/www/html/wp-content/themes/ew-theme/assets/dist /var/www/html/wp-content/themes/ew-theme/assets/dist
 
 # Setup SSH for Azure Portal access only
 RUN echo "root:Docker!" | chpasswd
@@ -258,9 +267,12 @@ ENV WP_MEMORY_LIMIT=128M
 ENV WP_MAX_MEMORY_LIMIT=256M
 ENV WP_CACHE=true
 
+# Run as root
+USER root
+
 # Copy source code
-COPY plugins/ /var/www/html/wp-content/plugins/
-COPY themes/ /var/www/html/wp-content/themes/
+COPY --chown="www-data:www-data" plugins/ /var/www/html/wp-content/plugins/
+COPY --chown="www-data:www-data" themes/ /var/www/html/wp-content/themes/
 
 # Other configurations
 COPY .infra/config/sshd_config /etc/ssh/
@@ -276,9 +288,9 @@ RUN rm -rf \
     /var/www/html/wp-content/themes/ew-theme/assets/styles
 
 # Copy installed and built code
-COPY --from=production-setup /var/www/html/wp-content/plugins/ewplugin/vendor /var/www/html/wp-content/plugins/ewplugin/vendor
-COPY --from=production-setup /var/www/html/wp-content/themes/ew-theme/vendor /var/www/html/wp-content/themes/ew-theme/vendor
-COPY --from=production-setup /var/www/html/wp-content/themes/ew-theme/assets/dist /var/www/html/wp-content/themes/ew-theme/assets/dist
+COPY --from=production-setup --chown="www-data:www-data" /var/www/html/wp-content/plugins/ewplugin/vendor /var/www/html/wp-content/plugins/ewplugin/vendor
+COPY --from=production-setup --chown="www-data:www-data" /var/www/html/wp-content/themes/ew-theme/vendor /var/www/html/wp-content/themes/ew-theme/vendor
+COPY --from=production-setup --chown="www-data:www-data" /var/www/html/wp-content/themes/ew-theme/assets/dist /var/www/html/wp-content/themes/ew-theme/assets/dist
 
 # Setup SSH for Azure Portal access only
 RUN echo "root:Docker!" | chpasswd
