@@ -8,7 +8,10 @@
 .svn
 .env
 .devcontainer/devcontainer.json
-uploads
+
+# Ignore general files
+uploads/*
+!uploads/README.md
 
 # Plugin files
 plugins/ewplugin/vendor

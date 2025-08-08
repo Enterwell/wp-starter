@@ -24,7 +24,8 @@ RUN apt-get update \
 RUN pecl install \
     igbinary \
     imagick \
-    redis
+    redis \
+    xdebug
 
 # Install addiitonal PHP modules with docker-php-ext-install
 RUN docker-php-ext-install \
@@ -118,6 +119,10 @@ RUN composer install --no-interaction --prefer-dist
 # Install yarn packages for theme
 RUN yarn install
 
+# Enable development PHP modules
+RUN docker-php-ext-enable \
+    xdebug
+
 # Supervisor dev configuration
 COPY .infra/config/supervisord.dev.conf /etc/supervisor/conf.d/extra/supervisord.conf
 
@@ -125,6 +130,9 @@ COPY .infra/config/supervisord.dev.conf /etc/supervisor/conf.d/extra/supervisord
 COPY .infra/config/nginx.dev.conf /etc/nginx/sites-available/ssl.template
 COPY .infra/certs/local.crt /etc/nginx/ssl/
 COPY .infra/certs/local.key /etc/nginx/ssl/
+
+# PHP configuration
+COPY .infra/config/xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
 
 # Production setup
 FROM application AS production-setup

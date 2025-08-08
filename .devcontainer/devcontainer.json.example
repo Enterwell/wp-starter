@@ -3,7 +3,6 @@
   "build": {
     "dockerfile": "../Dockerfile",
     "target": "development",
-    "cacheFrom": "enterwell/wp-starter",
     context: ".."
   },
   "runArgs": [
