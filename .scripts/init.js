@@ -7,8 +7,8 @@ import('renamer').then(function (rnm) {
     replace({
         regex: 'EwStarter',
         replacement: config.namespace,
-        paths: ['wp-content/plugins/ewplugin', 'wp-content/themes/ew-theme'],
-        exclude: 'wp-content/plugins/ewplugin/vendor, wp-content/themes/ew-theme/vendor, wp-content/themes/ew-theme/node_modules',
+        paths: ['plugins/ewplugin', 'themes/ew-theme'],
+        exclude: 'plugins/ewplugin/vendor, themes/ew-theme/vendor, themes/ew-theme/node_modules',
         recursive: true
     });
 
@@ -16,7 +16,7 @@ import('renamer').then(function (rnm) {
     replace({
         regex: 'EWPlugin',
         replacement: config.namespace,
-        paths: ['wp-content/plugins/ewplugin'],
+        paths: ['plugins/ewplugin'],
         recursive: true
     });
 
@@ -24,7 +24,7 @@ import('renamer').then(function (rnm) {
     replace({
         regex: '_ew_plugin',
         replacement: '_' + config.pluginNameForFunctions,
-        paths: ['wp-content/plugins/ewplugin'],
+        paths: ['plugins/ewplugin'],
         recursive: true
     });
 
@@ -32,8 +32,8 @@ import('renamer').then(function (rnm) {
     replace({
         regex: 'wp-ew',
         replacement: config.baseRoute,
-        paths: ['wp-content/plugins/ewplugin', 'wp-content/themes/ew-theme'],
-        exclude: 'wp-content/plugins/ewplugin/vendor, wp-content/themes/ew-theme/vendor, wp-content/themes/ew-theme/node_modules',
+        paths: ['plugins/ewplugin', 'themes/ew-theme'],
+        exclude: 'plugins/ewplugin/vendor, themes/ew-theme/vendor, themes/ew-theme/node_modules',
         recursive: true
     });
 
@@ -41,47 +41,47 @@ import('renamer').then(function (rnm) {
     replace({
         regex: 'ew-theme',
         replacement: config.themeNameForFileNames,
-        paths: ['.gitignore', 'azure-pipelines-build.yml', 'azure-pipelines-qa.yml', '.ansible/vars', 'wp-content/themes/ew-theme/theme-config.json']
-    });
-
-    // Replace project name
-    replace({
-        regex: 'wp-starter',
-        replacement: config.themeNameForFileNames,
-        paths: ['.ansible/vars']
+        paths: ['.gitignore', 'azure-pipelines.yml', 'themes/ew-theme/theme-config.json', '.dockerignore', '.infra/config/supervisord.dev.conf', '.infra/docker-entrypoint.sh', 'Dockerfile']
     });
 
     // Replace artifact name in azure-pipelines
     replace({
         regex: 'ewStarter',
         replacement: config.artifactName,
-        paths: ['azure-pipelines-build.yml', 'azure-pipelines-qa.yml']
+        paths: ['azure-pipelines.yml']
     });
 
     // Replace plugin
     replace({
         regex: 'ewplugin',
         replacement: config.pluginNameForFileNames,
-        paths: ['azure-pipelines-build.yml', 'azure-pipelines-qa.yml', '.gitignore', '.ansible/vars']
+        paths: ['azure-pipelines.yml', '.gitignore', '.dockerignore', '.infra/docker-entrypoint.sh', 'Dockerfile']
     });
 
     // Replace plugin name in main/class-plugin.php
     replace({
         regex: 'ew-plugin',
         replacement: config.pluginNameForFileNames,
-        paths: ['wp-content/plugins/ewplugin/main/class-plugin.php']
+        paths: ['plugins/ewplugin/main/class-plugin.php']
+    });
+
+    // Replace plugin name in main/class-di-container.php
+    replace({
+        regex: 'ewstarter',
+        replacement: config.pluginNameForFileNames,
+        paths: ['plugins/htz-plugin/main/class-di-container.php']
     });
 
     // Replace domain
     replace({
-        regex: 'starter.local',
+        regex: 'wp-starter.ew.local',
         replacement: config.webAppServerDomain,
-        paths: ['wp-content/themes/ew-theme/theme-config.json', 'wp-content/themes/ew-theme/package.json', '.ansible/vars']
+        paths: ['themes/ew-theme/theme-config.json', 'themes/ew-theme/package.json', 'Dockerfile']
     });
 
     // Rename plugin in folder and file names
     renamer.rename({
-        files: ['wp-content/plugins/**'],
+        files: ['plugins/**'],
         find: 'ewplugin',
         replace: config.pluginNameForFileNames,
         recursive: true,
@@ -89,7 +89,7 @@ import('renamer').then(function (rnm) {
 
     // Rename theme folder
     renamer.rename({
-        files: ['wp-content/themes/*'],
+        files: ['themes/*'],
         find: 'ew-theme',
         replace: config.themeNameForFileNames
     });

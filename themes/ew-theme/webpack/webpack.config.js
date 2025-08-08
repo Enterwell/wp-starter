@@ -138,6 +138,13 @@ Encore
         '../**/*.php'
       ],
     };
+    options.server = {
+      type: 'https',
+      options: {
+        key: '/etc/nginx/ssl/local.key',
+        cert: '/etc/nginx/ssl/local.crt'
+      }
+    }
     delete options.client;
   })
 ;

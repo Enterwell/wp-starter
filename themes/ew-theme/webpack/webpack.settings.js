@@ -51,7 +51,7 @@ const MY_IP = getLocalIp();
 const WebpackDevServerSettings = {
   port: themeConfig.webpackPort,
   host: '0.0.0.0',
-  address: 'http://' + MY_IP + ':' + themeConfig.webpackPort + '/',
+  address: themeConfig.webAppServerAddress + ':' + themeConfig.webpackPort + '/',
 };
 
 /**
@@ -61,7 +61,7 @@ const WebpackDevServerSettings = {
  * @type {{address: string}}
  */
 const WebAppServerSettings = {
-  address: themeConfig.webAppServerAddress,
+  address: themeConfig.webAppServerAddress + '/',
   themeName: themeConfig.themeName
 };
 

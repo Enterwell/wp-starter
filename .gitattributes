@@ -1,2 +1,2 @@
-wp-content/themes/ew-theme/vendor/* linguist-generated=true
-wp-content/plugins/ewplugin/vendor/* linguist-generated=true
+themes/ew-theme/vendor/* linguist-generated=true
+plugins/ewplugin/vendor/* linguist-generated=true

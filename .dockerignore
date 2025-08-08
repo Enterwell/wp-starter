@@ -17,6 +17,7 @@ changelog.md
 README.md
 .gitignore
 .gitattributes
+uploads
 
 # Plugin files
 plugins/ewplugin/vendor

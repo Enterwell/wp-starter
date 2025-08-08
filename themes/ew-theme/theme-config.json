@@ -1,5 +1,5 @@
 {
   "webpackPort": 10001,
-  "webAppServerAddress": "http://starter.local/",
+  "webAppServerAddress": "https://wp-starter.ew.local",
   "themeName": "ew-theme"
 }

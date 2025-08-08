@@ -15,7 +15,10 @@ RUN apt-get update \
     gettext \
     unzip \
     nginx \
-    supervisor
+    supervisor \
+    dialog \
+    openssh-server \
+    redis-server
 
 # Install additional PHP modules with pecl
 RUN pecl install \
@@ -47,11 +50,11 @@ RUN set -ex; \
     mv wp-cli.phar /usr/local/bin/wp
 
 # Nginx configuration
-COPY .infra/config/nginx.conf /etc/nginx/sites-available/default.template
+COPY .infra/config/nginx.conf /etc/nginx/sites-available/default
 
 # Supervisor configuration
 COPY .infra/config/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-RUN mkdir /etc/supervisor/conf.d/dev
+RUN mkdir /etc/supervisor/conf.d/extra
 
 # Download Wordpress
 RUN set -ex; \
@@ -116,7 +119,12 @@ RUN composer install --no-interaction --prefer-dist
 RUN yarn install
 
 # Supervisor dev configuration
-COPY .infra/config/supervisord.dev.conf /etc/supervisor/conf.d/dev/supervisord.conf
+COPY .infra/config/supervisord.dev.conf /etc/supervisor/conf.d/extra/supervisord.conf
+
+# Nginx SSL dev configuration
+COPY .infra/config/nginx.dev.conf /etc/nginx/sites-available/ssl.template
+COPY .infra/certs/local.crt /etc/nginx/ssl/
+COPY .infra/certs/local.key /etc/nginx/ssl/
 
 # Production setup
 FROM application AS production-setup
@@ -146,12 +154,12 @@ RUN yarn build
 # Development build
 FROM development-setup AS development
 
-ENV EW_DOMAIN_NAME="starter.local"
+ENV EW_DOMAIN_NAME="wp-starter.ew.local"
 ENV EW_DISALLOW_FILE_EDIT=true
 ENV EW_DISALLOW_FILE_MODS=false
 ENV EW_AUTOMATIC_UPDATER_DISABLED=true
 ENV EW_FS_METHOD="direct"
-ENV EW_FORCE_SSL_ADMIN=false
+ENV EW_FORCE_SSL_ADMIN=true
 ENV WP_ENVIRONMENT_TYPE="development"
 ENV WP_DEBUG=true
 ENV WP_DEBUG_DISPLAY=true
@@ -165,7 +173,62 @@ ENV WP_CACHE=false
 WORKDIR /var/www/html
 
 # Expose port
-EXPOSE 80 10001
+EXPOSE 443 10001
+
+# Run entrypoint
+ENTRYPOINT ["docker-entrypoint.sh"]
+
+# Staging build
+FROM base AS staging
+
+ENV EW_DISALLOW_FILE_EDIT=true
+ENV EW_DISALLOW_FILE_MODS=true
+ENV EW_AUTOMATIC_UPDATER_DISABLED=true
+ENV EW_FS_METHOD="ftpext"
+ENV EW_FORCE_SSL_ADMIN=true
+ENV WP_ENVIRONMENT_TYPE="staging"
+ENV WP_DEBUG=false
+ENV WP_DEBUG_DISPLAY=false
+ENV WP_DEBUG_LOG=false
+ENV WP_AUTO_UPDATE_CORE=false
+ENV WP_MEMORY_LIMIT=128M
+ENV WP_MAX_MEMORY_LIMIT=256M
+ENV WP_CACHE=true
+
+# Copy source code
+COPY plugins/ /var/www/html/wp-content/plugins/
+COPY themes/ /var/www/html/wp-content/themes/
+
+# Other configurations
+COPY .infra/config/sshd_config /etc/ssh/
+COPY .infra/config/supervisord.prod.conf /etc/supervisor/conf.d/extra/supervisord.conf
+COPY .infra/config/redis.conf /etc/redis/redis.conf
+
+# Tidy up the source code
+RUN rm -rf \
+    /var/www/html/wp-content/plugins/ewplugin/tests \
+    /var/www/html/wp-content/themes/ew-theme/.scripts \
+    /var/www/html/wp-content/themes/ew-theme/webpack \
+    /var/www/html/wp-content/themes/ew-theme/assets/js \
+    /var/www/html/wp-content/themes/ew-theme/assets/styles
+
+# Copy installed and built code
+COPY --from=production-setup /var/www/html/wp-content/plugins/ewplugin/vendor /var/www/html/wp-content/plugins/ewplugin/vendor
+COPY --from=production-setup /var/www/html/wp-content/themes/ew-theme/vendor /var/www/html/wp-content/themes/ew-theme/vendor
+COPY --from=production-setup /var/www/html/wp-content/themes/ew-theme/assets/dist /var/www/html/wp-content/themes/ew-theme/assets/dist
+
+# Setup SSH for Azure Portal access only
+RUN echo "root:Docker!" | chpasswd
+RUN mkdir /run/sshd
+
+# Links persistent storage folder to Wordpress one
+RUN ln -s /home/uploads /var/www/html/wp-content/uploads
+
+# Set website code location as workdir
+WORKDIR /var/www/html
+
+# Expose port
+EXPOSE 80 2222
 
 # Run entrypoint
 ENTRYPOINT ["docker-entrypoint.sh"]
@@ -191,6 +254,11 @@ ENV WP_CACHE=true
 COPY plugins/ /var/www/html/wp-content/plugins/
 COPY themes/ /var/www/html/wp-content/themes/
 
+# Other configurations
+COPY .infra/config/sshd_config /etc/ssh/
+COPY .infra/config/supervisord.prod.conf /etc/supervisor/conf.d/extra/supervisord.conf
+COPY .infra/config/redis.conf /etc/redis/redis.conf
+
 # Tidy up the source code
 RUN rm -rf \
     /var/www/html/wp-content/plugins/ewplugin/tests \
@@ -204,11 +272,18 @@ COPY --from=production-setup /var/www/html/wp-content/plugins/ewplugin/vendor /v
 COPY --from=production-setup /var/www/html/wp-content/themes/ew-theme/vendor /var/www/html/wp-content/themes/ew-theme/vendor
 COPY --from=production-setup /var/www/html/wp-content/themes/ew-theme/assets/dist /var/www/html/wp-content/themes/ew-theme/assets/dist
 
+# Setup SSH for Azure Portal access only
+RUN echo "root:Docker!" | chpasswd
+RUN mkdir /run/sshd
+
+# Links persistent storage folder to Wordpress one
+RUN ln -s /home/uploads /var/www/html/wp-content/uploads
+
 # Set website code location as workdir
 WORKDIR /var/www/html
 
 # Expose port
-EXPOSE 80
+EXPOSE 80 2222
 
 # Run entrypoint
 ENTRYPOINT ["docker-entrypoint.sh"]

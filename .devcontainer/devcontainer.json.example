@@ -1,0 +1,32 @@
+{
+  "name": "WP Starter DevContainer",
+  "build": {
+    "dockerfile": "../Dockerfile",
+    "target": "development",
+    "cacheFrom": "enterwell/wp-starter",
+    context: ".."
+  },
+  "runArgs": [
+    "--name", "starter",
+    "--network", "local",
+  ],
+  "appPort": ["443:443", "10001:10001"],
+  "containerEnv": {
+    "WP_DB_NAME": "wp_starter",
+    "WP_DB_USER": "root",
+    "WP_DB_HOST": "database"
+  },
+  "mounts": [
+    "source=${localWorkspaceFolder}/themes/ew-theme,target=/var/www/html/wp-content/themes/ew-theme,type=bind",
+    "source=${localWorkspaceFolder}/plugins/ewplugin,target=/var/www/html/wp-content/plugins/ewplugin,type=bind",
+    "source=${localWorkspaceFolder}/uploads,target=/var/www/html/wp-content/uploads,type=bind",
+  ],
+  "workspaceFolder": "/var/www/html",
+  "workspaceMount": "source=devcontainer-scratch,target=/none,type=volume",
+  "overrideCommand": false,
+  "customizations": {
+    "jetbrains": {
+      "backend": "phpstorm"
+    }
+  }
+}
