@@ -53,7 +53,7 @@
 
 ## 📖 Documentation
 
-[Click here](https://enterwellhq.notion.site/README-2494d990896c809b8590f10fa5138c5f) to open documentation hosted on Notion.
+[Click here](https://enterwellhq.notion.site/README-2494d990896c80aeb160d7f23bd47cb7) to open documentation hosted on Notion.
 
 ## 🪪 License
 
