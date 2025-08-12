@@ -86,3 +86,15 @@ done
 ' _ {} +
 
 echo "✅ Replacement & rename completed."
+
+# Save the folder path before changing directory
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
+# Go up one level so we’re no longer inside .init
+cd "$SCRIPT_DIR/.."
+
+# Delete the .init folder after the script exits
+(
+  sleep 1
+  rm -rf "$SCRIPT_DIR"
+) &
