@@ -57,4 +57,4 @@
 
 ## 🪪 License
 
-Project is licensed under [GNU Public License, **GPL v2 (or later)**](license.txt). This is a [requirement by WordPress](https://wordpress.org/about/license/).
+The MIT License (MIT). Please see [LICENSE](./LICENSE) for more information.
