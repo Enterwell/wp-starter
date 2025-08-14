@@ -137,8 +137,8 @@ COPY .infra/config/xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
 # Production setup
 FROM application AS production-setup
 
-# Run as www-data
-USER www-data
+# Run as root
+USER root
 
 # Copy source code
 COPY plugins/ /var/www/html/wp-content/plugins/

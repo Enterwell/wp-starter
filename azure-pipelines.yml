@@ -9,7 +9,7 @@ pool:
   vmImage: ubuntu-latest
 
 steps:
-  - task: Checkout@1
+  - checkout: self
     displayName: 'Checkout source code'
 
   - script: |
@@ -17,9 +17,18 @@ steps:
     displayName: 'Azure Container Registry login'
 
   - task: Docker@2
-    displayName: 'Build and push Docker image'
+    displayName: 'Build Docker image'
     inputs:
+      command: 'build'
       repository: '$(containerRegistryServer)/$(imageName)'
       arguments: '--target $(target)'
+      tags: |
+        latest
+
+  - task: Docker@2
+    displayName: 'Push Docker image'
+    inputs:
+      command: 'push'
+      repository: '$(containerRegistryServer)/$(imageName)'
       tags: |
         latest
